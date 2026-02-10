@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - Cannab'IA</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 24px;
+      }
+      .card {
+        max-width: 380px;
+        border: 1px solid #ddd;
+        padding: 16px;
+        border-radius: 8px;
+      }
+      form {
+        display: grid;
+        gap: 10px;
+      }
+      input,
+      button {
+        padding: 8px;
+      }
+      .error {
+        color: #a00;
+      }
+      .hint {
+        color: #555;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Acesso ao Cannab'IA</h1>
+
+      {% if error %}
+      <p class="error">{{ error }}</p>
+      {% endif %}
+
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+        <label for="username">Usuário</label>
+        <input id="username" name="username" autocomplete="username" required />
+
+        <label for="password">Senha</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <p class="hint">Dev: usuário <b>admin</b>, senha <b>admin123</b>.</p>
+    </div>
+  </body>
+</html>

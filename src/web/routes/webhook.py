@@ -1,6 +1,6 @@
 from flask import Flask
 
-from realtime_notifications import realtime_bp
+from src.api.realtime_notifications import realtime_bp
 
 app = Flask(__name__, template_folder='templates')
 app.register_blueprint(realtime_bp)

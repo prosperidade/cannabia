@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request
-
+from src.api.auth import role_required
 from repositories import message_repository
 
 app = Flask(__name__, template_folder='templates')
 
 
 @app.route('/dashboard', methods=['GET'])
+@role_required('Admin', 'Medico')
 def dashboard():
     sender_filter = request.args.get('sender')
 

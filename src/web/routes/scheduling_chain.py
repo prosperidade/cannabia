@@ -1,13 +1,17 @@
 from flask import Blueprint, redirect, render_template, request, url_for
-
+from src.api.auth import generate_csrf_token, role_required, validate_csrf_from_form
 from services.appointment_service import create_appointment_from_form, list_appointments
 
 scheduling_bp = Blueprint('scheduling', __name__, template_folder='templates')
 
 
 @scheduling_bp.route('/scheduling', methods=['GET', 'POST'])
+@role_required('Admin', 'Medico', 'Atendente')
 def scheduling():
     if request.method == 'POST':
+        if not validate_csrf_from_form():
+            return 'CSRF inválido.', 400
+
         patient_name = request.form.get('patient_name')
         appointment_date = request.form.get('appointment_date')
         try:
@@ -17,7 +21,11 @@ def scheduling():
             return str(exc), 400
 
     appointments = list_appointments()
+
     return render_template('scheduling_dashboard.html', appointments=appointments)
+
+    return render_template('scheduling_dashboard.html', appointments=appointments, csrf_token=generate_csrf_token())
+
 
 
 if __name__ == '__main__':

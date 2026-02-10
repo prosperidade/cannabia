@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from database import db_cursor
+from src.infra.database import db_cursor
 
 
 def run_sql_file(path):

@@ -1,4 +1,4 @@
-from database import db_cursor
+from src.infra.database import db_cursor
 
 
 def ensure_message_tables():

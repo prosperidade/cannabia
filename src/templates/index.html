@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -17,18 +17,26 @@
         text-decoration: none;
         color: #333;
       }
+      button {
+        padding: 6px 10px;
+      }
     </style>
   </head>
   <body>
     <nav>
-      <a href="/realtime">Notificações em Tempo Real</a>
-      <a href="/historico">Histórico de Atendimento</a>
-      <a href="/scheduling">Agendamento de Consultas</a>
+      <a href="/realtime/">Notificações em Tempo Real</a>
+      <a href="/historico/">Histórico de Atendimento</a>
+      <a href="/scheduling/">Agendamento de Consultas</a>
+
+      <form method="POST" action="/logout" style="display: inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <button type="submit">Sair</button>
+      </form>
     </nav>
+
     <h1>Bem-vindo ao Sistema Unificado Cannab'IA</h1>
-    <p>
-      Selecione uma das opções no menu acima para acessar as funcionalidades do
-      sistema.
-    </p>
+    <p>Selecione uma opção no menu acima.</p>
+
+    <p><a href="/whoami">Debug: /whoami</a></p>
   </body>
 </html>
