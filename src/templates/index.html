@@ -11,19 +11,31 @@
         background: #f2f2f2;
         padding: 10px;
         margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
       }
       nav a {
-        margin-right: 20px;
         text-decoration: none;
         color: #333;
+      }
+      .logout-form {
+        margin-left: auto;
+      }
+      .logout-form button {
+        cursor: pointer;
       }
     </style>
   </head>
   <body>
     <nav>
-      <a href="/realtime">Notificações em Tempo Real</a>
-      <a href="/historico">Histórico de Atendimento</a>
-      <a href="/scheduling">Agendamento de Consultas</a>
+      <a href="{{ url_for('realtime.realtime_dashboard') }}">Notificações em Tempo Real</a>
+      <a href="{{ url_for('historico.historico') }}">Histórico de Atendimento</a>
+      <a href="{{ url_for('scheduling.scheduling') }}">Agendamento de Consultas</a>
+      <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit">Sair</button>
+      </form>
     </nav>
     <h1>Bem-vindo ao Sistema Unificado Cannab'IA</h1>
     <p>

@@ -16,6 +16,7 @@
     <h1>Agendamento de Consultas</h1>
 
     <form method="POST" action="/scheduling">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <label for="patient_name">Nome do paciente</label>
       <input id="patient_name" name="patient_name" required />
 

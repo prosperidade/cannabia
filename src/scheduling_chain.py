@@ -1,4 +1,5 @@
 from flask import Blueprint, redirect, render_template, request, url_for
+from flask_login import login_required
 
 from services.appointment_service import create_appointment_from_form, list_appointments
 
@@ -6,6 +7,7 @@ scheduling_bp = Blueprint('scheduling', __name__, template_folder='templates')
 
 
 @scheduling_bp.route('/scheduling', methods=['GET', 'POST'])
+@login_required
 def scheduling():
     if request.method == 'POST':
         patient_name = request.form.get('patient_name')

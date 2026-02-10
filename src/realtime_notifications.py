@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, request
+from flask_login import login_required
 from flask_socketio import SocketIO
 
 from config import VERIFY_TOKEN
+from extensions import csrf
 from services.message_service import handle_message_event, handle_status_event, parse_change
 
 socketio = SocketIO()
@@ -9,6 +11,7 @@ realtime_bp = Blueprint('realtime', __name__, template_folder='templates')
 
 
 @realtime_bp.route('/webhook', methods=['GET', 'POST'])
+@csrf.exempt
 def webhook():
     if request.method == 'GET':
         mode = request.args.get('hub.mode')
@@ -38,5 +41,6 @@ def webhook():
 
 
 @realtime_bp.route('/')
+@login_required
 def realtime_dashboard():
     return render_template('realtime_dashboard.html')
