@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - Cannab'IA</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 420px;
+        margin: 40px auto;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      input {
+        padding: 8px;
+      }
+      .alert {
+        padding: 10px;
+        margin-bottom: 16px;
+        border-radius: 4px;
+      }
+      .warning,
+      .danger {
+        background: #ffe9e9;
+        color: #8f1d1d;
+      }
+      .success {
+        background: #e8ffec;
+        color: #176b2c;
+      }
+      button {
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Acesso ao Cannab'IA</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      <label for="username">Usuário</label>
+      <input id="username" name="username" type="text" required />
+
+      <label for="password">Senha</label>
+      <input id="password" name="password" type="password" required />
+
+      <label>
+        <input type="checkbox" name="remember" />
+        Manter sessão ativa
+      </label>
+
+      <button type="submit">Entrar</button>
+    </form>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request
+from flask_login import login_required
 from flask_socketio import SocketIO
 
 from config import VERIFY_TOKEN
@@ -38,5 +39,6 @@ def webhook():
 
 
 @realtime_bp.route('/')
+@login_required
 def realtime_dashboard():
     return render_template('realtime_dashboard.html')

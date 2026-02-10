@@ -11,6 +11,8 @@ DB_NAME = os.getenv('DB_NAME', 'cannabia')
 
 VERIFY_TOKEN = os.getenv('VERIFY_TOKEN', 'SEU_VERIFY_TOKEN_PADRAO')
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret!')
+APP_AUTH_USERNAME = os.getenv('APP_AUTH_USERNAME', 'admin')
+APP_AUTH_PASSWORD = os.getenv('APP_AUTH_PASSWORD', 'change-me')
 
 META_WHATSAPP_KEY = os.getenv('META_WHATSAPP_KEY')
 WHATSAPP_PHONE_NUMBER_ID = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
