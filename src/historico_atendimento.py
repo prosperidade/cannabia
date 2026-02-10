@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from flask_login import login_required
 
 from repositories import message_repository
 
@@ -6,6 +7,7 @@ historico_bp = Blueprint('historico', __name__, template_folder='templates')
 
 
 @historico_bp.route('/historico', methods=['GET'])
+@login_required
 def historico():
     try:
         message_repository.ensure_message_tables()
