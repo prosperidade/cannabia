@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Agendamento de Consultas - Cannab'IA</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      form { display: grid; gap: 8px; max-width: 420px; margin-bottom: 20px; }
+      input, button { padding: 8px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background-color: #f4f4f4; }
+    </style>
+  </head>
+  <body>
+    <h1>Agendamento de Consultas</h1>
+
+    <form method="POST" action="/scheduling">
+      <label for="patient_name">Nome do paciente</label>
+      <input id="patient_name" name="patient_name" required />
+
+      <label for="appointment_date">Data da consulta (dd/mm/yyyy HH:MM)</label>
+      <input id="appointment_date" name="appointment_date" placeholder="25/12/2026 14:30" required />
+
+      <button type="submit">Agendar</button>
+    </form>
+
+    <h2>Consultas agendadas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Paciente</th>
+          <th>Data da consulta</th>
+          <th>Status</th>
+          <th>Criado em</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if appointments %}
+          {% for appt in appointments %}
+          <tr>
+            <td>{{ appt.id }}</td>
+            <td>{{ appt.patient_name }}</td>
+            <td>{{ appt.appointment_date }}</td>
+            <td>{{ appt.status }}</td>
+            <td>{{ appt.created_at }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="5">Nenhuma consulta cadastrada.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </body>
+</html>
