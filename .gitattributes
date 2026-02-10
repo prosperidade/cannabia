@@ -1,0 +1,15 @@
+# Força diffs textuais em arquivos de código e configuração
+*.py text eol=lf
+*.html text eol=lf
+*.sql text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+requirements.txt text eol=lf
+
+# Binários comuns
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.docx binary
