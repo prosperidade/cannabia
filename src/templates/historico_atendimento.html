@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Histórico de Atendimento - Cannab'IA</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Histórico de Atendimento</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Remetente</th>
+          <th>Nome do Contato</th>
+          <th>Mensagem</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if messages %} {% for msg in messages %}
+        <tr>
+          <td>{{ msg.id }}</td>
+          <td>{{ msg.sender }}</td>
+          <td>{{ msg.contact_name }}</td>
+          <td>{{ msg.message_text }}</td>
+          <td>{{ msg.timestamp }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="5">Nenhum registro encontrado.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<script type="text/javascript">
+  // @ts-nocheck
+  (function () {
+    var barLabels = window.chartLabels;
+    var barCounts = window.chartCounts;
+    var lineLabels = window.lineLabels;
+    var lineData = window.lineData;
+
+    var barCtx = document.getElementById("messagesChart").getContext("2d");
+    var barChartConfig = {
+      type: "bar",
+      data: {
+        labels: barLabels,
+        datasets: [
+          {
+            label: "Quantidade de Mensagens",
+            data: barCounts,
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    };
+    new Chart(barCtx, barChartConfig);
+
+    var lineCtx = document.getElementById("lineChart").getContext("2d");
+    var lineChartConfig = {
+      type: "line",
+      data: {
+        labels: lineLabels,
+        datasets: [
+          {
+            label: "Mensagens por Dia",
+            data: lineData,
+            fill: false,
+            borderColor: "rgba(255, 99, 132, 1)",
+            tension: 0.1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    };
+    new Chart(lineCtx, lineChartConfig);
+  })();
+</script>

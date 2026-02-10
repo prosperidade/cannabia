@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Realtime Dashboard Cannab'IA</title>
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .container {
+        max-width: 900px;
+        margin: auto;
+      }
+      canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+      #notifications {
+        height: 200px;
+        overflow-y: auto;
+        list-style: none;
+        padding: 0;
+      }
+      #notifications li {
+        background: #f2f2f2;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      #summary {
+        background: #e0e0e0;
+        padding: 10px;
+        margin: 20px 0;
+        border-radius: 5px;
+      }
+      #summary p {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Realtime Dashboard - Cannab'IA</h1>
+
+      <!-- Painel de Resumo -->
+      <div id="summary">
+        <p>
+          <strong>Total de Mensagens:</strong> <span id="totalMessages">0</span>
+        </p>
+        <p>
+          <strong>Total de Remetentes:</strong> <span id="totalSenders">0</span>
+        </p>
+      </div>
+
+      <h2>Gráfico de Mensagens por Remetente</h2>
+      <canvas id="realtimeChart"></canvas>
+
+      <h2>Notificações Recentes</h2>
+      <ul id="notifications"></ul>
+    </div>
+
+    <script>
+      var socket = io();
+      var notificationsList = document.getElementById("notifications");
+      var summaryTotal = document.getElementById("totalMessages");
+      var summarySenders = document.getElementById("totalSenders");
+
+      // Objeto para armazenar contagens por remetente
+      var senderCounts = {};
+
+      // Configuração inicial do gráfico
+      var ctx = document.getElementById("realtimeChart").getContext("2d");
+      var realtimeChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Mensagens recebidas",
+              data: [],
+              backgroundColor: "rgba(75, 192, 192, 0.5)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: function (evt, activeElements) {
+            if (activeElements.length > 0) {
+              var index = activeElements[0].index;
+              var sender = realtimeChart.data.labels[index];
+              var count = realtimeChart.data.datasets[0].data[index];
+              alert("Remetente: " + sender + "\nMensagens: " + count);
+            }
+          },
+          scales: { y: { beginAtZero: true } },
+        },
+      });
+
+      // Atualiza o painel de resumo
+      function updateSummary() {
+        var total = 0;
+        for (var key in senderCounts) {
+          total += senderCounts[key];
+        }
+        summaryTotal.innerText = total;
+        summarySenders.innerText = Object.keys(senderCounts).length;
+      }
+
+      // Atualiza o gráfico com os dados atuais
+      function updateChart() {
+        realtimeChart.data.labels = Object.keys(senderCounts);
+        realtimeChart.data.datasets[0].data = Object.values(senderCounts);
+        realtimeChart.update();
+        updateSummary();
+      }
+
+      // Listener para evento "new_message"
+      socket.on("new_message", function (data) {
+        try {
+          var sender = data.entry[0].changes[0].value.messages[0].from;
+          if (!senderCounts[sender]) {
+            senderCounts[sender] = 0;
+          }
+          senderCounts[sender] += 1;
+          updateChart();
+
+          var li = document.createElement("li");
+          li.innerText =
+            "Nova mensagem de " +
+            sender +
+            ": " +
+            data.entry[0].changes[0].value.messages[0].text.body;
+          notificationsList.prepend(li);
+        } catch (err) {
+          console.error("Erro no processamento do evento new_message:", err);
+        }
+      });
+
+      // Listener para evento "status_update"
+      socket.on("status_update", function (data) {
+        var li = document.createElement("li");
+        li.innerText = "Status atualizado: " + JSON.stringify(data);
+        notificationsList.prepend(li);
+      });
+    </script>
+  </body>
+</html>

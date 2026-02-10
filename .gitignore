@@ -1,0 +1,20 @@
+.env
+# Dependencias do Node (se usar JS/React/etc)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python (se usar Python/Django/Flask)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Variaveis de Ambiente (SEGURANÇA)
+.env
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
