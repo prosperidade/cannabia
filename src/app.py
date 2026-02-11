@@ -1,7 +1,8 @@
 import logging
+import secrets
 import time
 
-from flask import Flask, flash, g, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 
 from config import APP_AUTH_PASSWORD, APP_AUTH_USERNAME, SECRET_KEY
@@ -16,6 +17,9 @@ logging.basicConfig(
 
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -77,6 +81,11 @@ def login():
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        csrf_token = request.form.get('csrf_token', '')
+        session_csrf_token = session.get('login_csrf_token')
+        if not session_csrf_token or not csrf_token or not secrets.compare_digest(csrf_token, session_csrf_token):
+            abort(400)
+
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         remember = request.form.get('remember') == 'on'
@@ -88,7 +97,8 @@ def login():
 
         flash('Usuário ou senha inválidos.', 'danger')
 
-    return render_template('login.html')
+    session['login_csrf_token'] = secrets.token_urlsafe(32)
+    return render_template('login.html', csrf_token=session['login_csrf_token'])
 
 
 @app.route('/logout', methods=['POST'])
