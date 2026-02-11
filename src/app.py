@@ -1,7 +1,8 @@
 import logging
+import secrets
 import time
 
-from flask import Flask, flash, g, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 
 from config import APP_AUTH_PASSWORD, APP_AUTH_USERNAME, SECRET_KEY
@@ -16,6 +17,9 @@ logging.basicConfig(
 
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -32,6 +36,30 @@ class AppUser(UserMixin):
 
 AUTH_USER_ID = 'default-user'
 
+
+
+LOGIN_RATE_LIMIT = 5
+LOGIN_RATE_WINDOW_SECONDS = 60
+_login_rate_attempts = {}
+
+
+def _get_client_ip():
+    forwarded_for = request.headers.get('X-Forwarded-For', '')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
+
+def _is_login_rate_limited(client_ip):
+    now = time.time()
+    attempts = _login_rate_attempts.get(client_ip, [])
+    attempts = [attempt for attempt in attempts if now - attempt < LOGIN_RATE_WINDOW_SECONDS]
+    if len(attempts) >= LOGIN_RATE_LIMIT:
+        _login_rate_attempts[client_ip] = attempts
+        return True
+    attempts.append(now)
+    _login_rate_attempts[client_ip] = attempts
+    return False
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -62,6 +90,17 @@ def after_request(response):
         response.status_code,
         elapsed_ms,
     )
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'no-referrer'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://cdn.jsdelivr.net https://cdn.socket.io; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "connect-src 'self';"
+    )
     return response
 
 
@@ -77,6 +116,14 @@ def login():
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        if _is_login_rate_limited(_get_client_ip()):
+            abort(429)
+
+        csrf_token = request.form.get('csrf_token', '')
+        session_csrf_token = session.get('login_csrf_token')
+        if not session_csrf_token or not csrf_token or not secrets.compare_digest(csrf_token, session_csrf_token):
+            abort(400)
+
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         remember = request.form.get('remember') == 'on'
@@ -88,7 +135,8 @@ def login():
 
         flash('Usuário ou senha inválidos.', 'danger')
 
-    return render_template('login.html')
+    session['login_csrf_token'] = secrets.token_urlsafe(32)
+    return render_template('login.html', csrf_token=session['login_csrf_token'])
 
 
 @app.route('/logout', methods=['POST'])
