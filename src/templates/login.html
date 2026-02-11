@@ -48,6 +48,8 @@
     {% endwith %}
 
     <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
       <label for="username">Usuário</label>
       <input id="username" name="username" type="text" required />
 
