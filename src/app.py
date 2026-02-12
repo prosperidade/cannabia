@@ -23,25 +23,24 @@ from flask_login import (
     logout_user,
 )
 
-from config import APP_AUTH_PASSWORD, APP_AUTH_USERNAME, SECRET_KEY
+from src.config import APP_AUTH_PASSWORD, APP_AUTH_USERNAME, SECRET_KEY
 
-# Blueprints existentes (mantidos)
-from src.api.historico_atendimento import historico_bp
-from src.api.realtime_notifications import realtime_bp  # socketio continua no blueprint, mas app.run não usa
-from src.api.scheduling_chain import scheduling_bp
+# Blueprints (agora em src/web/routes)
+from src.web.routes.historico_atendimento import historico_bp
+from src.web.routes.realtime_notifications import realtime_bp, socketio
+from src.web.routes.scheduling_chain import scheduling_bp
 
-from ai.service import CannabIAService
+from src.ai.service import CannabIAService
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 
 def create_app() -> Flask:
-    # IMPORTANTE: template_folder e static_folder apontando para src/templates e src/static
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
-    # Sessão
+    # Sessão / cookies
     app.config["SECRET_KEY"] = SECRET_KEY
-    app.config["SESSION_COOKIE_SECURE"] = False  # local dev
+    app.config["SESSION_COOKIE_SECURE"] = False  # dev local
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
@@ -54,16 +53,15 @@ def create_app() -> Flask:
         def __init__(self, user_id: str):
             self.id = user_id
 
-    AUTH_USER_ID = "admin"  # id fixo para POC
+    AUTH_USER_ID = "admin"  # POC
 
     @login_manager.user_loader
     def load_user(user_id: str):
-        # Flask-Login chama isso em todo request para reconstruir current_user
         if user_id == AUTH_USER_ID:
             return AppUser(AUTH_USER_ID)
         return None
 
-    # Rate limit simples
+    # Rate limit simples (somente login)
     LOGIN_RATE_LIMIT = 10
     LOGIN_RATE_WINDOW_SECONDS = 60
     _login_rate_attempts = {}
@@ -102,12 +100,15 @@ def create_app() -> Flask:
         )
         return response
 
-    # Blueprints
+    # SocketIO (precisa ser inicializado com app aqui)
+    socketio.init_app(app)
+
+    # Blueprints com prefixos (sem conflito de "/")
     app.register_blueprint(realtime_bp, url_prefix="/realtime")
     app.register_blueprint(scheduling_bp, url_prefix="/scheduling")
     app.register_blueprint(historico_bp, url_prefix="/historico")
 
-    # Helpers CSRF (simples, só para forms)
+    # CSRF simples para forms (login/logout)
     def _new_csrf() -> str:
         token = secrets.token_urlsafe(32)
         session["csrf_token"] = token
@@ -118,16 +119,14 @@ def create_app() -> Flask:
         sess_token = session.get("csrf_token", "")
         return bool(sess_token) and bool(form_token) and secrets.compare_digest(form_token, sess_token)
 
-    # Rotas
+    # Rotas principais
     @app.route("/")
     @login_required
     def index():
-        # Gera CSRF para o logout
         return render_template("index.html", csrf_token=_new_csrf())
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
-        # Se já está logado, vai pra home
         if current_user.is_authenticated:
             return redirect(url_for("index"))
 
@@ -136,7 +135,14 @@ def create_app() -> Flask:
                 abort(429)
 
             if not _validate_csrf_from_form():
-                return render_template("login.html", error="CSRF inválido. Recarregue a página.", csrf_token=_new_csrf()), 400
+                return (
+                    render_template(
+                        "login.html",
+                        error="CSRF inválido. Recarregue a página.",
+                        csrf_token=_new_csrf(),
+                    ),
+                    400,
+                )
 
             username = (request.form.get("username") or "").strip()
             password = request.form.get("password") or ""
@@ -146,9 +152,15 @@ def create_app() -> Flask:
                 next_url = request.args.get("next")
                 return redirect(next_url or url_for("index"))
 
-            return render_template("login.html", error="Usuário ou senha inválidos.", csrf_token=_new_csrf()), 401
+            return (
+                render_template(
+                    "login.html",
+                    error="Usuário ou senha inválidos.",
+                    csrf_token=_new_csrf(),
+                ),
+                401,
+            )
 
-        # GET
         return render_template("login.html", csrf_token=_new_csrf())
 
     @app.route("/logout", methods=["POST"])
@@ -157,12 +169,10 @@ def create_app() -> Flask:
         if not _validate_csrf_from_form():
             return "CSRF inválido.", 400
         logout_user()
-        # limpa token
         session.pop("csrf_token", None)
         flash("Logout realizado.", "success")
         return redirect(url_for("login"))
 
-    # Debug: confirma se está logado
     @app.route("/whoami")
     def whoami():
         return jsonify(
@@ -172,7 +182,6 @@ def create_app() -> Flask:
             }
         )
 
-    # Rota de teste AI (mantida)
     @app.route("/ai/test", methods=["POST"])
     @login_required
     def ai_test():
@@ -194,5 +203,5 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    # Para estabilizar login primeiro: usar app.run
-    app.run(port=5000, debug=True)
+    # Rodar com socketio para realtime funcionar
+    socketio.run(app, port=5000, debug=True)

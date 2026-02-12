@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
-from src.api.auth import role_required
-from repositories import message_repository
+from src.web.routes.auth import role_required
+from src.repositories import message_repository
 
 historico_bp = Blueprint('historico', __name__, template_folder='templates')
 

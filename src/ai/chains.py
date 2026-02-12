@@ -7,8 +7,8 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from pydantic import ValidationError
 
-from ai.schemas import ClinicalAnalysis, TreatmentPlan, ScientificReport
-from ai.prompts import (
+from src.ai.schemas import ClinicalAnalysis, TreatmentPlan, ScientificReport
+from src.ai.prompts import (
     ANAMNESIS_PROMPT,
     TREATMENT_PLAN_PROMPT,
     SCIENTIFIC_REPORT_PROMPT,

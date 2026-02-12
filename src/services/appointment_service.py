@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from repositories import appointment_repository
+from src.repositories import appointment_repository
 
 
 def create_appointment_from_form(patient_name, appointment_date):

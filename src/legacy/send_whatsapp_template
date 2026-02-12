@@ -1,6 +1,0 @@
-from src.whatsapp_utils import send_whatsapp_template
-
-# Após inserir o alerta no banco, envie uma notificação
-recipient_phone = "5562982810427"  # ou o número do paciente que deseja notificar
-result = send_whatsapp_template(recipient_phone)
-print("Notificação enviada:", result)

@@ -2,7 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from config import DOCTOR_EMAIL, EMAIL_FROM, EMAIL_PASSWORD
+from src.config import DOCTOR_EMAIL, EMAIL_FROM, EMAIL_PASSWORD
 
 
 def send_email_notification(subject, message, to_email=None):

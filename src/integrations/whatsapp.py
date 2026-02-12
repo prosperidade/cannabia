@@ -1,6 +1,6 @@
 import requests
 
-from config import META_WHATSAPP_KEY, RECIPIENT_PHONE, WHATSAPP_PHONE_NUMBER_ID
+from src.config import META_WHATSAPP_KEY, RECIPIENT_PHONE, WHATSAPP_PHONE_NUMBER_ID
 
 
 def send_whatsapp_template(recipient_phone=None, template_name='hello_world', language_code='en_US'):

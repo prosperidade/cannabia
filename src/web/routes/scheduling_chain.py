@@ -1,6 +1,10 @@
 from flask import Blueprint, redirect, render_template, request, url_for
-from src.api.auth import generate_csrf_token, role_required, validate_csrf_from_form
-from services.appointment_service import create_appointment_from_form, list_appointments
+from src.web.routes.auth import generate_csrf_token, role_required, validate_csrf_from_form
+from src.services.appointment_service import (
+    create_appointment_from_form,
+    list_appointments,
+)
+
 
 scheduling_bp = Blueprint('scheduling', __name__, template_folder='templates')
 

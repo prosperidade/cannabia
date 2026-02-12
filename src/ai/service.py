@@ -3,8 +3,8 @@ from typing import Dict, Any
 
 from pydantic import ValidationError
 
-from ai.schemas import AnamnesisInput
-from ai.pipeline import CannabIAPipeline
+from src.ai.schemas import AnamnesisInput
+from src.ai.pipeline import CannabIAPipeline
 
 
 logger = logging.getLogger("cannabia.ai")

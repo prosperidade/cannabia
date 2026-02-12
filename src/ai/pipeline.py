@@ -1,10 +1,10 @@
-from ai.schemas import (
+from src.ai.schemas import (
     AnamnesisInput,
     ClinicalAnalysis,
     TreatmentPlan,
     ScientificReport,
 )
-from ai.chains import (
+from src.ai.chains import (
     run_clinical_analysis,
     run_treatment_plan,
     run_scientific_report,

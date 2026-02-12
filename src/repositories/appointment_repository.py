@@ -17,7 +17,7 @@ def ensure_appointments_table():
         connection.commit()
 
 
-def create_appointment(patient_name, appointment_date, status='Agendada'):
+def create_appointment(patient_name, appointment_date, status="Agendada"):
     with db_cursor() as (connection, cursor):
         cursor.execute(
             "INSERT INTO appointments (patient_name, appointment_date, status) VALUES (%s, %s, %s)",
@@ -28,5 +28,5 @@ def create_appointment(patient_name, appointment_date, status='Agendada'):
 
 def list_appointments():
     with db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute('SELECT * FROM appointments ORDER BY appointment_date DESC')
+        cursor.execute("SELECT * FROM appointments ORDER BY appointment_date DESC")
         return cursor.fetchall()
