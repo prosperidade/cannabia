@@ -1,6 +1,8 @@
+# src/app.py
 import logging
 import secrets
 import time
+import uuid
 
 from flask import (
     Flask,
@@ -23,76 +25,91 @@ from flask_login import (
     logout_user,
 )
 
-from src.config import APP_AUTH_PASSWORD, APP_AUTH_USERNAME, SECRET_KEY
+from src.infra.logging import setup_logging
+from src.config import SECRET_KEY, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_S
 
-# Blueprints (agora em src/web/routes)
+from src.web.routes.auth import limit_or_429, generate_csrf_token, validate_csrf_from_form
+
+# Blueprints
 from src.web.routes.historico_atendimento import historico_bp
 from src.web.routes.realtime_notifications import realtime_bp, socketio
 from src.web.routes.scheduling_chain import scheduling_bp
+from src.web.routes.dashboard import dashboard_bp
+from src.web.routes.ai_admin import ai_admin_bp
 
 from src.ai.service import CannabIAService
+from src.repositories.user_repository import get_user_by_username, get_user_by_id, verify_password
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+
+class AppUser(UserMixin):
+    def __init__(self, user_id: int, username: str, role: str):
+        self.id = str(user_id)
+        self.username = username
+        self.role = role
 
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
-    # Sessão / cookies
-    app.config["SECRET_KEY"] = SECRET_KEY
-    app.config["SESSION_COOKIE_SECURE"] = False  # dev local
+    # Logging estruturado (seu)
+    setup_logging()
+
+    # ==============================
+    # CONFIG
+    # ==============================
+    app.config["SECRET_KEY"] = SECRET_KEY or "dev-secret-key-fallback"
+    app.config["SESSION_COOKIE_SECURE"] = False  # local dev
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024  # 1MB
 
-    # Login manager
+    # ==============================
+    # LOGIN MANAGER
+    # ==============================
     login_manager = LoginManager()
     login_manager.login_view = "login"
     login_manager.init_app(app)
 
-    class AppUser(UserMixin):
-        def __init__(self, user_id: str):
-            self.id = user_id
-
-    AUTH_USER_ID = "admin"  # POC
-
     @login_manager.user_loader
     def load_user(user_id: str):
-        if user_id == AUTH_USER_ID:
-            return AppUser(AUTH_USER_ID)
-        return None
+        try:
+            uid = int(user_id)
+        except Exception:
+            return None
 
-    # Rate limit simples (somente login)
-    LOGIN_RATE_LIMIT = 10
-    LOGIN_RATE_WINDOW_SECONDS = 60
-    _login_rate_attempts = {}
+        user = get_user_by_id(uid)
+        if not user:
+            return None
 
-    def _get_client_ip() -> str:
-        forwarded_for = request.headers.get("X-Forwarded-For", "")
-        if forwarded_for:
-            return forwarded_for.split(",")[0].strip()
-        return request.remote_addr or "unknown"
+        return AppUser(
+            user_id=user["id"],
+            username=user["username"],
+            role=user["role"],
+        )
 
-    def _is_login_rate_limited(client_ip: str) -> bool:
-        now = time.time()
-        attempts = _login_rate_attempts.get(client_ip, [])
-        attempts = [t for t in attempts if now - t < LOGIN_RATE_WINDOW_SECONDS]
-        if len(attempts) >= LOGIN_RATE_LIMIT:
-            _login_rate_attempts[client_ip] = attempts
-            return True
-        attempts.append(now)
-        _login_rate_attempts[client_ip] = attempts
-        return False
-
-    # Request log
+    # ==============================
+    # REQUEST LOG / CONTEXTO
+    # ==============================
     @app.before_request
     def before_request():
         g._request_start = time.time()
+        g.request_id = str(uuid.uuid4())
+
+        # facilita auditoria
+        if current_user.is_authenticated:
+            g.user_id = getattr(current_user, "id", None)
+        else:
+            g.user_id = None
 
     @app.after_request
     def after_request(response):
         elapsed_ms = int((time.time() - g.get("_request_start", time.time())) * 1000)
+
         logging.info(
-            "request path=%s method=%s status=%s elapsed_ms=%s",
+            "request_id=%s path=%s method=%s status=%s elapsed_ms=%s",
+            getattr(g, "request_id", None),
             request.path,
             request.method,
             response.status_code,
@@ -100,26 +117,40 @@ def create_app() -> Flask:
         )
         return response
 
-    # SocketIO (precisa ser inicializado com app aqui)
+    # ==============================
+    # SOCKETIO
+    # ==============================
     socketio.init_app(app)
 
-    # Blueprints com prefixos (sem conflito de "/")
+    # ==============================
+    # BLUEPRINTS
+    # ==============================
     app.register_blueprint(realtime_bp, url_prefix="/realtime")
     app.register_blueprint(scheduling_bp, url_prefix="/scheduling")
     app.register_blueprint(historico_bp, url_prefix="/historico")
+    app.register_blueprint(dashboard_bp)     # /dashboard, /ai-audit
+    app.register_blueprint(ai_admin_bp)      # rotas administrativas IA (seu blueprint)
 
-    # CSRF simples para forms (login/logout)
+    # ==============================
+    # CSRF helpers (compatível com seu template atual)
+    # ==============================
     def _new_csrf() -> str:
-        token = secrets.token_urlsafe(32)
+        # mantém seu nome antigo csrf_token, mas usa o mecanismo oficial do auth.py
+        token = generate_csrf_token()
         session["csrf_token"] = token
         return token
 
-    def _validate_csrf_from_form() -> bool:
-        form_token = request.form.get("csrf_token", "")
-        sess_token = session.get("csrf_token", "")
-        return bool(sess_token) and bool(form_token) and secrets.compare_digest(form_token, sess_token)
+    def _validate_csrf_from_form_compat() -> bool:
+        # aceita tanto csrf_token quanto _csrf_token
+        sent = request.form.get("csrf_token")
+        if sent is not None:
+            expected = session.get("csrf_token")
+            return bool(sent and expected and secrets.compare_digest(sent, expected))
+        return validate_csrf_from_form()
 
-    # Rotas principais
+    # ==============================
+    # ROTAS
+    # ==============================
     @app.route("/")
     @login_required
     def index():
@@ -131,45 +162,41 @@ def create_app() -> Flask:
             return redirect(url_for("index"))
 
         if request.method == "POST":
-            if _is_login_rate_limited(_get_client_ip()):
-                abort(429)
+            # rate limit por IP
+            limit_or_429("login", LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_S)
 
-            if not _validate_csrf_from_form():
+            if not _validate_csrf_from_form_compat():
                 return (
-                    render_template(
-                        "login.html",
-                        error="CSRF inválido. Recarregue a página.",
-                        csrf_token=_new_csrf(),
-                    ),
+                    render_template("login.html", error="CSRF inválido. Recarregue a página.", csrf_token=_new_csrf()),
                     400,
                 )
 
             username = (request.form.get("username") or "").strip()
             password = request.form.get("password") or ""
 
-            if username == APP_AUTH_USERNAME and password == APP_AUTH_PASSWORD:
-                login_user(AppUser(AUTH_USER_ID))
+            user = get_user_by_username(username)
+            if user and verify_password(password, user["password_hash"]):
+                login_user(AppUser(user_id=user["id"], username=user["username"], role=user["role"]))
                 next_url = request.args.get("next")
                 return redirect(next_url or url_for("index"))
 
             return (
-                render_template(
-                    "login.html",
-                    error="Usuário ou senha inválidos.",
-                    csrf_token=_new_csrf(),
-                ),
+                render_template("login.html", error="Usuário ou senha inválidos.", csrf_token=_new_csrf()),
                 401,
             )
 
+        # GET
         return render_template("login.html", csrf_token=_new_csrf())
 
     @app.route("/logout", methods=["POST"])
     @login_required
     def logout():
-        if not _validate_csrf_from_form():
+        if not _validate_csrf_from_form_compat():
             return "CSRF inválido.", 400
+
         logout_user()
         session.pop("csrf_token", None)
+        session.pop("_csrf_token", None)
         flash("Logout realizado.", "success")
         return redirect(url_for("login"))
 
@@ -179,6 +206,7 @@ def create_app() -> Flask:
             {
                 "authenticated": bool(current_user.is_authenticated),
                 "user_id": getattr(current_user, "id", None),
+                "role": getattr(current_user, "role", None),
             }
         )
 
@@ -194,8 +222,10 @@ def create_app() -> Flask:
         try:
             result = service.process_patient_case(data)
             return jsonify(result), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception:
+            return jsonify({"error": "Erro interno no processamento clínico."}), 500
 
     return app
 
@@ -203,5 +233,4 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    # Rodar com socketio para realtime funcionar
     socketio.run(app, port=5000, debug=True)

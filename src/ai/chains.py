@@ -1,11 +1,12 @@
+# src/ai/chains.py
+
 import os
 import json
-from typing import Any
-
+import time
+from typing import Tuple, Type
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
+from openai import OpenAI
 
 from src.ai.schemas import ClinicalAnalysis, TreatmentPlan, ScientificReport
 from src.ai.prompts import (
@@ -14,79 +15,77 @@ from src.ai.prompts import (
     SCIENTIFIC_REPORT_PROMPT,
 )
 
-# ==========================
-# Carrega .env corretamente
-# ==========================
 load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-if not OPENAI_API_KEY:
-    raise RuntimeError("OPENAI_API_KEY não encontrada no ambiente.")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# ==========================
-# Modelo LLM
-# ==========================
-llm = ChatOpenAI(
-    model="gpt-4o-mini",
-    temperature=0,
-    api_key=OPENAI_API_KEY,
-)
+MODEL_NAME = "gpt-4o-mini"
 
-# ==========================
-# Executor com validação
-# ==========================
-def _run_and_validate(prompt_template: str, schema_model, **kwargs) -> Any:
-    """
-    Executa o modelo, força JSON e valida com Pydantic.
-    """
 
-    prompt = ChatPromptTemplate.from_template(prompt_template)
-    chain = prompt | llm
+def _run_model(prompt: str) -> Tuple[str, dict]:
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        temperature=0,
+        messages=[
+            {"role": "system", "content": "Responda apenas com JSON válido."},
+            {"role": "user", "content": prompt},
+        ],
+    )
 
-    response = chain.invoke(kwargs)
-    raw_output = response.content.strip()
+    content = response.choices[0].message.content
+
+    usage = response.usage
+
+    return content, {
+        "input_tokens": usage.prompt_tokens,
+        "output_tokens": usage.completion_tokens,
+        "total_tokens": usage.total_tokens,
+    }
+
+
+def _run_and_validate(
+    prompt_template: str,
+    schema_model: Type[BaseModel],
+    **kwargs,
+):
+    prompt = prompt_template.format(**kwargs)
+
+    raw_output, tokens = _run_model(prompt)
 
     try:
         parsed_json = json.loads(raw_output)
-    except json.JSONDecodeError as e:
-        raise ValueError(
-            f"Resposta do modelo não é JSON válido:\n{raw_output}"
-        ) from e
+    except json.JSONDecodeError:
+        raise ValueError(f"Modelo retornou JSON inválido:\n{raw_output}")
 
     try:
         validated = schema_model(**parsed_json)
     except ValidationError as e:
-        raise ValueError(
-            f"JSON não corresponde ao schema esperado:\n{e}"
-        ) from e
+        raise ValueError(f"JSON não corresponde ao schema:\n{e}")
 
-    return validated
+    return validated, tokens
 
 
-# ==============================
-# CHAINS DO PIPELINE
-# ==============================
+def run_clinical_analysis(**patient_data):
+    for k, v in patient_data.items():
+        if isinstance(v, list):
+            patient_data[k] = "\n".join([f"- {x}" for x in v])
+        else:
+            patient_data[k] = str(v)
 
-def run_clinical_analysis(**patient_data) -> ClinicalAnalysis:
-    return _run_and_validate(
-        ANAMNESIS_PROMPT,
-        ClinicalAnalysis,
-        **patient_data
-    )
+    return _run_and_validate(ANAMNESIS_PROMPT, ClinicalAnalysis, **patient_data)
 
 
-def run_treatment_plan(clinical_analysis: ClinicalAnalysis) -> TreatmentPlan:
+def run_treatment_plan(clinical_analysis: ClinicalAnalysis):
     return _run_and_validate(
         TREATMENT_PLAN_PROMPT,
         TreatmentPlan,
-        clinical_analysis=clinical_analysis.model_dump_json()
+        clinical_analysis=clinical_analysis.model_dump_json(),
     )
 
 
-def run_scientific_report(treatment_plan: TreatmentPlan) -> ScientificReport:
+def run_scientific_report(treatment_plan: TreatmentPlan):
     return _run_and_validate(
         SCIENTIFIC_REPORT_PROMPT,
         ScientificReport,
-        treatment_plan=treatment_plan.model_dump_json()
+        treatment_plan=treatment_plan.model_dump_json(),
     )
-

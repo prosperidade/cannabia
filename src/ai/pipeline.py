@@ -1,3 +1,5 @@
+# src/ai/pipeline.py
+
 from src.ai.schemas import (
     AnamnesisInput,
     ClinicalAnalysis,
@@ -23,7 +25,7 @@ class CannabIAPipeline:
         # =========================
         # ETAPA 1 – Análise Clínica
         # =========================
-        clinical_analysis: ClinicalAnalysis = run_clinical_analysis(
+        clinical_analysis, tokens_1 = run_clinical_analysis(
             patient_name=anamnesis_data.patient_name,
             age=anamnesis_data.age,
             main_complaint=anamnesis_data.main_complaint,
@@ -36,15 +38,23 @@ class CannabIAPipeline:
         # =========================
         # ETAPA 2 – Plano Terapêutico
         # =========================
-        treatment_plan: TreatmentPlan = run_treatment_plan(clinical_analysis)
+        treatment_plan, tokens_2 = run_treatment_plan(clinical_analysis)
 
         # =========================
         # ETAPA 3 – Relatório Científico
         # =========================
-        scientific_report: ScientificReport = run_scientific_report(treatment_plan)
+        scientific_report, tokens_3 = run_scientific_report(treatment_plan)
+
+        # soma tokens
+        token_usage = {
+            "input": (tokens_1["input_tokens"] + tokens_2["input_tokens"] + tokens_3["input_tokens"]),
+            "output": (tokens_1["output_tokens"] + tokens_2["output_tokens"] + tokens_3["output_tokens"]),
+            "total": (tokens_1["total_tokens"] + tokens_2["total_tokens"] + tokens_3["total_tokens"]),
+        }
 
         return {
-            "clinical_analysis": clinical_analysis.dict(),
-            "treatment_plan": treatment_plan.dict(),
-            "scientific_report": scientific_report.dict(),
+            "clinical_analysis": clinical_analysis.model_dump(),
+            "treatment_plan": treatment_plan.model_dump(),
+            "scientific_report": scientific_report.model_dump(),
+            "token_usage": token_usage,
         }

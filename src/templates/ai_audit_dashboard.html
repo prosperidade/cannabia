@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <title>AI Auditoria</title>
+  </head>
+  <body>
+    <h1>Auditoria da IA</h1>
+
+    <h2>Resumo</h2>
+    <ul>
+      <li>Total execuções: {{ summary.total or 0 }}</li>
+      <li>Sucessos: {{ summary.success_count or 0 }}</li>
+      <li>Erros: {{ summary.error_count or 0 }}</li>
+      <li>Bloqueios segurança: {{ summary.blocked_count or 0 }}</li>
+      <li>Tempo médio (ms): {{ summary.avg_time_ms or 0 }}</li>
+    </ul>
+
+    <h2>Últimos Logs</h2>
+    <table border="1" cellpadding="5">
+      <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Modelo</th>
+        <th>Tempo (ms)</th>
+        <th>Data</th>
+      </tr>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.id }}</td>
+        <td>{{ log.status }}</td>
+        <td>{{ log.model }}</td>
+        <td>{{ log.total_time_ms }}</td>
+        <td>{{ log.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

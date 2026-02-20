@@ -1,0 +1,31 @@
+<h2>Painel Executivo de IA</h2>
+
+<p><strong>Total Requests:</strong> {{ total_requests }}</p>
+<p><strong>Total Tokens:</strong> {{ total_tokens }}</p>
+<p><strong>Custo Total (USD):</strong> {{ total_cost }}</p>
+<p><strong>Custo Médio por Request (USD):</strong> {{ avg_cost }}</p>
+
+<hr />
+
+<h3>Logs Recentes</h3>
+
+<table border="1" cellpadding="6">
+  <tr>
+    <th>ID</th>
+    <th>Paciente</th>
+    <th>Status</th>
+    <th>Tokens</th>
+    <th>Custo (USD)</th>
+    <th>Data</th>
+  </tr>
+  {% for log in recent_logs %}
+  <tr>
+    <td>{{ log.id }}</td>
+    <td>{{ log.patient_id }}</td>
+    <td>{{ log.status }}</td>
+    <td>{{ log.total_tokens }}</td>
+    <td>{{ log.estimated_cost_usd }}</td>
+    <td>{{ log.created_at }}</td>
+  </tr>
+  {% endfor %}
+</table>

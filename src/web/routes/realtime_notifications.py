@@ -2,7 +2,8 @@ from flask import Blueprint, abort, render_template, request
 from flask_socketio import SocketIO
 from flask_login import current_user
 
-from src.web.routes.auth import limit_or_429, role_required
+from src.web.routes.auth import limit_or_429
+from src.infra.security import role_required
 from src.config import (
     MAX_CONTENT_LENGTH,
     VERIFY_TOKEN,
