@@ -1,11 +1,12 @@
 # src/repositories/ai_audit_repository.py
 
 import json
+from flask import g
 from src.infra.database import db_cursor
 
 
 # =====================================================
-# INSERT AUDIT LOG
+# INSERT AUDIT LOG (MULTI-TENANT SEGURO)
 # =====================================================
 def save_ai_audit_log(
     patient_id,
@@ -29,12 +30,17 @@ def save_ai_audit_log(
     estimated_cost_usd,
 ):
 
+    clinic_id = getattr(g, "clinic_id", None)
+    if clinic_id is None:
+        raise RuntimeError("clinic_id não encontrado no contexto da request")
+
     with db_cursor() as (connection, cursor):
 
         cursor.execute(
             """
             INSERT INTO ai_audit_logs (
                 patient_id,
+                clinic_id,
                 request_id,
                 user_id,
                 endpoint,
@@ -54,10 +60,11 @@ def save_ai_audit_log(
                 total_time_ms,
                 estimated_cost_usd
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 patient_id,
+                clinic_id,
                 request_id,
                 user_id,
                 endpoint,
@@ -85,9 +92,13 @@ def save_ai_audit_log(
 
 
 # =====================================================
-# SUMMARY PARA DASHBOARD
+# SUMMARY PARA DASHBOARD (FILTRADO POR CLÍNICA)
 # =====================================================
 def get_ai_audit_summary():
+
+    clinic_id = getattr(g, "clinic_id", None)
+    if clinic_id is None:
+        raise RuntimeError("clinic_id não encontrado no contexto da request")
 
     with db_cursor(dictionary=True) as (_, cursor):
 
@@ -99,7 +110,9 @@ def get_ai_audit_summary():
                 SUM(estimated_cost_usd) as total_cost_usd
             FROM ai_audit_logs
             WHERE status = 'success'
-            """
+              AND clinic_id = %s
+            """,
+            (clinic_id,),
         )
 
         result = cursor.fetchone()
@@ -112,9 +125,13 @@ def get_ai_audit_summary():
 
 
 # =====================================================
-# LOGS RECENTES PARA DASHBOARD
+# LOGS RECENTES PARA DASHBOARD (FILTRADO POR CLÍNICA)
 # =====================================================
 def get_recent_ai_logs(limit=10):
+
+    clinic_id = getattr(g, "clinic_id", None)
+    if clinic_id is None:
+        raise RuntimeError("clinic_id não encontrado no contexto da request")
 
     with db_cursor(dictionary=True) as (_, cursor):
 
@@ -128,10 +145,11 @@ def get_recent_ai_logs(limit=10):
                 estimated_cost_usd,
                 created_at
             FROM ai_audit_logs
+            WHERE clinic_id = %s
             ORDER BY id DESC
             LIMIT %s
             """,
-            (limit,),
+            (clinic_id, limit),
         )
 
         return cursor.fetchall()

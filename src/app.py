@@ -1,4 +1,6 @@
 # src/app.py
+
+from src.tenancy import init_tenancy
 import logging
 import secrets
 import time
@@ -38,7 +40,11 @@ from src.web.routes.dashboard import dashboard_bp
 from src.web.routes.ai_admin import ai_admin_bp
 
 from src.ai.service import CannabIAService
-from src.repositories.user_repository import get_user_by_username, get_user_by_id, verify_password
+from src.repositories.user_repository import (
+    get_user_by_username,
+    get_user_by_id,
+    verify_password,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
@@ -53,17 +59,20 @@ class AppUser(UserMixin):
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
-    # Logging estruturado (seu)
+    # 🔐 Multi-tenant
+    init_tenancy(app)
+
+    # Logging estruturado
     setup_logging()
 
     # ==============================
     # CONFIG
     # ==============================
     app.config["SECRET_KEY"] = SECRET_KEY or "dev-secret-key-fallback"
-    app.config["SESSION_COOKIE_SECURE"] = False  # local dev
+    app.config["SESSION_COOKIE_SECURE"] = False
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024  # 1MB
+    app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
 
     # ==============================
     # LOGIN MANAGER
@@ -97,7 +106,6 @@ def create_app() -> Flask:
         g._request_start = time.time()
         g.request_id = str(uuid.uuid4())
 
-        # facilita auditoria
         if current_user.is_authenticated:
             g.user_id = getattr(current_user, "id", None)
         else:
@@ -128,20 +136,18 @@ def create_app() -> Flask:
     app.register_blueprint(realtime_bp, url_prefix="/realtime")
     app.register_blueprint(scheduling_bp, url_prefix="/scheduling")
     app.register_blueprint(historico_bp, url_prefix="/historico")
-    app.register_blueprint(dashboard_bp)     # /dashboard, /ai-audit
-    app.register_blueprint(ai_admin_bp)      # rotas administrativas IA (seu blueprint)
+    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(ai_admin_bp)
 
     # ==============================
-    # CSRF helpers (compatível com seu template atual)
+    # CSRF HELPERS
     # ==============================
     def _new_csrf() -> str:
-        # mantém seu nome antigo csrf_token, mas usa o mecanismo oficial do auth.py
         token = generate_csrf_token()
         session["csrf_token"] = token
         return token
 
     def _validate_csrf_from_form_compat() -> bool:
-        # aceita tanto csrf_token quanto _csrf_token
         sent = request.form.get("csrf_token")
         if sent is not None:
             expected = session.get("csrf_token")
@@ -162,12 +168,15 @@ def create_app() -> Flask:
             return redirect(url_for("index"))
 
         if request.method == "POST":
-            # rate limit por IP
             limit_or_429("login", LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_S)
 
             if not _validate_csrf_from_form_compat():
                 return (
-                    render_template("login.html", error="CSRF inválido. Recarregue a página.", csrf_token=_new_csrf()),
+                    render_template(
+                        "login.html",
+                        error="CSRF inválido. Recarregue a página.",
+                        csrf_token=_new_csrf(),
+                    ),
                     400,
                 )
 
@@ -176,16 +185,25 @@ def create_app() -> Flask:
 
             user = get_user_by_username(username)
             if user and verify_password(password, user["password_hash"]):
-                login_user(AppUser(user_id=user["id"], username=user["username"], role=user["role"]))
+                login_user(
+                    AppUser(
+                        user_id=user["id"],
+                        username=user["username"],
+                        role=user["role"],
+                    )
+                )
                 next_url = request.args.get("next")
                 return redirect(next_url or url_for("index"))
 
             return (
-                render_template("login.html", error="Usuário ou senha inválidos.", csrf_token=_new_csrf()),
+                render_template(
+                    "login.html",
+                    error="Usuário ou senha inválidos.",
+                    csrf_token=_new_csrf(),
+                ),
                 401,
             )
 
-        # GET
         return render_template("login.html", csrf_token=_new_csrf())
 
     @app.route("/logout", methods=["POST"])
@@ -210,9 +228,21 @@ def create_app() -> Flask:
             }
         )
 
+    @app.route("/clinic-debug")
+    @login_required
+    def clinic_debug():
+        return {
+            "clinic_id": getattr(g, "clinic_id", None),
+            "clinic_role": getattr(g, "clinic_role", None),
+        }
+
     @app.route("/ai/test", methods=["POST"])
     @login_required
     def ai_test():
+
+        if not hasattr(g, "clinic_id"):
+            abort(403)
+
         if not request.is_json:
             return jsonify({"error": "Request deve ser JSON"}), 400
 
@@ -222,8 +252,10 @@ def create_app() -> Flask:
         try:
             result = service.process_patient_case(data)
             return jsonify(result), 200
+
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+
         except Exception:
             return jsonify({"error": "Erro interno no processamento clínico."}), 500
 
