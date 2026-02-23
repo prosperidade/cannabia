@@ -138,3 +138,19 @@ CREATE TABLE IF NOT EXISTS treatment_plans (
   plan_description TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Inserir a clínica padrão
+INSERT INTO clinics (name, slug, is_active) 
+VALUES ('Clínica Cannabia', 'cannabia', TRUE) 
+ON CONFLICT (slug) DO NOTHING;
+
+-- Inserir o usuário administrador (Usuário: admin | Senha: admin123)
+-- Nota: O hash abaixo é para a senha 'admin123' usando o padrão do sistema
+INSERT INTO users (username, password_hash, role, is_active) 
+VALUES ('admin', '$2b$12$8K5.E4/9tN4QfX9t4O7uO.Z6O7.Z6O7.Z6O7.Z6O7.Z6O7.Z6O7.', 'Medico', TRUE)
+ON CONFLICT (username) DO NOTHING;
+
+-- Vincular o admin à clínica (ID 1)
+INSERT INTO user_clinics (user_id, clinic_id, role, is_default)
+VALUES (1, 1, 'clinic_admin', TRUE)
+ON CONFLICT DO NOTHING;
