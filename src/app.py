@@ -58,31 +58,6 @@ class AppUser(UserMixin):
 
 
 def create_app() -> Flask:
-    # ── MIGRATIONS AUTOMÁTICAS E SEEDING (Render) ──
-    from scripts.run_migrations import run_all
-    try:
-        run_all()
-        
-        # Garante a criação/atualização da senha do admin "Vovo2026!" de forma segura
-        import bcrypt
-        from src.infra.database import db_cursor
-        
-        password_bytes = "Vovo2026!".encode("utf-8")
-        hashed = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
-        
-        with db_cursor() as (conn, cursor):
-            cursor.execute(
-                """
-                UPDATE users SET password_hash = %s WHERE username = 'admin'
-                """,
-                (hashed,)
-            )
-            conn.commit()
-            print("Senha do usuário 'admin' atualizada com sucesso no banco de dados.")
-
-    except Exception as e:
-        print(f"Erro ao rodar migrações/seeding no startup: {e}")
-        
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # 🔐 Multi-tenant
@@ -292,9 +267,4 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    from scripts.run_migrations import run_all
-    try:
-        run_all()
-    except Exception as e:
-        print(f"Erro rodando migrações: {e}")
     socketio.run(app, port=5000, debug=True)

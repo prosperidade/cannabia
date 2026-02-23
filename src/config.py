@@ -7,24 +7,10 @@ load_dotenv()
 
 # ==============================
 # BANCO DE DADOS
-# Render injeta DATABASE_URL para bancos gerenciados e a variável RENDER=true.
 # ==============================
-if os.getenv("RENDER"):
-    # Em produção, DEVE usar a DATABASE_URL do ambiente exata, sem fallback.
-    # Falhará imediatamente se a variável não estiver disponível (seja assíncrono ou errada).
-    DATABASE_URL = os.environ["DATABASE_URL"]
-else:
-    # Fallback apenas local:
-    _DATABASE_URL = os.getenv("DATABASE_URL", "")
-    if _DATABASE_URL:
-        DATABASE_URL = _DATABASE_URL
-    else:
-        DB_HOST     = os.getenv("DB_HOST", "127.0.0.1")
-        DB_PORT     = os.getenv("DB_PORT", "5432")
-        DB_USER     = os.getenv("DB_USER", "postgres")
-        DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-        DB_NAME     = os.getenv("DB_NAME", "cannabia")
-        DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("A variável de ambiente DATABASE_URL não foi definida.")
 
 # ══════════════════════════════
 # IA / APIs

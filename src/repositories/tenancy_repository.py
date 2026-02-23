@@ -25,7 +25,7 @@ def resolve_default_clinic_id(user_id: int):
             """
             SELECT clinic_id
             FROM user_clinics
-            WHERE user_id=%s AND is_default=1
+            WHERE user_id=%s AND is_default = TRUE
             LIMIT 1
             """,
             (user_id,),

@@ -21,7 +21,7 @@ def create_user(username: str, password: str, role: str = "Admin"):
 def get_user_by_username(username: str):
     with db_cursor(dictionary=True) as (_, cursor):
         cursor.execute(
-            "SELECT * FROM users WHERE username = %s AND is_active = 1",
+            "SELECT * FROM users WHERE username = %s AND is_active = TRUE",
             (username,),
         )
         return cursor.fetchone()
@@ -30,7 +30,7 @@ def get_user_by_username(username: str):
 def get_user_by_id(user_id: int):
     with db_cursor(dictionary=True) as (_, cursor):
         cursor.execute(
-            "SELECT * FROM users WHERE id = %s AND is_active = 1",
+            "SELECT * FROM users WHERE id = %s AND is_active = TRUE",
             (user_id,),
         )
         return cursor.fetchone()
