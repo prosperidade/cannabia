@@ -123,27 +123,6 @@ def get_ai_audit_summary():
             "tempo_medio_ms": 0,
         }
 
-    clinic_id = getattr(g, "clinic_id", None)
-    if clinic_id is None:
-        raise RuntimeError("clinic_id não encontrado no contexto da request")
-
-    with db_cursor(dictionary=True) as (_, cursor):
-
-        cursor.execute(
-            """
-            SELECT
-                COUNT(*) as total_requests,
-                COALESCE(SUM(total_tokens), 0) as total_tokens,
-                COALESCE(SUM(estimated_cost_usd), 0) as total_cost_usd
-            FROM ai_audit_logs
-            WHERE status = 'success'
-              AND clinic_id = %s
-            """,
-            (clinic_id,),
-        )
-
-        return cursor.fetchone()
-
 
 # =====================================================
 # RECENT LOGS

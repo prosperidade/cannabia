@@ -12,6 +12,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("A variável de ambiente DATABASE_URL não foi definida.")
 
+DEFAULT_CLINIC_ID = int(os.getenv("DEFAULT_CLINIC_ID", "1"))
+
 # ══════════════════════════════
 # IA / APIs
 # ══════════════════════════════

@@ -11,11 +11,15 @@ from src.repositories.tenancy_repository import (
 
 def init_tenancy(app):
 
+    # Rotas públicas — não exigem autenticação nem clinic_id
+    PUBLIC_PREFIXES = ("/static", "/realtime/webhook")
+    PUBLIC_PATHS    = {"/login", "/logout", "/whoami"}
+
     @app.before_request
     def attach_clinic_context():
 
-        # ignora login e arquivos estáticos
-        if request.path.startswith("/static") or request.path == "/login":
+        # Libera rotas públicas (health check, webhooks, login/logout)
+        if request.path.startswith(PUBLIC_PREFIXES) or request.path in PUBLIC_PATHS:
             return
 
         if not current_user.is_authenticated:

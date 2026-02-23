@@ -9,6 +9,7 @@ from flask_login import current_user
 from src.web.routes.auth import limit_or_429
 from src.infra.security import role_required, redact_dict
 from src.config import (
+    DEFAULT_CLINIC_ID,
     MAX_CONTENT_LENGTH,
     VERIFY_TOKEN,
     WEBHOOK_RATE_LIMIT,
@@ -115,9 +116,7 @@ def webhook_meta():
     if not _validate_webhook_payload(data):
         return "Payload inválido", 400
 
-    clinic_id = getattr(g, "clinic_id", None)
-    if not clinic_id:
-        return "Contexto de clínica ausente", 403
+    clinic_id = getattr(g, "clinic_id", None) or DEFAULT_CLINIC_ID
 
     try:
         _process_meta_payload(data, clinic_id)
