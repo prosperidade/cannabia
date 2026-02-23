@@ -75,6 +75,34 @@ Regras obrigatórias:
 - NÃO inclua comentários
 - Responda apenas com JSON puro
 
+Plano terapêutico:\n{treatment_plan}\n"""
+
+
+SCIENTIFIC_REPORT_RAG_PROMPT = """
+Você é um pesquisador clínico especializado em cannabis medicinal.
+
+Gere um RELATÓRIO CIENTÍFICO estruturado baseado no plano terapêutico fornecido,
+UTILIZANDO as referências científicas recuperadas abaixo como base de evidência.
+
+Retorne APENAS um JSON válido seguindo exatamente este formato:
+
+{{
+  "summary": "string",
+  "supporting_evidence": ["string"],
+  "references": ["string"]
+}}
+
+Regras obrigatórias:
+- Cite as referências científicas fornecidas quando relevantes
+- supporting_evidence deve referenciar evidências presentes nos artigos abaixo
+- references deve incluir os títulos/fontes dos artigos relevantes utilizados
+- NÃO inclua explicações fora do JSON
+- NÃO inclua markdown
+- Responda apenas com JSON puro
+
 Plano terapêutico:
 {treatment_plan}
+
+Referências científicas recuperadas (contexto RAG):
+{scientific_context}
 """

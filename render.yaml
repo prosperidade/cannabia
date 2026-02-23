@@ -1,0 +1,109 @@
+# render.yaml — Infraestrutura como Código para o Render
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  # ════════════════════════════════════════════════════
+  # WEB SERVICE — Flask + Gunicorn
+  # ════════════════════════════════════════════════════
+  - type: web
+    name: cannabia-api
+    runtime: python
+    region: ohio  # us-east-1 (mais próximo do Brasil com menor latência)
+    plan: starter
+
+    # Dependências e inicialização
+    buildCommand: pip install -r requirements.txt
+    startCommand: >
+      gunicorn
+      --worker-class eventlet
+      --workers 1
+      --timeout 120
+      --bind 0.0.0.0:$PORT
+      --access-logfile -
+      --error-logfile -
+      "src.app:app"
+
+    # Health check
+    healthCheckPath: /whoami
+
+    # Variáveis de ambiente
+    envVars:
+      # ── Banco de Dados (preenchido automaticamente pelo Render via fromDatabase) ──
+      - key: DB_HOST
+        fromDatabase:
+          name: cannabia-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cannabia-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: cannabia-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cannabia-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: cannabia-db
+          property: database
+
+      # ── IA ──────────────────────────────────────────
+      - key: OPENAI_API_KEY
+        sync: false          # ← preencher manualmente no painel Render
+      - key: GOOGLE_API_KEY
+        sync: false
+
+      # ── WhatsApp / Meta ──────────────────────────────
+      - key: META_WHATSAPP_KEY
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: RECIPIENT_PHONE
+        sync: false
+      - key: VERIFY_TOKEN
+        sync: false
+
+      # ── Email ─────────────────────────────────────────
+      - key: DOCTOR_EMAIL
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+
+      # ── Segurança ─────────────────────────────────────
+      - key: SECRET_KEY
+        generateValue: true   # ← Render gera automaticamente
+      - key: SESSION_COOKIE_SECURE
+        value: "true"         # obrigatório em HTTPS (produção)
+      - key: SESSION_COOKIE_SAMESITE
+        value: "Lax"
+
+      # ── Limites ───────────────────────────────────────
+      - key: WEBHOOK_RATE_LIMIT
+        value: "60"
+      - key: WEBHOOK_RATE_WINDOW_S
+        value: "60"
+      - key: LOGIN_RATE_LIMIT
+        value: "10"
+      - key: LOGIN_RATE_WINDOW_S
+        value: "60"
+      - key: MAX_CONTENT_LENGTH
+        value: "262144"
+
+  # ════════════════════════════════════════════════════
+  # DATABASE — MySQL (Render managed)
+  # Nota: o Render oferece PostgreSQL nativo; para MySQL
+  # use um serviço externo (PlanetScale, Aiven, etc.)
+  # ou mude o conector para psycopg2 + PostgreSQL.
+  # Ver scripts/migrate_to_postgres.md para instruções.
+  # ════════════════════════════════════════════════════
+  # - type: pserv          # descomente ao usar PostgreSQL
+  #   name: cannabia-db
+  #   runtime: docker
+  #   ...

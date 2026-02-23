@@ -1,55 +1,91 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Histórico de Atendimento - Cannab'IA</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-      }
-      th,
-      td {
-        border: 1px solid #333;
-        padding: 8px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Histórico de Atendimento</h1>
-    <table>
-      <thead>
+<!-- src/templates/historico_atendimento.html -->
+{% extends "base.html" %}
+{% block title %}Histórico de Mensagens — Cannab'IA{% endblock %}
+
+{% block head %}
+<style>
+  .table-card{
+    border:1px solid var(--border);
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    border-radius:16px;overflow:hidden;
+  }
+  .table-card th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;padding:12px 16px}
+  .table-card td{padding:12px 16px;vertical-align:middle;font-size:13px}
+  .msg-text{
+    max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    color:var(--text);
+  }
+  .sender-cell .phone{font-size:12px;color:var(--muted);margin-top:2px}
+  .sender-cell .name{font-weight:600}
+  .ts{font-size:12px;color:var(--muted);white-space:nowrap}
+  .empty-state{padding:40px;text-align:center;color:var(--muted)}
+  .empty-state .icon{font-size:32px;margin-bottom:10px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  <div>
+    <h1>💬 Histórico de Mensagens</h1>
+    <div class="subtitle">Todas as mensagens recebidas via WhatsApp nesta clínica.</div>
+  </div>
+</div>
+
+<div class="kpis" style="margin-bottom:18px">
+  <div class="kpi">
+    <div class="label">Total de Mensagens</div>
+    <div class="value">{{ messages | length }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Contatos distintos</div>
+    <div class="value">{{ messages | map(attribute='sender') | list | unique | list | length }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Canal</div>
+    <div class="value" style="font-size:14px;color:var(--ok)">WhatsApp</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Atendimentos</div>
+    <div class="value"><a href="/atendimentos" style="color:var(--accent)">Ver →</a></div>
+  </div>
+</div>
+
+<div class="table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Contato</th>
+        <th>Mensagem</th>
+        <th>Data / Hora</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if messages %}
+        {% for msg in messages %}
         <tr>
-          <th>ID</th>
-          <th>Remetente</th>
-          <th>Nome do Contato</th>
-          <th>Mensagem</th>
-          <th>Timestamp</th>
+          <td class="muted">{{ msg.id }}</td>
+          <td>
+            <div class="sender-cell">
+              <div class="name">{{ msg.contact_name or 'Desconhecido' }}</div>
+              <div class="phone">{{ msg.sender }}</div>
+            </div>
+          </td>
+          <td><div class="msg-text" title="{{ msg.message_text }}">{{ msg.message_text or '—' }}</div></td>
+          <td class="ts">{{ msg.timestamp or '—' }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% if messages %} {% for msg in messages %}
+        {% endfor %}
+      {% else %}
         <tr>
-          <td>{{ msg.id }}</td>
-          <td>{{ msg.sender }}</td>
-          <td>{{ msg.contact_name }}</td>
-          <td>{{ msg.message_text }}</td>
-          <td>{{ msg.timestamp }}</td>
+          <td colspan="4">
+            <div class="empty-state">
+              <div class="icon">📭</div>
+              <div>Nenhuma mensagem encontrada para esta clínica.</div>
+            </div>
+          </td>
         </tr>
-        {% endfor %} {% else %}
-        <tr>
-          <td colspan="5">Nenhum registro encontrado.</td>
-        </tr>
-        {% endif %}
-      </tbody>
-    </table>
-  </body>
-</html>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

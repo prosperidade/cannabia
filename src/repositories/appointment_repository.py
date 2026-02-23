@@ -1,32 +1,60 @@
+from typing import List, Dict
+from flask import g
 from src.infra.database import db_cursor
 
 
-def ensure_appointments_table():
+# =====================================================
+# CREATE APPOINTMENT (MULTI-TENANT SEGURO)
+# =====================================================
+
+def create_appointment(patient_id: int, appointment_date, status: str = "Agendada") -> None:
+
+    clinic_id = getattr(g, "clinic_id", None)
+    if clinic_id is None:
+        raise RuntimeError("clinic_id não encontrado no contexto da request")
+
     with db_cursor() as (connection, cursor):
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS appointments (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                patient_name VARCHAR(100),
-                appointment_date DATETIME NOT NULL,
-                status VARCHAR(50),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            INSERT INTO appointments (
+                clinic_id,
+                patient_id,
+                appointment_date,
+                status
             )
-            """
+            VALUES (%s, %s, %s, %s)
+            """,
+            (clinic_id, patient_id, appointment_date, status),
         )
         connection.commit()
 
 
-def create_appointment(patient_name, appointment_date, status="Agendada"):
-    with db_cursor() as (connection, cursor):
-        cursor.execute(
-            "INSERT INTO appointments (patient_name, appointment_date, status) VALUES (%s, %s, %s)",
-            (patient_name, appointment_date, status),
-        )
-        connection.commit()
+# =====================================================
+# LIST APPOINTMENTS (MULTI-TENANT SEGURO)
+# =====================================================
 
+def list_appointments() -> List[Dict]:
 
-def list_appointments():
+    clinic_id = getattr(g, "clinic_id", None)
+    if clinic_id is None:
+        raise RuntimeError("clinic_id não encontrado no contexto da request")
+
     with db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute("SELECT * FROM appointments ORDER BY appointment_date DESC")
+        cursor.execute(
+            """
+            SELECT
+                a.id,
+                a.patient_id,
+                p.name AS patient_name,
+                a.appointment_date,
+                a.status,
+                a.created_at
+            FROM appointments a
+            JOIN patients p ON p.id = a.patient_id
+            WHERE a.clinic_id = %s
+              AND p.clinic_id = %s
+            ORDER BY a.appointment_date DESC
+            """,
+            (clinic_id, clinic_id),
+        )
         return cursor.fetchall()

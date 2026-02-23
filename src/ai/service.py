@@ -1,5 +1,3 @@
-# src/ai/service.py
-
 from __future__ import annotations
 
 import logging
@@ -32,6 +30,10 @@ class CannabIAService:
 
         request_id: Optional[str] = getattr(g, "request_id", None)
         user_id: Optional[str] = getattr(g, "user_id", None)
+        clinic_id: Optional[int] = getattr(g, "clinic_id", None)
+
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto da request")
 
         model_name = "gpt-4o-mini"
         prompt_version = "v1.0"
@@ -41,13 +43,14 @@ class CannabIAService:
         if not patient_name:
             raise ValueError("patient_name é obrigatório.")
 
-        patient_id = get_or_create_patient_by_name(patient_name)
+        patient_id = get_or_create_patient_by_name(clinic_id, patient_name)
 
         # Segurança
         try:
             validate_anamnesis_security(data)
         except ValueError as security_error:
             save_ai_audit_log(
+                clinic_id=clinic_id,
                 patient_id=patient_id,
                 request_id=request_id,
                 endpoint="/ai/test",
@@ -75,6 +78,7 @@ class CannabIAService:
             anamnesis = AnamnesisInput(**data)
         except ValidationError as validation_error:
             save_ai_audit_log(
+                clinic_id=clinic_id,
                 patient_id=patient_id,
                 request_id=request_id,
                 endpoint="/ai/test",
@@ -97,7 +101,6 @@ class CannabIAService:
             )
             raise ValueError("Dados inválidos.")
 
-        # Execução pipeline
         try:
             result = self.pipeline.run(anamnesis)
 
@@ -115,6 +118,7 @@ class CannabIAService:
             )
 
             save_ai_audit_log(
+                clinic_id=clinic_id,
                 patient_id=patient_id,
                 request_id=request_id,
                 endpoint="/ai/test",
@@ -143,6 +147,7 @@ class CannabIAService:
             total_time_ms = int((time.time() - start_total) * 1000)
 
             save_ai_audit_log(
+                clinic_id=clinic_id,
                 patient_id=patient_id,
                 request_id=request_id,
                 endpoint="/ai/test",

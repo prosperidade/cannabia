@@ -1,0 +1,146 @@
+<!-- src/templates/atendimentos_list.html -->
+{% extends "base.html" %}
+{% block title %}Atendimentos — Cannab'IA{% endblock %}
+
+{% block head %}
+<style>
+  .filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .filter-btn{
+    padding:7px 16px;border-radius:999px;border:1px solid var(--border);
+    background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;
+    font-size:13px;transition:all .15s;text-decoration:none;
+  }
+  .filter-btn:hover,.filter-btn.active{
+    background:rgba(110,231,255,.12);border-color:rgba(110,231,255,.4);color:var(--accent);
+  }
+  .table-card{
+    border:1px solid var(--border);
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    border-radius:16px;overflow:hidden;
+  }
+  .table-card table{border-radius:0}
+  .table-card th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;padding:12px 16px}
+  .table-card td{padding:13px 16px;vertical-align:middle}
+  .patient-name{font-weight:600;color:var(--text)}
+  .patient-phone{font-size:12px;color:var(--muted);margin-top:2px}
+  .model-badge{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;
+    border:1px solid rgba(167,139,250,.35);color:#d8ccff;background:rgba(167,139,250,.10);
+  }
+  .model-badge.openai{
+    border-color:rgba(110,231,255,.35);color:#bff3ff;background:rgba(110,231,255,.10);
+  }
+  .rag-count{font-size:12px;color:var(--muted)}
+  .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+  .status-dot.pendente{background:var(--warn)}
+  .status-dot.revisado{background:var(--ok)}
+  .action-link{
+    padding:6px 14px;border-radius:10px;border:1px solid var(--border);
+    background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;
+    transition:all .15s;white-space:nowrap;
+  }
+  .action-link:hover{background:rgba(255,255,255,.08);color:var(--text)}
+  .empty-state{padding:40px;text-align:center;color:var(--muted)}
+  .empty-state .icon{font-size:32px;margin-bottom:10px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  <div>
+    <h1>📋 Atendimentos</h1>
+    <div class="subtitle">Anamneses concluídas via WhatsApp — aguardando revisão médica.</div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpis" style="margin-bottom:18px">
+  <div class="kpi">
+    <div class="label">Total de Atendimentos</div>
+    <div class="value">{{ total_count }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Pendentes de Revisão</div>
+    <div class="value" style="color:var(--warn)">{{ pending_count }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Revisados</div>
+    <div class="value" style="color:var(--ok)">{{ total_count - pending_count }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Em espera</div>
+    <div class="value" style="color:var(--muted)">—</div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="filter-bar">
+  <a href="/atendimentos" class="filter-btn {% if not status_filter %}active{% endif %}">Todos</a>
+  <a href="/atendimentos?status=pendente" class="filter-btn {% if status_filter == 'pendente' %}active{% endif %}">🟡 Pendentes</a>
+  <a href="/atendimentos?status=revisado" class="filter-btn {% if status_filter == 'revisado' %}active{% endif %}">🟢 Revisados</a>
+</div>
+
+<!-- Tabela -->
+<div class="table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Paciente</th>
+        <th>Modelo IA</th>
+        <th>Artigos RAG</th>
+        <th>Data</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if reports %}
+        {% for r in reports %}
+        <tr>
+          <td class="muted">{{ r.id }}</td>
+          <td>
+            <div class="patient-name">{{ r.patient_name }}</div>
+            <div class="patient-phone">{{ r.phone }}</div>
+          </td>
+          <td>
+            {% if 'gemini' in r.report_model %}
+              <span class="model-badge">🔮 Gemini</span>
+            {% else %}
+              <span class="model-badge openai">⚡ GPT</span>
+            {% endif %}
+          </td>
+          <td class="rag-count">
+            {% if r.rag_chunks_used > 0 %}
+              📚 {{ r.rag_chunks_used }} artigos
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+          </td>
+          <td class="muted" style="font-size:13px">{{ r.created_at.strftime('%d/%m/%Y %H:%M') if r.created_at else '—' }}</td>
+          <td>
+            <span class="badge {% if r.status == 'revisado' %}ok{% else %}warn{% endif %}">
+              <span class="status-dot {{ r.status }}"></span>
+              {{ r.status | capitalize }}
+            </span>
+          </td>
+          <td>
+            <a href="/atendimentos/{{ r.id }}" class="action-link">Ver relatório →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="icon">📭</div>
+              <div>Nenhum atendimento encontrado{% if status_filter %} com status "{{ status_filter }}"{% endif %}.</div>
+            </div>
+          </td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

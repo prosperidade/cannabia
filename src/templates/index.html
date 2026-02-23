@@ -1,42 +1,24 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Dashboard Cannab'IA - Sistema Unificado</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-      nav {
-        background: #f2f2f2;
-        padding: 10px;
-        margin-bottom: 20px;
-      }
-      nav a {
-        margin-right: 20px;
-        text-decoration: none;
-        color: #333;
-      }
-      button {
-        padding: 6px 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/realtime/">Notificações em Tempo Real</a>
-      <a href="/historico/">Histórico de Atendimento</a>
-      <a href="/scheduling/">Agendamento de Consultas</a>
+<!-- src/templates/index.html -->
+{% extends "base.html" %} {% block title %}Início - Cannab'IA{% endblock %} {%
+block content %}
+<div class="page-title">
+  <div>
+    <h1>Painel</h1>
+    <div class="subtitle">Escolha uma área no menu acima.</div>
+  </div>
+</div>
 
-      <form method="POST" action="/logout" style="display: inline">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <button type="submit">Sair</button>
-      </form>
-    </nav>
-
-    <h1>Bem-vindo ao Sistema Unificado Cannab'IA</h1>
-    <p>Selecione uma opção no menu acima.</p>
-
-    <p><a href="/whoami">Debug: /whoami</a></p>
-  </body>
-</html>
+<div class="grid">
+  <div class="card" style="grid-column: span 12">
+    <h2>Atalhos</h2>
+    <div class="form-row" style="margin-top: 10px">
+      <a class="btn" href="/dashboard">Dashboard</a>
+      <a class="btn" href="/ai-audit">Auditoria IA</a>
+      <a class="btn" href="/admin/ai-metrics">Métricas IA</a>
+      <a class="btn" href="/realtime/">Realtime</a>
+      <a class="btn" href="/scheduling/scheduling">Agendamentos</a>
+      <a class="btn" href="/historico/historico">Histórico</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

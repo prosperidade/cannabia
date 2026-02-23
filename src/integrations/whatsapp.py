@@ -29,3 +29,28 @@ def send_whatsapp_template(recipient_phone=None, template_name='hello_world', la
     }
     response = requests.post(url, headers=headers, json=payload, timeout=15)
     return response.json()
+
+
+def send_whatsapp_text(recipient_phone: str, text: str) -> dict:
+    """
+    Envia uma mensagem de texto livre (não-template) ao paciente.
+    Funciona dentro da janela de 24h após o paciente iniciar a conversa.
+    """
+    if not META_WHATSAPP_KEY:
+        raise ValueError('Token de acesso não encontrado. Verifique META_WHATSAPP_KEY no .env')
+    if not WHATSAPP_PHONE_NUMBER_ID:
+        raise ValueError('WHATSAPP_PHONE_NUMBER_ID não encontrado no .env')
+
+    url = f'https://graph.facebook.com/v22.0/{WHATSAPP_PHONE_NUMBER_ID}/messages'
+    headers = {
+        'Authorization': f'Bearer {META_WHATSAPP_KEY}',
+        'Content-Type': 'application/json',
+    }
+    payload = {
+        'messaging_product': 'whatsapp',
+        'to': recipient_phone,
+        'type': 'text',
+        'text': {'body': text},
+    }
+    response = requests.post(url, headers=headers, json=payload, timeout=15)
+    return response.json()

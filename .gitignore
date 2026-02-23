@@ -1,20 +1,63 @@
-.env
-# Dependencias do Node (se usar JS/React/etc)
-node_modules/
-npm-debug.log
-yarn-error.log
+# =============================================================
+# CannabIA — .gitignore
+# =============================================================
 
-# Python (se usar Python/Django/Flask)
+# ──────────────────────────────────────────────
+# SEGURANÇA — Variáveis de Ambiente (NUNCA commitar)
+# ──────────────────────────────────────────────
+.env
+
+# ──────────────────────────────────────────────
+# PYTHON
+# ──────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
+
+# Ambientes Virtuais
+env/
 venv/
 .venv/
-env/
+ENV/
 
-# Variaveis de Ambiente (SEGURANÇA)
-.env
+# Distribuição / Empacotamento
+dist/
+build/
+*.egg-info/
+*.egg
 
-# Arquivos de Sistema Operacional
+# ──────────────────────────────────────────────
+# BANCO VETORIAL (ChromaDB — próxima fase)
+# ──────────────────────────────────────────────
+chroma_db/
+*.chroma
+
+# ──────────────────────────────────────────────
+# LOGS E ARQUIVOS TEMPORÁRIOS
+# ──────────────────────────────────────────────
+*.log
+cannabia.log
+
+# ──────────────────────────────────────────────
+# IDEs E EDITORES
+# ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ──────────────────────────────────────────────
+# SISTEMA OPERACIONAL
+# ──────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ──────────────────────────────────────────────
+# NODE (caso venha a usar JS)
+# ──────────────────────────────────────────────
+node_modules/
+npm-debug.log
+yarn-error.log

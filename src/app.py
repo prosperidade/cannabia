@@ -38,6 +38,7 @@ from src.web.routes.realtime_notifications import realtime_bp, socketio
 from src.web.routes.scheduling_chain import scheduling_bp
 from src.web.routes.dashboard import dashboard_bp
 from src.web.routes.ai_admin import ai_admin_bp
+from src.web.routes.atendimentos import atendimentos_bp
 
 from src.ai.service import CannabIAService
 from src.repositories.user_repository import (
@@ -138,6 +139,7 @@ def create_app() -> Flask:
     app.register_blueprint(historico_bp, url_prefix="/historico")
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(ai_admin_bp)
+    app.register_blueprint(atendimentos_bp)
 
     # ==============================
     # CSRF HELPERS
@@ -160,7 +162,7 @@ def create_app() -> Flask:
     @app.route("/")
     @login_required
     def index():
-        return render_template("index.html", csrf_token=_new_csrf())
+        return redirect(url_for("dashboard.dashboard"))
 
     @app.route("/login", methods=["GET", "POST"])
     def login():

@@ -7,12 +7,32 @@ load_dotenv()
 
 # ==============================
 # BANCO DE DADOS
+# Render injeta DATABASE_URL para bancos gerenciados.
+# Fallback para variáveis individuais em dev local.
 # ==============================
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
-DB_PORT = int(os.getenv("DB_PORT", "3306"))
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
-DB_NAME = os.getenv("DB_NAME", "cannabia")
+_DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+if _DATABASE_URL:
+    # Formato: mysql://user:password@host:port/dbname
+    # ou:      mysql+mysqlconnector://user:password@host:port/dbname
+    from urllib.parse import urlparse as _urlparse
+    _u = _urlparse(_DATABASE_URL.replace("mysql+mysqlconnector://", "mysql://"))
+    DB_HOST     = _u.hostname or "127.0.0.1"
+    DB_PORT     = _u.port or 3306
+    DB_USER     = _u.username or "root"
+    DB_PASSWORD = _u.password or ""
+    DB_NAME     = (_u.path or "/cannabia").lstrip("/")
+else:
+    DB_HOST     = os.getenv("DB_HOST", "127.0.0.1")
+    DB_PORT     = int(os.getenv("DB_PORT", "3306"))
+    DB_USER     = os.getenv("DB_USER", "root")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
+    DB_NAME     = os.getenv("DB_NAME", "cannabia")
+
+# ══════════════════════════════
+# IA / APIs
+# ══════════════════════════════
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # ==============================
 # SEGURANÇA
@@ -30,6 +50,7 @@ MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(1024 * 1024)))  # 1
 # ==============================
 META_WHATSAPP_KEY = os.getenv("META_WHATSAPP_KEY")
 WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+WHATSAPP_APP_SECRET = os.getenv("WHATSAPP_APP_SECRET")
 RECIPIENT_PHONE = os.getenv("RECIPIENT_PHONE")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "verify-token-dev")
 

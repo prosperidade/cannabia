@@ -1,32 +1,57 @@
-# src/repositories/patient_repository.py
-
 from typing import Optional
 from src.infra.database import db_cursor
 
 
-def get_patient_by_name(name: str) -> Optional[dict]:
+# =====================================================
+# READ
+# =====================================================
+
+def get_patient_by_name(clinic_id: int, name: str) -> Optional[dict]:
+    if clinic_id is None:
+        raise RuntimeError("clinic_id é obrigatório para consulta de paciente")
+
     with db_cursor(dictionary=True) as (_, cursor):
         cursor.execute(
-            "SELECT id, name FROM patients WHERE name = %s LIMIT 1",
-            (name,),
+            """
+            SELECT id, name
+            FROM patients
+            WHERE clinic_id = %s
+              AND name = %s
+            LIMIT 1
+            """,
+            (clinic_id, name),
         )
         return cursor.fetchone()
 
 
-def create_patient(name: str) -> int:
+# =====================================================
+# CREATE
+# =====================================================
+
+def create_patient(clinic_id: int, name: str) -> int:
+    if clinic_id is None:
+        raise RuntimeError("clinic_id é obrigatório para criar paciente")
+
     with db_cursor() as (conn, cursor):
         cursor.execute(
-            "INSERT INTO patients (name) VALUES (%s)",
-            (name,),
+            """
+            INSERT INTO patients (clinic_id, name)
+            VALUES (%s, %s)
+            """,
+            (clinic_id, name),
         )
         conn.commit()
         return cursor.lastrowid
 
 
-def get_or_create_patient_by_name(name: str) -> int:
-    patient = get_patient_by_name(name)
+# =====================================================
+# GET OR CREATE
+# =====================================================
+
+def get_or_create_patient_by_name(clinic_id: int, name: str) -> int:
+    patient = get_patient_by_name(clinic_id, name)
 
     if patient:
         return patient["id"]
 
-    return create_patient(name)
+    return create_patient(clinic_id, name)

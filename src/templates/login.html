@@ -1,49 +1,150 @@
+<!-- src/templates/login.html -->
 <!doctype html>
-<html>
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Cannab'IA</title>
     <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #111a33;
+        --text: #e7ecff;
+        --muted: #aeb8e8;
+        --border: rgba(255, 255, 255, 0.1);
+        --accent: #6ee7ff;
+        --danger: #ff6b6b;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
-        font-family: Arial, sans-serif;
-        padding: 24px;
+        margin: 0;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background:
+          radial-gradient(
+            1200px 600px at 20% -10%,
+            rgba(110, 231, 255, 0.18),
+            transparent 60%
+          ),
+          radial-gradient(
+            1000px 500px at 90% 10%,
+            rgba(167, 139, 250, 0.18),
+            transparent 60%
+          ),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
       }
       .card {
-        max-width: 380px;
-        border: 1px solid #ddd;
-        padding: 16px;
-        border-radius: 8px;
+        width: 420px;
+        border: 1px solid var(--border);
+        background: rgba(17, 26, 51, 0.65);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
       }
-      form {
-        display: grid;
+      .brand {
+        display: flex;
+        align-items: center;
         gap: 10px;
+        font-weight: 900;
+        letter-spacing: 0.2px;
+        margin-bottom: 12px;
       }
-      input,
-      button {
-        padding: 8px;
+      .logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(
+          135deg,
+          rgba(110, 231, 255, 0.9),
+          rgba(167, 139, 250, 0.9)
+        );
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      label {
+        display: block;
+        margin: 14px 0 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        outline: none;
+      }
+      .btn {
+        width: 100%;
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(110, 231, 255, 0.14);
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn:hover {
+        background: rgba(110, 231, 255, 0.2);
       }
       .error {
-        color: #a00;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.35);
+        background: rgba(255, 107, 107, 0.1);
+        color: #ffd1d1;
+        font-size: 14px;
       }
-      .hint {
-        color: #555;
-        font-size: 12px;
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 12px;
+        text-align: center;
       }
     </style>
   </head>
   <body>
     <div class="card">
-      <h1>Acesso ao Cannab'IA</h1>
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div style="font-size: 16px">Cannab'IA</div>
+          <div style="color: var(--muted); font-size: 13px">
+            Acesso ao painel
+          </div>
+        </div>
+      </div>
 
-      {% if error %}
-      <p class="error">{{ error }}</p>
-      {% endif %}
-
-      <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <form method="POST" action="/login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token or '' }}" />
 
         <label for="username">Usuário</label>
-        <input id="username" name="username" autocomplete="username" required />
+        <input id="username" name="username" autocomplete="username" />
 
         <label for="password">Senha</label>
         <input
@@ -51,13 +152,16 @@
           name="password"
           type="password"
           autocomplete="current-password"
-          required
         />
 
-        <button type="submit">Entrar</button>
+        <button class="btn" type="submit">Entrar</button>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
       </form>
 
-      <p class="hint">Dev: usuário <b>admin</b>, senha <b>admin123</b>.</p>
+      <div class="muted">Ambiente em desenvolvimento</div>
     </div>
   </body>
 </html>

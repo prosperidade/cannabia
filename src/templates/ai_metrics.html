@@ -1,31 +1,18 @@
-<h2>Painel Executivo de IA</h2>
+<!-- src/templates/ai_metrics.html -->
+{% extends "base.html" %} {% block title %}Métricas IA - Cannab'IA{% endblock %}
+{% block content %}
+<div class="page-title">
+  <div>
+    <h1>Métricas IA</h1>
+    <div class="subtitle">Painel administrativo de consumo e custos.</div>
+  </div>
+</div>
 
-<p><strong>Total Requests:</strong> {{ total_requests }}</p>
-<p><strong>Total Tokens:</strong> {{ total_tokens }}</p>
-<p><strong>Custo Total (USD):</strong> {{ total_cost }}</p>
-<p><strong>Custo Médio por Request (USD):</strong> {{ avg_cost }}</p>
-
-<hr />
-
-<h3>Logs Recentes</h3>
-
-<table border="1" cellpadding="6">
-  <tr>
-    <th>ID</th>
-    <th>Paciente</th>
-    <th>Status</th>
-    <th>Tokens</th>
-    <th>Custo (USD)</th>
-    <th>Data</th>
-  </tr>
-  {% for log in recent_logs %}
-  <tr>
-    <td>{{ log.id }}</td>
-    <td>{{ log.patient_id }}</td>
-    <td>{{ log.status }}</td>
-    <td>{{ log.total_tokens }}</td>
-    <td>{{ log.estimated_cost_usd }}</td>
-    <td>{{ log.created_at }}</td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="card">
+  <h2>Em construção</h2>
+  <p>
+    Este template já está integrado ao layout. Quando você mandar o conteúdo
+    atual dele, eu ajusto com o mesmo padrão visual.
+  </p>
+</div>
+{% endblock %}

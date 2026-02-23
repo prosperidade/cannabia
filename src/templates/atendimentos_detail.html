@@ -1,0 +1,298 @@
+<!-- src/templates/atendimentos_detail.html -->
+{% extends "base.html" %}
+{% block title %}Atendimento #{{ report.id }} — Cannab'IA{% endblock %}
+
+{% block head %}
+<style>
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;color:var(--muted);
+    font-size:14px;margin-bottom:16px;transition:color .15s;
+  }
+  .back-link:hover{color:var(--text)}
+
+  .report-header{
+    border:1px solid var(--border);
+    background:linear-gradient(135deg,rgba(110,231,255,.07),rgba(167,139,250,.07));
+    border-radius:16px;padding:20px 24px;margin-bottom:20px;
+    display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;
+  }
+  .report-header h1{margin:0;font-size:20px}
+  .report-header .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .meta-item{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;
+    border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);
+  }
+  .meta-item.gemini{border-color:rgba(167,139,250,.4);color:#d8ccff;background:rgba(167,139,250,.10)}
+  .meta-item.openai{border-color:rgba(110,231,255,.4);color:#bff3ff;background:rgba(110,231,255,.10)}
+  .meta-item.rag{border-color:rgba(34,197,94,.3);color:#bff3cf;background:rgba(34,197,94,.08)}
+
+  /* Layout dual */
+  .dual-panel{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:768px){.dual-panel{grid-template-columns:1fr}}
+
+  .panel{
+    border:1px solid var(--border);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    overflow:hidden;
+  }
+  .panel-header{
+    padding:14px 18px;border-bottom:1px solid var(--border);
+    background:rgba(255,255,255,.03);
+    font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--muted);
+    text-transform:uppercase;
+  }
+  .panel-body{padding:18px}
+
+  .field-group{margin-bottom:18px}
+  .field-group:last-child{margin-bottom:0}
+  .field-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .field-value{font-size:14px;color:var(--text);line-height:1.6}
+  .field-value .tag{
+    display:inline-flex;padding:3px 9px;border-radius:999px;font-size:12px;
+    border:1px solid var(--border);background:rgba(255,255,255,.04);
+    color:var(--muted);margin:2px 3px 2px 0;
+  }
+
+  /* Relatório IA */
+  .report-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .report-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .report-section-title{
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+    color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;
+  }
+
+  .risk-badge{
+    display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;
+  }
+  .risk-high{border:1px solid rgba(255,107,107,.4);color:#ffd1d1;background:rgba(255,107,107,.12)}
+  .risk-medium{border:1px solid rgba(245,158,11,.4);color:#ffe6bf;background:rgba(245,158,11,.12)}
+  .risk-low{border:1px solid rgba(34,197,94,.4);color:#bff3cf;background:rgba(34,197,94,.12)}
+
+  .evidence-item{
+    font-size:13px;color:var(--muted);padding:8px 10px;border-radius:10px;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);
+    margin-bottom:6px;line-height:1.5;
+  }
+  .reference-item{
+    font-size:12px;color:var(--accent);padding:4px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .reference-item:last-child{border-bottom:none}
+
+  /* Botão revisar */
+  .review-bar{
+    margin-top:20px;padding:18px 24px;border-radius:16px;
+    border:1px solid var(--border);background:rgba(255,255,255,.03);
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  }
+  .review-bar .hint{font-size:13px;color:var(--muted)}
+  .btn-review{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 22px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;
+    border:1px solid rgba(34,197,94,.4);background:rgba(34,197,94,.12);color:#bff3cf;
+    transition:all .15s;
+  }
+  .btn-review:hover{background:rgba(34,197,94,.20)}
+  .already-reviewed{
+    display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;
+    color:var(--ok);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="/atendimentos" class="back-link">← Voltar para Atendimentos</a>
+
+<!-- Cabeçalho do relatório -->
+<div class="report-header">
+  <div>
+    <h1>🩺 {{ report.patient_name }}</h1>
+    <div class="meta">
+      <span class="meta-item {% if 'gemini' in report.report_model %}gemini{% else %}openai{% endif %}">
+        {% if 'gemini' in report.report_model %}🔮{% else %}⚡{% endif %}
+        {{ report.report_model }}
+      </span>
+      {% if report.rag_chunks_used > 0 %}
+        <span class="meta-item rag">📚 {{ report.rag_chunks_used }} artigos RAG</span>
+      {% endif %}
+      <span class="meta-item">📞 {{ report.phone }}</span>
+      <span class="meta-item">🕐 {{ report.created_at.strftime('%d/%m/%Y às %H:%M') if report.created_at else '—' }}</span>
+    </div>
+  </div>
+  <span class="badge {% if report.status == 'revisado' %}ok{% else %}warn{% endif %}" style="font-size:13px;padding:6px 14px">
+    {{ '✅ Revisado' if report.status == 'revisado' else '🟡 Pendente' }}
+  </span>
+</div>
+
+<!-- Painéis dual -->
+<div class="dual-panel">
+
+  <!-- ESQUERDA: Anamnese -->
+  <div class="panel">
+    <div class="panel-header">📝 Respostas do Paciente</div>
+    <div class="panel-body">
+
+      {% set a = report.anamnesis_data %}
+
+      <div class="field-group">
+        <div class="field-label">Queixa Principal</div>
+        <div class="field-value">{{ a.main_complaint or '—' }}</div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Sintomas</div>
+        <div class="field-value">
+          {% if a.symptoms %}
+            {% for s in a.symptoms %}<span class="tag">{{ s }}</span>{% endfor %}
+          {% else %}—{% endif %}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Medicações Atuais</div>
+        <div class="field-value">
+          {% if a.current_medications %}
+            {% for m in a.current_medications %}<span class="tag">{{ m }}</span>{% endfor %}
+          {% else %}—{% endif %}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Alergias</div>
+        <div class="field-value">
+          {% if a.allergies %}
+            {% for al in a.allergies %}<span class="tag">{{ al }}</span>{% endfor %}
+          {% else %}—{% endif %}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Histórico Médico</div>
+        <div class="field-value">{{ a.medical_history or '—' }}</div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Idade</div>
+        <div class="field-value">{{ a.age or '—' }} anos</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DIREITA: Relatório IA -->
+  <div class="panel">
+    <div class="panel-header">🤖 Relatório Gerado pela IA</div>
+    <div class="panel-body">
+
+      {% set ca = report.clinical_analysis %}
+      {% set tp = report.treatment_plan %}
+      {% set sr = report.scientific_report %}
+
+      <!-- Análise Clínica -->
+      <div class="report-section">
+        <div class="report-section-title">🔬 Análise Clínica</div>
+
+        {% if ca.probable_conditions %}
+          <div class="field-group">
+            <div class="field-label">Condições Prováveis</div>
+            <div class="field-value">
+              {% for c in ca.probable_conditions %}<span class="tag">{{ c }}</span>{% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="field-group">
+          <div class="field-label">Nível de Risco</div>
+          <div class="field-value">
+            {% set risk = (ca.risk_level or 'N/A') | lower %}
+            <span class="risk-badge {% if 'alto' in risk or 'high' in risk %}risk-high{% elif 'médio' in risk or 'medium' in risk %}risk-medium{% else %}risk-low{% endif %}">
+              {{ ca.risk_level or 'N/A' }}
+            </span>
+          </div>
+        </div>
+
+        {% if ca.red_flags %}
+          <div class="field-group">
+            <div class="field-label">⚑ Red Flags</div>
+            <div class="field-value">
+              {% for f in ca.red_flags %}<span class="tag" style="border-color:rgba(255,107,107,.3);color:#ffd1d1">{{ f }}</span>{% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Plano Terapêutico -->
+      <div class="report-section">
+        <div class="report-section-title">💊 Plano Terapêutico</div>
+
+        <div class="field-group">
+          <div class="field-label">Proporção Canabinóide</div>
+          <div class="field-value">{{ tp.cannabinoid_ratio or '—' }}</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Dosagem Sugerida</div>
+          <div class="field-value">{{ tp.suggested_dosage or '—' }}</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Via de Administração</div>
+          <div class="field-value">{{ tp.administration_route or '—' }}</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Monitoramento</div>
+          <div class="field-value">{{ tp.monitoring_plan or '—' }}</div>
+        </div>
+      </div>
+
+      <!-- Relatório Científico -->
+      <div class="report-section">
+        <div class="report-section-title">📄 Relatório Científico</div>
+
+        <div class="field-group">
+          <div class="field-label">Sumário</div>
+          <div class="field-value">{{ sr.summary or '—' }}</div>
+        </div>
+
+        {% if sr.supporting_evidence %}
+          <div class="field-group">
+            <div class="field-label">Evidências</div>
+            {% for ev in sr.supporting_evidence %}
+              <div class="evidence-item">{{ ev }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if sr.references %}
+          <div class="field-group">
+            <div class="field-label">Referências</div>
+            {% for ref in sr.references %}
+              <div class="reference-item">{{ ref }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Barra de revisão -->
+<div class="review-bar">
+  <div class="hint">
+    {% if report.status == 'revisado' %}
+      Este atendimento foi revisado e arquivado.
+    {% else %}
+      Revise as informações acima antes de confirmar. Após a revisão, o atendimento será arquivado.
+    {% endif %}
+  </div>
+
+  {% if report.status == 'pendente' %}
+    <form method="POST" action="/atendimentos/{{ report.id }}/revisar">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token or '' }}" />
+      <button class="btn-review" type="submit">✅ Marcar como Revisado</button>
+    </form>
+  {% else %}
+    <span class="already-reviewed">✅ Revisado</span>
+  {% endif %}
+</div>
+{% endblock %}

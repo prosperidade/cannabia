@@ -1,38 +1,73 @@
-<!doctype html>
-<html>
-  <head>
-    <title>AI Auditoria</title>
-  </head>
-  <body>
+<!-- src/templates/ai_audit_dashboard.html -->
+{% extends "base.html" %} {% block title %}Auditoria IA - Cannab'IA{% endblock
+%} {% block content %}
+<div class="page-title">
+  <div>
     <h1>Auditoria da IA</h1>
+    <div class="subtitle">
+      Visão de execuções, custo e rastreabilidade (por clínica).
+    </div>
+  </div>
+</div>
 
-    <h2>Resumo</h2>
-    <ul>
-      <li>Total execuções: {{ summary.total or 0 }}</li>
-      <li>Sucessos: {{ summary.success_count or 0 }}</li>
-      <li>Erros: {{ summary.error_count or 0 }}</li>
-      <li>Bloqueios segurança: {{ summary.blocked_count or 0 }}</li>
-      <li>Tempo médio (ms): {{ summary.avg_time_ms or 0 }}</li>
-    </ul>
+<div class="kpis">
+  <div class="kpi">
+    <div class="label">Total execuções</div>
+    <div class="value">{{ summary.total_requests or 0 }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Total tokens</div>
+    <div class="value">{{ summary.total_tokens or 0 }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Custo estimado (USD)</div>
+    <div class="value">{{ summary.total_cost_usd or 0 }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Status</div>
+    <div class="value">OK</div>
+  </div>
+</div>
 
-    <h2>Últimos Logs</h2>
-    <table border="1" cellpadding="5">
-      <tr>
-        <th>ID</th>
-        <th>Status</th>
-        <th>Modelo</th>
-        <th>Tempo (ms)</th>
-        <th>Data</th>
-      </tr>
-      {% for log in logs %}
-      <tr>
-        <td>{{ log.id }}</td>
-        <td>{{ log.status }}</td>
-        <td>{{ log.model }}</td>
-        <td>{{ log.total_time_ms }}</td>
-        <td>{{ log.created_at }}</td>
-      </tr>
-      {% endfor %}
+<div class="grid" style="margin-top: 14px">
+  <div class="card" style="grid-column: span 12">
+    <h2>Últimos logs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Tokens</th>
+          <th>Custo (USD)</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if logs %} {% for row in logs %}
+        <tr>
+          <td>{{ row.id }}</td>
+          <td>
+            {% if row.status == 'success' %}
+            <span class="badge ok">success</span>
+            {% elif row.status == 'error' %}
+            <span class="badge err">error</span>
+            {% elif row.status == 'security_blocked' %}
+            <span class="badge warn">security_blocked</span>
+            {% else %}
+            <span class="badge">{{ row.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ row.total_tokens or '' }}</td>
+          <td>{{ row.estimated_cost_usd or '' }}</td>
+          <td>{{ row.created_at }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="5" class="muted">Nenhum log encontrado.</td>
+        </tr>
+        {% endif %}
+      </tbody>
     </table>
-  </body>
-</html>
+  </div>
+</div>
+{% endblock %}
