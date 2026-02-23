@@ -58,6 +58,13 @@ class AppUser(UserMixin):
 
 
 def create_app() -> Flask:
+    # ── MIGRATIONS AUTOMÁTICAS (Render) ──
+    from scripts.run_migrations import run_all
+    try:
+        run_all()
+    except Exception as e:
+        print(f"Erro ao rodar migrações no startup: {e}")
+        
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # 🔐 Multi-tenant
@@ -267,4 +274,9 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
+    from scripts.run_migrations import run_all
+    try:
+        run_all()
+    except Exception as e:
+        print(f"Erro rodando migrações: {e}")
     socketio.run(app, port=5000, debug=True)
