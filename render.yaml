@@ -28,27 +28,11 @@ services:
 
     # Variáveis de ambiente
     envVars:
-      # ── Banco de Dados (preenchido automaticamente pelo Render via fromDatabase) ──
-      - key: DB_HOST
+      # ── Banco de Dados (URL completa — exigida pelo config.py) ──────────────
+      - key: DATABASE_URL
         fromDatabase:
           name: cannabia-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: cannabia-db
-          property: port
-      - key: DB_USER
-        fromDatabase:
-          name: cannabia-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: cannabia-db
-          property: password
-      - key: DB_NAME
-        fromDatabase:
-          name: cannabia-db
-          property: database
+          property: connectionString
 
       # ── IA ──────────────────────────────────────────
       - key: OPENAI_API_KEY
@@ -97,13 +81,11 @@ services:
         value: "262144"
 
   # ════════════════════════════════════════════════════
-  # DATABASE — MySQL (Render managed)
-  # Nota: o Render oferece PostgreSQL nativo; para MySQL
-  # use um serviço externo (PlanetScale, Aiven, etc.)
-  # ou mude o conector para psycopg2 + PostgreSQL.
-  # Ver scripts/migrate_to_postgres.md para instruções.
+  # DATABASE — PostgreSQL (Render managed)
   # ════════════════════════════════════════════════════
-  # - type: pserv          # descomente ao usar PostgreSQL
-  #   name: cannabia-db
-  #   runtime: docker
-  #   ...
+  - type: pserv
+    name: cannabia-db
+    runtime: docker
+    plan: starter
+    region: ohio
+

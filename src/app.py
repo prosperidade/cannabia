@@ -28,7 +28,13 @@ from flask_login import (
 )
 
 from src.infra.logging import setup_logging
-from src.config import SECRET_KEY, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_S
+from src.config import (
+    SECRET_KEY,
+    SESSION_COOKIE_SECURE,
+    SESSION_COOKIE_SAMESITE,
+    LOGIN_RATE_LIMIT,
+    LOGIN_RATE_WINDOW_S,
+)
 
 from src.web.routes.auth import limit_or_429, generate_csrf_token, validate_csrf_from_form
 
@@ -70,9 +76,9 @@ def create_app() -> Flask:
     # CONFIG
     # ==============================
     app.config["SECRET_KEY"] = SECRET_KEY or "dev-secret-key-fallback"
-    app.config["SESSION_COOKIE_SECURE"] = False
+    app.config["SESSION_COOKIE_SECURE"] = SESSION_COOKIE_SECURE   # True em produção (HTTPS)
     app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["SESSION_COOKIE_SAMESITE"] = SESSION_COOKIE_SAMESITE
     app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
 
     # ==============================
