@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS patients (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100),
     phone VARCHAR(20),
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS patients (
 );
 
 CREATE TABLE IF NOT EXISTS incoming_messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     sender VARCHAR(50),
     contact_name VARCHAR(100),
     message_text TEXT,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS incoming_messages (
 );
 
 CREATE TABLE IF NOT EXISTS message_status_updates (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     message_id VARCHAR(100),
     status VARCHAR(50),
     timestamp VARCHAR(50),
@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS message_status_updates (
 );
 
 CREATE TABLE IF NOT EXISTS appointments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     patient_name VARCHAR(100),
-    appointment_date DATETIME NOT NULL,
+    appointment_date TIMESTAMP NOT NULL,
     status VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

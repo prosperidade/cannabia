@@ -9,20 +9,23 @@ def save_incoming_message(clinic_id, sender, contact_name, message_text, timesta
     with db_cursor() as (connection, cursor):
         cursor.execute(
             """
-            INSERT INTO incoming_messages 
+            INSERT INTO incoming_messages
                 (clinic_id, sender, contact_name, message_text, timestamp)
             VALUES (%s, %s, %s, %s, %s)
+            RETURNING id
             """,
             (clinic_id, sender, contact_name, message_text, timestamp),
         )
         connection.commit()
+        msg_id = cursor.fetchone()[0]
+        return msg_id
 
 
 def save_status_update(clinic_id, message_id, status, timestamp):
     with db_cursor() as (connection, cursor):
         cursor.execute(
             """
-            INSERT INTO message_status_updates 
+            INSERT INTO message_status_updates
                 (clinic_id, message_id, status, timestamp)
             VALUES (%s, %s, %s, %s)
             """,
@@ -82,9 +85,9 @@ def aggregate_messages_by_day(clinic_id):
             """
             SELECT
                 CASE
-                    WHEN timestamp REGEXP '^[0-9]+$'
-                        THEN DATE(FROM_UNIXTIME(CAST(timestamp AS UNSIGNED)))
-                    ELSE DATE(LEFT(timestamp, 10))
+                    WHEN timestamp ~ '^[0-9]+$'
+                        THEN TO_TIMESTAMP(CAST(timestamp AS NUMERIC))::DATE
+                    ELSE LEFT(timestamp, 10)::DATE
                 END AS message_date,
                 COUNT(*) AS total_messages
             FROM incoming_messages

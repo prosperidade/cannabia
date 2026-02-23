@@ -37,11 +37,12 @@ def create_patient(clinic_id: int, name: str) -> int:
             """
             INSERT INTO patients (clinic_id, name)
             VALUES (%s, %s)
+            RETURNING id
             """,
             (clinic_id, name),
         )
         conn.commit()
-        return cursor.lastrowid
+        return cursor.fetchone()[0]
 
 
 # =====================================================

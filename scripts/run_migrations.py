@@ -66,8 +66,8 @@ def run_all() -> None:
                 conn.commit()
                 logger.info("  ✅ %s — OK", name)
             except Exception as exc:
-                # Erros de "tabela já existe" (1050) são esperados em re-deploys
-                if hasattr(exc, "errno") and exc.errno == 1050:
+                # Erros de "tabela já existe" (42P07 em Postgres) são esperados em re-deploys
+                if hasattr(exc, "pgcode") and exc.pgcode == "42P07":
                     logger.info("  ⏭️  %s — tabela já existe, ignorando.", name)
                     conn.rollback()
                 else:

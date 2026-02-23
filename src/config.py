@@ -13,21 +13,16 @@ load_dotenv()
 _DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 if _DATABASE_URL:
-    # Formato: mysql://user:password@host:port/dbname
-    # ou:      mysql+mysqlconnector://user:password@host:port/dbname
-    from urllib.parse import urlparse as _urlparse
-    _u = _urlparse(_DATABASE_URL.replace("mysql+mysqlconnector://", "mysql://"))
-    DB_HOST     = _u.hostname or "127.0.0.1"
-    DB_PORT     = _u.port or 3306
-    DB_USER     = _u.username or "root"
-    DB_PASSWORD = _u.password or ""
-    DB_NAME     = (_u.path or "/cannabia").lstrip("/")
+    # Render injection uses postgres:// natively, but SQLAlchemy expects postgresql://
+    # Psycopg2 parses postgres:// and postgresql:// equally.
+    DATABASE_URL = _DATABASE_URL
 else:
     DB_HOST     = os.getenv("DB_HOST", "127.0.0.1")
-    DB_PORT     = int(os.getenv("DB_PORT", "3306"))
-    DB_USER     = os.getenv("DB_USER", "root")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
+    DB_PORT     = os.getenv("DB_PORT", "5432")
+    DB_USER     = os.getenv("DB_USER", "postgres")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
     DB_NAME     = os.getenv("DB_NAME", "cannabia")
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # ══════════════════════════════
 # IA / APIs

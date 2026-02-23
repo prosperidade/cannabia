@@ -29,7 +29,7 @@ def get_session(clinic_id: int, phone: str) -> Optional[Dict[str, Any]]:
 
 def upsert_session(clinic_id: int, phone: str, step: str, data: dict) -> None:
     """
-    Cria ou atualiza a sessão de um paciente (ON DUPLICATE KEY UPDATE).
+    Cria ou atualiza a sessão de um paciente (ON CONFLICT DO UPDATE).
     Idempotente: pode ser chamado a cada mensagem sem duplicar linhas.
     """
     with db_cursor() as (conn, cursor):
@@ -37,9 +37,9 @@ def upsert_session(clinic_id: int, phone: str, step: str, data: dict) -> None:
             """
             INSERT INTO whatsapp_sessions (clinic_id, phone, step, data)
             VALUES (%s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                step = VALUES(step),
-                data = VALUES(data)
+            ON CONFLICT (clinic_id, phone) DO UPDATE SET
+                step = EXCLUDED.step,
+                data = EXCLUDED.data
             """,
             (clinic_id, phone, step, json.dumps(data, ensure_ascii=False)),
         )

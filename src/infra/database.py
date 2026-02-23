@@ -1,24 +1,21 @@
 from contextlib import contextmanager
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-import mysql.connector
-
-from src.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from src.config import DATABASE_URL
 
 
 def get_connection():
-    return mysql.connector.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-    )
+    return psycopg2.connect(DATABASE_URL)
 
 
 @contextmanager
 def db_cursor(dictionary=False):
     connection = get_connection()
-    cursor = connection.cursor(dictionary=dictionary)
+    if dictionary:
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
+    else:
+        cursor = connection.cursor()
     try:
         yield connection, cursor
     finally:

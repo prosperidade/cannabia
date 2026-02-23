@@ -26,6 +26,7 @@ def save_report(
                clinical_analysis, treatment_plan, scientific_report,
                rag_chunks_used, report_model)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
             """,
             (
                 clinic_id,
@@ -40,7 +41,7 @@ def save_report(
             ),
         )
         conn.commit()
-        rid = cursor.lastrowid
+        rid = cursor.fetchone()[0]
         logger.info("Relatório #%d salvo para '%s' (clinic=%d).", rid, patient_name, clinic_id)
         return rid
 
