@@ -5,8 +5,12 @@ import logging
 from typing import Optional
 
 from src.repositories.session_repository import delete_session, get_session, upsert_session
-from src.repositories.patient_repository import get_or_create_patient_by_name
+from src.repositories.patient_repository import (
+    get_or_create_patient_by_name,
+    update_patient_contact_if_missing,
+)
 from src.repositories.anamnesis_repository import save_report
+from src.repositories.patient_timeline_repository import create_event
 from src.integrations.whatsapp import send_whatsapp_text
 from src.integrations.email import send_email_notification
 from src.ai.pipeline import CannabIAPipeline
@@ -162,7 +166,12 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
     field_name = STEP_FIELDS[field_idx]
 
     # Pós-processamento por tipo de campo
-    if field_name == "age":
+    if field_name == "patient_name":
+        if not text_clean:
+            send_whatsapp_text(phone, "Por favor, informe seu nome completo para continuar.")
+            return
+        data[field_name] = text_clean
+    elif field_name == "age":
         digits = "".join(filter(str.isdigit, text_clean))
         if not digits:
             send_whatsapp_text(phone, "Por favor, informe sua idade em números. Ex: *35*")
@@ -174,6 +183,20 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
         data[field_name] = items if items else [text_clean]
     else:
         data[field_name] = text_clean
+
+    if field_name == "patient_name":
+        patient_id = get_or_create_patient_by_name(clinic_id, data["patient_name"])
+        update_patient_contact_if_missing(clinic_id, patient_id, phone=phone)
+        create_event(
+            clinic_id=clinic_id,
+            patient_id=patient_id,
+            event_type="journey_started",
+            journey_stage="anamnese_em_andamento",
+            title="Paciente iniciou anamnese via WhatsApp",
+            description="Identificação inicial registrada no fluxo conversacional.",
+            source_type="whatsapp_session",
+            metadata={"phone": phone},
+        )
 
     next_step = _next_step(current_step)
 
@@ -188,9 +211,11 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
             "_Não compartilhamos seus dados clínicos via WhatsApp por segurança._",
         )
 
+        patient_id = None
         try:
             patient_name = data.get("patient_name", contact_name)
-            get_or_create_patient_by_name(clinic_id, patient_name)
+            patient_id = get_or_create_patient_by_name(clinic_id, patient_name)
+            update_patient_contact_if_missing(clinic_id, patient_id, phone=phone)
 
             anamnesis = AnamnesisInput(
                 patient_name=patient_name,
@@ -206,7 +231,31 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
             report   = pipeline.run(anamnesis)
 
             # Persiste no banco para o dashboard do médico
-            save_report(clinic_id, anamnesis.patient_name, phone, data, report)
+            report_id = save_report(
+                clinic_id,
+                patient_id,
+                anamnesis.patient_name,
+                phone,
+                data,
+                report,
+            )
+
+            create_event(
+                clinic_id=clinic_id,
+                patient_id=patient_id,
+                event_type="anamnesis_completed",
+                journey_stage="anamnese_concluida",
+                title="Anamnese assistida concluída",
+                description="Fluxo do WhatsApp finalizado com relatório clínico gerado pela IA.",
+                source_type="anamnesis_report",
+                source_id=report_id,
+                metadata={
+                    "phone": phone,
+                    "risk_level": report.get("clinical_analysis", {}).get("risk_level"),
+                    "report_model": report.get("report_model"),
+                    "rag_chunks_used": report.get("rag_chunks_used", 0),
+                },
+            )
 
             _notify_doctor(anamnesis.patient_name, phone, report)
             upsert_session(clinic_id, phone, "completed", data)
@@ -214,6 +263,17 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
 
         except Exception:
             logger.exception("Erro no pipeline de anamnese para %s", phone)
+            if patient_id is not None:
+                create_event(
+                    clinic_id=clinic_id,
+                    patient_id=patient_id,
+                    event_type="anamnesis_processing_failed",
+                    journey_stage="anamnese_com_falha",
+                    title="Falha no processamento da anamnese",
+                    description="O pipeline clínico não concluiu o relatório automatizado.",
+                    source_type="whatsapp_session",
+                    metadata={"phone": phone},
+                )
             send_whatsapp_text(
                 phone,
                 "⚠️ Ocorreu um erro inesperado ao processar sua anamnese.\n"

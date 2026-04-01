@@ -56,3 +56,39 @@ def get_or_create_patient_by_name(clinic_id: int, name: str) -> int:
         return patient["id"]
 
     return create_patient(clinic_id, name)
+
+
+def update_patient_contact_if_missing(
+    clinic_id: int,
+    patient_id: int,
+    phone: Optional[str] = None,
+    email: Optional[str] = None,
+) -> None:
+    if clinic_id is None:
+        raise RuntimeError("clinic_id é obrigatório para atualizar contato do paciente")
+
+    assignments = []
+    params = []
+
+    if phone:
+        assignments.append("phone = COALESCE(NULLIF(phone, ''), %s)")
+        params.append(phone)
+
+    if email:
+        assignments.append("email = COALESCE(NULLIF(email, ''), %s)")
+        params.append(email)
+
+    if not assignments:
+        return
+
+    with db_cursor() as (conn, cursor):
+        cursor.execute(
+            f"""
+            UPDATE patients
+               SET {", ".join(assignments)}
+             WHERE clinic_id = %s
+               AND id = %s
+            """,
+            (*params, clinic_id, patient_id),
+        )
+        conn.commit()

@@ -2,7 +2,7 @@
 import logging
 import re
 from functools import wraps
-from flask import abort
+from flask import abort, g
 from flask_login import current_user, login_required
 
 SENSITIVE_KEYS = {
@@ -13,6 +13,25 @@ SENSITIVE_KEYS = {
     "email_password",
     "password",
     "secret",
+}
+
+ROLE_ALIASES = {
+    "admin": "Admin",
+    "administrator": "Admin",
+    "clinic_admin": "Admin",
+    "tenant_admin": "Admin",
+    "super_admin": "Admin",
+    "org_admin": "Admin",
+    "organization_admin": "Admin",
+    "medico": "Medico",
+    "doctor": "Medico",
+    "physician": "Medico",
+    "atendente": "Atendente",
+    "agent": "Atendente",
+    "assistant": "Atendente",
+    "agente": "Atendente",
+    "agente_atendimento": "Atendente",
+    "agente_acompanhamento": "Atendente",
 }
 
 
@@ -49,6 +68,33 @@ class RedactingFormatter(logging.Formatter):
         return super().format(record)
 
 
+def normalize_role_name(role):
+    if role is None:
+        return None
+
+    raw = str(role).strip()
+    if not raw:
+        return None
+
+    key = raw.lower().replace("-", "_").replace(" ", "_")
+    return ROLE_ALIASES.get(key, raw)
+
+
+def get_effective_roles():
+    roles = []
+
+    for role in (
+        getattr(current_user, "role", None),
+        getattr(g, "tenant_role", None),
+        getattr(g, "clinic_role", None),
+    ):
+        normalized = normalize_role_name(role)
+        if normalized and normalized not in roles:
+            roles.append(normalized)
+
+    return roles
+
+
 def role_required(*allowed_roles: str):
     """
     Controle de acesso por role usando Flask-Login.
@@ -62,11 +108,17 @@ def role_required(*allowed_roles: str):
             if not current_user.is_authenticated:
                 abort(401)
 
-            role = getattr(current_user, "role", None)
-            if role is None:
+            allowed = {
+                normalized
+                for normalized in (normalize_role_name(role) for role in allowed_roles)
+                if normalized
+            }
+            effective_roles = get_effective_roles()
+
+            if not effective_roles:
                 abort(403, description="Usuário sem role definida.")
 
-            if role not in allowed_roles:
+            if not allowed.intersection(effective_roles):
                 abort(403, description="Sem permissão para acessar este recurso.")
 
             return fn(*args, **kwargs)

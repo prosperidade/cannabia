@@ -34,6 +34,6 @@ def generate_csrf_token() -> str:
 
 
 def validate_csrf_from_form() -> bool:
-    sent = (request.form.get("_csrf_token") or "").strip()
+    sent = (request.form.get("_csrf_token") or request.form.get("csrf_token") or "").strip()
     expected = (session.get("_csrf_token") or "").strip()
     return bool(sent) and bool(expected) and sent == expected

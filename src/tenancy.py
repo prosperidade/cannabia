@@ -13,7 +13,7 @@ def init_tenancy(app):
 
     # Rotas públicas — não exigem autenticação nem clinic_id
     PUBLIC_PREFIXES = ("/static", "/realtime/webhook")
-    PUBLIC_PATHS    = {"/login", "/logout", "/whoami"}
+    PUBLIC_PATHS    = {"/login", "/logout"}
 
     @app.before_request
     def attach_clinic_context():
@@ -45,4 +45,8 @@ def init_tenancy(app):
 
         # Anexa no contexto global da request
         g.clinic_id = membership["clinic_id"]
-        g.clinic_role = membership["role"]
+        g.clinic_role = membership.get("clinic_role") or membership.get("role")
+        g.tenant_id = membership.get("tenant_id") or membership["clinic_id"]
+        g.tenant_role = membership.get("tenant_role") or g.clinic_role
+        g.tenant_type = membership.get("tenant_type") or "clinic"
+        session["active_tenant_id"] = g.tenant_id

@@ -1,11 +1,14 @@
 # src/services/appointment_service.py
 from datetime import datetime
 
+from flask import g
+
 from src.repositories import appointment_repository
 from src.repositories.patient_repository import get_or_create_patient_by_name
+from src.repositories.patient_timeline_repository import create_event
 
 
-def create_appointment_from_form(patient_name: str, appointment_date: str) -> None:
+def create_appointment_from_form(patient_name: str, appointment_date: str) -> int:
     """
     Cria um agendamento a partir dos dados do formulário.
     Valida o formato de data. clinic_id vem automaticamente de g via repositório.
@@ -19,13 +22,32 @@ def create_appointment_from_form(patient_name: str, appointment_date: str) -> No
         raise ValueError('Formato de data inválido. Use dd/mm/yyyy HH:MM.') from exc
 
     # Garante que o paciente existe (get_or_create) — clinic_id vem de g
-    from flask import g
     clinic_id = getattr(g, 'clinic_id', None)
     if clinic_id is None:
         raise RuntimeError('clinic_id não encontrado no contexto da request')
 
     patient_id = get_or_create_patient_by_name(clinic_id, patient_name)
-    appointment_repository.create_appointment(patient_id, dt.strftime('%Y-%m-%d %H:%M:%S'))
+    appointment_id = appointment_repository.create_appointment(
+        patient_id,
+        dt.strftime('%Y-%m-%d %H:%M:%S'),
+    )
+
+    create_event(
+        clinic_id=clinic_id,
+        tenant_id=getattr(g, "tenant_id", None),
+        patient_id=patient_id,
+        event_type="appointment_created",
+        journey_stage="agendamento_realizado",
+        title="Agendamento criado",
+        description=f"Consulta agendada para {dt.strftime('%d/%m/%Y às %H:%M')}.",
+        source_type="appointment",
+        source_id=appointment_id,
+        metadata={
+            "status": "Agendada",
+            "appointment_date": dt.strftime('%d/%m/%Y %H:%M'),
+        },
+    )
+    return appointment_id
 
 
 def list_appointments() -> list:

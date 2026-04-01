@@ -2,7 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from src.config import DOCTOR_EMAIL, EMAIL_FROM, EMAIL_PASSWORD
+from src.config import DOCTOR_EMAIL, EMAIL_FROM, EMAIL_PASSWORD, SMTP_PORT, SMTP_SERVER
 
 
 def send_email_notification(subject, message, to_email=None):
@@ -19,7 +19,7 @@ def send_email_notification(subject, message, to_email=None):
     msg.attach(MIMEText(message, 'plain'))
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
         server.starttls()
         server.login(EMAIL_FROM, EMAIL_PASSWORD)
         server.send_message(msg)

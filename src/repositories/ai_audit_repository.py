@@ -103,6 +103,8 @@ def get_ai_audit_summary():
             """
             SELECT
                 COUNT(*) AS total_execucoes,
+                COALESCE(SUM(total_tokens), 0) AS total_tokens,
+                COALESCE(SUM(estimated_cost_usd), 0) AS total_cost_usd,
                 SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS sucessos,
                 SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) AS erros,
                 SUM(CASE WHEN status = 'security_blocked' THEN 1 ELSE 0 END) AS bloqueios,
@@ -117,6 +119,8 @@ def get_ai_audit_summary():
 
         return result or {
             "total_execucoes": 0,
+            "total_tokens": 0,
+            "total_cost_usd": 0,
             "sucessos": 0,
             "erros": 0,
             "bloqueios": 0,

@@ -1,18 +1,97 @@
-<!-- src/templates/ai_metrics.html -->
-{% extends "base.html" %} {% block title %}Métricas IA - Cannab'IA{% endblock %}
+{% extends "base.html" %}
+{% block title %}Métricas IA - Cannab'IA{% endblock %}
 {% block content %}
 <div class="page-title">
   <div>
     <h1>Métricas IA</h1>
-    <div class="subtitle">Painel administrativo de consumo e custos.</div>
+    <div class="subtitle">Consumo, custo, status e tempo médio das execuções auditadas.</div>
   </div>
 </div>
 
-<div class="card">
-  <h2>Em construção</h2>
-  <p>
-    Este template já está integrado ao layout. Quando você mandar o conteúdo
-    atual dele, eu ajusto com o mesmo padrão visual.
-  </p>
+<div class="kpis">
+  <div class="kpi">
+    <div class="label">Total execuções</div>
+    <div class="value">{{ total_requests }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Total tokens</div>
+    <div class="value">{{ total_tokens }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Custo estimado (USD)</div>
+    <div class="value">{{ total_cost }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Tempo médio (ms)</div>
+    <div class="value">{{ summary.tempo_medio_ms | int if summary else 0 }}</div>
+  </div>
+</div>
+
+<div class="grid" style="margin-top: 14px">
+  <div class="card" style="grid-column: span 12">
+    <h2>Resumo por status</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Sucessos</th>
+          <th>Erros</th>
+          <th>Bloqueios</th>
+          <th>Custo médio (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge ok">{{ summary.sucessos or 0 }}</span></td>
+          <td><span class="badge err">{{ summary.erros or 0 }}</span></td>
+          <td><span class="badge warn">{{ summary.bloqueios or 0 }}</span></td>
+          <td>{{ avg_cost }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="grid-column: span 12">
+    <h2>Últimos logs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Paciente</th>
+          <th>Status</th>
+          <th>Tokens</th>
+          <th>Custo (USD)</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if recent_logs %}
+          {% for row in recent_logs %}
+            <tr>
+              <td>{{ row.id }}</td>
+              <td>{{ row.patient_id }}</td>
+              <td>
+                {% if row.status == 'success' %}
+                  <span class="badge ok">success</span>
+                {% elif row.status == 'error' %}
+                  <span class="badge err">error</span>
+                {% elif row.status == 'security_blocked' %}
+                  <span class="badge warn">security_blocked</span>
+                {% else %}
+                  <span class="badge">{{ row.status }}</span>
+                {% endif %}
+              </td>
+              <td>{{ row.total_tokens or 0 }}</td>
+              <td>{{ row.estimated_cost_usd or 0 }}</td>
+              <td>{{ row.created_at }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6" class="muted">Nenhum log encontrado.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

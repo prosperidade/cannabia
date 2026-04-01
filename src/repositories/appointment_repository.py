@@ -7,7 +7,7 @@ from src.infra.database import db_cursor
 # CREATE APPOINTMENT (MULTI-TENANT SEGURO)
 # =====================================================
 
-def create_appointment(patient_id: int, appointment_date, status: str = "Agendada") -> None:
+def create_appointment(patient_id: int, appointment_date, status: str = "Agendada") -> int:
 
     clinic_id = getattr(g, "clinic_id", None)
     if clinic_id is None:
@@ -23,10 +23,12 @@ def create_appointment(patient_id: int, appointment_date, status: str = "Agendad
                 status
             )
             VALUES (%s, %s, %s, %s)
+            RETURNING id
             """,
             (clinic_id, patient_id, appointment_date, status),
         )
         connection.commit()
+        return cursor.fetchone()[0]
 
 
 # =====================================================

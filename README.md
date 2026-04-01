@@ -1,90 +1,140 @@
-# CannabIA 🌿
+# CannabIA
 
-**Plataforma de Inteligência Artificial para Cannabis Medicinal**
+Plataforma white-label multi-tenant para operação assistida no ecossistema de cannabis medicinal.
 
-Uma aplicação web multi-tenant desenvolvida em Python/Flask, integrada com modelos de LLM (OpenAI GPT-4o-mini e Google Gemini), banco de dados relacional PostgreSQL, e a API de WhatsApp Business da Meta.
+## Visão geral
 
----
+A CannabIA não é apenas um sistema clínico para múltiplas clínicas. O produto documentado hoje é uma plataforma que combina:
 
-## 🎯 O que é o CannabIA?
+- atendimento e acolhimento inicial
+- anamnese assistida por IA
+- preparação pré-consulta com apoio científico
+- agenda e consulta
+- acompanhamento longitudinal do paciente
+- operação white-label por tenant
+- governança de IA, integrações e auditoria
 
-O CannabIA é um sistema clínico que auxilia médicos no tratamento com Cannabis Medicinal. A plataforma processa dados de anamnese do paciente e retorna, em segundos, uma análise clínica estruturada, um plano terapêutico personalizado com dosagem e via de administração, e um relatório científico embasado em literatura médica.
+O repositório atual já possui uma base funcional importante, mas ainda está em transição do modelo centrado em `clinic_id` para o modelo amplo de `tenant`.
 
-O sistema foi projetado para funcionar em múltiplas clínicas simultaneamente (multi-tenancy), com isolamento total de dados entre elas.
+## Estado atual do repositório
 
----
+Hoje a base implementada cobre principalmente:
 
-## 🏗️ Stack Tecnológica
+- backend Flask modular
+- autenticação com Flask-Login
+- contexto multi-clínica por `clinic_id`
+- webhook WhatsApp com persistência de mensagens
+- fluxo conversacional de anamnese
+- pipeline de IA com auditoria e cálculo de custo
+- dashboard, histórico de mensagens, atendimentos e agendamento
+- base inicial de conhecimento com ChromaDB
 
-| Camada              | Tecnologia                                        |
-|---------------------|---------------------------------------------------|
-| **Backend**         | Python 3.12 · Flask 3.x · Flask-Login · SocketIO  |
-| **Servidor**        | Gunicorn + Eventlet                               |
-| **Banco de Dados**  | PostgreSQL (Render managed) · psycopg2            |
-| **IA — Análise**    | OpenAI GPT-4o-mini                                |
-| **IA — Relatório**  | Google Gemini 1.5 Flash                           |
-| **Busca Semântica** | ChromaDB · Google text-embedding-004 (RAG)        |
-| **Mensageria**      | Meta/WhatsApp Business API (webhooks)             |
-| **Validação**       | Pydantic v2                                       |
-| **Hospedagem**      | Render (Ohio/us-east-1)                           |
-| **Email**           | SMTP/Gmail                                        |
+Os domínios ainda pendentes ou parciais incluem:
 
----
+- tenancy amplo com `tenant_id`
+- white-label completo por tenant
+- prontuário longitudinal unificado
+- acompanhamento semanal com questionários e escalonamento
+- pagamentos e QR Code
+- billing e monetização
+- integração PubMed e governança formal de conhecimento
 
-## 🚀 Quick Start — Desenvolvimento Local
+## Stack principal
+
+| Camada | Tecnologia |
+|--------|------------|
+| Backend | Python 3.12, Flask 3.x, Flask-Login |
+| App server | Gunicorn, Eventlet |
+| Banco relacional | PostgreSQL, psycopg2 |
+| IA | OpenAI GPT-4o-mini, Google Gemini |
+| Embeddings | Google Gemini Embeddings |
+| Vetorial | ChromaDB |
+| Comunicação | WhatsApp Business API, SMTP |
+| Validação | Pydantic v2 |
+| Deploy | Render |
+
+## Estrutura do projeto
+
+```text
+cannabia/
+├── docs/
+├── migrations/
+├── src/
+│   ├── ai/
+│   ├── infra/
+│   ├── integrations/
+│   ├── knowledge/
+│   ├── repositories/
+│   ├── services/
+│   ├── templates/
+│   ├── web/routes/
+│   ├── app.py
+│   ├── config.py
+│   └── tenancy.py
+├── tests/
+├── create_admin.py
+├── render.yaml
+└── requirements.txt
+```
+
+## Documentação principal
+
+Os documentos oficiais atuais estão em `docs/`:
+
+| Documento | Papel |
+|-----------|-------|
+| `00_CURRENT_STATE_RESTRUCTURING_AND_ADAPTATION.md` | Contexto do estado atual e da adaptação |
+| `01_PRODUCT_AND_BUSINESS_FOUNDATION.md` | Fundação de produto e negócio |
+| `02_ECOSYSTEM_ENTITIES_AND_PERMISSIONS.md` | Entidades, perfis e permissões |
+| `03_PATIENT_AND_DOCTOR_JOURNEYS.md` | Jornadas do paciente e do médico |
+| `04_PATIENT_MONITORING_AND_ALERTS.md` | Acompanhamento e alertas |
+| `05_WHITE_LABEL_AND_MONETIZATION_MODEL.md` | White-label e monetização |
+| `06_AI_RAG_AND_KNOWLEDGE_ARCHITECTURE.md` | IA, RAG e conhecimento |
+| `07_PLATFORM_ARCHITECTURE.md` | Arquitetura da plataforma |
+| `08_DATABASE_AND_DOMAIN_MODEL.md` | Modelo de domínio e banco |
+| `09_INTEGRATIONS_AND_EXTERNAL_SERVICES.md` | Integrações externas |
+| `10_SECURITY_COMPLIANCE_AND_AUDIT.md` | Segurança, compliance e auditoria |
+| `11_IMPLEMENTATION_GAP_ANALYSIS.md` | Gaps entre docs e sistema |
+| `12_ADAPTATION_AND_REFACTORING_ROADMAP.md` | Roadmap macro |
+| `13_MASTER_DOCUMENT_INDEX.md` | Índice mestre |
+| `14_PHASE_1_CLOSURE_AND_READINESS.md` | Encerramento da fase documental |
+| `15_SPRINT_1_EXECUTION_BACKLOG.md` | Backlog executável da sprint atual |
+| `16_CURRENT_SYSTEM_INVENTORY.md` | Inventário técnico oficial da base atual |
+| `17_TENANT_MIGRATION_PLAN.md` | Estratégia de transição de `clinic_id` para `tenant_id` |
+
+## Quick start local
 
 ### Pré-requisitos
 
 - Python 3.12+
-- PostgreSQL rodando localmente (ou uma instância no Render)
-- Chaves de API: OpenAI e Google
+- PostgreSQL acessível via `DATABASE_URL`
+- chaves de API da OpenAI e Google
 
-### 1. Clonar e configurar
+### 1. Ambiente virtual e dependências
 
 ```bash
-git clone <repo-url>
-cd cannabia
 python -m venv env
-env\Scripts\activate          # Windows
+env\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Configurar variáveis de ambiente
+### 2. Variáveis de ambiente
 
-Copie o `.env.example` para `.env` e preencha:
-
-```bash
-cp .env.example .env
-```
-
-**Variáveis obrigatórias:**
+Copie `.env.example` para `.env` e preencha, no mínimo:
 
 ```env
-# Banco de Dados (PostgreSQL)
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE
-
-# Inteligência Artificial
-OPENAI_API_KEY=sk-...
+OPENAI_API_KEY=...
 GOOGLE_API_KEY=...
-
-# Segurança
-SECRET_KEY=uma-chave-secreta-aleatoria-longa
+SECRET_KEY=...
 ```
 
-> **⚠️ Nunca commite o arquivo `.env` no repositório.** Ele já está no `.gitignore`.
+### 3. Aplicar migrations atuais
 
-### 3. Executar migrations
+No estado atual do repositório, o runner local aplica todas as migrations SQL em ordem:
 
 ```bash
-python -c "
-import os, psycopg2
-conn = psycopg2.connect(os.environ['DATABASE_URL'])
-cur = conn.cursor()
-with open('migrations/001_initial_schema.sql', 'r') as f:
-    cur.execute(f.read())
-conn.commit()
-print('Migration executada.')
-"
+python -m src.infra.run_migrations
 ```
 
 ### 4. Criar usuário administrador
@@ -93,155 +143,70 @@ print('Migration executada.')
 python create_admin.py
 ```
 
-### 5. Iniciar a aplicação
+### 5. Rodar a aplicação
 
 ```bash
 python -m flask --app src.app run --debug
 ```
 
-A aplicação estará disponível em `http://localhost:5000`.
+Aplicação local: `http://localhost:5000`
 
----
+## Multi-tenancy atual
 
-## 🏢 Multi-Tenancy
+O isolamento efetivamente implementado hoje ainda é baseado em `clinic_id`.
 
-O CannabIA suporta múltiplas clínicas. Cada clínica possui:
-- Dados de pacientes completamente isolados
-- Usuários com roles específicos por clínica (`clinic_admin`, `medico`)
-- Possibilidade de um médico pertencer a múltiplas clínicas
+- o contexto é resolvido em `src/tenancy.py`
+- o vínculo usuário-clínica está em `user_clinics`
+- os dados clínicos principais usam `clinic_id`
 
-O isolamento é garantido pela coluna `clinic_id` em todas as tabelas de dados clínicos e validado a cada requisição via `src/tenancy.py`.
+Essa é a base que será generalizada progressivamente para `tenant_id`, sem reconstrução total do sistema.
 
----
+## Capacidades implementadas hoje
 
-## 🤖 Pipeline de IA
+### Atendimento e comunicação
 
-Cada caso clínico passa por 3 etapas:
+- webhook Meta para WhatsApp
+- persistência de mensagens recebidas
+- persistência de status de mensagens
+- dashboard realtime básico
 
-```
-Anamnese do Paciente
-       │
-       ▼
-[Etapa 1] Análise Clínica        → GPT-4o-mini
-       │
-       ▼
-[Etapa 2] Plano Terapêutico      → GPT-4o-mini
-       │
-       ▼
-[Etapa 2.5] Busca Semântica (RAG) → ChromaDB + text-embedding-004
-       │
-       ▼
-[Etapa 3] Relatório Científico   → Gemini 1.5 Flash (ou GPT-4o-mini fallback)
-       │
-       ▼
-[Auditoria] PostgreSQL ai_audit_logs (tokens, custo, payload completo)
-```
+### Anamnese e IA
 
----
+- máquina de estados conversacional para anamnese
+- pipeline de 3 etapas com análise clínica, plano terapêutico e relatório científico
+- fallback de relatório quando a base vetorial estiver vazia
+- auditoria de execuções de IA no PostgreSQL
 
-## 📱 Integração WhatsApp
+### Operação interna
 
-O sistema recebe mensagens de pacientes via webhook da API do WhatsApp Business (Meta). As mensagens são armazenadas na tabela `incoming_messages` e processadas de forma assíncrona.
+- login e sessão
+- dashboard com métricas operacionais básicas
+- lista de atendimentos gerados pela anamnese
+- agendamento simples
+- histórico de mensagens
 
-**Configuração necessária:**
-- Criar um App no [Meta for Developers](https://developers.facebook.com)
-- Configurar o webhook apontando para `https://<sua-app>.onrender.com/webhook`
-- Definir as variáveis `META_WHATSAPP_KEY`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET`, `VERIFY_TOKEN`
+## Segurança atual
 
----
+- senhas com hash bcrypt
+- controle de sessão por Flask-Login
+- CSRF nos formulários web
+- rate limit básico em login e webhook
+- validação contra prompt injection
+- redaction parcial de dados sensíveis em logs
 
-## 🚢 Deploy em Produção
+## Deploy
 
-O deploy é feito no **Render** via `render.yaml` (Infrastructure as Code).
+O projeto possui `render.yaml` para deploy no Render com serviço web e PostgreSQL gerenciado.
 
-```bash
-# O Render detecta o render.yaml automaticamente ao conectar o repositório.
-# Basta configurar as variáveis de ambiente no painel e fazer push.
-```
+## Convenção de trabalho
 
-Consulte o [DEPLOYMENT_AND_PRODUCTION_GUIDE.md](docs/DEPLOYMENT_AND_PRODUCTION_GUIDE.md) para instruções detalhadas.
+A partir de `2026-04-01`, o time mantém documentação operacional contínua em:
 
----
+- `docs/runbook.md`
+- `docs/progressoN.md`
 
-## 📂 Estrutura do Projeto
+Todo novo dia de trabalho deve gerar um novo arquivo de progresso seguindo o padrão definido no runbook.
 
-```
-cannabia/
-├── src/
-│   ├── app.py                    # Factory da aplicação Flask
-│   ├── config.py                 # Configurações via variáveis de ambiente
-│   ├── tenancy.py                # Hook de resolução de clínica por request
-│   ├── ai/
-│   │   ├── service.py            # Orquestrador do pipeline de IA
-│   │   ├── pipeline.py           # As 3 etapas do pipeline clínico
-│   │   ├── chains.py             # Chamadas individuais aos LLMs
-│   │   ├── schemas.py            # Schemas Pydantic de entrada/saída
-│   │   ├── validators.py         # Anti prompt injection
-│   │   └── pricing.py            # Cálculo de custo por tokens
-│   ├── repositories/
-│   │   ├── user_repository.py    # CRUD de usuários
-│   │   ├── patient_repository.py # CRUD de pacientes (com clinic_id)
-│   │   ├── ai_audit_repository.py# Persistência dos logs de IA
-│   │   └── tenancy_repository.py # Resolução de clínica padrão
-│   ├── infra/
-│   │   └── database.py           # Context manager db_cursor (psycopg2)
-│   └── web/
-│       └── routes/               # Blueprints Flask
-├── migrations/
-│   └── 001_initial_schema.sql    # Schema completo PostgreSQL
-├── docs/
-│   ├── DATABASE_SCHEMA.md
-│   ├── DEPLOYMENT_AND_PRODUCTION_GUIDE.md
-│   ├── AI_MODULE_DOCUMENTATION.md
-│   └── AUTHORIZATION_AND_MULTI_TENANCY.md
-├── render.yaml                   # Infrastructure as Code (Render)
-├── requirements.txt
-└── .env.example
-```
+## Observação importante
 
----
-
-## 📚 Documentação Técnica
-
-| Documento | Descrição |
-|-----------|-----------|
-| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | Estrutura completa do banco PostgreSQL |
-| [DEPLOYMENT_AND_PRODUCTION_GUIDE.md](docs/DEPLOYMENT_AND_PRODUCTION_GUIDE.md) | Deploy no Render, variáveis de ambiente, migrations |
-| [AI_MODULE_DOCUMENTATION.md](docs/AI_MODULE_DOCUMENTATION.md) | Pipeline de IA, RAG, auditoria e custos |
-| [AUTHORIZATION_AND_MULTI_TENANCY.md](docs/AUTHORIZATION_AND_MULTI_TENANCY.md) | Isolamento por clínica, Flask-Login, Regra de Ouro |
-
----
-
-## 🔒 Segurança
-
-- **Senhas:** Armazenadas com hash bcrypt
-- **Sessões:** Cookies seguros (HTTPS only em produção)
-- **CSRF:** Todos os formulários protegidos com tokens de sessão
-- **Rate Limiting:** Limite de tentativas de login
-- **Multi-tenancy:** Dados de pacientes isolados por `clinic_id`
-- **Anti Injection:** Validação contra prompt injection antes de cada chamada de IA
-
----
-
-## 📋 Credenciais Padrão (Ambiente de Desenvolvimento)
-
-> **Nunca use estas credenciais em produção.**
-
-Após rodar a migration e o `create_admin.py`, acesse com:
-
-- **Usuário:** `admin`
-- **Senha:** definida ao rodar `create_admin.py`
-
----
-
-## 🤝 Contribuindo
-
-1. Faça um fork do repositório
-2. Crie uma branch: `git checkout -b feature/nome-da-feature`
-3. Commit suas mudanças: `git commit -m 'feat: descrição'`
-4. Push para a branch: `git push origin feature/nome-da-feature`
-5. Abra um Pull Request
-
----
-
-*CannabIA — Tecnologia a serviço da saúde integrativa.*
+Se houver divergência entre o comportamento atual do código e descrições antigas do repositório, a fonte oficial de direção do produto passa a ser a série documental nova em `docs/00` a `docs/16`.

@@ -18,6 +18,7 @@ from flask import (
     url_for,
     jsonify,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -61,10 +62,14 @@ class AppUser(UserMixin):
         self.id = str(user_id)
         self.username = username
         self.role = role
+        self.global_role = role
 
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
+
+    # Correção para proxy reverso (ex: Render) confiar no protocolo HTTPS
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # 🔐 Multi-tenant
     init_tenancy(app)
@@ -233,6 +238,11 @@ def create_app() -> Flask:
                 "authenticated": bool(current_user.is_authenticated),
                 "user_id": getattr(current_user, "id", None),
                 "role": getattr(current_user, "role", None),
+                "global_role": getattr(current_user, "global_role", None),
+                "clinic_role": getattr(g, "clinic_role", None),
+                "tenant_id": getattr(g, "tenant_id", None),
+                "tenant_role": getattr(g, "tenant_role", None),
+                "tenant_type": getattr(g, "tenant_type", None),
             }
         )
 
@@ -242,6 +252,9 @@ def create_app() -> Flask:
         return {
             "clinic_id": getattr(g, "clinic_id", None),
             "clinic_role": getattr(g, "clinic_role", None),
+            "tenant_id": getattr(g, "tenant_id", None),
+            "tenant_role": getattr(g, "tenant_role", None),
+            "tenant_type": getattr(g, "tenant_type", None),
         }
 
     @app.route("/ai/test", methods=["POST"])
