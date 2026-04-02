@@ -1,5 +1,5 @@
 # src/services/appointment_service.py
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import g
 
@@ -21,7 +21,26 @@ def create_appointment_from_form(patient_name: str, appointment_date: str) -> in
     except ValueError as exc:
         raise ValueError('Formato de data inválido. Use dd/mm/yyyy HH:MM.') from exc
 
-    # Garante que o paciente existe (get_or_create) — clinic_id vem de g
+    return _create_appointment(patient_name, dt)
+
+
+def create_appointment_from_api(patient_name: str, appointment_date: str) -> int:
+    if not patient_name or not appointment_date:
+        raise ValueError('Nome do paciente e data são obrigatórios.')
+
+    try:
+        normalized = appointment_date.strip().replace('Z', '+00:00')
+        dt = datetime.fromisoformat(normalized)
+    except ValueError as exc:
+        raise ValueError('Formato de data inválido. Use ISO 8601.') from exc
+
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+    return _create_appointment(patient_name, dt)
+
+
+def _create_appointment(patient_name: str, dt: datetime) -> int:
     clinic_id = getattr(g, 'clinic_id', None)
     if clinic_id is None:
         raise RuntimeError('clinic_id não encontrado no contexto da request')

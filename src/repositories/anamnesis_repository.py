@@ -94,12 +94,20 @@ def list_reports(
     status: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """Lista relatórios da clínica, com filtro opcional de status."""
+    has_patient_id = _anamnesis_has_patient_id()
     with db_cursor(dictionary=True) as (_, cursor):
-        sql  = (
-            "SELECT id, patient_name, phone, status, rag_chunks_used, "
-            "report_model, created_at "
-            "FROM anamnesis_reports WHERE clinic_id = %s"
-        )
+        if has_patient_id:
+            sql = (
+                "SELECT id, patient_id, patient_name, phone, status, rag_chunks_used, "
+                "report_model, created_at "
+                "FROM anamnesis_reports WHERE clinic_id = %s"
+            )
+        else:
+            sql = (
+                "SELECT id, NULL::INT AS patient_id, patient_name, phone, status, rag_chunks_used, "
+                "report_model, created_at "
+                "FROM anamnesis_reports WHERE clinic_id = %s"
+            )
         args: list = [clinic_id]
         if status:
             sql += " AND status = %s"

@@ -38,6 +38,7 @@ from src.config import (
 )
 
 from src.web.routes.auth import limit_or_429, generate_csrf_token, validate_csrf_from_form
+from src.web.auth_identity import AppUser
 
 # Blueprints
 from src.web.routes.historico_atendimento import historico_bp
@@ -46,6 +47,7 @@ from src.web.routes.scheduling_chain import scheduling_bp
 from src.web.routes.dashboard import dashboard_bp
 from src.web.routes.ai_admin import ai_admin_bp
 from src.web.routes.atendimentos import atendimentos_bp
+from src.web.routes.api_v1 import api_v1_bp
 
 from src.ai.service import CannabIAService
 from src.repositories.user_repository import (
@@ -55,15 +57,6 @@ from src.repositories.user_repository import (
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-
-
-class AppUser(UserMixin):
-    def __init__(self, user_id: int, username: str, role: str):
-        self.id = str(user_id)
-        self.username = username
-        self.role = role
-        self.global_role = role
-
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -151,6 +144,7 @@ def create_app() -> Flask:
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(ai_admin_bp)
     app.register_blueprint(atendimentos_bp)
+    app.register_blueprint(api_v1_bp)
 
     # ==============================
     # CSRF HELPERS

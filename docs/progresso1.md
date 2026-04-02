@@ -29,6 +29,17 @@ Iniciar a organização formal da documentação operacional da CannabIA e conso
 - Integração de eventos de jornada em anamnese, revisão clínica e agendamento
 - Exposição inicial da timeline longitudinal na tela de detalhe de atendimento
 - Criação do backlog da sprint 2 em `docs/18_SPRINT_2_BACKLOG.md`
+- Criação da foundation mínima de prontuário longitudinal em `migrations/006_medical_records_foundation.sql`
+- Inclusão de registro clínico do médico no detalhe do atendimento com persistência em prontuário
+- Integração do prontuário com timeline para registrar conduta e atualização clínica
+- Formalização da estratégia oficial de frontend em `docs/19_FRONTEND_STRATEGY.md`
+- Definição arquitetural de migração futura do frontend para Next.js
+- Criação do contrato inicial de API para o novo frontend em `docs/20_FRONTEND_API_CONTRACT.md`
+- Implementação da primeira leva de endpoints JSON em `/api/v1` para sessão, contexto, atendimentos, timeline, prontuário, dashboard e agendamentos
+- Bootstrap inicial do `frontend/` em Next.js com login, shell autenticado, lista de atendimentos e detalhe clínico
+- Ajuste do backend para expor CORS controlado por `FRONTEND_ORIGIN` durante a transição para o frontend novo
+- Correção do bootstrap TypeScript do frontend para remover inconsistências de tipagem React
+- Criação das páginas reais de `dashboard` e `agendamentos` no Next.js consumindo a API v1
 
 ## Decisões registradas
 
@@ -44,6 +55,12 @@ Iniciar a organização formal da documentação operacional da CannabIA e conso
 - Há inconsistências imediatas a corrigir em documentação, métricas de IA, setup de migrations e semântica de papéis
 - A timeline do paciente deixou de ser inexistente e passa a existir em foundation mínima, ainda sem prontuário longitudinal completo
 - Os formulários já tinham uso inconsistente de CSRF entre templates e backend; a validação foi compatibilizada para não quebrar o legado
+- O prontuário longitudinal deixou de ser inexistente e passa a ter entidade agregadora com entradas clínicas e importação inicial da anamnese
+- A direção oficial de frontend deixa de ser Jinja/Flask e passa a ser uma migração gradual para Next.js, preservando Flask como backend
+- O backend passa a precisar de uma camada API mais explícita para servir o frontend externo sem depender de templates HTML
+- A transição para Next.js já pode começar apoiada em endpoints reais, sem bloquear a convivência com o frontend legado
+- O frontend novo já tem fundação prática no repositório, mesmo antes de substituir o legado em produção
+- O frontend novo já cobre overview operacional, agenda e atendimento em rotas separadas
 
 ## Próximos passos
 
@@ -51,7 +68,12 @@ Iniciar a organização formal da documentação operacional da CannabIA e conso
 - Validar a aplicação das migrations em ambiente local
 - Revisar os pontos remanescentes de permissões por contexto
 - Expandir a timeline para acompanhamento, alertas e próximos estados clínicos
-- Iniciar o desenho da próxima migration de prontuário longitudinal
+- Evoluir o prontuário para anexos, exames, consultas formais e trilha de auditoria clínica
+- Preparar contratos de API e bootstrap do futuro frontend em Next.js
+- Implementar a primeira leva de endpoints JSON para sessão, atendimentos, timeline, prontuário e agendamento
+- Evoluir autenticação e contratos da API para consumo do frontend Next.js
+- Conectar o frontend Next.js ao restante das APIs e expandir dashboard, agendamento e auditoria de IA
+- Validar build local do frontend e ampliar a cobertura para mensagens e auditoria de IA
 
 ## Arquivos relevantes do dia
 
@@ -64,6 +86,9 @@ Iniciar a organização formal da documentação operacional da CannabIA e conso
 - `README.md`
 - `migrations/004_tenants_foundation.sql`
 - `migrations/005_patient_timeline_foundation.sql`
+- `migrations/006_medical_records_foundation.sql`
+- `docs/19_FRONTEND_STRATEGY.md`
+- `docs/20_FRONTEND_API_CONTRACT.md`
 
 ## Bloqueios
 

@@ -110,6 +110,8 @@ Fontes consideradas:
 | `src/repositories/appointment_repository.py` | Agendamentos | Implementado |
 | `src/repositories/message_repository.py` | Mensagens e status | Implementado |
 | `src/repositories/anamnesis_repository.py` | Relatórios de anamnese | Implementado |
+| `src/repositories/patient_timeline_repository.py` | Timeline longitudinal do paciente | Implementado |
+| `src/repositories/medical_record_repository.py` | Foundation de prontuário longitudinal | Implementado |
 | `src/repositories/ai_audit_repository.py` | Logs de IA | Implementado |
 | `src/repositories/dashboard_repository.py` | Métricas do dashboard | Implementado |
 | `src/repositories/session_repository.py` | Sessões WhatsApp | Implementado |
@@ -146,6 +148,7 @@ Fontes consideradas:
 | `/atendimentos` | GET | Lista de relatórios |
 | `/atendimentos/<report_id>` | GET | Detalhe do relatório |
 | `/atendimentos/<report_id>/revisar` | POST | Marcar relatório como revisado |
+| `/atendimentos/<report_id>/prontuario` | POST | Salvar registro clínico no prontuário |
 
 ### 5.4. Realtime e webhooks
 
@@ -185,6 +188,9 @@ Fontes consideradas:
 | `tenant_branding` | white-label base | configuração inicial de marca |
 | `tenant_integrations` | integrações por tenant | fundação inicial |
 | `user_tenant_roles` | acesso/tenancy | fundação da evolução de permissões |
+| `patient_timeline_events` | jornada clínica | timeline longitudinal mínima |
+| `medical_records` | prontuário | entidade agregadora inicial |
+| `medical_record_entries` | prontuário | entradas clínicas e snapshots |
 
 ### 6.2. Leitura de maturidade do banco atual
 
@@ -194,7 +200,7 @@ Fontes consideradas:
 | Contexto multi-clínica | Existe |
 | Auditoria de IA | Existe |
 | Comunicação WhatsApp | Existe |
-| Prontuário longitudinal | Não existe |
+| Prontuário longitudinal | Foundation mínima implementada |
 | Billing | Não existe |
 | Pagamentos | Não existe |
 | Branding por tenant | Não existe |
@@ -267,7 +273,7 @@ Fluxo existente:
 | Atendimento e acolhimento | Parcial via WhatsApp/anamnese | Adaptar |
 | Jornada do paciente | Parcial | Adaptar |
 | Jornada do médico | Parcial | Adaptar |
-| Prontuário longitudinal | Não existe | Criar/Refatorar |
+| Prontuário longitudinal | Foundation mínima implementada | Evoluir |
 | Acompanhamento semanal | Muito parcial | Criar/Expandir |
 | Alertas com severidade e SLA | Não existe formalmente | Criar/Expandir |
 | Comunicação multi-canal | Parcial | Adaptar |

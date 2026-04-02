@@ -59,5 +59,7 @@ desktop.ini
 # NODE (caso venha a usar JS)
 # ──────────────────────────────────────────────
 node_modules/
+.next/
+frontend/.env.local
 npm-debug.log
 yarn-error.log

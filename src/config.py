@@ -27,6 +27,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-fallback")
 SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
+FRONTEND_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("FRONTEND_ORIGIN", "http://localhost:3000").split(",")
+    if origin.strip()
+]
 
 MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(1024 * 1024)))  # 1MB
 

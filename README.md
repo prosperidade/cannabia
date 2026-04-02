@@ -43,6 +43,7 @@ Os domínios ainda pendentes ou parciais incluem:
 
 | Camada | Tecnologia |
 |--------|------------|
+| Frontend | Next.js App Router, React, TypeScript (bootstrap com dashboard, agenda e atendimentos) |
 | Backend | Python 3.12, Flask 3.x, Flask-Login |
 | App server | Gunicorn, Eventlet |
 | Banco relacional | PostgreSQL, psycopg2 |
@@ -58,6 +59,7 @@ Os domínios ainda pendentes ou parciais incluem:
 ```text
 cannabia/
 ├── docs/
+├── frontend/
 ├── migrations/
 ├── src/
 │   ├── ai/
@@ -101,6 +103,9 @@ Os documentos oficiais atuais estão em `docs/`:
 | `15_SPRINT_1_EXECUTION_BACKLOG.md` | Backlog executável da sprint atual |
 | `16_CURRENT_SYSTEM_INVENTORY.md` | Inventário técnico oficial da base atual |
 | `17_TENANT_MIGRATION_PLAN.md` | Estratégia de transição de `clinic_id` para `tenant_id` |
+| `18_SPRINT_2_BACKLOG.md` | Backlog da sprint focada em jornada, timeline e prontuário |
+| `19_FRONTEND_STRATEGY.md` | Estratégia oficial de migração do frontend para Next.js |
+| `20_FRONTEND_API_CONTRACT.md` | Contrato inicial de API entre Flask e o futuro frontend Next.js |
 
 ## Quick start local
 
@@ -127,6 +132,7 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE
 OPENAI_API_KEY=...
 GOOGLE_API_KEY=...
 SECRET_KEY=...
+FRONTEND_ORIGIN=http://localhost:3000
 ```
 
 ### 3. Aplicar migrations atuais
@@ -150,6 +156,23 @@ python -m flask --app src.app run --debug
 ```
 
 Aplicação local: `http://localhost:5000`
+
+### 6. Rodar o frontend Next.js
+
+```bash
+cd frontend
+copy .env.example .env.local
+npm install
+npm run dev
+```
+
+Frontend local: `http://localhost:3000`
+
+Rotas iniciais do frontend novo:
+
+- `/dashboard`
+- `/agendamentos`
+- `/atendimentos`
 
 ## Multi-tenancy atual
 
@@ -209,4 +232,4 @@ Todo novo dia de trabalho deve gerar um novo arquivo de progresso seguindo o pad
 
 ## Observação importante
 
-Se houver divergência entre o comportamento atual do código e descrições antigas do repositório, a fonte oficial de direção do produto passa a ser a série documental nova em `docs/00` a `docs/16`.
+Se houver divergência entre o comportamento atual do código e descrições antigas do repositório, a fonte oficial de direção do produto passa a ser a série documental ativa em `docs/00` a `docs/19`.
