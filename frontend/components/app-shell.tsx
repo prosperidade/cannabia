@@ -64,6 +64,18 @@ export function AppShell({ session, title, subtitle, children }: AppShellProps) 
           >
             Agendamentos
           </Link>
+          <Link
+            className={pathname.startsWith("/mensagens") ? "active" : ""}
+            href="/mensagens"
+          >
+            Mensagens
+          </Link>
+          <Link
+            className={pathname.startsWith("/auditoria-ia") ? "active" : ""}
+            href="/auditoria-ia"
+          >
+            Auditoria IA
+          </Link>
         </nav>
 
         <div className="rail-meta">

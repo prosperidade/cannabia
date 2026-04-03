@@ -1,18 +1,15 @@
 # render.yaml — Infraestrutura como Código para o Render
-# Docs: https://render.com/docs/infrastructure-as-code
+# Docs: https://render.com/docs/blueprint-spec
 
 services:
-  # ════════════════════════════════════════════════════
-  # WEB SERVICE — Flask + Gunicorn
-  # ════════════════════════════════════════════════════
   - type: web
     name: cannabia-api
     runtime: python
-    region: ohio  # us-east-1 (mais próximo do Brasil com menor latência)
+    region: ohio
     plan: starter
-
-    # Dependências e inicialização
+    autoDeployTrigger: commit
     buildCommand: pip install -r requirements.txt
+    preDeployCommand: python -m src.infra.run_migrations
     startCommand: >
       gunicorn
       --worker-class eventlet
@@ -22,25 +19,16 @@ services:
       --access-logfile -
       --error-logfile -
       "src.app:app"
-
-    # Health check
-    healthCheckPath: /whoami
-
-    # Variáveis de ambiente
+    healthCheckPath: /api/v1/health
     envVars:
-      # ── Banco de Dados (URL completa — exigida pelo config.py) ──────────────
       - key: DATABASE_URL
         fromDatabase:
           name: cannabia-db
           property: connectionString
-
-      # ── IA ──────────────────────────────────────────
       - key: OPENAI_API_KEY
-        sync: false          # ← preencher manualmente no painel Render
+        sync: false
       - key: GOOGLE_API_KEY
         sync: false
-
-      # ── WhatsApp / Meta ──────────────────────────────
       - key: META_WHATSAPP_KEY
         sync: false
       - key: WHATSAPP_PHONE_NUMBER_ID
@@ -51,24 +39,18 @@ services:
         sync: false
       - key: VERIFY_TOKEN
         sync: false
-
-      # ── Email ─────────────────────────────────────────
       - key: DOCTOR_EMAIL
         sync: false
       - key: EMAIL_FROM
         sync: false
       - key: EMAIL_PASSWORD
         sync: false
-
-      # ── Segurança ─────────────────────────────────────
       - key: SECRET_KEY
-        generateValue: true   # ← Render gera automaticamente
+        generateValue: true
       - key: SESSION_COOKIE_SECURE
-        value: "true"         # obrigatório em HTTPS (produção)
+        value: "true"
       - key: SESSION_COOKIE_SAMESITE
         value: "Lax"
-
-      # ── Limites ───────────────────────────────────────
       - key: WEBHOOK_RATE_LIMIT
         value: "60"
       - key: WEBHOOK_RATE_WINDOW_S
@@ -80,12 +62,26 @@ services:
       - key: MAX_CONTENT_LENGTH
         value: "262144"
 
-  # ════════════════════════════════════════════════════
-  # DATABASE — PostgreSQL (Render managed)
-  # ════════════════════════════════════════════════════
-  - type: pserv
-    name: cannabia-db
-    runtime: docker
-    plan: starter
+  - type: web
+    name: cannabia-frontend
+    runtime: node
     region: ohio
+    plan: starter
+    rootDir: frontend
+    autoDeployTrigger: commit
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /login
+    envVars:
+      - key: CANNABIA_API_HOSTPORT
+        fromService:
+          type: web
+          name: cannabia-api
+          property: hostport
 
+databases:
+  - name: cannabia-db
+    plan: basic-256mb
+    region: ohio
+    databaseName: cannabia
+    postgresMajorVersion: "18"

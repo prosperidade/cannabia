@@ -75,7 +75,9 @@ export default function DashboardPage() {
     total_appointments: 0,
     total_ai: 0,
   };
-  const contacts = dashboard?.charts.messages_by_contact ?? [];
+  const contacts = [...(dashboard?.charts.messages_by_contact ?? [])].sort(
+    (left, right) => right.count - left.count,
+  );
   const days = dashboard?.charts.messages_by_day ?? [];
   const maxContactCount = Math.max(...contacts.map((item) => item.count), 0);
   const maxDayCount = Math.max(...days.map((item) => item.count), 0);

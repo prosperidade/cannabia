@@ -8,11 +8,11 @@ MIGRATIONS_DIR = Path("migrations")
 
 def run_sql_file(path):
     sql_content = Path(path).read_text(encoding='utf-8')
-    statements = [stmt.strip() for stmt in sql_content.split(';') if stmt.strip()]
+    if not sql_content.strip():
+        return
 
     with db_cursor() as (connection, cursor):
-        for stmt in statements:
-            cursor.execute(stmt)
+        cursor.execute(sql_content)
         connection.commit()
 
 

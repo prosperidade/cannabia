@@ -92,15 +92,36 @@ def save_ai_audit_log(
 # =====================================================
 
 def get_ai_audit_summary():
+    return get_ai_audit_summary_filtered()
+
+
+def _build_audit_filters(clinic_id, status=None, days=None):
+    clauses = ["clinic_id = %s"]
+    params = [clinic_id]
+
+    if status:
+        clauses.append("status = %s")
+        params.append(status)
+
+    if days is not None:
+        clauses.append("created_at >= CURRENT_TIMESTAMP - (%s * INTERVAL '1 day')")
+        params.append(days)
+
+    return " AND ".join(clauses), params
+
+
+def get_ai_audit_summary_filtered(status=None, days=None):
 
     clinic_id = getattr(g, "clinic_id", None)
     if clinic_id is None:
         raise RuntimeError("clinic_id não encontrado no contexto da request")
 
+    where_clause, params = _build_audit_filters(clinic_id, status=status, days=days)
+
     with db_cursor(dictionary=True) as (_, cursor):
 
         cursor.execute(
-            """
+            f"""
             SELECT
                 COUNT(*) AS total_execucoes,
                 COALESCE(SUM(total_tokens), 0) AS total_tokens,
@@ -110,9 +131,9 @@ def get_ai_audit_summary():
                 SUM(CASE WHEN status = 'security_blocked' THEN 1 ELSE 0 END) AS bloqueios,
                 COALESCE(AVG(total_time_ms), 0) AS tempo_medio_ms
             FROM ai_audit_logs
-            WHERE clinic_id = %s
+            WHERE {where_clause}
             """,
-            (clinic_id,),
+            params,
         )
 
         result = cursor.fetchone()
@@ -133,28 +154,38 @@ def get_ai_audit_summary():
 # =====================================================
 
 def get_recent_ai_logs(limit=10):
+    return get_recent_ai_logs_filtered(limit=limit)
+
+
+def get_recent_ai_logs_filtered(limit=10, status=None, days=None):
 
     clinic_id = getattr(g, "clinic_id", None)
     if clinic_id is None:
         raise RuntimeError("clinic_id não encontrado no contexto da request")
 
+    where_clause, params = _build_audit_filters(clinic_id, status=status, days=days)
+    params.append(limit)
+
     with db_cursor(dictionary=True) as (_, cursor):
 
         cursor.execute(
-            """
+            f"""
             SELECT
                 id,
                 patient_id,
                 status,
+                endpoint,
+                model,
                 total_tokens,
                 estimated_cost_usd,
+                error_message,
                 created_at
             FROM ai_audit_logs
-            WHERE clinic_id = %s
+            WHERE {where_clause}
             ORDER BY id DESC
             LIMIT %s
             """,
-            (clinic_id, limit),
+            params,
         )
 
         return cursor.fetchall()

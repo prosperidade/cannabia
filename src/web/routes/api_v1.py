@@ -11,7 +11,7 @@ from flask_login import current_user, login_user, logout_user
 from src.config import FRONTEND_ORIGINS, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_S
 from src.infra.security import get_effective_roles, normalize_role_name
 from src.repositories import message_repository
-from src.repositories.ai_audit_repository import get_ai_audit_summary, get_recent_ai_logs
+from src.repositories.ai_audit_repository import get_ai_audit_summary_filtered, get_recent_ai_logs_filtered
 from src.repositories.anamnesis_repository import get_report, list_reports, mark_reviewed
 from src.repositories.dashboard_repository import get_dashboard_metrics
 from src.repositories.medical_record_repository import (
@@ -340,8 +340,9 @@ def dashboard():
 @api_role_required("Admin", "Medico")
 def dashboard_messages():
     sender = request.args.get("sender")
+    search = request.args.get("search")
     page, page_size = _pagination_args()
-    messages = message_repository.list_messages(g.clinic_id, sender)
+    messages = message_repository.list_messages(g.clinic_id, sender=sender, search=search)
     items, meta = _paginate(messages, page, page_size)
     return _success(items, meta=meta)
 
@@ -350,10 +351,24 @@ def dashboard_messages():
 @api_role_required("Admin", "Medico", "Atendente")
 def messages():
     sender = request.args.get("sender")
+    search = request.args.get("search")
     page, page_size = _pagination_args()
-    messages_list = message_repository.list_messages(g.clinic_id, sender)
+    messages_list = message_repository.list_messages(g.clinic_id, sender=sender, search=search)
     items, meta = _paginate(messages_list, page, page_size)
     return _success(items, meta=meta)
+
+
+@api_v1_bp.get("/messages/contacts")
+@api_role_required("Admin", "Medico", "Atendente")
+def message_contacts():
+    search = request.args.get("search")
+    try:
+        limit = int(request.args.get("limit", 25))
+    except (TypeError, ValueError):
+        limit = 25
+    limit = max(1, min(limit, 100))
+    contacts = message_repository.list_message_contacts(g.clinic_id, limit=limit, search=search)
+    return _success(contacts)
 
 
 @api_v1_bp.get("/attendances")
@@ -552,9 +567,32 @@ def appointments_create():
 @api_v1_bp.get("/admin/ai-metrics")
 @api_role_required("Admin", "Medico")
 def ai_metrics():
+    raw_status = (request.args.get("status") or "").strip()
+    status = raw_status if raw_status and raw_status != "all" else None
+
+    try:
+        days = int(request.args.get("days", 30))
+    except (TypeError, ValueError):
+        days = 30
+    if days <= 0:
+        days = None
+    elif days > 365:
+        days = 365
+
+    try:
+        limit = int(request.args.get("limit", 10))
+    except (TypeError, ValueError):
+        limit = 10
+    limit = max(1, min(limit, 100))
+
     return _success(
         {
-            "summary": get_ai_audit_summary(),
-            "recent_logs": get_recent_ai_logs(10),
+            "summary": get_ai_audit_summary_filtered(status=status, days=days),
+            "recent_logs": get_recent_ai_logs_filtered(limit=limit, status=status, days=days),
+            "filters": {
+                "status": status,
+                "days": days,
+                "limit": limit,
+            },
         }
     )

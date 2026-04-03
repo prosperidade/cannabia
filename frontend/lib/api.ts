@@ -1,4 +1,6 @@
 import type {
+  AiAuditData,
+  ApiListMeta,
   ApiSessionResponse,
   AppointmentItem,
   AppointmentPayload,
@@ -6,11 +8,13 @@ import type {
   AttendanceListItem,
   DashboardData,
   DashboardMessage,
+  MessageContactOption,
+  MessageItem,
   MedicalRecordPayload,
+  PaginatedResult,
 } from "@/lib/types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 type ApiEnvelope<T> = {
   data: T;
@@ -112,6 +116,52 @@ export async function getDashboardMessages(page = 1, pageSize = 8) {
   return response.data;
 }
 
+type MessageFilters = {
+  sender?: string;
+  search?: string;
+};
+
+type AiMetricsFilters = {
+  status?: string;
+  days?: number;
+  limit?: number;
+};
+
+export async function listMessages(
+  page = 1,
+  pageSize = 50,
+  filters: MessageFilters = {},
+): Promise<PaginatedResult<MessageItem>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+  if (filters.sender?.trim()) {
+    params.set("sender", filters.sender.trim());
+  }
+  if (filters.search?.trim()) {
+    params.set("search", filters.search.trim());
+  }
+  const response = await request<MessageItem[]>(`/messages?${params.toString()}`);
+  return {
+    items: response.data,
+    meta: (response.meta as ApiListMeta | undefined) ?? {
+      page,
+      page_size: pageSize,
+      total: response.data.length,
+    },
+  };
+}
+
+export async function listMessageContacts(search?: string) {
+  const params = new URLSearchParams({ limit: "50" });
+  if (search?.trim()) {
+    params.set("search", search.trim());
+  }
+  const response = await request<MessageContactOption[]>(`/messages/contacts?${params.toString()}`);
+  return response.data;
+}
+
 export async function listAttendances(status?: string) {
   const params = new URLSearchParams();
   if (status && status !== "all") {
@@ -174,5 +224,21 @@ export async function createAppointment(csrfToken: string, payload: AppointmentP
     },
     body: JSON.stringify(payload),
   });
+  return response.data;
+}
+
+export async function getAiMetrics(filters: AiMetricsFilters = {}) {
+  const params = new URLSearchParams();
+  if (filters.status?.trim()) {
+    params.set("status", filters.status.trim());
+  }
+  if (typeof filters.days === "number") {
+    params.set("days", String(filters.days));
+  }
+  if (typeof filters.limit === "number") {
+    params.set("limit", String(filters.limit));
+  }
+  const query = params.toString() ? `?${params.toString()}` : "";
+  const response = await request<AiAuditData>(`/admin/ai-metrics${query}`);
   return response.data;
 }

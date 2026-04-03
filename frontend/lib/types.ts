@@ -41,6 +41,25 @@ export type DashboardMessage = {
   timestamp: string;
 };
 
+export type MessageItem = DashboardMessage;
+
+export type ApiListMeta = {
+  page: number;
+  page_size: number;
+  total: number;
+};
+
+export type PaginatedResult<T> = {
+  items: T[];
+  meta: ApiListMeta;
+};
+
+export type MessageContactOption = {
+  sender: string;
+  label: string;
+  count: number;
+};
+
 export type DashboardData = {
   metrics: DashboardMetrics;
   charts: {
@@ -134,4 +153,36 @@ export type AppointmentItem = {
 export type AppointmentPayload = {
   patient_name: string;
   appointment_date: string;
+};
+
+export type AiAuditSummary = {
+  total_execucoes: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  sucessos: number;
+  erros: number;
+  bloqueios: number;
+  tempo_medio_ms: number;
+};
+
+export type AiAuditLog = {
+  id: number;
+  patient_id: number | null;
+  status: string;
+  endpoint: string;
+  model: string;
+  total_tokens: number;
+  estimated_cost_usd: number;
+  error_message: string | null;
+  created_at: string;
+};
+
+export type AiAuditData = {
+  summary: AiAuditSummary;
+  recent_logs: AiAuditLog[];
+  filters?: {
+    status: string | null;
+    days: number | null;
+    limit: number;
+  };
 };

@@ -132,7 +132,7 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE
 OPENAI_API_KEY=...
 GOOGLE_API_KEY=...
 SECRET_KEY=...
-FRONTEND_ORIGIN=http://localhost:3000
+FRONTEND_ORIGIN=http://localhost:3001,http://localhost:3000
 ```
 
 ### 3. Aplicar migrations atuais
@@ -166,13 +166,18 @@ npm install
 npm run dev
 ```
 
-Frontend local: `http://localhost:3000`
+Frontend local: `http://localhost:3001`
+
+O frontend novo usa um proxy same-origin em `/api/v1`, então ele não depende mais de expor
+`NEXT_PUBLIC_API_BASE_URL` no navegador durante o desenvolvimento.
 
 Rotas iniciais do frontend novo:
 
 - `/dashboard`
 - `/agendamentos`
 - `/atendimentos`
+- `/mensagens`
+- `/auditoria-ia`
 
 ## Multi-tenancy atual
 
@@ -219,7 +224,11 @@ Essa é a base que será generalizada progressivamente para `tenant_id`, sem rec
 
 ## Deploy
 
-O projeto possui `render.yaml` para deploy no Render com serviço web e PostgreSQL gerenciado.
+O projeto possui `render.yaml` para deploy no Render com:
+
+- backend Flask
+- frontend Next.js
+- PostgreSQL gerenciado
 
 ## Convenção de trabalho
 

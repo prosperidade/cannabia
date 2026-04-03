@@ -147,7 +147,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- Inserir o usuário administrador (Usuário: admin | Senha: admin123)
 -- Nota: O hash abaixo é para a senha 'admin123' usando o padrão do sistema
 INSERT INTO users (username, password_hash, role, is_active) 
-VALUES ('admin', '$2b$12$8K5.E4/9tN4QfX9t4O7uO.Z6O7.Z6O7.Z6O7.Z6O7.Z6O7.Z6O7.', 'Medico', TRUE)
+VALUES ('admin', '$2b$12$gp4/sX68FDK9IFOoU/wPSeMp/TqRpH5JXfHal4Cmccm6RIuvz49Qe', 'Medico', TRUE)
 ON CONFLICT (username) DO NOTHING;
 
 -- Vincular o admin à clínica (ID 1)

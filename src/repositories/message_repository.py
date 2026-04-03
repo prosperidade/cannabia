@@ -38,30 +38,73 @@ def save_status_update(clinic_id, message_id, status, timestamp):
 # READ OPERATIONS
 # ==========================================
 
-def list_messages(clinic_id, sender=None):
+def list_messages(clinic_id, sender=None, search=None):
     with db_cursor(dictionary=True) as (_, cursor):
-        if sender:
-            cursor.execute(
-                """
-                SELECT *
-                FROM incoming_messages
-                WHERE clinic_id = %s
-                  AND sender = %s
-                ORDER BY id DESC
-                """,
-                (clinic_id, sender),
-            )
-        else:
-            cursor.execute(
-                """
-                SELECT *
-                FROM incoming_messages
-                WHERE clinic_id = %s
-                ORDER BY id DESC
-                """,
-                (clinic_id,),
-            )
+        clauses = ["clinic_id = %s"]
+        params = [clinic_id]
 
+        if sender:
+            clauses.append("sender = %s")
+            params.append(sender)
+
+        if search:
+            term = f"%{search.strip()}%"
+            clauses.append(
+                """
+                (
+                    sender ILIKE %s
+                    OR COALESCE(contact_name, '') ILIKE %s
+                    OR COALESCE(message_text, '') ILIKE %s
+                )
+                """
+            )
+            params.extend([term, term, term])
+
+        cursor.execute(
+            f"""
+            SELECT *
+            FROM incoming_messages
+            WHERE {' AND '.join(clauses)}
+            ORDER BY id DESC
+            """,
+            params,
+        )
+
+        return cursor.fetchall()
+
+
+def list_message_contacts(clinic_id, limit=25, search=None):
+    with db_cursor(dictionary=True) as (_, cursor):
+        clauses = ["clinic_id = %s"]
+        params = [clinic_id]
+
+        if search:
+            term = f"%{search.strip()}%"
+            clauses.append(
+                """
+                (
+                    sender ILIKE %s
+                    OR COALESCE(contact_name, '') ILIKE %s
+                )
+                """
+            )
+            params.extend([term, term])
+
+        params.append(limit)
+        cursor.execute(
+            f"""
+            SELECT
+                sender,
+                COALESCE(NULLIF(MAX(contact_name), ''), sender) AS label,
+                COUNT(*) AS count
+            FROM incoming_messages
+            WHERE {' AND '.join(clauses)}
+            GROUP BY sender
+            ORDER BY count DESC, sender ASC
+            LIMIT %s
+            """,
+            params,
+        )
         return cursor.fetchall()
 
 

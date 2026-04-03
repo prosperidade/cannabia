@@ -51,12 +51,15 @@ Cada arquivo `progressoN.md` deve conter, no mínimo:
 ## Bloqueios
 ```
 
+E deve encerrar com uma orientação explícita para a próxima sessão, mantendo uma missão inicial sugerida no final do arquivo.
+
 ## Regras de preenchimento
 
 - Registrar o que realmente foi feito, sem texto genérico
 - Listar decisões que afetam arquitetura, backlog, fluxo ou operação
 - Informar bloqueios reais, se existirem
 - Encerrar o arquivo com próximos passos claros
+- Encerrar o arquivo com uma missão inicial sugerida para a próxima manhã ou próxima sessão
 - Sempre citar arquivos importantes tocados ou criados no dia
 
 ## Quando atualizar o runbook

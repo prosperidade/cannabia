@@ -97,3 +97,5 @@ Iniciar a organização formal da documentação operacional da CannabIA e conso
 ## Observação de uso
 
 O próximo dia de trabalho deve abrir `docs/progresso2.md`, mantendo a mesma estrutura base e registrando a data real da nova sessão.
+
+Primeira missão sugerida para o próximo dia: instalar as dependências do `frontend/`, rodar `npm install`, validar `next build` e subir a aplicação localmente para a primeira verificação real de runtime do frontend novo antes de expandir mensagens e auditoria de IA.
