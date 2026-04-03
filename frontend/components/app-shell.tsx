@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { startTransition, type ReactNode, useState } from "react";
 
 import { logout } from "@/lib/api";
+import { useSystemStatus } from "@/lib/use-system-status";
+import { SystemStatusBar } from "@/components/system-status-bar";
 import type { ApiSessionResponse } from "@/lib/types";
 
 type AppShellProps = {
@@ -17,6 +19,7 @@ type AppShellProps = {
 export function AppShell({ session, title, subtitle, children }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const systemStatus = useSystemStatus();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +39,7 @@ export function AppShell({ session, title, subtitle, children }: AppShellProps) 
 
   return (
     <div className="app-frame">
-      <aside className="side-rail">
+      <aside aria-label="Barra lateral" className="side-rail">
         <div className="brand-mark">
           <div className="brand-orb" />
           <div>
@@ -45,36 +48,48 @@ export function AppShell({ session, title, subtitle, children }: AppShellProps) 
           </div>
         </div>
 
-        <nav className="rail-nav">
+        <nav aria-label="Menu principal" className="rail-nav">
           <Link
+            aria-current={pathname.startsWith("/dashboard") ? "page" : undefined}
             className={pathname.startsWith("/dashboard") ? "active" : ""}
             href="/dashboard"
           >
             Overview
           </Link>
           <Link
+            aria-current={pathname.startsWith("/atendimentos") ? "page" : undefined}
             className={pathname.startsWith("/atendimentos") ? "active" : ""}
             href="/atendimentos"
           >
             Atendimentos
           </Link>
           <Link
+            aria-current={pathname.startsWith("/agendamentos") ? "page" : undefined}
             className={pathname.startsWith("/agendamentos") ? "active" : ""}
             href="/agendamentos"
           >
             Agendamentos
           </Link>
           <Link
+            aria-current={pathname.startsWith("/mensagens") ? "page" : undefined}
             className={pathname.startsWith("/mensagens") ? "active" : ""}
             href="/mensagens"
           >
             Mensagens
           </Link>
           <Link
+            aria-current={pathname.startsWith("/auditoria-ia") ? "page" : undefined}
             className={pathname.startsWith("/auditoria-ia") ? "active" : ""}
             href="/auditoria-ia"
           >
             Auditoria IA
+          </Link>
+          <Link
+            aria-current={pathname.startsWith("/medico") ? "page" : undefined}
+            className={pathname.startsWith("/medico") ? "active" : ""}
+            href="/medico/triagem-dashboard"
+          >
+            Triagem & Diagnostico
           </Link>
         </nav>
 
@@ -105,11 +120,12 @@ export function AppShell({ session, title, subtitle, children }: AppShellProps) 
           >
             {busy ? "Saindo..." : "Sair"}
           </button>
-          {error ? <div className="inline-error">{error}</div> : null}
+          {error ? <div aria-live="assertive" className="inline-error" role="alert">{error}</div> : null}
         </div>
       </aside>
 
-      <main className="workspace">
+      <main className="workspace" id="main-content">
+        <SystemStatusBar status={systemStatus} />
         <header className="workspace-header">
           <div>
             <p className="eyebrow">Frontend Next.js bootstrap</p>

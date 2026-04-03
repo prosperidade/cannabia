@@ -9,6 +9,7 @@ from src.ai.chains import (
     run_scientific_report,
     run_scientific_report_rag,
 )
+from src.infra.metrics import measure
 from src.knowledge.vector_store import KnowledgeStore
 from src.knowledge.embeddings import EmbeddingClient
 
@@ -35,20 +36,22 @@ class CannabIAPipeline:
         # ═══════════════════════════════════════════════════════════
         # ETAPA 1 — Análise Clínica (OpenAI)
         # ═══════════════════════════════════════════════════════════
-        clinical_analysis, tokens_1 = run_clinical_analysis(
-            patient_name=anamnesis_data.patient_name,
-            age=anamnesis_data.age,
-            main_complaint=anamnesis_data.main_complaint,
-            symptoms=anamnesis_data.symptoms,
-            current_medications=anamnesis_data.current_medications,
-            allergies=anamnesis_data.allergies,
-            medical_history=anamnesis_data.medical_history,
-        )
+        with measure("ai.stage.clinical"):
+            clinical_analysis, tokens_1 = run_clinical_analysis(
+                patient_name=anamnesis_data.patient_name,
+                age=anamnesis_data.age,
+                main_complaint=anamnesis_data.main_complaint,
+                symptoms=anamnesis_data.symptoms,
+                current_medications=anamnesis_data.current_medications,
+                allergies=anamnesis_data.allergies,
+                medical_history=anamnesis_data.medical_history,
+            )
 
         # ═══════════════════════════════════════════════════════════
         # ETAPA 2 — Plano Terapêutico (OpenAI)
         # ═══════════════════════════════════════════════════════════
-        treatment_plan, tokens_2 = run_treatment_plan(clinical_analysis)
+        with measure("ai.stage.treatment"):
+            treatment_plan, tokens_2 = run_treatment_plan(clinical_analysis)
 
         # ═══════════════════════════════════════════════════════════
         # ETAPA 2.5 — RAG Lookup (ChromaDB)
@@ -60,10 +63,11 @@ class CannabIAPipeline:
 
         if self._store.count() > 0:
             try:
-                query_text = treatment_plan.model_dump_json()
-                query_vec  = self._embedder.embed_query(query_text)
-                rag_chunks = self._store.query(query_vec, n_results=5)
-                use_rag    = True
+                with measure("ai.stage.rag_lookup"):
+                    query_text = treatment_plan.model_dump_json()
+                    query_vec  = self._embedder.embed_query(query_text)
+                    rag_chunks = self._store.query(query_vec, n_results=5)
+                    use_rag    = True
                 logger.info("RAG lookup: %d chunks recuperados do ChromaDB.", len(rag_chunks))
             except Exception:
                 logger.warning(
@@ -78,12 +82,13 @@ class CannabIAPipeline:
         # RAG path:      Gemini 1.5 Flash + contexto vetorial
         # Fallback path: gpt-4o-mini (banco vazio ou erro de RAG)
         # ═══════════════════════════════════════════════════════════
-        if use_rag:
-            scientific_report, tokens_3 = run_scientific_report_rag(treatment_plan, rag_chunks)
-            report_model = "gemini-1.5-flash"
-        else:
-            scientific_report, tokens_3 = run_scientific_report(treatment_plan)
-            report_model = "gpt-4o-mini"
+        with measure("ai.stage.report"):
+            if use_rag:
+                scientific_report, tokens_3 = run_scientific_report_rag(treatment_plan, rag_chunks)
+                report_model = "gemini-1.5-flash"
+            else:
+                scientific_report, tokens_3 = run_scientific_report(treatment_plan)
+                report_model = "gpt-4o-mini"
 
         # Consolida uso de tokens das 3 etapas OpenAI/Gemini
         token_usage = {

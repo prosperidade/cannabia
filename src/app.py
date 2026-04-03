@@ -29,12 +29,14 @@ from flask_login import (
 )
 
 from src.infra.logging import setup_logging
+from src.infra.metrics import record as record_metric
 from src.config import (
     SECRET_KEY,
     SESSION_COOKIE_SECURE,
     SESSION_COOKIE_SAMESITE,
     LOGIN_RATE_LIMIT,
     LOGIN_RATE_WINDOW_S,
+    FRONTEND_ORIGINS,
 )
 
 from src.web.routes.auth import limit_or_429, generate_csrf_token, validate_csrf_from_form
@@ -48,6 +50,12 @@ from src.web.routes.dashboard import dashboard_bp
 from src.web.routes.ai_admin import ai_admin_bp
 from src.web.routes.atendimentos import atendimentos_bp
 from src.web.routes.api_v1 import api_v1_bp
+from src.web.routes.system import system_bp
+from src.web.routes.tenant_admin import tenant_admin_bp
+from src.web.routes.campaigns import campaigns_bp
+from src.web.routes.chat_intake import chat_bp, ChatNamespace, ChatMonitorNamespace
+from src.web.routes.telemetry import telemetry_bp
+from src.web.routes.prescriptions import prescriptions_bp
 
 from src.ai.service import CannabIAService
 from src.repositories.user_repository import (
@@ -56,7 +64,7 @@ from src.repositories.user_repository import (
     verify_password,
 )
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger("cannabia.app")
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -120,20 +128,36 @@ def create_app() -> Flask:
     def after_request(response):
         elapsed_ms = int((time.time() - g.get("_request_start", time.time())) * 1000)
 
-        logging.info(
-            "request_id=%s path=%s method=%s status=%s elapsed_ms=%s",
-            getattr(g, "request_id", None),
-            request.path,
+        record_metric("http.request", elapsed_ms)
+        record_metric(f"http.endpoint.{request.endpoint or 'unknown'}", elapsed_ms)
+
+        logger.info(
+            "%s %s %s %dms",
             request.method,
+            request.path,
             response.status_code,
             elapsed_ms,
+            extra={
+                "request_id": getattr(g, "request_id", None),
+                "user_id": getattr(g, "user_id", None),
+                "tenant_id": getattr(g, "tenant_id", None),
+                "clinic_id": getattr(g, "clinic_id", None),
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+                "elapsed_ms": elapsed_ms,
+            },
         )
         return response
 
     # ==============================
     # SOCKETIO
     # ==============================
-    socketio.init_app(app)
+    socketio.init_app(app, cors_allowed_origins=FRONTEND_ORIGINS)
+
+    # Namespaces de chat (intake dinâmico via WebSocket)
+    socketio.on_namespace(ChatNamespace("/chat"))
+    socketio.on_namespace(ChatMonitorNamespace("/chat-monitor"))
 
     # ==============================
     # BLUEPRINTS
@@ -145,6 +169,12 @@ def create_app() -> Flask:
     app.register_blueprint(ai_admin_bp)
     app.register_blueprint(atendimentos_bp)
     app.register_blueprint(api_v1_bp)
+    app.register_blueprint(system_bp)
+    app.register_blueprint(tenant_admin_bp)
+    app.register_blueprint(campaigns_bp)
+    app.register_blueprint(chat_bp)
+    app.register_blueprint(telemetry_bp)
+    app.register_blueprint(prescriptions_bp)
 
     # ==============================
     # CSRF HELPERS

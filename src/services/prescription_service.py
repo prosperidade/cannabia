@@ -1,0 +1,493 @@
+# src/services/prescription_service.py
+"""
+Fronteira 3 — Serviço de Prescrição e Fulfillment B2B.
+
+Orquestra o fluxo completo:
+  1. Validação + Guardrails
+  2. Billing check
+  3. Prescriber (Rules Engine + LLM)
+  4. Persistência da prescrição
+  5. Geração do pedido B2B para associação parceira
+  6. Audit logging
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
+import time
+import uuid
+from dataclasses import asdict
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+
+from flask import g
+from pydantic import ValidationError
+
+from src.ai.guardrails import validate_input
+from src.ai.prescriber import calculate_safety_limits, run_prescriber
+from src.ai.pricing import calculate_cost
+from src.ai.schemas import (
+    AdministrationRoute,
+    AssociationProduct,
+    B2BOrderPayload,
+    DosageInput,
+    DosageRecommendation,
+    OrderStatus,
+    PrescriptionPayload,
+    ProductSpectrum,
+)
+from src.infra.database import db_cursor
+from src.repositories.ai_audit_repository import save_ai_audit_log
+from src.repositories.patient_repository import get_or_create_patient_by_name
+from src.services.billing_service import (
+    BillingLimitExceeded,
+    check_ai_allowance,
+    record_ai_usage,
+)
+
+logger = logging.getLogger("cannabia.prescription")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# REPOSITORY LAYER — Persistência de prescrições e pedidos B2B
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _save_prescription(
+    clinic_id: int,
+    patient_id: int,
+    doctor_user_id: int,
+    doctor_name: str,
+    doctor_crm: str,
+    recommendation: DosageRecommendation,
+    safety_limits: dict,
+    custom_notes: Optional[str],
+    validity_days: int,
+) -> int:
+    """Persiste a prescrição no banco e retorna o prescription_id."""
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO prescriptions (
+                clinic_id, patient_id, doctor_user_id, doctor_name, doctor_crm,
+                cannabinoid_ratio, spectrum, administration_route,
+                concentration_mg_ml, max_daily_mg,
+                titration_protocol, clinical_rationale,
+                contraindications, drug_interactions,
+                monitoring_checkpoints, confidence_score,
+                evidence_sources, safety_limits,
+                custom_notes, validity_days, status,
+                created_at
+            ) VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s, 'active',
+                NOW()
+            )
+            RETURNING id
+            """,
+            (
+                clinic_id, patient_id, doctor_user_id, doctor_name, doctor_crm,
+                recommendation.cannabinoid_ratio,
+                recommendation.spectrum.value,
+                recommendation.administration_route.value,
+                recommendation.concentration_mg_ml,
+                recommendation.max_daily_mg,
+                json.dumps([s.model_dump() for s in recommendation.titration_protocol]),
+                recommendation.clinical_rationale,
+                json.dumps(recommendation.contraindications),
+                json.dumps(recommendation.drug_interactions),
+                json.dumps(recommendation.monitoring_checkpoints),
+                recommendation.confidence_score,
+                json.dumps(recommendation.evidence_sources),
+                json.dumps(safety_limits),
+                custom_notes,
+                validity_days,
+            ),
+        )
+        row = cur.fetchone()
+        return row[0]
+
+
+def _save_b2b_order(
+    order_payload: B2BOrderPayload,
+) -> int:
+    """Persiste o pedido B2B no banco e retorna o order_id."""
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO b2b_orders (
+                order_ref, prescription_id, clinic_id, patient_id,
+                patient_name, doctor_crm,
+                products, dosage_summary,
+                cannabinoid_ratio, administration_route,
+                total_daily_mg, treatment_duration_days,
+                shipping_address, notes, status,
+                created_at
+            ) VALUES (
+                %s, %s, %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s,
+                %s, %s, %s,
+                NOW()
+            )
+            RETURNING id
+            """,
+            (
+                order_payload.order_id,
+                order_payload.prescription_id,
+                order_payload.clinic_id,
+                order_payload.patient_id,
+                order_payload.patient_name,
+                order_payload.doctor_crm,
+                json.dumps([p.model_dump() for p in order_payload.products]),
+                order_payload.dosage_summary,
+                order_payload.cannabinoid_ratio,
+                order_payload.administration_route.value,
+                order_payload.total_daily_mg,
+                order_payload.treatment_duration_days,
+                json.dumps(order_payload.shipping_address) if order_payload.shipping_address else None,
+                order_payload.notes,
+                order_payload.status.value,
+            ),
+        )
+        row = cur.fetchone()
+        return row[0]
+
+
+def _get_prescription(clinic_id: int, prescription_id: int) -> Optional[dict]:
+    """Busca prescrição por ID."""
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, clinic_id, patient_id, doctor_user_id, doctor_name, doctor_crm,
+                   cannabinoid_ratio, spectrum, administration_route,
+                   concentration_mg_ml, max_daily_mg,
+                   titration_protocol, clinical_rationale,
+                   contraindications, drug_interactions,
+                   monitoring_checkpoints, confidence_score,
+                   evidence_sources, safety_limits,
+                   custom_notes, validity_days, status,
+                   created_at
+            FROM prescriptions
+            WHERE id = %s AND clinic_id = %s
+            """,
+            (prescription_id, clinic_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        cols = [desc[0] for desc in cur.description]
+        return dict(zip(cols, row))
+
+
+def _list_prescriptions(clinic_id: int, patient_id: Optional[int] = None, limit: int = 20) -> List[dict]:
+    """Lista prescrições da clínica, opcionalmente filtradas por paciente."""
+    with db_cursor() as cur:
+        if patient_id:
+            cur.execute(
+                """
+                SELECT id, patient_id, doctor_name, doctor_crm,
+                       cannabinoid_ratio, spectrum, concentration_mg_ml,
+                       max_daily_mg, confidence_score, status, created_at
+                FROM prescriptions
+                WHERE clinic_id = %s AND patient_id = %s
+                ORDER BY created_at DESC
+                LIMIT %s
+                """,
+                (clinic_id, patient_id, limit),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT id, patient_id, doctor_name, doctor_crm,
+                       cannabinoid_ratio, spectrum, concentration_mg_ml,
+                       max_daily_mg, confidence_score, status, created_at
+                FROM prescriptions
+                WHERE clinic_id = %s
+                ORDER BY created_at DESC
+                LIMIT %s
+                """,
+                (clinic_id, limit),
+            )
+        cols = [desc[0] for desc in cur.description]
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+
+def _list_b2b_orders(clinic_id: int, limit: int = 20) -> List[dict]:
+    """Lista pedidos B2B da clínica."""
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, order_ref, prescription_id, patient_name,
+                   doctor_crm, dosage_summary, cannabinoid_ratio,
+                   total_daily_mg, treatment_duration_days,
+                   status, created_at
+            FROM b2b_orders
+            WHERE clinic_id = %s
+            ORDER BY created_at DESC
+            LIMIT %s
+            """,
+            (clinic_id, limit),
+        )
+        cols = [desc[0] for desc in cur.description]
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+
+def _update_order_status(clinic_id: int, order_id: int, new_status: str) -> bool:
+    """Atualiza status de um pedido B2B."""
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            UPDATE b2b_orders
+            SET status = %s, updated_at = NOW()
+            WHERE id = %s AND clinic_id = %s
+            RETURNING id
+            """,
+            (new_status, order_id, clinic_id),
+        )
+        return cur.fetchone() is not None
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SERVICE LAYER — Orquestração do fluxo completo
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class PrescriptionService:
+
+    def calculate_dosage(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Calcula dosagem para um paciente.
+        Retorna a recomendação + limites de segurança (sem persistir).
+        Usado para preview antes do médico aprovar.
+        """
+        start = time.time()
+        clinic_id: Optional[int] = getattr(g, "clinic_id", None)
+        request_id: Optional[str] = getattr(g, "request_id", None)
+        user_id: Optional[str] = getattr(g, "user_id", None)
+
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto da request")
+
+        # Billing
+        allowance = check_ai_allowance(clinic_id)
+        if not allowance.allowed:
+            raise BillingLimitExceeded(
+                clinic_id=clinic_id,
+                resource="ai_requests",
+                current=allowance.requests_used,
+                limit=allowance.requests_limit,
+            )
+
+        # Guardrails
+        guardrail_result = validate_input(data)
+        if not guardrail_result.passed:
+            raise ValueError("Possível tentativa de prompt injection detectada.")
+
+        # Validação
+        try:
+            dosage_input = DosageInput(**data)
+        except ValidationError as e:
+            raise ValueError(f"Dados inválidos: {e}")
+
+        # Prescriber
+        recommendation, limits, tokens = run_prescriber(dosage_input)
+
+        # Billing — registro
+        total_tokens = tokens.get("total_tokens", 0)
+        estimated_cost = calculate_cost("gpt-4o-mini", tokens.get("input_tokens", 0), tokens.get("output_tokens", 0))
+        record_ai_usage(clinic_id=clinic_id, tokens_used=total_tokens, estimated_cost_usd=estimated_cost)
+
+        # Audit
+        elapsed_ms = int((time.time() - start) * 1000)
+        save_ai_audit_log(
+            clinic_id=clinic_id,
+            patient_id=None,
+            request_id=request_id,
+            endpoint="/api/v1/prescriptions/calculate",
+            user_id=user_id,
+            input_payload=data,
+            output_payload=recommendation.model_dump(),
+            status="success",
+            error_message=None,
+            model="gpt-4o-mini",
+            prompt_version="prescriber_v1.0",
+            prompt_hash=hashlib.sha256(b"prescriber_v1.0").hexdigest(),
+            input_tokens=tokens.get("input_tokens"),
+            output_tokens=tokens.get("output_tokens"),
+            total_tokens=total_tokens,
+            clinical_time_ms=None,
+            treatment_time_ms=None,
+            report_time_ms=None,
+            total_time_ms=elapsed_ms,
+            estimated_cost_usd=estimated_cost,
+        )
+
+        return {
+            "recommendation": recommendation.model_dump(),
+            "safety_limits": asdict(limits),
+            "token_usage": tokens,
+            "estimated_cost_usd": estimated_cost,
+            "processing_time_ms": elapsed_ms,
+        }
+
+    def emit_prescription(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Médico aprova e emite prescrição formal.
+        Persiste no banco e gera o payload B2B.
+        """
+        clinic_id: Optional[int] = getattr(g, "clinic_id", None)
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto da request")
+
+        try:
+            payload = PrescriptionPayload(**data, clinic_id=clinic_id)
+        except ValidationError as e:
+            raise ValueError(f"Dados inválidos: {e}")
+
+        # Persistir prescrição
+        prescription_id = _save_prescription(
+            clinic_id=clinic_id,
+            patient_id=payload.patient_id,
+            doctor_user_id=payload.doctor_user_id,
+            doctor_name=payload.doctor_name,
+            doctor_crm=payload.doctor_crm,
+            recommendation=payload.dosage_recommendation,
+            safety_limits={},
+            custom_notes=payload.custom_notes,
+            validity_days=payload.validity_days,
+        )
+
+        # Gerar protocolo de titulação resumido para B2B
+        first_step = payload.dosage_recommendation.titration_protocol[0]
+        dosage_summary = (
+            f"{first_step.drops_per_dose} gotas "
+            f"{first_step.doses_per_day}x/dia "
+            f"{payload.dosage_recommendation.administration_route.value} "
+            f"{payload.dosage_recommendation.spectrum.value} "
+            f"{payload.dosage_recommendation.concentration_mg_ml}mg/mL"
+        )
+
+        logger.info(
+            "Prescrição #%d emitida: CRM=%s, patient=%d, ratio=%s",
+            prescription_id, payload.doctor_crm, payload.patient_id,
+            payload.dosage_recommendation.cannabinoid_ratio,
+        )
+
+        return {
+            "prescription_id": prescription_id,
+            "dosage_summary": dosage_summary,
+            "status": "active",
+        }
+
+    def create_b2b_order(
+        self,
+        prescription_id: int,
+        products: List[Dict[str, Any]],
+        treatment_duration_days: int = 90,
+        shipping_address: Optional[Dict[str, Any]] = None,
+        notes: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Gera pedido B2B para associação parceira a partir de uma prescrição existente.
+        """
+        clinic_id: Optional[int] = getattr(g, "clinic_id", None)
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto da request")
+
+        prescription = _get_prescription(clinic_id, prescription_id)
+        if not prescription:
+            raise ValueError(f"Prescrição #{prescription_id} não encontrada.")
+
+        if prescription["status"] != "active":
+            raise ValueError(f"Prescrição #{prescription_id} não está ativa (status: {prescription['status']}).")
+
+        # Parsear produtos
+        parsed_products = [AssociationProduct(**p) for p in products]
+
+        # Calcular total diário da primeira fase da titulação
+        titration = json.loads(prescription["titration_protocol"]) if isinstance(prescription["titration_protocol"], str) else prescription["titration_protocol"]
+        first_step = titration[0] if titration else {}
+        total_daily_mg = first_step.get("total_daily_mg", 0)
+
+        # Montar dosage_summary
+        dosage_summary = (
+            f"{first_step.get('drops_per_dose', 0)} gotas "
+            f"{first_step.get('doses_per_day', 0)}x/dia "
+            f"{prescription['administration_route']} "
+            f"{prescription['spectrum']} "
+            f"{prescription['concentration_mg_ml']}mg/mL"
+        )
+
+        order_ref = f"ORD-{uuid.uuid4().hex[:12].upper()}"
+
+        order_payload = B2BOrderPayload(
+            order_id=order_ref,
+            prescription_id=prescription_id,
+            clinic_id=clinic_id,
+            patient_id=prescription["patient_id"],
+            patient_name="",  # Será preenchido pelo frontend
+            doctor_crm=prescription["doctor_crm"],
+            products=parsed_products,
+            dosage_summary=dosage_summary,
+            cannabinoid_ratio=prescription["cannabinoid_ratio"],
+            administration_route=AdministrationRoute(prescription["administration_route"]),
+            total_daily_mg=total_daily_mg,
+            treatment_duration_days=treatment_duration_days,
+            shipping_address=shipping_address,
+            notes=notes,
+            status=OrderStatus.PENDING,
+            created_at=datetime.now(timezone.utc),
+        )
+
+        order_id = _save_b2b_order(order_payload)
+
+        logger.info(
+            "Pedido B2B #%d criado: ref=%s, prescription=%d, products=%d",
+            order_id, order_ref, prescription_id, len(parsed_products),
+        )
+
+        return {
+            "order_id": order_id,
+            "order_ref": order_ref,
+            "prescription_id": prescription_id,
+            "dosage_summary": dosage_summary,
+            "products_count": len(parsed_products),
+            "status": "pending",
+            "b2b_payload": order_payload.model_dump(mode="json"),
+        }
+
+    def get_prescription(self, prescription_id: int) -> Optional[dict]:
+        clinic_id = getattr(g, "clinic_id", None)
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto")
+        return _get_prescription(clinic_id, prescription_id)
+
+    def list_prescriptions(self, patient_id: Optional[int] = None, limit: int = 20) -> List[dict]:
+        clinic_id = getattr(g, "clinic_id", None)
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto")
+        return _list_prescriptions(clinic_id, patient_id, limit)
+
+    def list_orders(self, limit: int = 20) -> List[dict]:
+        clinic_id = getattr(g, "clinic_id", None)
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto")
+        return _list_b2b_orders(clinic_id, limit)
+
+    def update_order_status(self, order_id: int, new_status: str) -> bool:
+        clinic_id = getattr(g, "clinic_id", None)
+        if clinic_id is None:
+            raise RuntimeError("clinic_id não encontrado no contexto")
+        valid = {s.value for s in OrderStatus}
+        if new_status not in valid:
+            raise ValueError(f"Status inválido. Válidos: {valid}")
+        return _update_order_status(clinic_id, order_id, new_status)

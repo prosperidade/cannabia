@@ -1,0 +1,1397 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   CannabIA Design System — Component Styles
+   Todos os estilos prefixados com ds- para evitar colisão com CSS legado.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Button ─────────────────────────────────────────────────────────── */
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, opacity 140ms ease;
+  position: relative;
+}
+
+.ds-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.ds-btn:active:not(:disabled) { transform: translateY(0); }
+.ds-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Variants */
+.ds-btn--primary {
+  background: linear-gradient(135deg, var(--aqua), #c8fbff);
+  color: #07101b;
+}
+.ds-btn--secondary {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  border-color: var(--line);
+}
+.ds-btn--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(176, 205, 255, 0.28);
+}
+.ds-btn--ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+}
+.ds-btn--ghost:hover:not(:disabled) {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+.ds-btn--danger {
+  background: rgba(255, 142, 161, 0.14);
+  color: var(--rose);
+  border-color: rgba(255, 142, 161, 0.28);
+}
+.ds-btn--danger:hover:not(:disabled) {
+  background: rgba(255, 142, 161, 0.22);
+}
+
+/* Sizes */
+.ds-btn--sm { padding: 8px 14px; font-size: 13px; border-radius: 12px; }
+.ds-btn--md { padding: 12px 18px; font-size: 14px; }
+.ds-btn--lg { padding: 16px 24px; font-size: 16px; border-radius: 16px; }
+
+/* Loading */
+.ds-btn--loading { pointer-events: none; }
+.ds-btn__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ds-spin 600ms linear infinite;
+}
+.ds-btn__icon { display: flex; align-items: center; flex-shrink: 0; }
+
+@keyframes ds-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ─── Input / Field ──────────────────────────────────────────────────── */
+
+.ds-field { display: grid; gap: 8px; }
+.ds-field__label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.ds-field__wrap { position: relative; }
+.ds-field__icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  display: flex;
+}
+.ds-field__input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 12px 16px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.ds-field__input--icon { padding-left: 40px; }
+.ds-field__input::placeholder { color: rgba(157, 178, 216, 0.5); }
+.ds-field__input:focus {
+  border-color: var(--aqua);
+  box-shadow: 0 0 0 3px rgba(121, 240, 255, 0.12);
+  outline: none;
+}
+.ds-field--error .ds-field__input {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px rgba(255, 142, 161, 0.12);
+}
+.ds-field__hint { font-size: 12px; color: var(--muted); }
+.ds-field__error { font-size: 12px; color: var(--rose); }
+
+
+/* ─── Card ───────────────────────────────────────────────────────────── */
+
+.ds-card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  border-radius: 22px;
+  display: grid;
+  gap: 16px;
+}
+.ds-card--pad-sm { padding: 14px; }
+.ds-card--pad-md { padding: 22px; }
+.ds-card--pad-lg { padding: 30px; }
+.ds-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ds-card__title { margin: 0; font-size: 20px; }
+.ds-card__subtitle { margin: 4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.ds-card__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+
+/* ─── Badge ──────────────────────────────────────────────────────────── */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+.ds-badge--success { border-color: rgba(119, 247, 197, 0.3); background: rgba(119, 247, 197, 0.12); color: var(--mint); }
+.ds-badge--warning { border-color: rgba(255, 211, 109, 0.34); background: rgba(255, 211, 109, 0.12); color: var(--amber); }
+.ds-badge--danger  { border-color: rgba(255, 142, 161, 0.36); background: rgba(255, 142, 161, 0.14); color: var(--rose); }
+.ds-badge--info    { border-color: rgba(121, 240, 255, 0.34); background: rgba(121, 240, 255, 0.12); color: var(--aqua); }
+.ds-badge--neutral { color: var(--muted); }
+
+.ds-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ds-badge--pulse .ds-badge__dot {
+  animation: ds-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ds-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+
+/* ─── Skeleton ───────────────────────────────────────────────────────── */
+
+.ds-skeleton {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: ds-shimmer 1.6s ease-in-out infinite;
+}
+.ds-skeleton--circle { border-radius: 50%; }
+.ds-skeleton-stack { display: grid; gap: 10px; }
+
+.ds-table-skeleton { display: grid; gap: 12px; }
+.ds-table-skeleton__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(176, 205, 255, 0.06);
+}
+
+@keyframes ds-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+
+/* ─── Table ──────────────────────────────────────────────────────────── */
+
+.ds-table-wrap {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+}
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.ds-table__head { border-bottom: 1px solid var(--line); }
+.ds-table__th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  user-select: none;
+}
+.ds-table__th--sortable { cursor: pointer; }
+.ds-table__th--sortable:hover { color: var(--text); }
+.ds-table__sort-icon { margin-left: 4px; font-size: 11px; }
+
+.ds-table__td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  vertical-align: middle;
+}
+.ds-table__row { border-bottom: 1px solid rgba(176, 205, 255, 0.06); transition: background 100ms; }
+.ds-table__row:last-child { border-bottom: 0; }
+.ds-table__row:hover { background: rgba(255, 255, 255, 0.03); }
+.ds-table__row--selected { background: rgba(121, 240, 255, 0.06); }
+
+.ds-table__empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+
+/* ─── Toast ──────────────────────────────────────────────────────────── */
+
+.ds-toast-viewport {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 380px;
+  max-width: calc(100vw - 48px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+.ds-toast {
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(11, 23, 42, 0.95);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+  animation: ds-toast-in 200ms ease;
+}
+.ds-toast[data-state="closed"] { animation: ds-toast-out 150ms ease forwards; }
+
+.ds-toast--success { border-color: rgba(119, 247, 197, 0.3); }
+.ds-toast--warning { border-color: rgba(255, 211, 109, 0.34); }
+.ds-toast--error   { border-color: rgba(255, 142, 161, 0.36); }
+.ds-toast--info    { border-color: rgba(121, 240, 255, 0.34); }
+
+.ds-toast__title { font-weight: 600; font-size: 14px; }
+.ds-toast__desc  { color: var(--muted); font-size: 13px; margin-top: 4px; line-height: 1.5; }
+.ds-toast__close {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 100ms, border-color 100ms;
+}
+.ds-toast__close:hover { color: var(--text); border-color: rgba(176, 205, 255, 0.3); }
+
+@keyframes ds-toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes ds-toast-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(8px) scale(0.96); }
+}
+
+
+/* ─── Global Alert Banner ────────────────────────────────────────────── */
+
+.ds-alert-banner {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  animation: ds-slide-down 300ms ease;
+  border-bottom: 1px solid transparent;
+}
+.ds-alert-banner--warning {
+  background: rgba(255, 211, 109, 0.1);
+  border-color: rgba(255, 211, 109, 0.2);
+  color: var(--amber);
+}
+.ds-alert-banner--error {
+  background: rgba(255, 142, 161, 0.1);
+  border-color: rgba(255, 142, 161, 0.2);
+  color: var(--rose);
+}
+.ds-alert-banner--info {
+  background: rgba(121, 240, 255, 0.08);
+  border-color: rgba(121, 240, 255, 0.18);
+  color: var(--aqua);
+}
+.ds-alert-banner--offline {
+  background: rgba(255, 142, 161, 0.12);
+  border-color: rgba(255, 142, 161, 0.24);
+  color: #ffd4db;
+}
+.ds-alert-banner__icon { flex-shrink: 0; font-size: 16px; }
+.ds-alert-banner__text { flex: 1; }
+.ds-alert-banner__dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+  line-height: 1;
+}
+.ds-alert-banner__dismiss:hover { opacity: 1; }
+
+@keyframes ds-slide-down {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ─── Error Boundary Fallback ────────────────────────────────────────── */
+
+.ds-error-fallback {
+  display: grid;
+  gap: 16px;
+  place-items: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+.ds-error-fallback__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(255, 142, 161, 0.12);
+  border: 1px solid rgba(255, 142, 161, 0.24);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+}
+.ds-error-fallback__title { font-size: 20px; margin: 0; }
+.ds-error-fallback__desc { color: var(--muted); font-size: 14px; max-width: 420px; line-height: 1.6; }
+
+
+/* ─── Admin Layout ───────────────────────────────────────────────────── */
+
+.ds-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.ds-admin-grid--wide {
+  grid-template-columns: 1fr;
+}
+
+.ds-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ds-stat {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(18px);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+}
+.ds-stat__label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.ds-stat__value {
+  font-size: 28px;
+  font-weight: 700;
+}
+.ds-stat__delta {
+  font-size: 12px;
+  font-weight: 600;
+}
+.ds-stat__delta--up { color: var(--mint); }
+.ds-stat__delta--down { color: var(--rose); }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Chat Triagem — Olive Harmony Theme
+   Paleta light para interface conversacional paciente-facing.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Chat Variables ────────────────────────────────────────────────── */
+
+.ds-chat-root {
+  --ch-primary: #4c5e31;
+  --ch-primary-light: #6c8148;
+  --ch-primary-muted: #8a9e6b;
+  --ch-canvas: #faf9f5;
+  --ch-surface: #ffffff;
+  --ch-surface-hover: #f4f3ee;
+  --ch-border: #e2e0d6;
+  --ch-border-focus: #4c5e31;
+  --ch-text: #1e1e1c;
+  --ch-text-secondary: #5c5c56;
+  --ch-text-muted: #8a8a82;
+  --ch-ai-bubble: #f0efe8;
+  --ch-ai-border: #dddcd4;
+  --ch-patient-bubble: #4c5e31;
+  --ch-patient-text: #ffffff;
+  --ch-widget-bg: #ffffff;
+  --ch-widget-border: #e2e0d6;
+  --ch-widget-accent: #6c8148;
+  --ch-widget-track: #e8e7e0;
+  --ch-widget-thumb: #4c5e31;
+  --ch-shadow-soft: 0 2px 12px rgba(76, 94, 49, 0.08);
+  --ch-shadow-medium: 0 8px 30px rgba(76, 94, 49, 0.12);
+  --ch-shadow-widget: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+
+/* ─── Chat Canvas ───────────────────────────────────────────────────── */
+
+.ds-chat-canvas {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--ch-canvas);
+  color: var(--ch-text);
+  font-family: "Space Grotesk", "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+.ds-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--ch-surface);
+  border-bottom: 1px solid var(--ch-border);
+  box-shadow: var(--ch-shadow-soft);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.ds-chat-header__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--ch-primary), var(--ch-primary-light));
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ds-chat-header__info { flex: 1; min-width: 0; }
+.ds-chat-header__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ch-text);
+  margin: 0;
+}
+.ds-chat-header__status {
+  font-size: 12px;
+  color: var(--ch-primary-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ds-chat-header__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ch-primary-light);
+  animation: ds-pulse 2s ease-in-out infinite;
+}
+
+
+/* ─── Message Thread ────────────────────────────────────────────────── */
+
+.ds-chat-thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+.ds-chat-thread::-webkit-scrollbar { width: 4px; }
+.ds-chat-thread::-webkit-scrollbar-track { background: transparent; }
+.ds-chat-thread::-webkit-scrollbar-thumb {
+  background: var(--ch-border);
+  border-radius: 4px;
+}
+
+
+/* ─── Chat Bubble ───────────────────────────────────────────────────── */
+
+.ds-chat-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  max-width: 82%;
+}
+.ds-chat-row--ai { align-self: flex-start; }
+.ds-chat-row--patient { align-self: flex-end; flex-direction: row-reverse; }
+
+.ds-chat-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.ds-chat-avatar--ai {
+  background: linear-gradient(135deg, var(--ch-primary), var(--ch-primary-light));
+  color: #fff;
+  box-shadow: var(--ch-shadow-soft);
+}
+.ds-chat-avatar--patient {
+  background: var(--ch-surface-hover);
+  color: var(--ch-text-secondary);
+  border: 1px solid var(--ch-border);
+}
+
+.ds-chat-bubble {
+  padding: 12px 16px;
+  font-size: 15px;
+  line-height: 1.55;
+  position: relative;
+}
+.ds-chat-bubble--ai {
+  background: var(--ch-ai-bubble);
+  border: 1px solid var(--ch-ai-border);
+  border-radius: 18px 18px 18px 6px;
+  color: var(--ch-text);
+}
+.ds-chat-bubble--patient {
+  background: var(--ch-patient-bubble);
+  border: 1px solid transparent;
+  border-radius: 18px 18px 6px 18px;
+  color: var(--ch-patient-text);
+}
+
+.ds-chat-time {
+  font-size: 11px;
+  color: var(--ch-text-muted);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+.ds-chat-row--patient .ds-chat-time { text-align: right; }
+
+
+/* ─── Typing Indicator ──────────────────────────────────────────────── */
+
+.ds-chat-typing {
+  display: flex;
+  gap: 4px;
+  padding: 14px 18px;
+  background: var(--ch-ai-bubble);
+  border: 1px solid var(--ch-ai-border);
+  border-radius: 18px 18px 18px 6px;
+}
+.ds-chat-typing__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ch-primary-muted);
+  animation: ds-chat-bounce 1.4s ease-in-out infinite;
+}
+.ds-chat-typing__dot:nth-child(2) { animation-delay: 0.16s; }
+.ds-chat-typing__dot:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes ds-chat-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+
+/* ─── Chat Input Bar ────────────────────────────────────────────────── */
+
+.ds-chat-input-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--ch-surface);
+  border-top: 1px solid var(--ch-border);
+  flex-shrink: 0;
+}
+
+.ds-chat-input-wrap {
+  flex: 1;
+  position: relative;
+}
+.ds-chat-input {
+  width: 100%;
+  border: 1px solid var(--ch-border);
+  border-radius: 22px;
+  background: var(--ch-canvas);
+  color: var(--ch-text);
+  padding: 12px 18px;
+  font-size: 15px;
+  resize: none;
+  min-height: 46px;
+  max-height: 120px;
+  line-height: 1.45;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  font-family: inherit;
+}
+.ds-chat-input::placeholder { color: var(--ch-text-muted); }
+.ds-chat-input:focus {
+  outline: none;
+  border-color: var(--ch-border-focus);
+  box-shadow: 0 0 0 3px rgba(76, 94, 49, 0.1);
+}
+
+.ds-chat-send {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ch-primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 200ms ease, transform 140ms ease;
+  flex-shrink: 0;
+}
+.ds-chat-send:hover { background: var(--ch-primary-light); transform: scale(1.05); }
+.ds-chat-send:active { transform: scale(0.96); }
+.ds-chat-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.ds-chat-send svg { width: 20px; height: 20px; }
+
+
+/* ─── Rich Widget (Container) ───────────────────────────────────────── */
+
+.ds-chat-widget {
+  background: var(--ch-widget-bg);
+  border: 1px solid var(--ch-widget-border);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--ch-shadow-widget);
+  display: grid;
+  gap: 16px;
+  max-width: 360px;
+}
+
+.ds-chat-widget__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ch-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ds-chat-widget__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: rgba(76, 94, 49, 0.1);
+  display: grid;
+  place-items: center;
+  color: var(--ch-primary);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+
+/* ─── Slider Picker Widget ──────────────────────────────────────────── */
+
+.ds-slider {
+  display: grid;
+  gap: 10px;
+}
+
+.ds-slider__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.ds-slider__label {
+  font-size: 13px;
+  color: var(--ch-text-secondary);
+  font-weight: 500;
+}
+.ds-slider__value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ch-primary);
+  min-width: 32px;
+  text-align: right;
+}
+
+.ds-slider__track-wrap {
+  position: relative;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+  cursor: pointer;
+}
+.ds-slider__track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ch-widget-track);
+  position: relative;
+  overflow: hidden;
+}
+.ds-slider__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ch-primary-light), var(--ch-primary));
+  transition: width 60ms linear;
+}
+.ds-slider__thumb {
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ch-widget-thumb);
+  border: 3px solid var(--ch-widget-bg);
+  box-shadow: var(--ch-shadow-soft), 0 0 0 1px rgba(76, 94, 49, 0.15);
+  transform: translate(-50%, -50%);
+  transition: box-shadow 200ms ease;
+  touch-action: none;
+  cursor: grab;
+  z-index: 2;
+}
+.ds-slider__thumb:active { cursor: grabbing; box-shadow: var(--ch-shadow-medium), 0 0 0 2px rgba(76, 94, 49, 0.25); }
+
+.ds-slider__hints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ch-text-muted);
+}
+
+
+/* ─── Condition Selector Widget ─────────────────────────────────────── */
+
+.ds-condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.ds-condition-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--ch-widget-border);
+  background: var(--ch-canvas);
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-size: 13px;
+  color: var(--ch-text-secondary);
+  font-weight: 500;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ds-condition-chip:hover {
+  border-color: var(--ch-primary-muted);
+  background: var(--ch-surface-hover);
+}
+.ds-condition-chip--active {
+  border-color: var(--ch-primary);
+  background: rgba(76, 94, 49, 0.08);
+  color: var(--ch-primary);
+}
+
+.ds-condition-chip__check {
+  width: 20px;
+  height: 20px;
+  border-radius: 7px;
+  border: 2px solid var(--ch-widget-border);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 200ms ease;
+}
+.ds-condition-chip--active .ds-condition-chip__check {
+  background: var(--ch-primary);
+  border-color: var(--ch-primary);
+  color: #fff;
+}
+.ds-condition-chip__check svg { width: 12px; height: 12px; }
+
+.ds-condition-chip__emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+
+/* ─── Widget Confirm Button ─────────────────────────────────────────── */
+
+.ds-widget-confirm {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  background: var(--ch-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 200ms ease, transform 140ms ease;
+}
+.ds-widget-confirm:hover { background: var(--ch-primary-light); }
+.ds-widget-confirm:active { transform: scale(0.98); }
+.ds-widget-confirm:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COCKPIT DO MEDICO — Triagem Dashboard Components
+   Namespace: ds-risk, ds-biometry, ds-vital, ds-ddx, ds-treatment,
+              ds-rx, ds-evidence, ds-medico
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Risk Indicator ────────────────────────────────────────────────── */
+
+.ds-risk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ds-risk__track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.ds-risk__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ds-risk--low .ds-risk__fill { background: var(--c-mint, #77f7c5); }
+.ds-risk--moderate .ds-risk__fill { background: var(--c-amber, #ffd36d); }
+.ds-risk--high .ds-risk__fill { background: var(--c-rose, #ff8ea1); }
+.ds-risk--critical .ds-risk__fill {
+  background: linear-gradient(90deg, #ff8ea1, #ff4d6a);
+  animation: ds-pulse 1.2s ease infinite;
+}
+.ds-risk__label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  min-width: 72px;
+}
+.ds-risk--low .ds-risk__label { color: var(--c-mint, #77f7c5); }
+.ds-risk--moderate .ds-risk__label { color: var(--c-amber, #ffd36d); }
+.ds-risk--high .ds-risk__label { color: var(--c-rose, #ff8ea1); }
+.ds-risk--critical .ds-risk__label { color: #ff4d6a; }
+
+/* ─── Biometry Card ─────────────────────────────────────────────────── */
+
+.ds-biometry .ds-card__header { border-bottom: 1px solid rgba(176, 205, 255, 0.08); }
+
+.ds-biometry__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.ds-vital {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(176, 205, 255, 0.08);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.ds-vital:hover {
+  border-color: rgba(176, 205, 255, 0.16);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+.ds-vital--ok { border-left: 3px solid var(--c-mint, #77f7c5); }
+.ds-vital--warn { border-left: 3px solid var(--c-amber, #ffd36d); background: rgba(255, 211, 109, 0.04); }
+.ds-vital--danger { border-left: 3px solid var(--c-rose, #ff8ea1); background: rgba(255, 142, 161, 0.06); }
+
+.ds-vital__icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.ds-vital__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ds-vital__label { font-size: 11px; color: var(--c-muted, #9db2d8); text-transform: uppercase; letter-spacing: 0.06em; }
+.ds-vital__value { font-size: 22px; font-weight: 700; line-height: 1.1; color: var(--c-text, #ecf3ff); }
+.ds-vital--warn .ds-vital__value { color: var(--c-amber, #ffd36d); }
+.ds-vital--danger .ds-vital__value { color: var(--c-rose, #ff8ea1); }
+.ds-vital__unit { font-size: 12px; font-weight: 400; color: var(--c-muted, #9db2d8); margin-left: 3px; }
+
+.ds-biometry__anthro {
+  display: flex;
+  gap: 24px;
+  padding: 14px 0 4px;
+  border-top: 1px solid rgba(176, 205, 255, 0.08);
+}
+.ds-anthro-item { display: flex; flex-direction: column; gap: 2px; }
+.ds-anthro-item__label { font-size: 11px; color: var(--c-muted, #9db2d8); text-transform: uppercase; letter-spacing: 0.06em; }
+.ds-anthro-item strong { font-size: 16px; color: var(--c-text, #ecf3ff); }
+.ds-anthro-item--warn { color: var(--c-amber, #ffd36d) !important; }
+.ds-anthro-item--danger { color: var(--c-rose, #ff8ea1) !important; }
+
+/* ─── Differential Diagnosis Card ───────────────────────────────────── */
+
+.ds-ddx .ds-card__header { border-bottom: 1px solid rgba(176, 205, 255, 0.08); }
+
+.ds-ddx__flags {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  margin: 12px 0;
+  border-radius: 12px;
+  background: rgba(255, 142, 161, 0.08);
+  border: 1px solid rgba(255, 142, 161, 0.2);
+}
+.ds-ddx__flags-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.ds-ddx__flags-title { color: var(--c-rose, #ff8ea1); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.ds-ddx__flags-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ds-ddx__flags-list li { font-size: 14px; color: var(--c-text, #ecf3ff); padding-left: 14px; position: relative; }
+.ds-ddx__flags-list li::before { content: "\2022"; position: absolute; left: 0; color: var(--c-rose, #ff8ea1); }
+
+.ds-ddx__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.ds-ddx__item {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(176, 205, 255, 0.08);
+  transition: border-color 200ms ease, transform 140ms ease;
+}
+.ds-ddx__item:hover {
+  border-color: rgba(121, 240, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.ds-ddx__item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ds-ddx__item-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(121, 240, 255, 0.12);
+  color: var(--c-aqua, #79f0ff);
+  flex-shrink: 0;
+}
+.ds-ddx__item-body { flex: 1; min-width: 0; }
+.ds-ddx__item-name { font-size: 15px; color: var(--c-text, #ecf3ff); display: block; }
+.ds-ddx__item-icd { font-size: 12px; color: var(--c-muted, #9db2d8); font-family: var(--f-mono, monospace); }
+
+.ds-ddx__item-evidence {
+  margin: 10px 0 0 40px;
+  padding: 8px 14px;
+  border-left: 2px solid rgba(121, 240, 255, 0.2);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--c-muted, #9db2d8);
+  line-height: 1.5;
+}
+
+.ds-ddx__exams {
+  padding-top: 12px;
+  border-top: 1px solid rgba(176, 205, 255, 0.08);
+}
+.ds-ddx__exams-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted, #9db2d8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.ds-ddx__exams-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ds-ddx__exam-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(121, 240, 255, 0.08);
+  color: var(--c-aqua, #79f0ff);
+  border: 1px solid rgba(121, 240, 255, 0.16);
+}
+
+/* ─── Treatment Summary Card ────────────────────────────────────────── */
+
+.ds-treatment .ds-card__header { border-bottom: 1px solid rgba(176, 205, 255, 0.08); }
+
+.ds-treatment__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 16px 0;
+}
+.ds-treatment__block {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(119, 247, 197, 0.04);
+  border: 1px solid rgba(119, 247, 197, 0.12);
+}
+.ds-treatment__block-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+.ds-treatment__block-label { font-size: 11px; color: var(--c-muted, #9db2d8); text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+.ds-treatment__block-value { font-size: 18px; font-weight: 700; color: var(--c-mint, #77f7c5); display: block; margin-top: 4px; }
+
+.ds-treatment__section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted, #9db2d8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.ds-treatment__monitoring {
+  padding: 14px 0;
+  border-top: 1px solid rgba(176, 205, 255, 0.08);
+}
+.ds-treatment__monitoring-text { font-size: 14px; color: var(--c-text, #ecf3ff); line-height: 1.6; }
+
+.ds-treatment__precautions {
+  padding: 14px 0;
+  border-top: 1px solid rgba(176, 205, 255, 0.08);
+}
+.ds-treatment__precaution-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ds-treatment__precaution-list li {
+  font-size: 14px;
+  color: var(--c-amber, #ffd36d);
+  padding-left: 18px;
+  position: relative;
+}
+.ds-treatment__precaution-list li::before { content: "\26A0"; position: absolute; left: 0; font-size: 12px; }
+
+.ds-treatment__evidence {
+  padding: 14px 0 0;
+  border-top: 1px solid rgba(176, 205, 255, 0.08);
+}
+.ds-treatment__evidence-summary { font-size: 14px; color: var(--c-text, #ecf3ff); line-height: 1.6; margin-bottom: 12px; }
+.ds-treatment__refs { margin-top: 8px; }
+.ds-treatment__refs summary {
+  font-size: 13px;
+  color: var(--c-aqua, #79f0ff);
+  cursor: pointer;
+  user-select: none;
+}
+.ds-treatment__refs summary:hover { text-decoration: underline; }
+.ds-treatment__ref-list {
+  margin: 8px 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ds-treatment__ref-list li { font-size: 12px; color: var(--c-muted, #9db2d8); line-height: 1.5; }
+
+/* ─── Prescription Form (Receita Eletronica) ────────────────────────── */
+
+.ds-rx .ds-card__header { border-bottom: 1px solid rgba(176, 205, 255, 0.08); }
+
+.ds-rx__type-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 16px 0;
+}
+.ds-rx__type-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(176, 205, 255, 0.12);
+  background: transparent;
+  color: var(--c-muted, #9db2d8);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.ds-rx__type-btn:hover { border-color: rgba(176, 205, 255, 0.24); }
+.ds-rx__type-btn--active {
+  border-color: var(--c-text, #ecf3ff);
+  color: var(--c-text, #ecf3ff);
+  background: rgba(255, 255, 255, 0.04);
+}
+.ds-rx__type-btn--azul {
+  border-color: var(--c-aqua, #79f0ff) !important;
+  color: var(--c-aqua, #79f0ff);
+  background: rgba(121, 240, 255, 0.06);
+}
+.ds-rx__type-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.ds-rx__type-dot--branca { background: var(--c-text, #ecf3ff); }
+.ds-rx__type-dot--azul { background: var(--c-aqua, #79f0ff); }
+
+.ds-rx__form { display: flex; flex-direction: column; gap: 20px; }
+
+.ds-rx__fieldset {
+  border: 1px solid rgba(176, 205, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 0;
+}
+.ds-rx__legend {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-aqua, #79f0ff);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 8px;
+}
+
+.ds-rx__row {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ds-rx__row:last-child { margin-bottom: 0; }
+.ds-rx__row--2col { grid-template-columns: 1fr 1fr; }
+.ds-rx__row--3col { grid-template-columns: 1fr 1fr 1fr; }
+
+.ds-rx__med-block {
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(176, 205, 255, 0.06);
+}
+.ds-rx__med-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.ds-rx__med-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(119, 247, 197, 0.12);
+  color: var(--c-mint, #77f7c5);
+}
+.ds-rx__med-remove {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255, 142, 161, 0.1);
+  color: var(--c-rose, #ff8ea1);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+.ds-rx__med-remove:hover { background: rgba(255, 142, 161, 0.2); }
+
+.ds-rx__textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+}
+
+.ds-rx__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* ─── Scientific Evidence Card ──────────────────────────────────────── */
+
+.ds-evidence .ds-card__header { border-bottom: 1px solid rgba(176, 205, 255, 0.08); }
+.ds-evidence__meta-badges { display: flex; gap: 6px; }
+.ds-evidence__summary { font-size: 15px; color: var(--c-text, #ecf3ff); line-height: 1.65; padding: 14px 0; }
+
+.ds-evidence__section { padding: 12px 0; border-top: 1px solid rgba(176, 205, 255, 0.08); }
+.ds-evidence__section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted, #9db2d8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.ds-evidence__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ds-evidence__item { font-size: 14px; color: var(--c-text, #ecf3ff); line-height: 1.5; display: flex; gap: 8px; align-items: flex-start; }
+.ds-evidence__bullet { color: var(--c-aqua, #79f0ff); font-size: 10px; margin-top: 4px; flex-shrink: 0; }
+.ds-evidence__refs { margin: 0 0 0 18px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.ds-evidence__ref { font-size: 13px; color: var(--c-muted, #9db2d8); line-height: 1.5; }
+
+/* ─── Medico Dashboard Layout ───────────────────────────────────────── */
+
+.ds-medico-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(176, 205, 255, 0.08);
+  margin-bottom: 24px;
+}
+.ds-medico-header__patient {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.ds-medico-header__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(121, 240, 255, 0.2), rgba(119, 247, 197, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-aqua, #79f0ff);
+  flex-shrink: 0;
+}
+.ds-medico-header__info h2 { font-size: 20px; font-weight: 700; color: var(--c-text, #ecf3ff); margin: 0; }
+.ds-medico-header__info p { font-size: 13px; color: var(--c-muted, #9db2d8); margin: 2px 0 0; }
+
+.ds-medico-header__badges { display: flex; gap: 8px; align-items: center; }
+
+.ds-medico-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.ds-medico-grid--full { grid-column: 1 / -1; }
+
+.ds-medico-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-aqua, #79f0ff);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(121, 240, 255, 0.1);
+}
+
+/* ─── Responsive — Medical Dashboard ────────────────────────────────── */
+
+@media (max-width: 1120px) {
+  .ds-medico-grid { grid-template-columns: 1fr; }
+  .ds-rx__row--3col { grid-template-columns: 1fr 1fr; }
+  .ds-treatment__grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 760px) {
+  .ds-rx__row--2col,
+  .ds-rx__row--3col { grid-template-columns: 1fr; }
+  .ds-treatment__grid { grid-template-columns: 1fr; }
+  .ds-biometry__grid { grid-template-columns: repeat(2, 1fr); }
+  .ds-biometry__anthro { flex-direction: column; gap: 12px; }
+  .ds-medico-header { flex-direction: column; align-items: flex-start; }
+  .ds-rx__type-toggle { flex-direction: column; }
+  .ds-rx__actions { flex-direction: column; }
+  .ds-rx__actions .ds-btn { width: 100%; }
+}
+
+/* ─── Responsive (Existing) ─────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .ds-toast-viewport { bottom: 12px; right: 12px; width: calc(100vw - 24px); }
+  .ds-admin-grid { grid-template-columns: 1fr; }
+  .ds-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .ds-chat-row { max-width: 92%; }
+  .ds-chat-widget { max-width: 100%; }
+  .ds-chat-header { padding: 12px 16px; }
+  .ds-chat-thread { padding: 16px; }
+  .ds-chat-input-bar { padding: 10px 16px; }
+}

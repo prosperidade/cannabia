@@ -10,10 +10,15 @@ from pydantic import ValidationError
 
 from src.ai.pipeline import CannabIAPipeline
 from src.ai.schemas import AnamnesisInput
-from src.ai.validators import validate_anamnesis_security
+from src.ai.guardrails import validate_input
 from src.repositories.ai_audit_repository import save_ai_audit_log
 from src.repositories.patient_repository import get_or_create_patient_by_name
 from src.ai.pricing import calculate_cost
+from src.services.billing_service import (
+    check_ai_allowance,
+    record_ai_usage,
+    BillingLimitExceeded,
+)
 
 
 logger = logging.getLogger("cannabia.ai")
@@ -45,10 +50,45 @@ class CannabIAService:
 
         patient_id = get_or_create_patient_by_name(clinic_id, patient_name)
 
-        # Segurança
-        try:
-            validate_anamnesis_security(data)
-        except ValueError as security_error:
+        # Billing — verificação de limites (Fase 5.3)
+        allowance = check_ai_allowance(clinic_id)
+        if not allowance.allowed:
+            save_ai_audit_log(
+                clinic_id=clinic_id,
+                patient_id=patient_id,
+                request_id=request_id,
+                endpoint="/ai/test",
+                user_id=user_id,
+                input_payload=data,
+                output_payload=None,
+                status="billing_blocked",
+                error_message=allowance.message,
+                model=model_name,
+                prompt_version=prompt_version,
+                prompt_hash=prompt_hash,
+                input_tokens=None,
+                output_tokens=None,
+                total_tokens=None,
+                clinical_time_ms=None,
+                treatment_time_ms=None,
+                report_time_ms=None,
+                total_time_ms=None,
+                estimated_cost_usd=None,
+            )
+            raise BillingLimitExceeded(
+                clinic_id=clinic_id,
+                resource="ai_requests",
+                current=allowance.requests_used,
+                limit=allowance.requests_limit,
+            )
+
+        # Segurança — guardrails multi-camada (Fase 3.1)
+        guardrail_result = validate_input(data)
+        if not guardrail_result.passed:
+            security_error = ValueError(
+                f"Guardrail bloqueou input [{guardrail_result.blocked_by.value}]: "
+                f"{guardrail_result.reason}"
+            )
             save_ai_audit_log(
                 clinic_id=clinic_id,
                 patient_id=patient_id,
@@ -117,6 +157,13 @@ class CannabIAService:
                 output_tokens,
             )
 
+            # Billing — registra consumo após execução bem-sucedida (Fase 5.3)
+            record_ai_usage(
+                clinic_id=clinic_id,
+                tokens_used=total_tokens or 0,
+                estimated_cost_usd=estimated_cost,
+            )
+
             save_ai_audit_log(
                 clinic_id=clinic_id,
                 patient_id=patient_id,
@@ -169,5 +216,13 @@ class CannabIAService:
                 estimated_cost_usd=None,
             )
 
-            logger.exception("Erro interno no pipeline clínico")
+            logger.exception(
+                "Erro interno no pipeline clínico",
+                extra={
+                    "request_id": request_id,
+                    "user_id": user_id,
+                    "clinic_id": clinic_id,
+                    "patient_id": patient_id,
+                },
+            )
             raise RuntimeError("Erro interno no processamento clínico.")

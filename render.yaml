@@ -10,15 +10,7 @@ services:
     autoDeployTrigger: commit
     buildCommand: pip install -r requirements.txt
     preDeployCommand: python -m src.infra.run_migrations
-    startCommand: >
-      gunicorn
-      --worker-class eventlet
-      --workers 1
-      --timeout 120
-      --bind 0.0.0.0:$PORT
-      --access-logfile -
-      --error-logfile -
-      "src.app:app"
+    startCommand: gunicorn -c gunicorn.conf.py "src.app:app"
     healthCheckPath: /api/v1/health
     envVars:
       - key: DATABASE_URL
@@ -47,6 +39,8 @@ services:
         sync: false
       - key: SECRET_KEY
         generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
       - key: SESSION_COOKIE_SECURE
         value: "true"
       - key: SESSION_COOKIE_SAMESITE
@@ -61,6 +55,10 @@ services:
         value: "60"
       - key: MAX_CONTENT_LENGTH
         value: "262144"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: FF_BILLING_ENABLED
+        value: "true"
 
   - type: web
     name: cannabia-frontend

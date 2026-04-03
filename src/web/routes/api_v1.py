@@ -211,7 +211,11 @@ def _build_attendance_detail(report: dict) -> dict:
 
 @api_v1_bp.get("/health")
 def health():
-    return _success({"status": "ok"})
+    from src.infra.health import run_health_check
+
+    report = run_health_check()
+    payload = report.to_dict()
+    return jsonify({"data": _serialize(payload)}), report.http_status
 
 
 @api_v1_bp.get("/session/me")
@@ -260,6 +264,13 @@ def session_login():
 
     user = get_user_by_username(username)
     if not user or not verify_password(password, user["password_hash"]):
+        from src.infra.audit import log_audit_event
+
+        log_audit_event(
+            action="login_failed",
+            resource_type="session",
+            details={"username": username},
+        )
         return _error("invalid_credentials", "Usuário ou senha inválidos.", 401)
 
     login_user(
@@ -268,6 +279,16 @@ def session_login():
             username=user["username"],
             role=user["role"],
         )
+    )
+
+    from src.infra.audit import log_audit_event
+
+    log_audit_event(
+        action="login_success",
+        resource_type="session",
+        resource_id=str(user["id"]),
+        details={"username": user["username"], "role": user["role"]},
+        user_id=user["id"],
     )
 
     clinic_id = resolve_default_clinic_id(user["id"])
@@ -299,6 +320,14 @@ def session_logout():
     csrf_error = _require_json_csrf()
     if csrf_error:
         return csrf_error
+
+    from src.infra.audit import log_audit_event
+
+    log_audit_event(
+        action="logout",
+        resource_type="session",
+        resource_id=str(current_user.id),
+    )
 
     logout_user()
     session.pop("csrf_token", None)
@@ -402,6 +431,14 @@ def attendance_review(report_id: int):
         return _error("not_found", "Atendimento não encontrado.", 404)
 
     if report.get("status") != "revisado":
+        from src.infra.audit import log_audit_event
+
+        log_audit_event(
+            action="attendance_reviewed",
+            resource_type="anamnesis_report",
+            resource_id=str(report_id),
+            details={"patient_id": report.get("patient_id"), "previous_status": report.get("status")},
+        )
         mark_reviewed(g.clinic_id, report_id)
         if report.get("patient_id"):
             create_event(
@@ -466,6 +503,20 @@ def attendance_medical_record(report_id: int):
         conduct=conduct,
         requested_exams=requested_exams,
         follow_up_plan=follow_up_plan,
+    )
+
+    from src.infra.audit import log_audit_event
+
+    log_audit_event(
+        action="medical_record_saved",
+        resource_type="medical_record_entry",
+        resource_id=str(result.get("entry_id")),
+        details={
+            "patient_id": patient_id,
+            "report_id": report_id,
+            "consultation_status": consultation_status,
+            "created": result.get("created"),
+        },
     )
 
     if not result["enabled"]:
@@ -562,6 +613,14 @@ def appointments_create():
         return _error("validation_error", str(exc), 422)
 
     return _success({"created": True, "appointment_id": appointment_id}, status=201)
+
+
+@api_v1_bp.get("/admin/metrics")
+@api_role_required("Admin")
+def admin_metrics():
+    from src.infra.metrics import get_all_stats
+
+    return _success(get_all_stats())
 
 
 @api_v1_bp.get("/admin/ai-metrics")

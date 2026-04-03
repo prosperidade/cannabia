@@ -55,29 +55,39 @@ export default function LoginPage() {
           API v1.
         </p>
 
-        <label>
-          Usuario
+        <div className="field-stack">
+          <label htmlFor="login-username">Usuário</label>
           <input
+            aria-describedby={error ? "login-error" : undefined}
+            aria-invalid={error ? true : undefined}
+            autoComplete="username"
             className="login-field"
+            id="login-username"
             onChange={(event) => setUsername(event.target.value)}
             placeholder="admin"
+            required
             value={username}
           />
-        </label>
+        </div>
 
-        <label>
-          Senha
+        <div className="field-stack">
+          <label htmlFor="login-password">Senha</label>
           <input
+            aria-describedby={error ? "login-error" : undefined}
+            aria-invalid={error ? true : undefined}
+            autoComplete="current-password"
             className="login-field"
+            id="login-password"
             onChange={(event) => setPassword(event.target.value)}
             placeholder="********"
+            required
             type="password"
             value={password}
           />
-        </label>
+        </div>
 
-        {error ? <div className="inline-error">{error}</div> : null}
-        {session.error ? <div className="inline-error">{session.error}</div> : null}
+        {error ? <div aria-live="assertive" className="inline-error" id="login-error" role="alert">{error}</div> : null}
+        {session.error ? <div aria-live="polite" className="inline-error" role="status">{session.error}</div> : null}
 
         <div className="button-row">
           <button className="button-primary" disabled={busy} type="submit">

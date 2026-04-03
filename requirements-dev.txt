@@ -1,0 +1,10 @@
+# requirements-dev.txt
+# Dependências de desenvolvimento e testes (NÃO deploy em produção)
+-r requirements.txt
+
+# Testes
+pytest>=8.0.0
+pytest-cov>=5.0.0
+
+# Mocking de HTTP
+responses>=0.25.0

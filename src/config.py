@@ -61,3 +61,16 @@ WEBHOOK_RATE_WINDOW_S = int(os.getenv("WEBHOOK_RATE_WINDOW_S", "60"))
 
 LOGIN_RATE_LIMIT = int(os.getenv("LOGIN_RATE_LIMIT", "10"))
 LOGIN_RATE_WINDOW_S = int(os.getenv("LOGIN_RATE_WINDOW_S", "60"))
+
+# ==============================
+# CHAT / INTAKE WEBSOCKET
+# ==============================
+CHAT_SESSION_TTL_S = int(os.getenv("CHAT_SESSION_TTL_S", "3600"))        # 1h padrão
+CHAT_CLEANUP_INTERVAL_S = int(os.getenv("CHAT_CLEANUP_INTERVAL_S", "300"))  # 5min
+
+# ==============================
+# TELEMETRIA PÓS-CONSULTA
+# ==============================
+TELEMETRY_FOLLOWUP_SEND_HOUR = int(os.getenv("TELEMETRY_FOLLOWUP_SEND_HOUR", "10"))  # 10h UTC
+TELEMETRY_DISPATCH_INTERVAL_M = int(os.getenv("TELEMETRY_DISPATCH_INTERVAL_M", "15"))  # a cada 15min
+TELEMETRY_IOT_BATCH_MAX = int(os.getenv("TELEMETRY_IOT_BATCH_MAX", "500"))
