@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "inverse-on-surface": "#2a3320",
+                    "on-background": "#dce6cb",
+                    "on-primary": "#273500",
+                    "outline": "#8f937d",
+                    "on-error": "#690005",
+                    "on-tertiary-fixed": "#36003e",
+                    "surface-container-low": "#161e0d",
+                    "primary": "#bee654",
+                    "inverse-primary": "#4f6700",
+                    "surface-container-lowest": "#091003",
+                    "surface-dim": "#0e1606",
+                    "primary-container": "#a3c93a",
+                    "on-secondary-container": "#96c496",
+                    "secondary-fixed": "#bfefbe",
+                    "on-secondary-fixed": "#002107",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "secondary": "#a4d2a4",
+                    "primary-fixed-dim": "#aed445",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "inverse-surface": "#dce6cb",
+                    "surface-bright": "#333c29",
+                    "secondary-container": "#29522e",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-secondary": "#0e3817",
+                    "on-primary-container": "#3e5200",
+                    "on-tertiary-container": "#792484",
+                    "on-surface": "#dce6cb",
+                    "surface-tint": "#aed445",
+                    "on-surface-variant": "#c5c9b1",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "outline-variant": "#444937",
+                    "surface-container-high": "#242d1a",
+                    "surface-variant": "#2f3824",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "surface": "#0e1606",
+                    "on-primary-fixed": "#151f00",
+                    "tertiary-container": "#f998ff",
+                    "tertiary-fixed": "#ffd6fc",
+                    "primary-fixed": "#c9f15e",
+                    "error": "#ffb4ab",
+                    "on-tertiary": "#580064",
+                    "background": "#0e1606",
+                    "surface-container": "#1a2211",
+                    "tertiary": "#ffc4fe",
+                    "surface-container-highest": "#2f3824"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e1606;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-card {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(190, 230, 84, 0.1);
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #bee654;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid #161e0d;
+            box-shadow: 0 0 15px rgba(190, 230, 84, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen flex flex-col items-center">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-white/10 bg-stone-950/80 backdrop-blur-md flex items-center justify-between px-6 py-4 z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#A3C93A]">close</span>
+</div>
+<div class="text-[#A3C93A] font-['Manrope'] font-bold tracking-tight text-sm uppercase">ETAPA 03</div>
+<div class="w-10 flex justify-end">
+<img alt="Brand Logo" class="h-6 w-auto" data-alt="Minimalist geometric logo icon with organic leaf-inspired shapes in vibrant lime green against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZQO7TvMbUXBw2xNm9fs5NgqVwq2jIdiCEhymS6pZZbB86CV-I3PcW4DMzUmLTAE_q4TOb7HzpJkIcQBkTJOeZSMSXoIPBwj0T5DpFbqMEP8_CxNlaTDBN3IH_dHdFqXQn9XFX8ICCX5dcjG7UNIjQA5xNLGHMLSUyEg-JGfragEuiCqNflY4uKtuDnoyoTVJ52MDiLxbQJ3TSOAVM9de-Nv1ngExTItF5m2TKTfUpnF5tf3xvkTr-5IfKSQCwczsYp_6TaFQah4OZ"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-lg px-6 pt-24 pb-32 flex flex-col items-center">
+<!-- Progress Indicator -->
+<div class="w-full mb-10">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-bold text-primary tracking-widest uppercase font-headline">Conclusão</span>
+<span class="text-xs font-bold text-primary font-headline">100%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-full rounded-full shadow-[0_0_12px_rgba(190,230,84,0.5)]"></div>
+</div>
+</div>
+<!-- Central Glassmorphism Card -->
+<div class="glass-card w-full rounded-lg p-8 shadow-2xl relative overflow-hidden">
+<!-- Decorative Glow -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full"></div>
+<header class="mb-10 relative z-10">
+<h1 class="text-3xl font-black text-on-background font-headline tracking-tight mb-2">Hábitos de Saúde</h1>
+<p class="text-on-surface-variant text-sm leading-relaxed">Conte-nos um pouco sobre sua rotina.</p>
+</header>
+<div class="space-y-12 relative z-10">
+<!-- Toggle Switch Section -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<label class="text-sm font-semibold text-on-surface tracking-wide">Você pratica atividades físicas regularmente?</label>
+</div>
+<div class="flex bg-surface-container-low p-1.5 rounded-full border border-white/5">
+<button class="flex-1 py-3 px-6 rounded-full text-xs font-bold transition-all bg-primary text-on-primary shadow-lg">SIM</button>
+<button class="flex-1 py-3 px-6 rounded-full text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface">NÃO</button>
+</div>
+</div>
+<!-- Slider Picker Section -->
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-center">
+<label class="text-sm font-semibold text-on-surface tracking-wide">Qual a sua qualidade de sono (0-10)?</label>
+<span class="text-2xl font-black text-primary font-headline">8</span>
+</div>
+<div class="relative pt-2">
+<input class="custom-slider w-full h-2 bg-surface-container-highest rounded-full appearance-none cursor-pointer" max="10" min="0" type="range" value="8"/>
+<div class="flex justify-between mt-4 px-1">
+<span class="text-[10px] font-bold text-outline uppercase tracking-tighter">Insuficiente</span>
+<span class="text-[10px] font-bold text-outline uppercase tracking-tighter">Excelente</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Texture Decoration -->
+<div class="mt-12 flex justify-center">
+<div class="grid grid-cols-4 gap-2">
+<div class="w-1 h-1 bg-primary/20 rounded-full"></div>
+<div class="w-1 h-1 bg-primary/40 rounded-full"></div>
+<div class="w-1 h-1 bg-primary/20 rounded-full"></div>
+<div class="w-1 h-1 bg-primary/10 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Secondary Guidance -->
+<p class="mt-8 text-[11px] text-center text-outline leading-tight px-8">
+            Suas informações são tratadas com sigilo laboratorial e criptografia de ponta a ponta.
+        </p>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-stone-950/90 backdrop-blur-xl border-t border-white/5 rounded-t-[40px] shadow-2xl">
+<!-- Inactive Destination: Voltar -->
+<button class="flex flex-col items-center justify-center text-stone-400 px-8 py-3 hover:bg-[#A3C93A]/20 transition-all active:scale-95 duration-150 group">
+<span class="material-symbols-outlined mb-1 group-hover:text-[#A3C93A]">arrow_back</span>
+<span class="font-['Manrope'] font-semibold text-xs">Voltar</span>
+</button>
+<!-- Active Destination: Próximo (Finalizar) -->
+<button class="flex flex-col items-center justify-center bg-[#A3C93A] text-stone-950 rounded-full px-8 py-3 active:scale-95 duration-150 shadow-[0_8px_20px_rgba(163,201,58,0.3)]">
+<span class="material-symbols-outlined mb-1">check_circle</span>
+<span class="font-['Manrope'] font-semibold text-xs">Finalizar</span>
+</button>
+</nav>
+</body></html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Relatório de Análise Lab AI - Genomic Flora</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "error": "#ffb4ab",
+                    "on-error": "#690005",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "on-primary-container": "#3e5200",
+                    "surface-container-highest": "#2f3824",
+                    "outline-variant": "#444937",
+                    "on-tertiary-container": "#792484",
+                    "primary-container": "#a3c93a",
+                    "background": "#0e1606",
+                    "on-secondary-container": "#96c496",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "secondary-container": "#29522e",
+                    "surface-container-high": "#242d1a",
+                    "primary": "#bee654",
+                    "outline": "#8f937d",
+                    "surface-container": "#1a2211",
+                    "surface-tint": "#aed445",
+                    "on-surface": "#dce6cb",
+                    "on-surface-variant": "#c5c9b1",
+                    "error-container": "#93000a",
+                    "surface-dim": "#0e1606",
+                    "surface-container-low": "#161e0d",
+                    "on-tertiary": "#580064",
+                    "on-secondary": "#0e3817",
+                    "inverse-on-surface": "#2a3320",
+                    "surface-container-lowest": "#091003",
+                    "inverse-surface": "#dce6cb",
+                    "inverse-primary": "#4f6700",
+                    "tertiary-container": "#f998ff",
+                    "on-primary": "#273500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .glass { background: rgba(47, 56, 36, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(190, 230, 84, 0.1); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-lime-900/30 bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img alt="Patient Profile Avatar" class="w-full h-full object-cover" data-alt="Close-up portrait of Elena Sterling, a professional woman with a calm expression, soft studio lighting on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdd3JcA9ob9kyDyiwk6l7Q2uSqkyv8g_ujapA_aswLAspTOJr4QeXwe1jzgwyKKyCQarWGt2c3zuKBSw9Tlkr3zmOzkPsbAFFfWZYC4EHv9Ve1PT8u_sIlPz5ImN18acAjdfruU4-GfsgeP-cFzWT6h1GpG0hubYwXBSyawduoyYnDTvZhcfDrX9tMiSpPjkmHgnmqz_ncAseSW0SfITPeeW2BTTJMJM4tKboXoC2WJLSkeQM4F_Dlwnq5T0G2F4qH_fmYwrUekF3r"/>
+</div>
+<span class="text-lime-500 font-bold tracking-tighter uppercase font-manrope">Genomic Flora</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-lime-500">science</span>
+</div>
+</header>
+<main class="mt-20 px-4 space-y-6">
+<!-- Botanical DNA Profile Section -->
+<section class="glass rounded-lg p-6 space-y-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-outline">Perfil de DNA Botânico</p>
+<h2 class="text-2xl font-manrope font-extrabold text-primary">Aura-7 Hybrid</h2>
+</div>
+<img alt="Genomic Flora Logo" class="h-6 opacity-40" data-alt="Minimalist abstract leaf logo with geometric clinical lines in neon lime green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC10TfBg2s2O24XVzNTt3jFOSp3CmSbOl3FadIqh7EsFXHsALRQG_fCnzpHKBTP4QGR2jLYn6hGn1dYkmye87uszq9HvUGlWFglhHWzgygI9LT06JocqkozC4WzvFTxprh_qIfijwsYfKXzpeJ4PEqyrat8Dsn6vtA1cr5tYdFCAec86oLqb7oifkp5pESIHGUi1pj7cZFUedm3qIKC5Bri_VGdf_1P7MByTbkdpJYDdSNgcAPcsUVzOpQ3c-C_uHR8Ujyl2SJrAj--"/>
+</div>
+<div class="space-y-4 pt-2">
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-semibold">
+<span>THC</span>
+<span class="text-primary">24.2%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 84%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-semibold">
+<span>CBD</span>
+<span class="text-primary">2.1%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 15%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-semibold">
+<span>CBG</span>
+<span class="text-primary">1.8%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 12%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Patient Match Score -->
+<section class="relative overflow-hidden bg-primary-container/20 rounded-xl p-6 border border-primary/20">
+<div class="flex items-center justify-between">
+<div class="space-y-1">
+<p class="text-[10px] uppercase tracking-widest text-primary/70">Compatibilidade do Paciente</p>
+<h3 class="text-lg font-manrope font-bold text-on-surface">Elena Sterling</h3>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-4xl font-manrope font-black text-primary">94%</span>
+<span class="text-[8px] uppercase font-bold text-primary/60">Match Score</span>
+</div>
+</div>
+</section>
+<!-- Terpene Dominance -->
+<section class="space-y-3">
+<h4 class="text-[10px] uppercase tracking-widest text-outline ml-1">Dominância de Terpenos</h4>
+<div class="grid grid-cols-3 gap-3">
+<div class="glass p-4 rounded-lg flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center mb-2">
+<span class="text-xs font-bold text-primary">0.8%</span>
+</div>
+<p class="text-[10px] font-bold uppercase tracking-tighter">Myrcene</p>
+</div>
+<div class="glass p-4 rounded-lg flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center mb-2">
+<span class="text-xs font-bold text-primary">0.5%</span>
+</div>
+<p class="text-[10px] font-bold uppercase tracking-tighter">Limonene</p>
+</div>
+<div class="glass p-4 rounded-lg flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center mb-2">
+<span class="text-xs font-bold text-primary">0.3%</span>
+</div>
+<p class="text-[10px] font-bold uppercase tracking-tighter">Linalool</p>
+</div>
+</div>
+</section>
+<!-- Forecast Terapêutico -->
+<section class="glass rounded-xl p-6 space-y-4">
+<h4 class="text-[10px] uppercase tracking-widest text-outline">Forecast Terapêutico</h4>
+<div class="space-y-3">
+<div class="flex items-center gap-4 p-3 rounded-lg bg-surface-container-low border border-outline-variant/30">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">personal_injury</span>
+</div>
+<div>
+<p class="text-sm font-bold">Alívio de Dor</p>
+<p class="text-[10px] text-on-surface-variant">Eficácia analgésica sistêmica</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg bg-surface-container-low border border-outline-variant/30">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">bedtime</span>
+</div>
+<div>
+<p class="text-sm font-bold">Indução de Sono</p>
+<p class="text-[10px] text-on-surface-variant">Redução de latência do sono profundo</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg bg-surface-container-low border border-outline-variant/30">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">health_metrics</span>
+</div>
+<div>
+<p class="text-sm font-bold">Anti-inflamatório</p>
+<p class="text-[10px] text-on-surface-variant">Resposta inflamatória controlada</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Microscopic Purity -->
+<section class="space-y-3">
+<h4 class="text-[10px] uppercase tracking-widest text-outline ml-1">Microscopic Purity</h4>
+<div class="w-full aspect-video rounded-xl overflow-hidden border border-white/10">
+<img alt="Microscopic Scan" class="w-full h-full object-cover" data-alt="Ultra-high definition macro photography of translucent plant trichomes with microscopic clarity, neon green backlighting, laboratory aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6jczT1x8K8Xq6CihGiALJFmca-MI4orFJ0wlYAsoThSstl3CF1g_ICDI1iWcR11j9Gbc7eXzDPxZ1BhtM4EVIe_tBqfmeEae1bLQJoB-tKEqQG7tPVuFOeKnguwWoNUKjB94fSUoBhyQIoXgfB_1ycWcpl_upGlFdy-9usHtJri_7KeH9Olec0B44EjwbwuGCpuhZJ0FVvDrVP9KkML8t4h6qs__f_8fUTxj26YqawYWHYihv72Ctzal6XNl2gB4mrJyz0f10whRo"/>
+</div>
+</section>
+<!-- Footer Data -->
+<footer class="glass rounded-xl p-6 mt-8 flex justify-between items-center">
+<div class="space-y-1">
+<p class="text-[8px] uppercase tracking-widest text-outline">Colheita Final</p>
+<p class="text-xs font-bold text-on-surface">14 NOV 2023</p>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(190,230,84,0.6)]"></div>
+<p class="text-[10px] font-bold uppercase text-primary">Pronto para Dispensação</p>
+</div>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-2 bg-stone-950/90 backdrop-blur-xl z-50 rounded-t-[2.5rem] border-t border-lime-900/20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<div class="flex flex-col items-center justify-center text-stone-600 p-3 hover:bg-lime-500/5">
+<span class="material-symbols-outlined mb-1">genetics</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">DNA</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-lime-500/10 text-lime-400 rounded-full p-3 active:scale-110 duration-300 ease-out">
+<span class="material-symbols-outlined mb-1">biotech</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Lab</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-600 p-3 hover:bg-lime-500/5">
+<span class="material-symbols-outlined mb-1">query_stats</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Forecast</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-600 p-3 hover:bg-lime-500/5">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Account</span>
+</div>
+</nav>
+</body></html>

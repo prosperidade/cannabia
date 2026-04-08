@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Greenhouse Lab | Executive Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#242d1a",
+                    "on-primary-fixed": "#151f00",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-bright": "#333c29",
+                    "outline-variant": "#444937",
+                    "on-tertiary": "#580064",
+                    "on-secondary": "#0e3817",
+                    "surface-container-low": "#161e0d",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-primary-container": "#3e5200",
+                    "on-tertiary-container": "#792484",
+                    "secondary-container": "#29522e",
+                    "on-background": "#dce6cb",
+                    "outline": "#8f937d",
+                    "surface-variant": "#2f3824",
+                    "primary": "#bee654",
+                    "background": "#0e1606",
+                    "error": "#ffb4ab",
+                    "primary-fixed-dim": "#aed445",
+                    "surface-tint": "#aed445",
+                    "primary-container": "#a3c93a",
+                    "on-surface": "#dce6cb",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-secondary-fixed": "#002107",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "surface-container-highest": "#2f3824",
+                    "surface": "#0e1606",
+                    "surface-container-lowest": "#091003",
+                    "on-primary": "#273500",
+                    "on-error": "#690005",
+                    "inverse-surface": "#dce6cb",
+                    "on-surface-variant": "#c5c9b1",
+                    "secondary-fixed": "#bfefbe",
+                    "tertiary-container": "#f998ff",
+                    "on-secondary-container": "#96c496",
+                    "inverse-on-surface": "#2a3320",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "error-container": "#93000a",
+                    "surface-container": "#1a2211",
+                    "primary-fixed": "#c9f15e",
+                    "tertiary-fixed": "#ffd6fc",
+                    "secondary": "#a4d2a4",
+                    "inverse-primary": "#4f6700",
+                    "tertiary": "#ffc4fe",
+                    "surface-dim": "#0e1606",
+                    "on-tertiary-fixed": "#36003e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0e1606; color: #dce6cb; font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(36, 45, 26, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-white/5 bg-stone-950 flex flex-col h-full py-6 px-4 z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed" style="font-variation-settings: 'FILL' 1;">potted_plant</span>
+</div>
+<div>
+<h1 class="font-headline text-lime-400 font-black leading-none">Greenhouse Lab</h1>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest mt-1">Clinical Precision</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Executive Summary is ACTIVE -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-lime-400/10 text-lime-400 border-r-2 border-lime-400 font-manrope text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Executive Summary</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 hover:bg-white/5 font-manrope text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span>Inventory Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 hover:bg-white/5 font-manrope text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Patient Insights</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 hover:bg-white/5 font-manrope text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Revenue Streams</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 hover:bg-white/5 font-manrope text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span>Compliance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 hover:bg-white/5 font-manrope text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined">clinical_notes</span>
+<span>Staffing</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1 pt-6 border-t border-white/5">
+<button class="w-full bg-primary text-on-primary-fixed font-headline font-bold py-3 rounded-xl mb-4 active:scale-95 transition-all text-sm">
+                Generate Report
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-stone-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Log Out</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 h-16 flex items-center justify-between px-8 z-40 bg-stone-950/80 backdrop-blur-md border-b border-white/5 font-manrope tracking-tight">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-500">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="bg-stone-900 border-none rounded-full pl-10 pr-4 py-1.5 text-sm text-stone-300 focus:ring-1 focus:ring-lime-400/50 w-64 transition-all" placeholder="Search insights..." type="text"/>
+</div>
+<nav class="hidden md:flex items-center gap-6 text-sm">
+<a class="text-lime-400 font-semibold hover:text-lime-200 transition-colors" href="#">Overview</a>
+<a class="text-stone-400 hover:text-lime-200 transition-colors" href="#">Analytics</a>
+<a class="text-stone-400 hover:text-lime-200 transition-colors" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:text-lime-200 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="text-stone-400 hover:text-lime-200 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-stone-200 leading-none">Dr. Aris Thorne</p>
+<p class="text-[10px] text-lime-400/70 uppercase tracking-tighter">Chief Medical Officer</p>
+</div>
+<img alt="Chief Medical Officer profile" class="w-9 h-9 rounded-full border border-lime-400/30 object-cover" data-alt="Professional portrait of a male doctor in his 40s wearing a dark medical scrub, soft studio lighting with a neutral clinical background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnVBHawyTNMri5TQZq4BbV5EwDzO4mzQK_-N7ru-EJbUKXQtldDFifXjP94FIFW8ZpbTePL85NgWUAdFbC3GUuivAmGDo_1k8ndaYDNgzcDb5OOE8UovHQo1hwrZYSBWbgRQt6SCFGG0WfcWzHLpkBRTFyUmIQe22Z79FORirEUUQfPwFrvcCO4nvkxp2SBS8Tn-0A25aB4vRvQymbdPX6LF-RJUpb7-hYC5Mw7pOfuqNRoVOHbTo8uStfI96RA5yztCv4nVJeJ7Nm"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-screen">
+<!-- Filter & Controls Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+<div>
+<h2 class="text-3xl font-headline font-extrabold text-stone-100 tracking-tight">Executive Summary</h2>
+<p class="text-stone-400 text-sm mt-1 italic">Real-time clinical and operational performance metrics</p>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-low p-1.5 rounded-2xl border border-white/5">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-high border border-white/5 text-xs text-stone-300">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+<span>Last 30 Days</span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-high border border-white/5 text-xs text-stone-300">
+<span class="material-symbols-outlined text-sm">domain</span>
+<span>All Locations</span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<button class="bg-stone-800 hover:bg-stone-700 text-stone-200 p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+<button class="bg-primary text-on-primary-fixed px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">download</span>
+                    Export
+                </button>
+</div>
+</div>
+<!-- Executive KPI Header -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary/10 rounded-2xl">
+<span class="material-symbols-outlined text-primary">show_chart</span>
+</div>
+<span class="text-primary font-bold text-sm bg-primary/10 px-2 py-0.5 rounded-full">+18%</span>
+</div>
+<p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Global Revenue Growth</p>
+<h3 class="text-2xl font-headline font-extrabold text-stone-100 mt-1">$4.2M</h3>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/40 to-primary/0"></div>
+</div>
+<div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-secondary/10 rounded-2xl">
+<span class="material-symbols-outlined text-secondary">group</span>
+</div>
+<span class="text-stone-400 text-xs mt-1">Growth: 4.2%</span>
+</div>
+<p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Active Patients</p>
+<h3 class="text-2xl font-headline font-extrabold text-stone-100 mt-1">1,450</h3>
+</div>
+<div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-tertiary/10 rounded-2xl">
+<span class="material-symbols-outlined text-tertiary">task_alt</span>
+</div>
+<span class="text-stone-400 text-xs mt-1">Target: 85%</span>
+</div>
+<p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Treatment Success Rate</p>
+<h3 class="text-2xl font-headline font-extrabold text-stone-100 mt-1">89%</h3>
+</div>
+<div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary-fixed/10 rounded-2xl">
+<span class="material-symbols-outlined text-primary-fixed">bolt</span>
+</div>
+<span class="text-stone-400 text-xs mt-1">Optimized</span>
+</div>
+<p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Operational Efficiency</p>
+<h3 class="text-2xl font-headline font-extrabold text-stone-100 mt-1">94.2%</h3>
+</div>
+</div>
+<!-- Middle Section: Revenue & Forecast -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+<!-- Revenue Stream Analysis -->
+<div class="lg:col-span-2 glass-card p-8 rounded-[2.5rem]">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h4 class="text-xl font-headline font-bold text-stone-100">Revenue Stream Analysis</h4>
+<p class="text-stone-400 text-xs">Comparing subscription vs. consultation metrics (LTM)</p>
+</div>
+<div class="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary"></span> Subscription</div>
+<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-stone-700"></span> Consultation</div>
+</div>
+</div>
+<!-- Simulated Sophisticated Chart -->
+<div class="h-64 flex items-end justify-between gap-2 px-2">
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-32">
+<div class="w-full bg-primary/20 h-full rounded-t-lg group-hover:bg-primary/40 transition-colors"></div>
+<div class="w-full bg-primary h-[80%] rounded-t-lg group-hover:brightness-110 transition-all"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">JAN</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-40">
+<div class="w-full bg-primary/20 h-full rounded-t-lg"></div>
+<div class="w-full bg-primary h-[85%] rounded-t-lg"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">FEB</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-36">
+<div class="w-full bg-primary/20 h-full rounded-t-lg"></div>
+<div class="w-full bg-primary h-[90%] rounded-t-lg"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">MAR</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-48">
+<div class="w-full bg-primary/20 h-full rounded-t-lg"></div>
+<div class="w-full bg-primary h-[95%] rounded-t-lg"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">APR</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-52">
+<div class="w-full bg-primary/20 h-full rounded-t-lg"></div>
+<div class="w-full bg-primary h-[100%] rounded-t-lg border-t-4 border-lime-200"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">MAY</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-44">
+<div class="w-full bg-primary/20 h-full rounded-t-lg"></div>
+<div class="w-full bg-primary h-[70%] rounded-t-lg"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">JUN</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full group">
+<div class="w-full flex items-end gap-1 h-56">
+<div class="w-full bg-primary/20 h-full rounded-t-lg"></div>
+<div class="w-full bg-primary h-[90%] rounded-t-lg"></div>
+</div>
+<span class="text-[10px] text-stone-500 font-bold">JUL</span>
+</div>
+</div>
+</div>
+<!-- AI Strategic Forecast -->
+<div class="glass-card p-8 rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-transparent flex flex-col justify-between border-primary/20 relative group">
+<div class="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 blur-3xl group-hover:bg-primary/20 transition-all"></div>
+<div>
+<div class="flex items-center gap-2 text-primary mb-4">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-[10px] font-black uppercase tracking-[0.2em]">AI Strategic Forecast</span>
+</div>
+<h4 class="text-xl font-headline font-bold text-stone-100 leading-tight mb-4">Optimizing Next Quarter's Yield</h4>
+<p class="text-stone-300 text-sm leading-relaxed">
+                        Based on current growth, we recommend increasing <span class="text-primary font-bold">Myrcene-dominant inventory by 15%</span> for next quarter.
+                    </p>
+</div>
+<div class="mt-8">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Confidence Score</span>
+<span class="text-xs font-bold text-primary">98%</span>
+</div>
+<div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[98%] shadow-[0_0_10px_#bee654]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Patient Insights, Inventory & Compliance -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Patient Insights Section -->
+<div class="glass-card p-8 rounded-[2.5rem] flex flex-col">
+<h4 class="text-xl font-headline font-bold text-stone-100 mb-6">Patient Demographics</h4>
+<div class="space-y-6 flex-1">
+<div class="group">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-medium text-stone-300">Anxiety Disorders</span>
+<span class="text-xs text-stone-500">42% (609 pts)</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[42%] group-hover:brightness-125 transition-all"></div>
+</div>
+</div>
+<div class="group">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-medium text-stone-300">Chronic Pain</span>
+<span class="text-xs text-stone-500">31% (450 pts)</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[31%]"></div>
+</div>
+</div>
+<div class="group">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-medium text-stone-300">Epilepsy Control</span>
+<span class="text-xs text-stone-500">18% (261 pts)</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[18%]"></div>
+</div>
+</div>
+<div class="group">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-medium text-stone-300">Others</span>
+<span class="text-xs text-stone-500">9% (130 pts)</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-stone-600 h-full w-[9%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/5">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Retention Rate</p>
+<h5 class="text-xl font-headline font-extrabold text-stone-100">92.4%</h5>
+</div>
+<div class="p-3 bg-secondary/10 rounded-2xl">
+<span class="material-symbols-outlined text-secondary">trending_up</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Inventory Health vs Demand -->
+<div class="glass-card p-8 rounded-[2.5rem]">
+<h4 class="text-xl font-headline font-bold text-stone-100 mb-6">Inventory Health vs. Demand</h4>
+<div class="space-y-4">
+<div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">opacity</span>
+</div>
+<div>
+<p class="text-sm font-bold text-stone-200">Terpene Profile X1</p>
+<p class="text-[10px] text-stone-500">Stock: 450 Units</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-error">Critical Demand</p>
+<p class="text-[10px] text-stone-500">+12% Renewals</p>
+</div>
+</div>
+<div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-xl" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+<div>
+<p class="text-sm font-bold text-stone-200">Full Spectrum Oil</p>
+<p class="text-[10px] text-stone-500">Stock: 1,200 Units</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-primary">Healthy</p>
+<p class="text-[10px] text-stone-500">-2% Demand</p>
+</div>
+</div>
+<div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-tertiary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-xl" style="font-variation-settings: 'FILL' 1;">science</span>
+</div>
+<div>
+<p class="text-sm font-bold text-stone-200">Isolated CBD</p>
+<p class="text-[10px] text-stone-500">Stock: 890 Units</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-stone-300">Stable</p>
+<p class="text-[10px] text-stone-500">+5% Renewals</p>
+</div>
+</div>
+</div>
+<div class="mt-6 flex justify-center">
+<button class="text-primary text-xs font-bold hover:underline">View Full Correlation Matrix</button>
+</div>
+</div>
+<!-- Compliance & Risk Heatmap -->
+<div class="glass-card p-8 rounded-[2.5rem]">
+<h4 class="text-xl font-headline font-bold text-stone-100 mb-6">Compliance &amp; Risk Map</h4>
+<div class="grid grid-cols-4 gap-2 mb-6">
+<!-- Fake Heatmap Grid -->
+<div class="aspect-square bg-primary/80 rounded-lg" title="Location A: Perfect"></div>
+<div class="aspect-square bg-primary/60 rounded-lg" title="Location B: Good"></div>
+<div class="aspect-square bg-primary/40 rounded-lg" title="Location C: Review"></div>
+<div class="aspect-square bg-error/40 rounded-lg" title="Location D: Critical"></div>
+<div class="aspect-square bg-primary/60 rounded-lg"></div>
+<div class="aspect-square bg-primary/80 rounded-lg"></div>
+<div class="aspect-square bg-primary/60 rounded-lg"></div>
+<div class="aspect-square bg-primary/40 rounded-lg"></div>
+<div class="aspect-square bg-primary/40 rounded-lg"></div>
+<div class="aspect-square bg-error/60 rounded-lg"></div>
+<div class="aspect-square bg-primary/60 rounded-lg"></div>
+<div class="aspect-square bg-primary/80 rounded-lg"></div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between text-sm">
+<span class="text-stone-400">ANVISA Submissions</span>
+<span class="font-bold text-stone-100">12 Pending</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-stone-400">Audit Readiness</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold">READY</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-stone-400">Tenant Sync Status</span>
+<span class="font-bold text-stone-100">98.2%</span>
+</div>
+</div>
+<button class="w-full mt-8 py-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-xs font-bold text-stone-200">
+                    Detailed Compliance Audit
+                </button>
+</div>
+</div>
+</main>
+<!-- FAB Suppression: Not rendered here as this is a dashboard/summary view -->
+</body></html>

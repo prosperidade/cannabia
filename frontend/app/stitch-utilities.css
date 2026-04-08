@@ -1,0 +1,65 @@
+/* ── Stitch Design System Utilities ──
+   Classes extraidas dos 79 screens do Stitch (Material Design 3 dark theme).
+   Complementam o Tailwind — usadas para efeitos visuais que nao sao utilitarios puros.
+*/
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(47, 56, 36, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(190, 230, 84, 0.1);
+}
+
+.glass-card {
+  background: rgba(26, 34, 17, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(163, 201, 58, 0.1);
+}
+
+.glass-card-active {
+  background: rgba(163, 201, 58, 0.15);
+  border: 1.5px solid #a3c93a;
+}
+
+/* Material Symbols baseline */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Scrollbar — dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(190, 230, 84, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(190, 230, 84, 0.35);
+}
+
+/* Text glow effect (usado em titulos e KPIs) */
+.text-glow-primary {
+  text-shadow: 0 0 20px rgba(190, 230, 84, 0.4);
+}
+
+/* Pulse dot — indicador de status ao vivo */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #bee654;
+  box-shadow: 0 0 8px #bee654;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px #bee654; }
+  50% { opacity: 0.6; box-shadow: 0 0 16px #bee654; }
+}

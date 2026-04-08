@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#aed445",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#aed445",
+                    "background": "#0e1606",
+                    "surface-container-lowest": "#091003",
+                    "on-primary": "#273500",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-surface-variant": "#c5c9b1",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-primary-fixed": "#151f00",
+                    "surface-container": "#1a2211",
+                    "on-error-container": "#ffdad6",
+                    "outline-variant": "#444937",
+                    "surface-variant": "#2f3824",
+                    "primary": "#bee654",
+                    "outline": "#8f937d",
+                    "tertiary": "#ffc4fe",
+                    "primary-fixed": "#c9f15e",
+                    "on-secondary-fixed": "#002107",
+                    "on-background": "#dce6cb",
+                    "inverse-on-surface": "#2a3320",
+                    "primary-container": "#a3c93a",
+                    "secondary-container": "#29522e",
+                    "secondary": "#a4d2a4",
+                    "on-tertiary-fixed": "#36003e",
+                    "error-container": "#93000a",
+                    "surface-container-low": "#161e0d",
+                    "on-secondary-container": "#96c496",
+                    "inverse-primary": "#4f6700",
+                    "on-tertiary-container": "#792484",
+                    "surface-bright": "#333c29",
+                    "on-surface": "#dce6cb",
+                    "tertiary-container": "#f998ff",
+                    "surface-container-highest": "#2f3824",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface": "#0e1606",
+                    "on-tertiary": "#580064",
+                    "on-secondary": "#0e3817"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(143, 147, 125, 0.2);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar (from JSON) -->
+<aside class="hidden lg:flex flex-col h-full sticky top-0 h-screen w-64 border-r border-stone-800 bg-stone-950/80 backdrop-blur-xl shadow-2xl font-manrope tracking-tight text-sm z-50">
+<div class="p-6 flex items-center space-x-3">
+<img alt="Cannab'IA Logo" class="w-10 h-10 object-contain" data-alt="Stylized medical cannabis leaf integrated with neural network patterns in a lime green and white minimalist logo design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsTW0w5bH-JDmlhYKIjXoILa2U1PuY7ieiXTZ7O1MTMrxolcwKyhENzzNKztsLUJRILG6YSwL16H8Uk4Eve1H9BscHvnamFpnqa9FaF6NjN9kGLnLUyA0O7i8g6rVvYBIzAaFiMBe2nZS3cyATIqwPvFDd86MIDBm3lOZpRU3MigTyeG3bDfAqxy8xqq0jD-adPS5LUVLrzmXX0Iluu33DTGtLaAeOBYsq_yZkEwRthbHMkGODyd_Xj74q3v0NJj1p2b0JR8pzDvui"/>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-lime-500 uppercase">BioLab Clinic</h1>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Organizational Hub</p>
+</div>
+</div>
+<nav class="flex-1 px-4 mt-6 space-y-2">
+<!-- Active State: Logic applied to "Patients" as primary dashboard sub-entity -->
+<a class="flex items-center px-4 py-3 text-stone-400 hover:text-stone-200 hover:bg-stone-800/40 transition-colors duration-300 active:scale-95 transition-transform rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">group</span>
+<span>Patients</span>
+</a>
+<a class="flex items-center px-4 py-3 text-stone-400 hover:text-stone-200 hover:bg-stone-800/40 transition-colors duration-300 active:scale-95 transition-transform rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">medical_services</span>
+<span>Doctors</span>
+</a>
+<a class="flex items-center px-4 py-3 text-stone-400 hover:text-stone-200 hover:bg-stone-800/40 transition-colors duration-300 active:scale-95 transition-transform rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">calendar_today</span>
+<span>Appointments</span>
+</a>
+<a class="flex items-center px-4 py-3 text-stone-400 hover:text-stone-200 hover:bg-stone-800/40 transition-colors duration-300 active:scale-95 transition-transform rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">payments</span>
+<span>Financial</span>
+</a>
+<a class="flex items-center px-4 py-3 text-stone-400 hover:text-stone-200 hover:bg-stone-800/40 transition-colors duration-300 active:scale-95 transition-transform rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">inventory_2</span>
+<span>Inventory</span>
+</a>
+</nav>
+<div class="px-4 py-6 border-t border-stone-800/50">
+<button class="w-full bg-lime-500 text-stone-950 font-bold py-3 rounded-xl flex items-center justify-center space-x-2 active:scale-95 transition-transform shadow-lg shadow-lime-500/20">
+<span class="material-symbols-outlined">add</span>
+<span>Add Record</span>
+</button>
+<div class="mt-6 space-y-1">
+<a class="flex items-center px-4 py-2 text-stone-400 hover:text-stone-200 text-xs" href="#">
+<span class="material-symbols-outlined mr-3 text-sm">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center px-4 py-2 text-stone-400 hover:text-stone-200 text-xs" href="#">
+<span class="material-symbols-outlined mr-3 text-sm">help</span>
+<span>Support</span>
+</a>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col">
+<!-- TopNavBar (from JSON) -->
+<header class="flex justify-between items-center px-8 py-3 sticky top-0 z-40 bg-stone-950/60 backdrop-blur-md w-full border-b border-stone-800 font-manrope text-sm font-medium">
+<div class="flex items-center space-x-8">
+<span class="text-lg font-black text-lime-500">BioLab Admin</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-lg">search</span>
+<input class="bg-stone-900/50 border-none rounded-full pl-10 pr-4 py-1.5 text-xs w-64 focus:ring-1 focus:ring-lime-500 transition-all" placeholder="Search medical database..." type="text"/>
+</div>
+</div>
+<nav class="hidden md:flex space-x-6">
+<a class="text-lime-400 border-b-2 border-lime-500 pb-2" href="#">Dashboard</a>
+<a class="text-stone-400 hover:text-lime-300 transition-all opacity-80 hover:opacity-100" href="#">Analytics</a>
+<a class="text-stone-400 hover:text-lime-300 transition-all opacity-80 hover:opacity-100" href="#">Reports</a>
+</nav>
+<div class="flex items-center space-x-4">
+<div class="flex space-x-2">
+<button class="material-symbols-outlined p-2 text-stone-400 hover:text-lime-300">notifications</button>
+<button class="material-symbols-outlined p-2 text-stone-400 hover:text-lime-300">dark_mode</button>
+</div>
+<button class="bg-red-500/10 text-red-500 px-4 py-1.5 rounded-full border border-red-500/20 font-bold hover:bg-red-500 hover:text-white transition-all text-xs">Emergency Alert</button>
+<img alt="Admin Avatar" class="w-8 h-8 rounded-full border border-lime-500/50" data-alt="Professional headshot of a female doctor in her 40s wearing a white clinical coat, soft studio lighting, green background blur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMeXq38WNboEvJfnVzZxRTmhD2yGmE_6mt44qWAda02ATYRjXb30ltWISa1P5VsDXrVco2yak2VJjueg6vxKfvGV45bLXoRAyPPy1ZUdvh11olcVyz08yG0NVXB3YCe5zylIQE3Q9yjgT44sszuSN0cLg_pgHC9JG2Xq75_G4pvnIHJl7QeDHCJsPXQ4I_zEOltp6JUDOQ4fHq77ZmvwpJmuP7DSgi1i_24TFZlKjed12Jt3ggZirmyencxDHfHTwi9e9NEVi4nZ0i"/>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-8 space-y-8">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-3xl font-extrabold font-headline tracking-tight">Executive Dashboard</h2>
+<p class="text-on-surface-variant font-body">Real-time clinical and operational oversight for Cannab'IA.</p>
+</div>
+<div class="flex space-x-3">
+<button class="px-6 py-2 rounded-full border border-outline-variant bg-surface-container-low text-on-surface hover:bg-surface-variant transition-all font-label text-sm flex items-center space-x-2">
+<span class="material-symbols-outlined text-base">download</span>
+<span>Export Data</span>
+</button>
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary font-bold font-label text-sm hover:brightness-110 active:scale-95 transition-all">
+                        Update Core AI
+                    </button>
+</div>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">diversity_3</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Total Active Patients</p>
+<div class="flex items-baseline space-x-2">
+<h3 class="text-4xl font-black text-primary">12,842</h3>
+<span class="text-lime-400 text-xs font-bold flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 8.4%
+                        </span>
+</div>
+<p class="text-[10px] text-on-surface-variant/60 mt-2">v.s last month (+921 net new)</p>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group border-l-4 border-l-tertiary-container/30">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Monthly Revenue</p>
+<div class="flex items-baseline space-x-2">
+<h3 class="text-4xl font-black text-on-surface">$1.24M</h3>
+<span class="text-lime-400 text-xs font-bold flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 12%
+                        </span>
+</div>
+<p class="text-[10px] text-on-surface-variant/60 mt-2">Projected: $1.31M by Month End</p>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Patient Satisfaction</p>
+<div class="flex items-baseline space-x-2">
+<h3 class="text-4xl font-black text-tertiary">4.92</h3>
+<span class="text-stone-500 text-xs font-bold">/ 5.0</span>
+</div>
+<div class="w-full bg-stone-800 h-1 mt-3 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[98%]"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">donut_large</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Onboarding CR</p>
+<div class="flex items-baseline space-x-2">
+<h3 class="text-4xl font-black text-primary-container">64.2%</h3>
+<span class="text-red-400 text-xs font-bold flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_downward</span> 2.1%
+                        </span>
+</div>
+<p class="text-[10px] text-on-surface-variant/60 mt-2">Dropoff at 'Prescription Sync' step</p>
+</div>
+</div>
+<!-- Bento Main Grid -->
+<div class="bento-grid">
+<!-- Acquisition Chart Area -->
+<div class="col-span-12 xl:col-span-8 glass-card rounded-lg p-8">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h4 class="text-xl font-bold font-headline">Patient Acquisition &amp; Retention</h4>
+<p class="text-sm text-on-surface-variant">Comparative growth of botanical therapy enrollment</p>
+</div>
+<select class="bg-surface-container border-none text-xs rounded-full px-4 focus:ring-1 focus:ring-primary">
+<option>Last 6 Months</option>
+<option>Year to Date</option>
+</select>
+</div>
+<div class="h-64 flex items-end justify-between space-x-2">
+<!-- Simulated Chart -->
+<div class="flex-1 flex flex-col items-center group">
+<div class="w-full flex space-x-1 items-end h-full">
+<div class="bg-primary/20 w-1/2 h-[40%] rounded-t-sm group-hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary w-1/2 h-[60%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] text-stone-500 mt-2 font-bold uppercase">Jan</span>
+</div>
+<div class="flex-1 flex flex-col items-center group">
+<div class="w-full flex space-x-1 items-end h-full">
+<div class="bg-primary/20 w-1/2 h-[45%] rounded-t-sm group-hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary w-1/2 h-[65%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] text-stone-500 mt-2 font-bold uppercase">Feb</span>
+</div>
+<div class="flex-1 flex flex-col items-center group">
+<div class="w-full flex space-x-1 items-end h-full">
+<div class="bg-primary/20 w-1/2 h-[55%] rounded-t-sm group-hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary w-1/2 h-[75%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] text-stone-500 mt-2 font-bold uppercase">Mar</span>
+</div>
+<div class="flex-1 flex flex-col items-center group">
+<div class="w-full flex space-x-1 items-end h-full">
+<div class="bg-primary/20 w-1/2 h-[50%] rounded-t-sm group-hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary w-1/2 h-[70%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] text-stone-500 mt-2 font-bold uppercase">Apr</span>
+</div>
+<div class="flex-1 flex flex-col items-center group">
+<div class="w-full flex space-x-1 items-end h-full">
+<div class="bg-primary/20 w-1/2 h-[60%] rounded-t-sm group-hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary w-1/2 h-[85%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] text-stone-500 mt-2 font-bold uppercase">May</span>
+</div>
+<div class="flex-1 flex flex-col items-center group">
+<div class="w-full flex space-x-1 items-end h-full">
+<div class="bg-primary/20 w-1/2 h-[70%] rounded-t-sm group-hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary w-1/2 h-[95%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] text-stone-500 mt-2 font-bold uppercase">Jun</span>
+</div>
+</div>
+<div class="mt-8 flex space-x-6">
+<div class="flex items-center space-x-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-xs text-on-surface-variant">New Patients</span>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-3 h-3 rounded-full bg-primary/20"></div>
+<span class="text-xs text-on-surface-variant">Returning Patients</span>
+</div>
+</div>
+</div>
+<!-- Operational Status -->
+<div class="col-span-12 xl:col-span-4 space-y-6">
+<div class="glass-card rounded-lg p-6 flex flex-col h-full border-t-2 border-primary">
+<h4 class="text-lg font-bold font-headline mb-4 flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">eco</span> Operational Status
+                        </h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-stone-900/40 rounded-lg">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-lime-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-500 text-xl">event_available</span>
+</div>
+<div>
+<p class="text-sm font-bold">Appointments Today</p>
+<p class="text-[10px] text-stone-500">24 confirmed • 3 pending</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-600">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-stone-900/40 rounded-lg">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary-container text-xl">sync_problem</span>
+</div>
+<div>
+<p class="text-sm font-bold">Pending Lab Syncs</p>
+<p class="text-[10px] text-stone-500">12 batches awaiting validation</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-600">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-red-500/5 rounded-lg border border-red-500/10">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-red-500 text-xl">inventory_2</span>
+</div>
+<div>
+<p class="text-sm font-bold text-red-400">Inventory Alert</p>
+<p class="text-[10px] text-stone-500">CBD-12 Isolate low (4 units left)</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-600">priority_high</span>
+</div>
+</div>
+<div class="mt-auto pt-6">
+<button class="w-full py-2 bg-surface-container rounded-lg text-xs font-bold hover:bg-surface-container-highest transition-all">View All Alerts</button>
+</div>
+</div>
+</div>
+<!-- Clinical Performance Table -->
+<div class="col-span-12 glass-card rounded-lg p-0 overflow-hidden">
+<div class="p-6 border-b border-stone-800 flex justify-between items-center">
+<div>
+<h4 class="text-xl font-bold font-headline">Clinical Performance</h4>
+<p class="text-sm text-on-surface-variant">Top practitioners by efficacy and patient throughput</p>
+</div>
+<button class="text-primary text-xs font-bold hover:underline">View Medical Board</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-stone-900/40 text-[10px] uppercase tracking-widest text-stone-500 font-bold">
+<tr>
+<th class="px-8 py-4">Practitioner</th>
+<th class="px-8 py-4">Specialization</th>
+<th class="px-8 py-4">Patient Load</th>
+<th class="px-8 py-4">Avg Rating</th>
+<th class="px-8 py-4">Outcome Index</th>
+<th class="px-8 py-4">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-stone-800">
+<tr class="hover:bg-stone-800/20 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-stone-700 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Male doctor with stethoscope, warm professional expression, soft laboratory lighting in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo1KVGPLybqcfngmEj1UAP73qt2asvqT9oWihC9fsZIa10hQ6buvcBCa5fgioaAQToWo_okz1r4MF0NyYFewLIffi8JRopf9XWQtbOXTuyK9KSDW6WqGAPoqQSCm76ZKPpYutP0XIUe7I54AMBwW-Zo4a98xnGN3prE1ngDMjBktyttbiqge6xUf9IkRqyfde8IIu4HFliWYGOxsQBbqBSDlt0dHbuvt2M6RfcKzKayjj8wLzc8vdW3p7OIKQECiMadeyBpBvu2i1Z"/>
+</div>
+<span class="font-bold">Dr. Alistair Vance</span>
+</div>
+</td>
+<td class="px-8 py-4 text-on-surface-variant">Neurological Botanical Care</td>
+<td class="px-8 py-4">142</td>
+<td class="px-8 py-4">
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-sm mr-1" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">4.98</span>
+</div>
+</td>
+<td class="px-8 py-4">
+<div class="w-24 bg-stone-800 h-1.5 rounded-full">
+<div class="bg-primary h-full w-[94%] rounded-full"></div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 rounded-full bg-lime-500/10 text-lime-500 text-[10px] font-bold">ACTIVE</span>
+</td>
+</tr>
+<tr class="hover:bg-stone-800/20 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-stone-700 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Female doctor in scrubs, smiling confidently, bright natural clinic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCbdPULHja7ta-S2Ymg6XqpdeZ-aUGtzsuOqdWG4Uzjo29Xp2fkWOREGzMvoDtzw_y1lIoMbiUtQ-oabX982wtpdDKG2BV5em6emb6ucDvImsKvNcW7P2UYzqakF-zM-LiJQUDItIxQ15rDX2e24PNMjHLB9bhVN0GUgM1wChZ1S9IY35vJsr795x8sq0ZrQifOxlcd3D-yMJ-B48n6wN3-kAp2-YjzgbHd2wZoCt3riEguErmxQRNeSUWChwKprSS-plEWGCzGSeO"/>
+</div>
+<span class="font-bold">Dr. Elena Rodriguez</span>
+</div>
+</td>
+<td class="px-8 py-4 text-on-surface-variant">Chronic Pain AI Therapy</td>
+<td class="px-8 py-4">128</td>
+<td class="px-8 py-4">
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-sm mr-1" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">4.85</span>
+</div>
+</td>
+<td class="px-8 py-4">
+<div class="w-24 bg-stone-800 h-1.5 rounded-full">
+<div class="bg-primary h-full w-[88%] rounded-full"></div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 rounded-full bg-lime-500/10 text-lime-500 text-[10px] font-bold">ACTIVE</span>
+</td>
+</tr>
+<tr class="hover:bg-stone-800/20 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-stone-700 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Male physician in white coat, thoughtful expression, high-tech office background with screens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmrdE13ca0o4KCfOCMGOO0HbCob2F86dUOB474PGwNYnJYvpIyB6Lgd885noGGU2w76CjUlzy2jmaUZ8_mHhrdCOSQGIBx2S27BHiNrD4wnj3g7JOYRAbYxsx0CNxzQCfbYKdye0sjnrZdY0QQAsT65p7qg1PTwryFprKU1CCF5uxvduSUj3Kn4G52WjnpHXPPAYYaG3ZGdTpYAGbfsvGWjOPygm0_rQawh5Rw4cfPYCadTHHOxeZMW48HrG01KmqIXYRXZ1CU4RGR"/>
+</div>
+<span class="font-bold">Dr. Julian Thorne</span>
+</div>
+</td>
+<td class="px-8 py-4 text-on-surface-variant">Oncology Adjuvants</td>
+<td class="px-8 py-4">96</td>
+<td class="px-8 py-4">
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-sm mr-1" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">4.92</span>
+</div>
+</td>
+<td class="px-8 py-4">
+<div class="w-24 bg-stone-800 h-1.5 rounded-full">
+<div class="bg-primary h-full w-[91%] rounded-full"></div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-500 text-[10px] font-bold">ON LEAVE</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for Contextual Action (Suppressed on details but active on Dashboard) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</body></html>

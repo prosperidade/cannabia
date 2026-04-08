@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configurações do Perfil | BioClinic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#2f3824",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "on-tertiary-fixed": "#36003e",
+                    "background": "#0e1606",
+                    "secondary": "#a4d2a4",
+                    "on-secondary": "#0e3817",
+                    "on-surface-variant": "#c5c9b1",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-primary-fixed": "#151f00",
+                    "on-primary-container": "#3e5200",
+                    "outline": "#8f937d",
+                    "surface-tint": "#aed445",
+                    "primary-container": "#a3c93a",
+                    "surface-bright": "#333c29",
+                    "surface-container-high": "#242d1a",
+                    "surface-container-low": "#161e0d",
+                    "on-primary": "#273500",
+                    "inverse-on-surface": "#2a3320",
+                    "surface-container-lowest": "#091003",
+                    "secondary-container": "#29522e",
+                    "surface-variant": "#2f3824",
+                    "tertiary": "#ffc4fe",
+                    "on-secondary-fixed": "#002107",
+                    "inverse-primary": "#4f6700",
+                    "tertiary-container": "#f998ff",
+                    "tertiary-fixed": "#ffd6fc",
+                    "surface": "#0e1606",
+                    "primary-fixed": "#c9f15e",
+                    "primary-fixed-dim": "#aed445",
+                    "on-surface": "#dce6cb",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-container": "#1a2211",
+                    "on-error": "#690005",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-tertiary-container": "#792484",
+                    "on-secondary-container": "#96c496",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#580064",
+                    "error": "#ffb4ab",
+                    "secondary-fixed": "#bfefbe",
+                    "outline-variant": "#444937",
+                    "surface-dim": "#0e1606",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "primary": "#bee654",
+                    "on-background": "#dce6cb",
+                    "inverse-surface": "#dce6cb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="pb-32">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#A3C93A] active:scale-95 duration-150 cursor-pointer">arrow_back</span>
+<h1 class="text-lg font-bold text-[#A3C93A] font-manrope tracking-tight">Clinic Profile</h1>
+</div>
+<span class="material-symbols-outlined text-stone-400 hover:opacity-80 transition-opacity">more_vert</span>
+</header>
+<main class="mt-20 px-4 space-y-6 max-w-md mx-auto">
+<!-- Header Section -->
+<section class="py-4">
+<h2 class="text-3xl font-extrabold font-headline text-on-surface tracking-tight">Configurações do Perfil</h2>
+<p class="text-on-surface-variant font-body mt-1 opacity-80">Personalize a identidade e os dados operacionais da sua clínica.</p>
+</section>
+<!-- Identidade Visual Card -->
+<div class="glass-card rounded-lg p-6 space-y-6">
+<div class="flex items-center gap-3 border-b border-white/5 pb-4">
+<span class="material-symbols-outlined text-primary-container">palette</span>
+<h3 class="font-headline font-bold text-lg uppercase tracking-wider text-primary-container">Identidade Visual</h3>
+</div>
+<div class="flex flex-col items-center gap-4">
+<div class="relative w-32 h-32 rounded-full border-4 border-primary-container/20 p-1">
+<img alt="Clinic Logo Preview" class="w-full h-full rounded-full object-cover" data-alt="Modern minimalist medical logo featuring a stylized leaf and DNA helix on a clean circular white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIWZDIYFZT8tNBiSawDSmhHZ1xvmU2xXdO69oaJ5iDDZqxVH-pPOme8ptVWoXRaUz0tLJ8z1v241ZRpKDVLtSOTUwld5oki6TrA-zu9QjXFzre94M4DO4p4yWiZESmnc5XljhG3jfeqtGoh_ybt0Bt5o9z6_Im3HOC0vo0P4RaFM1OZFLAifcmIJpZQOCzPAAVXAeOqs_LvNyJJOjx9yciw3C5oldGSGvOyP7CelBfAGcMNMV1h85-sBIasiK4xQgWzqHtD8zPFguU"/>
+<button class="absolute bottom-0 right-0 bg-primary-container text-on-primary-container p-2 rounded-full shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<button class="text-primary-container font-headline font-semibold text-sm py-2 px-6 border border-primary-container/30 rounded-full hover:bg-primary-container/10 transition-all">
+                    Alterar Logo
+                </button>
+</div>
+<div class="space-y-3">
+<label class="text-xs font-label uppercase tracking-widest text-on-surface-variant font-bold">Esquema de Cores</label>
+<div class="flex justify-between items-center bg-background/40 p-3 rounded-xl border border-white/5">
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded-full bg-[#A3C93A] ring-2 ring-white ring-offset-2 ring-offset-background"></div>
+<div class="w-8 h-8 rounded-full bg-[#29522e]"></div>
+<div class="w-8 h-8 rounded-full bg-[#741e80]"></div>
+<div class="w-8 h-8 rounded-full bg-stone-700"></div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Configurações da Clínica Card -->
+<div class="glass-card rounded-lg p-6 space-y-6">
+<div class="flex items-center gap-3 border-b border-white/5 pb-4">
+<span class="material-symbols-outlined text-primary-container">domain</span>
+<h3 class="font-headline font-bold text-lg uppercase tracking-wider text-primary-container">Dados da Clínica</h3>
+</div>
+<div class="space-y-4">
+<div class="flex flex-col gap-1">
+<label class="text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">Nome Fantasia</label>
+<input class="bg-surface-container-low border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:ring-primary-container focus:border-primary-container outline-none transition-all font-body" type="text" value="BioGrowth Medical Center"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<label class="text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">CNPJ</label>
+<input class="bg-surface-container-low border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:ring-primary-container outline-none transition-all font-body" type="text" value="12.345.678/0001-90"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">CRM Diretor</label>
+<input class="bg-surface-container-low border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:ring-primary-container outline-none transition-all font-body" type="text" value="123456-SP"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">Telefone</label>
+<input class="bg-surface-container-low border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:ring-primary-container outline-none transition-all font-body" type="tel" value="(11) 98877-6655"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">Endereço Completo</label>
+<textarea class="bg-surface-container-low border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:ring-primary-container outline-none transition-all font-body" rows="2">Av. Paulista, 1000 - Bela Vista, São Paulo - SP, 01310-100</textarea>
+</div>
+</div>
+</div>
+<!-- Operacional Card -->
+<div class="glass-card rounded-lg p-6 space-y-6">
+<div class="flex items-center gap-3 border-b border-white/5 pb-4">
+<span class="material-symbols-outlined text-primary-container">schedule</span>
+<h3 class="font-headline font-bold text-lg uppercase tracking-wider text-primary-container">Operacional</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-white/5">
+<span class="text-sm font-medium">Segunda - Sexta</span>
+<span class="text-sm text-primary-container font-semibold">08:00 - 20:00</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-white/5">
+<span class="text-sm font-medium">Sábado</span>
+<span class="text-sm text-primary-container font-semibold">09:00 - 13:00</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-white/5">
+<span class="text-sm font-medium">Domingo</span>
+<span class="text-sm text-error opacity-70">Fechado</span>
+</div>
+</div>
+<div class="pt-2 grid grid-cols-2 gap-4">
+<div class="p-4 bg-surface-container-highest/30 rounded-2xl border border-primary-container/10">
+<p class="text-[10px] uppercase tracking-tighter text-on-surface-variant font-bold mb-1">Valor Médio</p>
+<p class="text-lg font-headline font-bold text-primary-container">R$ 350,00</p>
+</div>
+<div class="p-4 bg-surface-container-highest/30 rounded-2xl border border-primary-container/10">
+<p class="text-[10px] uppercase tracking-tighter text-on-surface-variant font-bold mb-1">Tempo Consulta</p>
+<p class="text-lg font-headline font-bold text-primary-container">45 min</p>
+</div>
+</div>
+</div>
+<!-- Integrações Card -->
+<div class="glass-card rounded-lg p-6 space-y-6">
+<div class="flex items-center gap-3 border-b border-white/5 pb-4">
+<span class="material-symbols-outlined text-primary-container">hub</span>
+<h3 class="font-headline font-bold text-lg uppercase tracking-wider text-primary-container">Integrações</h3>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-4 bg-[#25D366]/5 rounded-xl border border-[#25D366]/20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#25D366]">chat</span>
+<div>
+<p class="text-sm font-bold">WhatsApp Business</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Conectado</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#25D366]">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-[#635BFF]/5 rounded-xl border border-[#635BFF]/20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#635BFF]">payments</span>
+<div>
+<p class="text-sm font-bold">Stripe &amp; Pix</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Configurado</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#635BFF]">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Segurança e Digital Card -->
+<div class="glass-card rounded-lg p-6 space-y-6">
+<div class="flex items-center gap-3 border-b border-white/5 pb-4">
+<span class="material-symbols-outlined text-primary-container">verified_user</span>
+<h3 class="font-headline font-bold text-lg uppercase tracking-wider text-primary-container">Segurança e Digital</h3>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-primary-container/5 rounded-xl border border-primary-container/20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container">verified</span>
+<div>
+<p class="text-sm font-bold">Certificado Digital</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Válido até Junho/2025</p>
+</div>
+</div>
+<button class="text-xs font-bold text-primary-container uppercase">Renovar</button>
+</div>
+<div class="p-4 bg-background/60 rounded-xl border border-white/10 space-y-3">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest text-center">Preview Carimbo Digital</p>
+<div class="flex flex-col items-center border-2 border-dashed border-primary-container/30 py-6 rounded-lg opacity-60">
+<p class="font-headline font-bold text-lg text-primary-container">DRA. MARIANA LOPES</p>
+<p class="text-[10px] font-medium tracking-widest text-on-surface">CRM-SP 123456 | CLÍNICA BIOGROWTH</p>
+<img alt="QR Code Preview" class="w-12 h-12 mt-3 opacity-80 grayscale invert" data-alt="Digital minimalist QR code representation for medical validation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDelm0H-Hzh9xy7V1R7Sie-KknErdXBUM0hn-RbtHe3xmsRQx4G-XbuTPwXc5cbD5vMYjz1Ehm9Q7MLFS-iOr3NLEH54eEnqHJ7oxlfj88801W5YU12QJjpz2YKei0qOOArS9uPZSt1-f3rj1o1L_dc6vjSPIhvKKFd20yHjEgjP75Z591mRd9I15HFExIiDT4h5VaI9Jelbq8sKTXWBjOVhLXNyR0Eysp7qG_m7MFQ5cFTpHm3_FM6eBlk_hlUZROJBkRztnQJ9k6f"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Save Button (Bottom of form fallback) -->
+<div class="pt-6">
+<button class="w-full bg-primary-container text-on-primary-container font-headline font-extrabold py-5 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-tighter">
+<span class="material-symbols-outlined">save</span>
+                Salvar Alterações
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-8 bg-stone-950/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/5 shadow-2xl shadow-black">
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-4 py-1.5 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="local_hospital">local_hospital</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase mt-1">Clinic</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase mt-1">Patients</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

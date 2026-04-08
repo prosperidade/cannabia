@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#bee654",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "surface-dim": "#0e1606",
+                        "on-tertiary-fixed": "#36003e",
+                        "primary-fixed": "#c9f15e",
+                        "background": "#0e1606",
+                        "on-secondary": "#0e3817",
+                        "on-surface": "#dce6cb",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-tertiary-container": "#792484",
+                        "primary-fixed-dim": "#aed445",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "on-primary-container": "#3e5200",
+                        "on-tertiary": "#580064",
+                        "inverse-on-surface": "#2a3320",
+                        "surface": "#0e1606",
+                        "on-secondary-container": "#96c496",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "inverse-surface": "#dce6cb",
+                        "surface-container-highest": "#2f3824",
+                        "on-background": "#dce6cb",
+                        "inverse-primary": "#4f6700",
+                        "surface-container-high": "#242d1a",
+                        "tertiary": "#ffc4fe",
+                        "secondary": "#a4d2a4",
+                        "on-primary": "#273500",
+                        "surface-variant": "#2f3824",
+                        "outline-variant": "#444937",
+                        "surface-container": "#1a2211",
+                        "secondary-container": "#29522e",
+                        "outline": "#8f937d",
+                        "surface-bright": "#333c29",
+                        "primary-container": "#a3c93a",
+                        "surface-tint": "#aed445",
+                        "on-secondary-fixed": "#002107",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-container-low": "#161e0d",
+                        "secondary-fixed": "#bfefbe",
+                        "surface-container-lowest": "#091003",
+                        "tertiary-container": "#f998ff",
+                        "on-primary-fixed": "#151f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .chart-bar-glow {
+            box-shadow: 0 0 15px rgba(163, 201, 58, 0.3);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-emerald-950/80 backdrop-blur-md dark:bg-zinc-950/80 border-b border-white/10 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden">
+<img alt="Admin Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a clinical administrator in a modern office with soft professional lighting and a confident expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsNDnlHsVTU-GUcZKWbGTB1z9xn5sojrXtX8ZyvkIGCzvSPXbw0_OhMXiN9UNTNA8ly0KUCptIASxDG5sZNcvMNagG0neyUCnbLyImSBNtNU-YKdYXWCRKwhd_oi6Po2XL-3rOwnmG52AhxNxXWnPz9PieJIBoIo_zr0uBx84hl-9mfp3rF4HSmZmH2wCVyzd1SSDCdtZM7GBShZHioaBzX7CUYS42Xsk5ut87lYMW_WezIyWbDxQ-DBmhVYYVBOCH7kiDh5AbgOsd"/>
+</div>
+<h1 class="font-manrope font-semibold tracking-tight text-[#A3C93A] text-lg">Financial Overview</h1>
+</div>
+<button class="text-zinc-400 hover:opacity-80 transition-opacity tap-highlight-none active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="mt-20 px-6 space-y-6">
+<!-- Critical Alert -->
+<section class="relative overflow-hidden rounded-lg p-5 bg-gradient-to-br from-error-container/40 to-surface-container border border-error/20">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">warning</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-error text-lg" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="text-error font-headline font-bold text-xs uppercase tracking-wider">Alerta Urgente</span>
+</div>
+<p class="text-on-surface font-headline font-extrabold text-xl leading-tight mb-4">
+                    Inadimplência Crítica Detectada - 12 faturas atrasadas (60+ dias)
+                </p>
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-headline font-bold text-sm flex items-center gap-2 active:scale-95 transition-transform">
+                    Ver Pendências
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Stacked Summary Cards -->
+<section class="grid grid-cols-1 gap-4">
+<div class="glass-card rounded-lg p-5 flex justify-between items-end">
+<div>
+<span class="text-on-surface-variant text-xs uppercase tracking-widest font-semibold mb-1 block">Receita Total (Mês)</span>
+<h2 class="text-3xl font-headline font-extrabold text-white">R$ 142.580,00</h2>
+</div>
+<div class="flex items-center gap-1 text-primary bg-primary/10 px-2 py-1 rounded-md text-xs font-bold">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                    8.4%
+                </div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="glass-card rounded-lg p-4">
+<span class="text-on-surface-variant text-[10px] uppercase tracking-widest font-bold mb-1 block">Faturas Pendentes</span>
+<div class="flex flex-col">
+<span class="text-xl font-headline font-bold text-white">48</span>
+<span class="text-zinc-400 text-xs font-medium">R$ 18.940,00</span>
+</div>
+</div>
+<div class="glass-card rounded-lg p-4">
+<span class="text-on-surface-variant text-[10px] uppercase tracking-widest font-bold mb-1 block">Inadimplência</span>
+<div class="flex flex-col">
+<span class="text-xl font-headline font-bold text-white">4.2%</span>
+<span class="text-primary text-xs font-bold">-1.2%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Chart: Fluxo de Caixa Mensal -->
+<section class="glass-card rounded-lg p-5">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-on-surface">Fluxo de Caixa Mensal</h3>
+<span class="material-symbols-outlined text-zinc-500">more_horiz</span>
+</div>
+<div class="h-40 flex items-end justify-between gap-4 px-2">
+<!-- Simple bar representation -->
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-zinc-800 rounded-t-sm h-24 relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-secondary-container h-16 opacity-60"></div>
+</div>
+<span class="text-[10px] text-zinc-500 font-bold uppercase">Jan</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-zinc-800 rounded-t-sm h-28 relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-secondary-container h-20 opacity-60"></div>
+</div>
+<span class="text-[10px] text-zinc-500 font-bold uppercase">Fev</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-zinc-800 rounded-t-sm h-32 relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary-container h-24 chart-bar-glow"></div>
+</div>
+<span class="text-[10px] text-primary font-bold uppercase">Mar</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-zinc-800 rounded-t-sm h-20 relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-secondary-container h-12 opacity-60"></div>
+</div>
+<span class="text-[10px] text-zinc-500 font-bold uppercase">Abr</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-zinc-800 rounded-t-sm h-24 relative overflow-hidden border-t-2 border-dashed border-primary/40">
+<div class="absolute bottom-0 w-full bg-zinc-700 h-18 opacity-40"></div>
+</div>
+<span class="text-[10px] text-zinc-500 font-bold uppercase">Mai</span>
+</div>
+</div>
+<div class="flex justify-center gap-6 mt-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Entrada</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-zinc-700"></div>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Projeção</span>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="flex gap-4 overflow-x-auto no-scrollbar py-2">
+<button class="flex-shrink-0 bg-surface-container-high p-4 rounded-lg flex flex-col items-center justify-center w-28 gap-2 border border-white/5 active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">outbound</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface text-center leading-tight">COBRANÇA EM MASSA</span>
+</button>
+<button class="flex-shrink-0 bg-surface-container-high p-4 rounded-lg flex flex-col items-center justify-center w-28 gap-2 border border-white/5 active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-full bg-secondary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">download</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface text-center leading-tight">EXPORTAR RELATÓRIOS</span>
+</button>
+<button class="flex-shrink-0 bg-surface-container-high p-4 rounded-lg flex flex-col items-center justify-center w-28 gap-2 border border-white/5 active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">add_card</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface text-center leading-tight">NOVA FATURA</span>
+</button>
+</section>
+<!-- Invoice List (Mobile Cards) -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-bold text-lg text-on-surface">Faturas Recentes</h3>
+<button class="text-primary text-xs font-bold uppercase tracking-widest">Ver Todas</button>
+</div>
+<!-- Card 1 -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between border-l-4 border-l-primary">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Beatriz Santos" class="w-full h-full object-cover" data-alt="Studio portrait of a woman with a calm expression, professional lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnX_AFA9urrg8LZa_R-AEb17T8I55DghsKVCoRfW2G3Oi44ucWza6q6PFgj2wRNuIhotyVp53NxUsy-YrOdAFzg2SeIvEZSzqKLAwFGz0UyuZeEpH3_to1W96DQF3viJs8vDQm6rPSikqtFqjUV7mWvlMtcjmBj_OEK_91CEOLbFsGuuupowjM3aQdB6HsmIqg5UGDwC7cfBnv83xXCuC2zyrvy_U8I_4fCQDAOLSVXZYKCaWH0t6ZfIjjt3Tr_j0cPmh3FuQE_Z8l"/>
+</div>
+<div>
+<h4 class="font-headline font-bold text-white text-sm">Beatriz Santos</h4>
+<div class="flex items-center gap-1.5 text-zinc-400 text-[10px] font-medium">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                            Vence em: 12 Out 2023
+                        </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-white font-bold text-sm mb-1">R$ 850,00</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-container/20 text-primary text-[10px] font-bold uppercase tracking-tighter">
+                        PAGO
+                    </div>
+</div>
+<button class="ml-2 text-zinc-500">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Card 2 -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between border-l-4 border-l-error">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Ricardo Lima" class="w-full h-full object-cover" data-alt="Portrait of an older man with glasses smiling gently, soft natural outdoor light, garden background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr3dj6DoxaGsfkoCsyz1FrVWijVyBu5f8ZXpzeKybJdjeYVHU9H5jPbyL8hZjFpCCGoc0LIknYL72zUi0U8Ekm1UQ3noe0R6yInVakv8bVzy3dKlU4t7LwfqdS3UGMA8v1PtLftvGgRKWHX3x6SUAa4pFWGCItzL4MMOMjkAc2kFyOiGpzoJGVluwpw7qMCZKIJRsn16rfgDecFGl6YSsmYbGYPEUHIK0Y5Boa0qh1AKQAmVHVDyCrr9wXrcAVbC5AHQLqwbigpZCL"/>
+</div>
+<div>
+<h4 class="font-headline font-bold text-white text-sm">Ricardo Lima</h4>
+<div class="flex items-center gap-1.5 text-error text-[10px] font-bold">
+<span class="material-symbols-outlined text-xs">history</span>
+                            Atrasado há 15 dias
+                        </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-white font-bold text-sm mb-1">R$ 1.200,00</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded-full bg-error/20 text-error text-[10px] font-bold uppercase tracking-tighter">
+                        ATRASADO
+                    </div>
+</div>
+<button class="ml-2 text-zinc-500">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Card 3 -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between border-l-4 border-l-zinc-500">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Elena Ferreira" class="w-full h-full object-cover" data-alt="Young woman with curly hair looking directly at camera with professional demeanor, bright office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_Pddq6R4WzOSTQAWWemG-Ij6f33xesHH9CqSyRsQGhRr14N9JBYecBOnTTP2wwcxETTQ1-qwVgS2JHBe9bNGMcUIfQDTzZQ-cGpKVrXoMHe4sIJdxe0E5SuWO4A90chNCgoUFlExrXxvt0nW4oFWy4yA3a70XI1BUdSJZGFJvVGVocU_Gnn4O5Mx8-aR8tMmGRUQZPfpFRuKbOyWxeKhTglBfTz2IJl1dvaB3NVKxlthFyyfgKgaO2Fyw0LkqhXBxQVr0HwrAGQoX"/>
+</div>
+<div>
+<h4 class="font-headline font-bold text-white text-sm">Elena Ferreira</h4>
+<div class="flex items-center gap-1.5 text-zinc-400 text-[10px] font-medium">
+<span class="material-symbols-outlined text-xs">schedule</span>
+                            Vence amanhã
+                        </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-white font-bold text-sm mb-1">R$ 450,00</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded-full bg-zinc-500/20 text-zinc-400 text-[10px] font-bold uppercase tracking-tighter">
+                        PENDENTE
+                    </div>
+</div>
+<button class="ml-2 text-zinc-500">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-emerald-950/90 backdrop-blur-xl dark:bg-zinc-950/90 z-50 rounded-t-[32px] border-t border-white/10 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center bg-[#A3C93A]/20 text-[#A3C93A] rounded-full px-4 py-1.5 hover:text-[#A3C93A] transition-colors vibration-feedback-subtle active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Billing</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-500 hover:text-[#A3C93A] transition-colors vibration-feedback-subtle active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Patients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-500 hover:text-[#A3C93A] transition-colors vibration-feedback-subtle active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-500 hover:text-[#A3C93A] transition-colors vibration-feedback-subtle active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

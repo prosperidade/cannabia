@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Hub - Gestão de Usuários</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#96c496",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#ffc4fe",
+                        "primary-fixed-dim": "#aed445",
+                        "outline": "#8f937d",
+                        "surface-container-highest": "#2f3824",
+                        "surface-bright": "#333c29",
+                        "on-primary-container": "#3e5200",
+                        "background": "#0e1606",
+                        "surface-container": "#1a2211",
+                        "secondary-fixed": "#bfefbe",
+                        "on-surface": "#dce6cb",
+                        "error": "#ffb4ab",
+                        "on-background": "#dce6cb",
+                        "primary-fixed": "#c9f15e",
+                        "primary-container": "#a3c93a",
+                        "surface-container-high": "#242d1a",
+                        "on-error": "#690005",
+                        "surface-dim": "#0e1606",
+                        "error-container": "#93000a",
+                        "surface-variant": "#2f3824",
+                        "surface": "#0e1606",
+                        "outline-variant": "#444937",
+                        "on-secondary": "#0e3817",
+                        "on-primary": "#273500",
+                        "inverse-surface": "#dce6cb",
+                        "surface-tint": "#aed445",
+                        "on-tertiary-container": "#792484",
+                        "tertiary-container": "#f998ff",
+                        "secondary": "#a4d2a4",
+                        "inverse-primary": "#4f6700",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-secondary-fixed": "#002107",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "primary": "#bee654",
+                        "inverse-on-surface": "#2a3320",
+                        "on-tertiary": "#580064",
+                        "on-primary-fixed": "#151f00",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "tertiary-fixed": "#ffd6fc",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-container-lowest": "#091003",
+                        "surface-container-low": "#161e0d",
+                        "secondary-container": "#29522e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-white/10 bg-stone-900/80 backdrop-blur-xl dark:bg-stone-950/80 shadow-xl shadow-black/20 flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-sm">medical_services</span>
+</div>
+<h1 class="text-xl font-bold text-[#A3C93A] tracking-tighter font-headline">Clinical Hub</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:bg-white/5 p-2 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img class="w-full h-full object-cover" data-alt="Close-up professional headshot of a medical administrator in a modern clinic setting with soft botanical lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTzMrQ7W1l4ukCZRIIh1-RwncLMJcYgV5cxu5MczBiCS5D66Pp_ijhdNt5q5U9chZt9KcG31cqBF10PKk9V6X2FL3TMkI0QXLJLp9pe1H7Cc2SbfPs0cEhiOxeXn50FZ7dbMorDgIa-wSyLCijstPFIYCHTgUENHRRnZG2UI3xGpMXbsla7f047tnRPHZ1xUTPrKH8jeJxSxlluzA0V9ElB_7EEhjQ4x6-0mOdR11kEPW8y-yD-7V5EbwYtHfT19Axe6MYGz-YHsVG"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto">
+<!-- Search and Action Row -->
+<div class="flex flex-col gap-4 mb-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-high border-none rounded-2xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/30 transition-all" placeholder="Buscar usuários..." type="text"/>
+</div>
+<button class="flex items-center justify-center gap-2 bg-primary-container text-on-primary-container py-4 rounded-2xl font-bold font-headline active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">person_add</span>
+                Novo Usuário
+            </button>
+</div>
+<!-- User List -->
+<div class="space-y-4">
+<h2 class="text-xs uppercase tracking-[0.2em] font-bold text-outline-variant mb-4">Equipe Médica &amp; Admin</h2>
+<!-- Dr. Ricardo -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-primary-container/20" data-alt="Portrait of a male doctor in his 50s, confident smile, wearing a white lab coat, blurred clinical background with green plants" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChYS4_bfx44xTbhKzeWPXqGi30MMuZ39HNODMxAb96mhM1yuAAofbU5iuLtlZgU3wrt19AEy2FoOuUMNz5qPk4SNQ0R2PWWrvZ0ikCVRScmYWlYqKHxKFgsVFy3YeyuA7Fyw4V0XjGJasLrBk6RnYHG64W4rph2KdBJjEW7lbqgdW898PLuLrlAK5hN9TtVTip0Zd2DA82FcfhM4WQAdvmHe3OZmUNsXN-UcUC1TYTHoYJcgLA4YwwQSC1UgFddAn3UW3yNpDJd9RG"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-background"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Dr. Ricardo</h3>
+<p class="text-xs text-outline">Medical</p>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-white/5 active:scale-90 transition-all">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<!-- Ana Paula -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between ring-2 ring-primary/40 bg-surface-container-highest/60">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-primary-container/20" data-alt="Professional woman in business attire, warm lighting, laboratory office background with glass partitions" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhl5RH5sDnF0uDv9goORPt4-k2yBjm8CsXkrj7Zud2V05aUnjIU1l1ZRA9CtSuXHPJ_2HwiL6fFimFbINUtpvBVUMWxOMoMje6gbNfihzLKOn05aelVOPlh0hhng-8ONXSPhPw7n0jMVqp_ZAdCqpNtB63xLVwZ49afZQ0ZLsi_LaeBO15QJFms6KUk1y14FcFVzT_LEFiWqjV4xjC5Ilp7wBZ3-5156byAhMHoR47Q65hTOPMEYaf_npFjyUx1k4JcXHO5EPLO7FS"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-background"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Ana Paula</h3>
+<p class="text-xs text-outline">Admin</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary">expand_less</span>
+</div>
+<!-- Permission Matrix (Expanded for Ana Paula) -->
+<div class="bg-surface-container-low rounded-lg p-6 mt-[-1rem] border-x border-b border-white/5 space-y-6">
+<h4 class="text-[10px] uppercase tracking-widest font-bold text-primary">Matriz de Permissões</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">Acesso a Prontuários</span>
+<div class="w-12 h-6 bg-primary rounded-full relative flex items-center px-1">
+<div class="w-4 h-4 bg-on-primary rounded-full translate-x-6"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">Prescrição Digital</span>
+<div class="w-12 h-6 bg-surface-container-highest rounded-full relative flex items-center px-1 border border-outline/20">
+<div class="w-4 h-4 bg-outline rounded-full"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">Solicitação de Exames</span>
+<div class="w-12 h-6 bg-primary rounded-full relative flex items-center px-1">
+<div class="w-4 h-4 bg-on-primary rounded-full translate-x-6"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">Gestão Financeira</span>
+<div class="w-12 h-6 bg-primary rounded-full relative flex items-center px-1">
+<div class="w-4 h-4 bg-on-primary rounded-full translate-x-6"></div>
+</div>
+</div>
+</div>
+<button class="w-full py-3 text-xs font-bold uppercase tracking-widest border border-primary/20 rounded-xl text-primary hover:bg-primary/5 active:scale-[0.98] transition-all">
+                    Salvar Alterações
+                </button>
+</div>
+<!-- Marcos -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between opacity-80">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-primary-container/10 grayscale" data-alt="Young man with glasses, receptionist uniform, bright modern lobby background with green foliage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBprDRE2wiRzHYPuTSevxQZ5yFb9mOLkVwN7jmeyo6QH25Ntj1AHUNGhwTDEhMbJAfMJ_O3846M8LlmalPo2ZJGK1gr1TA4p0SCbIZt6fA78JlnTdhtwV1jiQP6UpQT2wURNmhJSBLc4Mq-uRYOQyTtzkwcjUDogcxlJ4NpznolDOG6KC35uhi6FDy9y3b7JuGPyTub3UR8hN9hBzlf5jB7_UVnDq2JJlYRKJvzvqsODSlchJykcrcsjbW3VcqXh_q7DduOfBk65ZY3"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-stone-600 rounded-full border-2 border-background"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Marcos</h3>
+<p class="text-xs text-outline">Reception</p>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<!-- Clara -->
+<div class="glass-card rounded-lg p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-primary-container/20" data-alt="Portrait of a senior woman, patient profile, soft focus natural light from a window, peaceful atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhtJTJjfYsXt-lm6cOlHNhrDEXyQHaBgYGoqWCH0rGnxQgvWtmmeF4OIBWHpiiyw-_ik8ZpZGVqNPVR5G2A1N1BKTpJG4X4SY6N2Zr1E8S4lmjavE0yfUh_3n48iALtsqtdOXHktstIDSuQ7k5iEkqPVADzEr5ncB9_yK20_t3gLaIu5XbpNVr93ZnBopPJ9sHonFamYlcP5Feh3vTXkCw8yfssTuEVQDVi-uS9aZ3HP7XAwxf9P0sakFsiS-WTODYEP1HsHTvuonM"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-background"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Clara</h3>
+<p class="text-xs text-outline">Patient</p>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-[32px] border-t border-white/10 bg-stone-900/70 backdrop-blur-2xl dark:bg-stone-950/70 shadow-[0_-10px_40px_rgba(0,0,0,0.4)] flex justify-around items-center px-4 pt-3 pb-8">
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 px-5 hover:text-[#A3C93A]/80 transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-['Manrope'] text-[11px] font-bold uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-2 px-5 mb-1 active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Manrope'] text-[11px] font-bold uppercase tracking-widest">Users</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 px-5 hover:text-[#A3C93A]/80 transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">description</span>
+<span class="font-['Manrope'] text-[11px] font-bold uppercase tracking-widest">Records</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 px-5 hover:text-[#A3C93A]/80 transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-['Manrope'] text-[11px] font-bold uppercase tracking-widest">Settings</span>
+</a>
+</nav>
+</body></html>

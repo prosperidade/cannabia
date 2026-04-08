@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Veridian Clinical - Doctor Management</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface-variant": "#c5c9b1",
+            "surface-bright": "#333c29",
+            "on-tertiary-fixed-variant": "#741e80",
+            "on-error-container": "#ffdad6",
+            "surface-container-high": "#242d1a",
+            "on-secondary-fixed-variant": "#274f2c",
+            "outline-variant": "#444937",
+            "tertiary-container": "#f998ff",
+            "primary-fixed-dim": "#aed445",
+            "on-secondary-container": "#96c496",
+            "primary-fixed": "#c9f15e",
+            "on-surface": "#dce6cb",
+            "tertiary-fixed-dim": "#fcaaff",
+            "secondary-container": "#29522e",
+            "on-tertiary-fixed": "#36003e",
+            "surface-tint": "#aed445",
+            "primary": "#bee654",
+            "on-primary": "#273500",
+            "background": "#0e1606",
+            "on-tertiary": "#580064",
+            "surface": "#0e1606",
+            "on-primary-fixed-variant": "#3a4d00",
+            "surface-dim": "#0e1606",
+            "surface-container-highest": "#2f3824",
+            "surface-container": "#1a2211",
+            "primary-container": "#a3c93a",
+            "secondary-fixed": "#bfefbe",
+            "on-tertiary-container": "#792484",
+            "inverse-on-surface": "#2a3320",
+            "inverse-surface": "#dce6cb",
+            "on-secondary": "#0e3817",
+            "tertiary-fixed": "#ffd6fc",
+            "inverse-primary": "#4f6700",
+            "surface-container-low": "#161e0d",
+            "on-primary-fixed": "#151f00",
+            "error": "#ffb4ab",
+            "on-secondary-fixed": "#002107",
+            "error-container": "#93000a",
+            "outline": "#8f937d",
+            "on-error": "#690005",
+            "on-background": "#dce6cb",
+            "on-primary-container": "#3e5200",
+            "secondary": "#a4d2a4",
+            "tertiary": "#ffc4fe",
+            "surface-container-lowest": "#091003",
+            "surface-variant": "#2f3824",
+            "secondary-fixed-dim": "#a4d2a4"
+          },
+          "borderRadius": {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0e1606; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2f3824; border-radius: 10px; }
+    .glass-card {
+      background: rgba(26, 34, 17, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(143, 147, 125, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen flex overflow-hidden">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col pt-4 pb-8 bg-zinc-950 h-screen w-64 border-r border-zinc-800 transition-all duration-300 ease-in-out z-50">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Stylized medical organization logo with a minimalist green leaf integrated into a clinical cross symbol" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDZMpiKX8XHtzVat-3hpAEX7Esw2bh1ethNsa6fo4E7AApkqgPEV6mHqqfja8pa_BKPzmcD2GrN5pmeyGGIanu_GGn3q67ARgIXuSbcUJDh1qeF0zJCwFGwiO1g2PN1dwyflCSUlGirAdGKuQTOZu_AzsIE6YQ1kMLcHiOC-nZeIV17wFhAekqCTKU8HEGrUvGm_G90Fgwugcu_8sWidXR7XQf-H7azJu-UrZJv4CQor8EkIY01Tj4gmph5u2xuAfyF6-gjhmJ2Se8"/>
+</div>
+<div>
+<h1 class="text-lg font-black text-white leading-none uppercase">Metro Health</h1>
+<p class="font-['Manrope'] text-[10px] uppercase tracking-widest text-zinc-500 mt-1">Admin Terminal</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<!-- Active Tab: Doctors -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-zinc-900 text-[#A3C93A] border-r-2 border-[#A3C93A] transition-all duration-300 ease-in-out font-['Manrope'] text-sm uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span>Doctors</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-300 ease-in-out font-['Manrope'] text-sm uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Patients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-300 ease-in-out font-['Manrope'] text-sm uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Financial</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-300 ease-in-out font-['Manrope'] text-sm uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="px-4 py-6 mt-auto space-y-4">
+<button class="w-full bg-primary-container text-on-primary-container py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm">add</span>
+        New Record
+      </button>
+<div class="border-t border-zinc-800 pt-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-2 text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-300 ease-in-out font-['Manrope'] text-xs uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined text-base">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-300 ease-in-out font-['Manrope'] text-xs uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined text-base">logout</span>
+<span>Log Out</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 flex flex-col h-screen">
+<!-- TopNavBar (Authority: JSON) -->
+<header class="sticky top-0 z-50 flex items-center justify-between w-full px-6 py-3 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 font-['Manrope'] tracking-tight">
+<div class="flex items-center gap-8 flex-1">
+<div class="text-xl font-bold tracking-tighter text-[#A3C93A]">Veridian Clinical</div>
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">search</span>
+<input class="w-full bg-zinc-900/50 border border-zinc-800 rounded-full py-2 pl-10 pr-4 text-sm text-on-surface focus:ring-1 focus:ring-[#A3C93A] outline-none transition-all" placeholder="Search medical personnel..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-4 py-1.5 border border-error text-error rounded-full text-[10px] font-bold uppercase tracking-widest cursor-pointer active:scale-95 transition-transform">
+          Emergency Protocol
+        </button>
+<div class="flex items-center gap-2 border-l border-zinc-800 pl-4">
+<button class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors rounded-full">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="ml-2 w-10 h-10 rounded-full border-2 border-zinc-800 overflow-hidden cursor-pointer active:scale-95 transition-transform">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a clinical director in professional medical attire, soft clinical lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW0rUCM6ZufzbwN44cVkNpvF9RgBwM1CSzQgx1Ugir_-8UmEUTjyveYNPsE4yEa0j77euKotV9XoSeMP49NFEjbJev-LzvHaPLj8KxfQOzsKT0gS4fSISjXQpxP8tlZkj4J9jh4N43QcX1oSBAtlqJYL19wrZOt0usZ4izjWRe-9LTZp8LvzD4dmGnVl30WZYkiVPN35gRYz6FRZkeJcdnMgQNMD4tZhzFK2k9fE9d3oq8SaAG-Eam81dh2yrfuqcU1mCoFKTdOwU9"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto custom-scrollbar bg-surface-dim">
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+<!-- Header Section -->
+<div class="flex items-end justify-between">
+<div>
+<nav class="flex items-center gap-2 text-zinc-500 text-xs uppercase tracking-[0.2em] mb-3">
+<span>Organization</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-primary-container">Medical Staff</span>
+</nav>
+<h2 class="text-4xl font-headline font-extrabold tracking-tighter text-on-surface">Doctor Management</h2>
+</div>
+<div class="flex gap-3">
+<button class="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl text-zinc-300 font-bold text-sm hover:border-zinc-700 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+              Filters
+            </button>
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg">person_add</span>
+              New Doctor
+            </button>
+</div>
+</div>
+<!-- Statistical Cards: Bento Grid Style -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-8xl">stethoscope</span>
+</div>
+<p class="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mb-4">Total Active Doctors</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-5xl font-headline font-extrabold text-[#A3C93A]">124</h3>
+<span class="text-secondary text-sm font-bold flex items-center">+4.2%</span>
+</div>
+<p class="text-zinc-500 text-xs mt-4">Growth from previous quarter</p>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-8xl">calendar_month</span>
+</div>
+<p class="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mb-4">Available Slots Today</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-5xl font-headline font-extrabold text-on-surface">42</h3>
+<span class="text-on-surface-variant text-xs opacity-60">across all clinics</span>
+</div>
+<div class="mt-4 w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-full w-[65%]"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-8xl">verified</span>
+</div>
+<p class="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mb-4">Avg Service Rating</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-5xl font-headline font-extrabold text-tertiary">4.92</h3>
+<div class="flex text-tertiary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="text-zinc-500 text-xs mt-4">Top 2% of network providers</p>
+</div>
+</div>
+<!-- CRM List / Doctors Table -->
+<section class="glass-card rounded-lg overflow-hidden border border-zinc-800">
+<div class="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/40">
+<h4 class="font-headline font-bold text-lg">Staff Roster</h4>
+<div class="flex items-center gap-4">
+<span class="text-xs text-zinc-500">Sorted by: Recent Activity</span>
+<button class="text-[#A3C93A] text-xs font-bold uppercase tracking-widest hover:underline">Download Report</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/30 text-[10px] uppercase tracking-widest text-zinc-500 font-bold">
+<th class="px-6 py-4">Practitioner</th>
+<th class="px-6 py-4">Specialization</th>
+<th class="px-6 py-4">CRM ID</th>
+<th class="px-6 py-4">Active Patients</th>
+<th class="px-6 py-4">Patient Rating</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-zinc-800/50">
+<!-- Doctor Row 1 -->
+<tr class="hover:bg-primary-container/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Portrait of a professional male doctor with glasses, looking friendly and confident in clinical environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv2McBxvD_3c15aw8Nff0naMeXuvbOV-b_fkT2Cf9vT3E_Tz_vZ7cxoXDeQsVSDta1gDVh9T9N4IbcNCgBZVJFeoHQE9cW58yUEIZloLbKX2fbKzyRxaIEkcA0ek6ngWGMs2VatQocnrNaBGsO6QJvHeS-Oskqw798lHviHE_jYRPMgTaxIU84lSPW7LTICZGwXXEo-pzYLYkZ1tkfSLfa-5ngbmLU-QmCKImGOGZ3vqbPZO-izi_XUugvjMhDsqkzLe-9PrZggQYK"/>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Dr. Elias Thorne</p>
+<p class="text-[10px] text-zinc-500">elias.thorne@veridian.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-[10px] font-bold uppercase">Neurobiology</span>
+</td>
+<td class="px-6 py-4 text-zinc-400 font-mono text-xs">CRM-9021-TX</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-sm text-on-surface">1,240</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">4.9</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-primary transition-colors" title="Edit Schedule">
+<span class="material-symbols-outlined text-lg">event_note</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors" title="View Performance">
+<span class="material-symbols-outlined text-lg">insights</span>
+</button>
+<button class="p-2 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 2 -->
+<tr class="hover:bg-primary-container/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Portrait of a female physician in clinical lab coat, serene and focused expression, soft natural background light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6ru_-7c7ohfF1v4LBoPD6l6mR7fy6M76GvNms-3DsG1oirkiEIHwK2Z3XLrItlTqmbLFIPLJpM1MS6Hioyn6lJPIeDPjsmbx72aq5z1VNHJr9TDGznFFX1tZy-CLncwGEncYQWOxJlutW1_pd7nqGFANyCer9CbBjHAdynGHelHdS2ryjy2KtLiEgSWByQRUhYMrg6iFv34AOre-eGS4VlotL5bk0iYn5EPur1DjSyNRc7GhFXxtXpZIvzLAzAzmyrxlJKJrLMril"/>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Dr. Sarah Jenkins</p>
+<p class="text-[10px] text-zinc-500">s.jenkins@veridian.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-tertiary-container/10 text-tertiary text-[10px] font-bold uppercase">Genetic Research</span>
+</td>
+<td class="px-6 py-4 text-zinc-400 font-mono text-xs">CRM-4412-CA</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-sm text-on-surface">892</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">4.8</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-primary transition-colors" title="Edit Schedule">
+<span class="material-symbols-outlined text-lg">event_note</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors" title="View Performance">
+<span class="material-symbols-outlined text-lg">insights</span>
+</button>
+<button class="p-2 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 3 -->
+<tr class="hover:bg-primary-container/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Senior medical consultant with surgical cap, looking authoritative and professional in a high-tech medical facility" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy38M0uMoUpPpqy6qt6MPtAJCgwjzgMjg7EMQu_3VPtm1hj99yQA3zSiKKQGssAhpgOdUowT_jCvgUMLUNsY79TpqnfrsYt43OTnq-3UvoqlqKWDaQuXQhQscPj10MgGpxWw0L3kMXWduY_5B8X4WRQtK_LI2bcEMCD-VKVdSoBMPxW7M9QIvb0VIZcLPSkv9tgYshSGSuBmarszYW-NT5yr0Of4PtdwzOjtJM4BQyO9w-6SgVLj_miAbrKSRntqwTCf9tQ6asKxxl"/>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Dr. Julian Vance</p>
+<p class="text-[10px] text-zinc-500">j.vance@veridian.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase">Cardiology</span>
+</td>
+<td class="px-6 py-4 text-zinc-400 font-mono text-xs">CRM-1108-NY</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-sm text-on-surface">2,105</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">5.0</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-primary transition-colors" title="Edit Schedule">
+<span class="material-symbols-outlined text-lg">event_note</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors" title="View Performance">
+<span class="material-symbols-outlined text-lg">insights</span>
+</button>
+<button class="p-2 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 4 -->
+<tr class="hover:bg-primary-container/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Close up of a young medical practitioner in scrubs, modern clinical setting with soft depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg1ASeB5OEbR7pON87Yd1J3jdK4HRq1N4OMIO41nXlVEwJM87DLBLACaLP6yoVDPqXn7IvLuOuZXRT-EWVocnoUX_CIqCTZqAfwm6TGW6YiuFdRNl5CosyCO1OXOccnB8aNMd_1gR4L5Iwj0Jf4OhVsUk4xMVpTN2fTrhsVdn37LWc1pgko6kNexD6iaOChD5emKHst6Jq8eOOO_uzgCt93l8sPawp-vXHI4vOoYxxNnM141fq05kvx3WbgYcTnFV15hbWQ9DO-NfH"/>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Dr. Lena Park</p>
+<p class="text-[10px] text-zinc-500">lena.park@veridian.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-primary-container/20 text-primary text-[10px] font-bold uppercase">Endocrinology</span>
+</td>
+<td class="px-6 py-4 text-zinc-400 font-mono text-xs">CRM-7732-WA</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-sm text-on-surface">542</span>
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">4.7</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-primary transition-colors" title="Edit Schedule">
+<span class="material-symbols-outlined text-lg">event_note</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors" title="View Performance">
+<span class="material-symbols-outlined text-lg">insights</span>
+</button>
+<button class="p-2 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-zinc-800 bg-zinc-950/20 flex items-center justify-between">
+<span class="text-xs text-zinc-500">Showing 1-10 of 124 doctors</span>
+<div class="flex gap-2">
+<button class="p-2 border border-zinc-800 rounded-lg hover:bg-zinc-900 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-2 border border-zinc-800 rounded-lg hover:bg-zinc-900 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Dynamic Insights Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="glass-card p-6 rounded-lg">
+<h5 class="font-headline font-bold text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">monitoring</span>
+              Performance Benchmarks
+            </h5>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-xs uppercase tracking-widest font-bold">
+<span class="text-zinc-500">Patient Retention</span>
+<span class="text-primary-container">94%</span>
+</div>
+<div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[94%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs uppercase tracking-widest font-bold">
+<span class="text-zinc-500">Consultation Efficiency</span>
+<span class="text-on-surface">82%</span>
+</div>
+<div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+<div class="bg-on-surface h-full w-[82%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs uppercase tracking-widest font-bold">
+<span class="text-zinc-500">Clinical Accuracy</span>
+<span class="text-tertiary">99.8%</span>
+</div>
+<div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[99.8%]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-lg bg-primary-container/5">
+<h5 class="font-headline font-bold text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">notifications_active</span>
+              Pending Credentials
+            </h5>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-lg border border-zinc-800 bg-zinc-950/40">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">warning</span>
+<div>
+<p class="text-xs font-bold text-white">Dr. Samuel Rivera</p>
+<p class="text-[10px] text-zinc-500">License renewal required in 12 days</p>
+</div>
+</div>
+<button class="text-[10px] font-bold uppercase tracking-widest text-[#A3C93A] hover:underline">Update</button>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg border border-zinc-800 bg-zinc-950/40">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container">verified</span>
+<div>
+<p class="text-xs font-bold text-white">Dr. Monica Geller</p>
+<p class="text-[10px] text-zinc-500">DEA Registration verified</p>
+</div>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Completed</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

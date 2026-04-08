@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FloraMed Logic - Gestão de Médicos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#2f3824",
+                    "on-tertiary-fixed": "#36003e",
+                    "on-surface": "#dce6cb",
+                    "on-secondary-container": "#96c496",
+                    "primary-fixed": "#c9f15e",
+                    "on-tertiary": "#580064",
+                    "inverse-on-surface": "#2a3320",
+                    "on-background": "#dce6cb",
+                    "outline-variant": "#444937",
+                    "on-surface-variant": "#c5c9b1",
+                    "secondary-fixed": "#bfefbe",
+                    "on-error": "#690005",
+                    "surface-container-lowest": "#091003",
+                    "inverse-surface": "#dce6cb",
+                    "surface-container-high": "#242d1a",
+                    "inverse-primary": "#4f6700",
+                    "secondary-container": "#29522e",
+                    "on-tertiary-container": "#792484",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "surface-container-low": "#161e0d",
+                    "surface-bright": "#333c29",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#0e1606",
+                    "on-primary-fixed": "#151f00",
+                    "surface-tint": "#aed445",
+                    "surface-dim": "#0e1606",
+                    "on-primary-container": "#3e5200",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "primary-fixed-dim": "#aed445",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffd6fc",
+                    "primary-container": "#a3c93a",
+                    "secondary": "#a4d2a4",
+                    "on-secondary": "#0e3817",
+                    "primary": "#bee654",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "on-primary": "#273500",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "tertiary-container": "#f998ff",
+                    "on-secondary-fixed": "#002107",
+                    "surface-container": "#1a2211",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "tertiary": "#ffc4fe",
+                    "background": "#0e1606",
+                    "surface-container-highest": "#2f3824",
+                    "outline": "#8f937d",
+                    "error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0e1606; color: #dce6cb; font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(47, 56, 36, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(143, 147, 125, 0.1); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-glow { box-shadow: 0 0 20px rgba(190, 230, 84, 0.15); }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+<!-- SideNavBar (from JSON Shared Components) -->
+<aside class="fixed left-0 top-0 w-72 flex flex-col p-6 z-40 bg-stone-950/60 backdrop-blur-xl rounded-r-[40px] h-[calc(100vh-32px)] my-4 ml-4 border-r border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.3)] font-['Manrope'] antialiased tracking-tight">
+<div class="mb-10 px-4">
+<h1 class="text-xl font-bold text-lime-400 uppercase tracking-widest">FloraMed</h1>
+<p class="text-xs text-stone-500 font-medium">Clinical Intelligence</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-semibold text-sm">Painel</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-semibold text-sm">Pacientes</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl bg-lime-400/10 text-lime-400 font-bold border-r-4 border-lime-400 transition-all duration-300 scale-105" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-semibold text-sm">Corpo Médico</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="font-semibold text-sm">Inventário</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/5 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-semibold text-sm">Configurações</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-semibold text-sm">Sair</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar (from JSON Shared Components) -->
+<header class="flex justify-between items-center px-10 py-3 ml-80 mr-8 sticky top-4 z-50 bg-stone-950/40 backdrop-blur-md rounded-full mt-4 border border-white/5 shadow-lg shadow-black/20 font-['Manrope'] text-sm backdrop-saturate-150 transition-all">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-xs">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-lg">search</span>
+<input class="w-full bg-white/5 border-none rounded-full pl-10 pr-4 py-2 text-xs text-stone-300 focus:ring-1 focus:ring-lime-400 placeholder-stone-600" placeholder="Buscar médicos ou credenciais..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 px-4">
+<span class="material-symbols-outlined text-stone-400 hover:text-lime-200 cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-stone-400 hover:text-lime-200 cursor-pointer">genetics</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/20">
+                Novo Paciente
+            </button>
+<div class="w-10 h-10 rounded-full border-2 border-lime-400/30 p-0.5">
+<img class="w-full h-full rounded-full object-cover grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer" data-alt="close up professional medical administrator portrait with neutral background and soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkeI3UdkqW8j5EnjDKb5-vjLG2V7duUarEboIYDVsoBejBgNPgZnoAbKW1QueURqWZkaRSihoey_Agh56NeYiiOkuA4pnGvL9iW63dySaz-kmXxMM-zXwU_Mn-07MkvZcKzR6ZLvj0mY-y56P9dH6jrNeJrE-0SLP5DakWdcYoD9j-e2x5jSWDzVGMQhEG1MXZbcg_R98WAQLmKZ3YPtp7jYAaHUepOLRsPTLDxlQImNecgetKmHyFaUw3vSF-IWhRB1vVqnOY7B1u"/>
+</div>
+</div>
+</header>
+<main class="ml-80 mr-8 mt-12 mb-20">
+<!-- Dashboard Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+<div>
+<h2 class="text-4xl font-black text-on-surface tracking-tighter leading-none mb-2 font-headline uppercase">Gestão de Médicos</h2>
+<p class="text-on-surface-variant font-medium">Controle clínico e validação de credenciais biotecnológicas.</p>
+</div>
+<div class="flex gap-4">
+<div class="px-6 py-3 glass-card rounded-2xl flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></div>
+<span class="text-xs font-bold text-lime-400 uppercase tracking-widest">Sistema Operacional</span>
+</div>
+</div>
+</div>
+<!-- Summary Cards (Bento Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="glass-card p-8 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-9xl">medical_services</span>
+</div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Médicos Ativos</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-5xl font-black text-primary tracking-tighter">42</h3>
+<span class="text-sm font-bold text-secondary">+3 este mês</span>
+</div>
+</div>
+<div class="glass-card p-8 rounded-lg relative overflow-hidden group border-error/20">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-error">
+<span class="material-symbols-outlined text-9xl">warning</span>
+</div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Pendências (CRM)</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-5xl font-black text-error tracking-tighter">07</h3>
+<span class="text-sm font-bold text-error/60">Ações imediatas</span>
+</div>
+</div>
+<div class="glass-card p-8 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-9xl">avg_pace</span>
+</div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Carga Média</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-5xl font-black text-on-surface tracking-tighter">5.2</h3>
+<span class="text-sm font-bold text-on-surface-variant">pacientes / dia</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Professional List Area -->
+<div class="lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between px-2">
+<h3 class="font-headline font-extrabold text-xl tracking-tight">Corpo Clínico</h3>
+<div class="flex gap-2">
+<button class="p-2 rounded-xl glass-card hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Physician Cards -->
+<div class="space-y-4">
+<!-- Physician Item 1 -->
+<div class="glass-card p-5 rounded-lg flex items-center gap-6 group hover:border-primary/30 transition-all duration-300">
+<div class="relative">
+<img class="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="professional portrait of a male doctor in white coat with stethoscope against clean medical office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3MFr-nDOUE4k-2DW_TWezmO2o81t5yUI-VCT98_50EUDyo_RZsKFOZ7VmIAJ5zKcPKliYwEKWkrKTG5Y3692XNdMmhefbhpLd_fgqMsidghaBl3BiUMbTCCAAdnmckUtbN0xKRkUbAyDxwdVsxSjQE1cUestAPietQO9CRWGuvE6znKq9_cwFBWg0wSgGRz5mPoK7d0u29SsV1qxs71dCspztpbMriklsQs41m3uT2PtDMDIw-gD8vWmbLp4GPe0mtR91G2HIsRxy"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full border-4 border-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-primary font-black">check</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<h4 class="font-bold text-lg text-on-surface truncate">Dr. Ricardo Alencar</h4>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-black rounded uppercase">CRM 12844</span>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Neurologia Botânica</p>
+<div class="flex items-center gap-4 mt-3">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+<div class="h-1 w-1 bg-outline-variant rounded-full"></div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-stone-500 text-sm">group</span>
+<span class="text-xs font-medium text-on-surface-variant">128 Pacientes</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-3">
+<div class="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+<span class="w-1.5 h-1.5 bg-primary rounded-full"></span>
+<span class="text-[10px] font-black text-primary uppercase">Disponível</span>
+</div>
+<button class="text-stone-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Physician Item 2 -->
+<div class="glass-card p-5 rounded-lg flex items-center gap-6 group hover:border-primary/30 transition-all duration-300">
+<div class="relative">
+<img class="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="professional portrait of a female physician with warm expression in clinical setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_L0mw0U8omRZSAFQwIVmwmiHy9IJfe8_jOq2SNk36ISFLoNRdCZS07j2M_-9aSlQkbu8j9dzapgFHxtvqgmrAs7l5I19C7KQJ1xJ0aLDlIUJhS5MzpHNqvtx8qXc1Bmm7vTnHRHVkiRuEVUyfTRqYTJ0pKHIJoNuiuwm3i_r8f0Gm-tikw7DhvyacKBC1cEn72blYEtD5442wF7-24e4lsJ_7Rec0-pqCUAJ2tzTmIJPMwtsqAkr3gXH1MSqNABkVVSnOsv15taXf"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full border-4 border-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-primary font-black">check</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<h4 class="font-bold text-lg text-on-surface truncate">Dra. Helena Martins</h4>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-black rounded uppercase">CRM 44921</span>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Genética Sustentável</p>
+<div class="flex items-center gap-4 mt-3">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">5.0</span>
+</div>
+<div class="h-1 w-1 bg-outline-variant rounded-full"></div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-stone-500 text-sm">group</span>
+<span class="text-xs font-medium text-on-surface-variant">84 Pacientes</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-3">
+<div class="flex items-center gap-2 bg-stone-800 px-3 py-1 rounded-full border border-white/5">
+<span class="w-1.5 h-1.5 bg-stone-500 rounded-full"></span>
+<span class="text-[10px] font-black text-stone-500 uppercase">Offline</span>
+</div>
+<button class="text-stone-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Physician Item 3 -->
+<div class="glass-card p-5 rounded-lg flex items-center gap-6 group hover:border-primary/30 transition-all duration-300 opacity-80">
+<div class="relative">
+<img class="w-16 h-16 rounded-2xl object-cover grayscale" data-alt="focused male medical specialist in modern healthcare facility looking directly at camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjOK16-vWvelBXy1us9grUQCwtGt1QFZCI7HOiAqHo7rCFIogNv6XvWdAnpUepBWU2D1c1pLsSCXZfrJJLB-nO4yiFVQGzmBVMZGBOjhAzLn0m6U4ZtYsjUty1v-I9LiKlmkffxA1eyV4jYWOdyFKhYVSGOVlyFkInkRIFB-mIDln4tihFDVYW6nv0yHCGS5XWRbzm12heCZ6tn4MyB4hz9d3AGbVj_1hO-fkbWSXrR5dQiMRGxSj6Udn4PclDbEyqFdoQNzy4lysb"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-error rounded-full border-4 border-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-error font-black">priority_high</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<h4 class="font-bold text-lg text-on-surface truncate">Dr. Lucas Faria</h4>
+<span class="px-2 py-0.5 bg-error-container text-on-error-container text-[10px] font-black rounded uppercase">CRM PENDENTE</span>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Cardiologia Holística</p>
+<div class="flex items-center gap-4 mt-3">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-stone-500 text-sm">star</span>
+<span class="text-xs font-bold text-on-surface-variant">N/A</span>
+</div>
+<div class="h-1 w-1 bg-outline-variant rounded-full"></div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-stone-500 text-sm">group</span>
+<span class="text-xs font-medium text-on-surface-variant">0 Pacientes</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-3">
+<button class="bg-error/20 text-error px-4 py-1.5 rounded-full text-[10px] font-black uppercase hover:bg-error/30 transition-colors">
+                                Validar
+                            </button>
+<button class="text-stone-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Document Pending Sidebar Area -->
+<div class="lg:col-span-4">
+<div class="sticky top-28 space-y-6">
+<div class="glass-card p-6 rounded-lg border-primary/20">
+<div class="flex items-center gap-3 mb-6">
+<div class="p-2 bg-primary/20 rounded-xl">
+<span class="material-symbols-outlined text-primary">folder_shared</span>
+</div>
+<h3 class="font-headline font-extrabold text-lg">Documentação Pendente</h3>
+</div>
+<div class="space-y-4">
+<!-- Pending Doc 1 -->
+<div class="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-black text-secondary-fixed-dim uppercase tracking-widest">Novo Cadastro</span>
+<span class="text-[10px] font-medium text-stone-500">Há 2 horas</span>
+</div>
+<h4 class="font-bold text-on-surface text-sm group-hover:text-primary transition-colors">Beatriz Souza</h4>
+<p class="text-xs text-on-surface-variant mt-1">Validação de CRM e Certificado de Especialização.</p>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 py-2 bg-surface-variant text-[10px] font-bold rounded-lg hover:bg-surface-bright transition-colors">VISUALIZAR</button>
+<button class="px-3 py-2 bg-primary text-on-primary text-[10px] font-bold rounded-lg hover:brightness-110">APROVAR</button>
+</div>
+</div>
+<!-- Pending Doc 2 -->
+<div class="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-black text-secondary-fixed-dim uppercase tracking-widest">Renovação Anual</span>
+<span class="text-[10px] font-medium text-stone-500">Há 1 dia</span>
+</div>
+<h4 class="font-bold text-on-surface text-sm group-hover:text-primary transition-colors">Dr. Marcos Vinicius</h4>
+<p class="text-xs text-on-surface-variant mt-1">Seguro de Responsabilidade Civil Profissional expirando.</p>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 py-2 bg-surface-variant text-[10px] font-bold rounded-lg hover:bg-surface-bright transition-colors">NOTIFICAR</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-dashed border-outline-variant rounded-2xl text-[10px] font-black text-on-surface-variant hover:text-on-surface hover:border-primary transition-all uppercase tracking-widest">
+                            Ver todos os protocolos
+                        </button>
+</div>
+<!-- Clinical Efficiency Card -->
+<div class="glass-card p-6 rounded-lg bg-gradient-to-br from-surface-variant/40 to-transparent">
+<h3 class="font-headline font-extrabold text-sm uppercase tracking-tighter text-on-surface-variant mb-4">Eficiência do Corpo Clínico</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span class="text-on-surface-variant uppercase">Taxa de Ocupação</span>
+<span class="text-primary">82%</span>
+</div>
+<div class="h-1.5 w-full bg-stone-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 82%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span class="text-on-surface-variant uppercase">Satisfação Média</span>
+<span class="text-secondary">94%</span>
+</div>
+<div class="h-1.5 w-full bg-stone-800 rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 94%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for quick actions (Contextual) -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-2xl shadow-[0_20px_40px_rgba(190,230,84,0.3)] flex items-center justify-center group transition-transform hover:scale-110 active:scale-95 z-50">
+<span class="material-symbols-outlined text-3xl font-bold group-hover:rotate-90 transition-transform duration-500">add</span>
+</button>
+</body></html>

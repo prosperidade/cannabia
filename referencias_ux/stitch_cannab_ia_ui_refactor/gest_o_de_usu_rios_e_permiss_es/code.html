@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cannab'IA - Gestão de Usuários</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "error-container": "#93000a",
+                        "primary-fixed": "#c9f15e",
+                        "on-tertiary-fixed": "#36003e",
+                        "secondary-fixed": "#bfefbe",
+                        "inverse-surface": "#dce6cb",
+                        "tertiary": "#ffc4fe",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "surface-container-high": "#242d1a",
+                        "surface-variant": "#2f3824",
+                        "inverse-primary": "#4f6700",
+                        "primary-fixed-dim": "#aed445",
+                        "on-tertiary": "#580064",
+                        "surface-container-lowest": "#091003",
+                        "secondary-container": "#29522e",
+                        "on-surface": "#dce6cb",
+                        "surface-bright": "#333c29",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-secondary": "#0e3817",
+                        "surface-container-low": "#161e0d",
+                        "surface-container-highest": "#2f3824",
+                        "secondary": "#a4d2a4",
+                        "primary": "#bee654",
+                        "on-tertiary-container": "#792484",
+                        "on-secondary-container": "#96c496",
+                        "on-primary-container": "#3e5200",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#aed445",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-secondary-fixed": "#002107",
+                        "surface-container": "#1a2211",
+                        "error": "#ffb4ab",
+                        "primary-container": "#a3c93a",
+                        "outline-variant": "#444937",
+                        "on-primary": "#273500",
+                        "on-background": "#dce6cb",
+                        "on-primary-fixed": "#151f00",
+                        "surface-dim": "#0e1606",
+                        "surface": "#0e1606",
+                        "outline": "#8f937d",
+                        "tertiary-container": "#f998ff",
+                        "background": "#0e1606",
+                        "inverse-on-surface": "#2a3320",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "secondary-fixed-dim": "#a4d2a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-white/5 flex justify-between items-center px-6 h-16 w-full font-manrope tracking-tight">
+<div class="text-xl font-bold tracking-tighter text-lime-400 uppercase">BioPrecise Admin</div>
+<div class="hidden md:flex items-center gap-6">
+<div class="relative group">
+<input class="bg-surface-container-low border-none rounded-full px-4 py-2 text-sm focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Pesquisar usuários..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-on-surface-variant text-lg">search</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-stone-400 cursor-pointer active:opacity-70 hover:text-white transition-colors">notifications</span>
+<span class="material-symbols-outlined text-stone-400 cursor-pointer active:opacity-70 hover:text-white transition-colors">settings</span>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-lime-400/30">
+<img class="h-full w-full object-cover" data-alt="Close-up portrait of a professional laboratory administrator in a modern clinic environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjuymKcnnAvgbWp-5KMjnj1BK9HTmtpug2glFmRC-EZ3SfZ7pkZsQDXKislB_JfckNiIaTEQNRwbY1npwJYNa_XCIEaGJJV0mJ881wCR1ylHdQa5oKRbsd4I5-5e0XBowg61Uy6zoG5nLtbb4Wi8pPazjlnP175L_JSDnc3e1CqMDbHKcwbdXaGh7M7O75CDZxZAJF2zVN6fp2_AcdQU4OGoaOCHbWYeLnizCFd3bBJ9b-fHrGNURKKc7w_br88SsRR4dthLBLyy2l"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-64 border-r border-white/5 bg-stone-950 flex flex-col py-8 gap-4 z-40 hidden md:flex">
+<div class="px-6 mb-8 mt-12">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 bg-lime-400/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-400" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<div class="text-lg font-black text-lime-500 font-manrope">Botanical Lab</div>
+<div class="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Clinical Terminal v2.1</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium text-stone-500 hover:text-stone-200 hover:bg-white/5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium bg-lime-400/10 text-lime-400 border-r-2 border-lime-400 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+                User Management
+            </a>
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium text-stone-500 hover:text-stone-200 hover:bg-white/5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+                Evolution Reports
+            </a>
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium text-stone-500 hover:text-stone-200 hover:bg-white/5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+                Clinical Logs
+            </a>
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium text-stone-500 hover:text-stone-200 hover:bg-white/5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Data Analytics
+            </a>
+</nav>
+<div class="mt-auto border-t border-white/5 pt-4 space-y-1">
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium text-stone-500 hover:text-stone-200 hover:bg-white/5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                Support
+            </a>
+<a class="flex items-center gap-4 px-6 py-3 font-manrope text-sm font-medium text-stone-500 hover:text-stone-200 hover:bg-white/5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Sign Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="pt-24 pb-12 md:pl-72 px-6 min-h-screen">
+<header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="text-4xl font-extrabold font-headline tracking-tighter text-on-surface mb-2">Gestão de Usuários</h1>
+<p class="text-on-surface-variant max-w-xl">Configure acessos, defina permissões por papel e gerencie a equipe clínica da plataforma Cannab'IA.</p>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary px-6 py-3 rounded-full font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">person_add</span>
+                Novo Usuário
+            </button>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- User Table Section -->
+<section class="lg:col-span-8">
+<div class="glass-panel rounded-lg overflow-hidden">
+<div class="p-6 border-b border-white/5 flex flex-col md:flex-row gap-4 items-center justify-between bg-white/5">
+<div class="flex gap-2">
+<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-primary text-on-primary">Todos</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold text-stone-400 hover:bg-white/5">Médicos</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold text-stone-400 hover:bg-white/5">Recepção</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold text-stone-400 hover:bg-white/5">Pacientes</button>
+</div>
+<div class="text-sm text-stone-500">
+                            Mostrando 24 de 128 usuários
+                        </div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50 text-[10px] uppercase tracking-widest text-stone-400 font-bold border-b border-white/5">
+<th class="px-6 py-4">Usuário</th>
+<th class="px-6 py-4">Papel</th>
+<th class="px-6 py-4">Último Acesso</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Professional profile of a male doctor in medical attire with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSz0KTp9EFfFg3lHw-vgmADiGWgRn6NA_rEq8NCm73L6VHpl2ZMuyX9tuMkGQgvmHtN5PdqRgXOW7liqmhLNl5hC0h8-vognbPelkBO8e6fs5lqCl28lmfxO812gHR5Uu9IILAicuXuZi0nidDaubtRCItJYNDm5gvHAQAoscSu8E2ZWN3yQTAFnlOtEUS1cc0rl-6_j8qT09E0UB9xNfJ2OXi_4AloKZKUX1VkYfbwmb5SlVq-tnDJNkuytO0Jct_0oAM_wdWRudj"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Dr. Ricardo Silveira</div>
+<div class="text-xs text-stone-500">ricardo.s@cannabia.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-secondary-container/30 text-on-secondary-container border border-secondary-container/50">Médico</span>
+</td>
+<td class="px-6 py-4 text-sm text-stone-400">Há 2 horas</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5 text-lime-400 text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-lime-400 shadow-[0_0_8px_rgba(163,222,62,0.6)]"></span>
+                                            Ativo
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 text-stone-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Portrait of a receptionist smiling behind a glass desk with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzYPHEQi-Ff-c85qQDaBpJ4DI04O_ybAaeHspkbmZk7fC2Vp0L2Qi5Y-vDga2SY7uWKyi8N0ijQmmgDeCZqkV4-kcNetA5NHhV0NEKy95fv35VanIJbEyOH2haGsOEWYz26FZchcdUZyEe_pMfuGVPt267FGbCNFfyfq4Vh5LAVb82H0WY9jtl_gqEmniD5ZXOY7YF6g3H8t-CmW2FoY0ojp-iGSi_cazmzGJOgfchzeG6niD9rLBot2R2HNfP2idtZ21DobuDNTtE"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Ana Paula Mendes</div>
+<div class="text-xs text-stone-500">ana.m@cannabia.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-stone-800 text-stone-300 border border-white/5">Recepção</span>
+</td>
+<td class="px-6 py-4 text-sm text-stone-400">Há 1 dia</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5 text-lime-400 text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-lime-400 shadow-[0_0_8px_rgba(163,222,62,0.6)]"></span>
+                                            Ativo
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 text-stone-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Professional office portrait of a man in business casual attire with a blurred clinic background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2I2UjvvOo1NmEwoqPzpcDShAYHgtkJHyyTjkWxChAmcZPAzV2BBjwYq0ejZ8S8tJsTuW2yyzRub9NZ9PCNBVrDdWTvMnzcffXiGOQsl987CyeS48dXpd3j4O4b8X3JEK7pkoP5FK68pUzFH9SdBaL8IXDaHuocu67U9P8DqEkBiDb9myiJzGfYSGW4MDoi7SRe10WVeQ2n8EcGdLgxyO0sFOHEdFplsj-4Hc10i4NXp5TG4juIbXFJe_iU7rmrAQr2-HzqxBnS-ix"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Marcos Oliveira</div>
+<div class="text-xs text-stone-500">marcos.o@cannabia.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-lime-400/10 text-lime-400 border border-lime-400/30">Administrador</span>
+</td>
+<td class="px-6 py-4 text-sm text-stone-400">Ativo agora</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5 text-lime-400 text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-lime-400 shadow-[0_0_8px_rgba(163,222,62,0.6)]"></span>
+                                            Ativo
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 text-stone-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group opacity-60">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Simple headshot of a female patient with neutral expression in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdTEXB7NJH6_DHALvTe1jR4PLHqGcggwT0MnLuUcjaxZdfANRzzbwMBM6D3oOpPhRffYwqrywfiX7advVxg2VesbBGc6kYNI1s16LgvyHGDZFe0x5pF3298t7jR7uv201QDg6251vhe09prBw88kinIg7AgJXf2ScafRg2Vc2oEwJYHCaunCH0JqASd1Nzq_Lh-oGS7hvp-IGu4BTM2TDjYShEb1zthL4Syvhbf6rTEQcrsBiyAr2_vQfZxPY0Fcylf1PWXcyIhtp6"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Clara Duarte</div>
+<div class="text-xs text-stone-500">clara.d@email.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-stone-800 text-stone-400 border border-white/5">Paciente</span>
+</td>
+<td class="px-6 py-4 text-sm text-stone-400">Há 3 meses</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5 text-stone-500 text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-stone-700"></span>
+                                            Inativo
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<button class="p-2 text-stone-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 bg-surface-container-low/30 flex justify-center border-t border-white/5">
+<nav class="flex items-center gap-2">
+<button class="p-2 rounded-lg hover:bg-white/5 text-stone-500"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="w-10 h-10 rounded-lg bg-lime-400/20 text-lime-400 font-bold border border-lime-400/30">1</button>
+<button class="w-10 h-10 rounded-lg hover:bg-white/5 text-stone-400 font-bold">2</button>
+<button class="w-10 h-10 rounded-lg hover:bg-white/5 text-stone-400 font-bold">3</button>
+<button class="p-2 rounded-lg hover:bg-white/5 text-stone-500"><span class="material-symbols-outlined">chevron_right</span></button>
+</nav>
+</div>
+</div>
+</section>
+<!-- Permissions Matrix Section -->
+<section class="lg:col-span-4">
+<div class="glass-panel rounded-lg h-full flex flex-col">
+<div class="p-6 border-b border-white/5">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-xl font-extrabold font-headline tracking-tight text-on-surface">Matriz de Permissões</h2>
+<span class="text-[10px] bg-lime-400/10 text-lime-400 px-2 py-0.5 rounded font-bold uppercase tracking-widest border border-lime-400/20">Médico</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Configurando os privilégios de acesso para o grupo selecionado.</p>
+</div>
+<div class="p-6 space-y-6 flex-1 overflow-y-auto max-h-[600px]">
+<div>
+<h3 class="text-xs font-bold text-stone-500 uppercase tracking-widest mb-4">Módulos Clínicos</h3>
+<div class="space-y-4">
+<label class="flex items-center justify-between group cursor-pointer">
+<span class="text-sm text-on-surface group-hover:text-lime-400 transition-colors">Acesso a Prontuários</span>
+<div class="relative inline-flex items-center">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<label class="flex items-center justify-between group cursor-pointer">
+<span class="text-sm text-on-surface group-hover:text-lime-400 transition-colors">Prescrição Canabinoide</span>
+<div class="relative inline-flex items-center">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<label class="flex items-center justify-between group cursor-pointer">
+<span class="text-sm text-on-surface group-hover:text-lime-400 transition-colors">Solicitação de Exames</span>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold text-stone-500 uppercase tracking-widest mb-4">Gestão de Dados</h3>
+<div class="space-y-4">
+<label class="flex items-center justify-between group cursor-pointer">
+<span class="text-sm text-on-surface group-hover:text-lime-400 transition-colors">Exportação de Relatórios</span>
+<div class="relative inline-flex items-center">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<label class="flex items-center justify-between group cursor-pointer">
+<span class="text-sm text-on-surface group-hover:text-lime-400 transition-colors">Visualizar Bio-Analytics</span>
+<div class="relative inline-flex items-center">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</div>
+<div class="pt-6 border-t border-white/5">
+<button class="w-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface py-3 rounded-lg text-sm font-bold transition-all border border-white/10">
+                                Salvar Alterações
+                            </button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Navigation (BottomNavBar) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full glass-panel border-t-0 flex justify-around items-center h-16 z-50">
+<a class="flex flex-col items-center text-stone-500" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center text-lime-400 font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-[10px]">Equipe</span>
+</a>
+<a class="flex flex-col items-center text-stone-500" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px]">Logs</span>
+</a>
+<a class="flex flex-col items-center text-stone-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Perfil</span>
+</a>
+</nav>
+</body></html>

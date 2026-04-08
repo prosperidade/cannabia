@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#2f3824",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "error-container": "#93000a",
+                        "surface-tint": "#aed445",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-low": "#161e0d",
+                        "surface": "#0e1606",
+                        "on-error": "#690005",
+                        "surface-container": "#1a2211",
+                        "primary-fixed-dim": "#aed445",
+                        "background": "#0e1606",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-primary-container": "#3e5200",
+                        "on-tertiary": "#580064",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "inverse-primary": "#4f6700",
+                        "secondary": "#a4d2a4",
+                        "on-tertiary-container": "#792484",
+                        "on-secondary": "#0e3817",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "tertiary": "#ffc4fe",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-primary-fixed": "#151f00",
+                        "primary-fixed": "#c9f15e",
+                        "inverse-surface": "#dce6cb",
+                        "secondary-container": "#29522e",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "secondary-fixed": "#bfefbe",
+                        "surface-variant": "#2f3824",
+                        "outline": "#8f937d",
+                        "surface-container-lowest": "#091003",
+                        "tertiary-fixed": "#ffd6fc",
+                        "primary": "#bee654",
+                        "on-secondary-fixed": "#002107",
+                        "surface-bright": "#333c29",
+                        "primary-container": "#a3c93a",
+                        "on-background": "#dce6cb",
+                        "tertiary-container": "#f998ff",
+                        "on-surface": "#dce6cb",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#242d1a",
+                        "on-secondary-container": "#96c496",
+                        "on-primary": "#273500",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "surface-dim": "#0e1606",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#444937"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(174, 212, 69, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0e1606;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2f3824;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-slate-950/80 backdrop-blur-md border-b border-white/10 shadow-2xl shadow-lime-900/10 font-manrope tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-lime-500">Clinical AI Admin</span>
+<div class="hidden md:flex items-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-white/5 border-none rounded-full py-1.5 pl-10 pr-4 text-sm text-slate-200 focus:ring-1 focus:ring-lime-500 w-64" placeholder="Global search..." type="text"/>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:bg-white/5 transition-all duration-300 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined">monitor_heart</span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-white/5 transition-all duration-300 rounded-full active:scale-95 duration-150 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-lime-500 rounded-full border-2 border-slate-950"></span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-white/5 transition-all duration-300 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-lime-500/30">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a professional male administrator in clinical setting with neutral professional expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFXh8qgaiugPNGlfGp3zleCv0fekzySTYsWNFO7j72qI2bnEHoVe6Ww5Qu59aWw7plTdiRzNIfjeihOHFmsaNi96TBWX2xPAF2R264epGdx_vuEiPcPah9LMeIIGWYyyK4dNHlqXnJbbaFRrBoLEXwHK02Rhy6L7PlmpvxVrkz_Fy1xT7dKW6JjjMM6nNni1jpQm3dvG_CKHHQ20oC2edAPUCQPZxKn6fjkZ0iqk7h6VNaQtvbqS8-_Eei3C6wk7hM8vyOvyf0cuQl"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 bottom-0 w-64 z-40 flex flex-col pt-8 bg-slate-950 border-r border-white/5 font-manrope font-medium text-sm">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-lime-500/20 flex items-center justify-center border border-lime-500/20">
+<span class="material-symbols-outlined text-lime-400" data-weight="fill">biotech</span>
+</div>
+<div>
+<h3 class="text-on-background font-bold">System Core</h3>
+<p class="text-slate-500 text-[10px] uppercase tracking-widest">V2.4 Stable</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-lime-200 transition-all hover:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="bg-lime-500/10 text-lime-400 border-r-4 border-lime-500 flex items-center gap-3 px-4 py-3 hover:text-lime-200 transition-all hover:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">domain</span>
+                Tenants
+            </a>
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-lime-200 transition-all hover:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">biotech</span>
+                Analytics
+            </a>
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-lime-200 transition-all hover:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">shield_person</span>
+                Security
+            </a>
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-lime-200 transition-all hover:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">database</span>
+                Logs
+            </a>
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-lime-200 transition-all hover:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">help_center</span>
+                Support
+            </a>
+</nav>
+<div class="p-4">
+<button class="w-full py-3 bg-lime-500 text-slate-950 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-lime-400 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-xl">add_circle</span>
+                Deploy New Node
+            </button>
+</div>
+<div class="mt-auto pb-6 border-t border-white/5 pt-4">
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-lime-200 transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+                Documentation
+            </a>
+<a class="text-slate-400 flex items-center gap-3 px-4 py-3 hover:bg-white/5 hover:text-red-400 transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Log Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="max-w-7xl mx-auto p-8">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div class="space-y-2">
+<nav class="flex items-center gap-2 text-sm text-slate-500 mb-4">
+<span>Console</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-lime-500/80">Infrastructure</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-slate-300">Tenants</span>
+</nav>
+<h1 class="text-4xl md:text-5xl font-extrabold font-headline tracking-tighter text-on-surface">Gestão de Tenants</h1>
+<p class="text-on-surface-variant max-w-2xl font-medium leading-relaxed">
+                        Administração de instâncias clínicas, monitoramento de carga e configuração de domínios em tempo real.
+                    </p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-3 bg-surface-container-high text-on-surface border border-outline/20 rounded-xl font-semibold flex items-center gap-2 hover:bg-surface-bright transition-colors active:scale-95">
+<span class="material-symbols-outlined">download</span>
+                        Relatório
+                    </button>
+<button class="px-8 py-3 bg-primary text-on-primary rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-container transition-all active:scale-95">
+<span class="material-symbols-outlined">add</span>
+                        New Tenant
+                    </button>
+</div>
+</header>
+<!-- Filters and Search -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-8">
+<div class="lg:col-span-4 relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-outline/20 rounded-xl py-3 pl-12 pr-4 text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Filtrar por nome, ID ou domínio..." type="text"/>
+</div>
+<div class="lg:col-span-8 flex flex-wrap items-center gap-3">
+<button class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 rounded-full text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                        Active
+                    </button>
+<button class="px-4 py-2 bg-surface-container-high text-on-surface-variant border border-outline/20 rounded-full text-sm font-medium hover:border-outline transition-colors">
+                        Maintenance
+                    </button>
+<button class="px-4 py-2 bg-surface-container-high text-on-surface-variant border border-outline/20 rounded-full text-sm font-medium hover:border-outline transition-colors">
+                        Provisioning
+                    </button>
+<div class="h-8 w-px bg-outline/20 mx-2"></div>
+<select class="bg-surface-container-high border-outline/20 rounded-xl py-2 px-4 text-sm text-on-surface focus:ring-primary">
+<option>Toda as Regiões</option>
+<option>US-West</option>
+<option>EU-Central</option>
+<option>SA-East</option>
+</select>
+</div>
+</div>
+<!-- Table Container -->
+<div class="glass-panel rounded-2xl overflow-hidden shadow-2xl">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 text-left border-b border-outline/10">
+<th class="px-6 py-5 text-xs font-bold text-outline uppercase tracking-widest">Tenant &amp; ID</th>
+<th class="px-6 py-5 text-xs font-bold text-outline uppercase tracking-widest">Region</th>
+<th class="px-6 py-5 text-xs font-bold text-outline uppercase tracking-widest w-64">Current Load</th>
+<th class="px-6 py-5 text-xs font-bold text-outline uppercase tracking-widest">Database</th>
+<th class="px-6 py-5 text-xs font-bold text-outline uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline/5">
+<!-- Tenant Row 1 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary border border-primary/20">
+<span class="material-symbols-outlined">local_hospital</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Mayo Clinic Brazil</div>
+<div class="text-xs text-outline font-mono">T-482-BR-2024</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">public</span>
+<span class="text-sm">SA-East-1</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] font-bold text-outline uppercase">
+<span>420 req/s</span>
+<span class="text-primary">68% Capacity</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 68%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                        Healthy
+                                    </div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 hover:bg-white/10 text-outline hover:text-on-surface rounded-lg transition-colors" title="Logs">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+<button class="p-2 hover:bg-white/10 text-outline hover:text-on-surface rounded-lg transition-colors" title="Manage">
+<span class="material-symbols-outlined">settings_suggest</span>
+</button>
+<button class="px-3 py-1.5 bg-surface-container-high hover:bg-error-container/20 text-on-surface-variant hover:text-error rounded-lg transition-all text-xs font-bold border border-outline/10">
+                                            Suspend
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Tenant Row 2 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary border border-tertiary/20">
+<span class="material-symbols-outlined">science</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">MedLabs Global</div>
+<div class="text-xs text-outline font-mono">T-102-EU-2023</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">public</span>
+<span class="text-sm">EU-Central-1</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] font-bold text-outline uppercase">
+<span>850 req/s</span>
+<span class="text-error">92% Capacity</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 92%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                        High Latency
+                                    </div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 hover:bg-white/10 text-outline hover:text-on-surface rounded-lg transition-colors">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+<button class="p-2 hover:bg-white/10 text-outline hover:text-on-surface rounded-lg transition-colors">
+<span class="material-symbols-outlined">settings_suggest</span>
+</button>
+<button class="px-3 py-1.5 bg-surface-container-high hover:bg-error-container/20 text-on-surface-variant hover:text-error rounded-lg transition-all text-xs font-bold border border-outline/10">
+                                            Suspend
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Tenant Row 3 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest/50 flex items-center justify-center text-outline border border-outline/20">
+<span class="material-symbols-outlined">medication</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">EuroHealth Inst.</div>
+<div class="text-xs text-outline font-mono">T-991-EU-2024</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">public</span>
+<span class="text-sm">EU-West-2</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] font-bold text-outline uppercase">
+<span>12 req/s</span>
+<span class="text-outline">Provisioning</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-outline/30 rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-highest text-outline text-xs font-bold border border-outline/10">
+<span class="material-symbols-outlined text-xs">pending</span>
+                                        Cold Standby
+                                    </div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 hover:bg-white/10 text-outline hover:text-on-surface rounded-lg transition-colors">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+<button class="p-2 hover:bg-white/10 text-outline hover:text-on-surface rounded-lg transition-colors">
+<span class="material-symbols-outlined">settings_suggest</span>
+</button>
+<button class="px-3 py-1.5 bg-surface-container-high hover:bg-error-container/20 text-on-surface-variant hover:text-error rounded-lg transition-all text-xs font-bold border border-outline/10">
+                                            Suspend
+                                        </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer -->
+<div class="px-6 py-4 bg-surface-container-high/30 border-t border-outline/10 flex items-center justify-between">
+<div class="text-sm text-outline">
+                        Exibindo <span class="text-on-surface font-bold">1-12</span> de <span class="text-on-surface font-bold">48</span> instâncias
+                    </div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg border border-outline/10 text-outline hover:bg-surface-container-high transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded-lg bg-primary text-on-primary text-sm font-bold">1</button>
+<button class="px-3 py-1 rounded-lg border border-outline/10 text-outline hover:bg-surface-container-high text-sm font-bold transition-colors">2</button>
+<button class="px-3 py-1 rounded-lg border border-outline/10 text-outline hover:bg-surface-container-high text-sm font-bold transition-colors">3</button>
+<button class="p-2 rounded-lg border border-outline/10 text-outline hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Stats/Insight Bento Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+<div class="glass-panel p-6 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">hub</span>
+</div>
+<div>
+<div class="text-outline text-sm font-medium">Total Nodes</div>
+<div class="text-2xl font-black text-on-surface">1,204</div>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl">query_stats</span>
+</div>
+<div>
+<div class="text-outline text-sm font-medium">Avg Throughput</div>
+<div class="text-2xl font-black text-on-surface">14.2k <span class="text-sm font-medium text-outline">req/s</span></div>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl">storage</span>
+</div>
+<div>
+<div class="text-outline text-sm font-medium">Data Consumed</div>
+<div class="text-2xl font-black text-on-surface">4.8 <span class="text-sm font-medium text-outline">PB</span></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

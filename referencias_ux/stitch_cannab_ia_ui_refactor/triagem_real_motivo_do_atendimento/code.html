@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "surface": "#0e1606",
+                        "on-tertiary": "#580064",
+                        "background": "#0e1606",
+                        "on-primary": "#273500",
+                        "surface-container": "#1a2211",
+                        "primary-container": "#a3c93a",
+                        "surface-dim": "#0e1606",
+                        "surface-container-highest": "#2f3824",
+                        "tertiary-container": "#f998ff",
+                        "primary-fixed-dim": "#aed445",
+                        "outline-variant": "#444937",
+                        "surface-container-high": "#242d1a",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-bright": "#333c29",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-tint": "#aed445",
+                        "primary": "#bee654",
+                        "secondary-container": "#29522e",
+                        "on-tertiary-fixed": "#36003e",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "primary-fixed": "#c9f15e",
+                        "on-surface": "#dce6cb",
+                        "on-secondary-container": "#96c496",
+                        "secondary": "#a4d2a4",
+                        "on-primary-container": "#3e5200",
+                        "on-error": "#690005",
+                        "on-background": "#dce6cb",
+                        "outline": "#8f937d",
+                        "surface-variant": "#2f3824",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "tertiary": "#ffc4fe",
+                        "surface-container-lowest": "#091003",
+                        "inverse-primary": "#4f6700",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-secondary": "#0e3817",
+                        "inverse-surface": "#dce6cb",
+                        "secondary-fixed": "#bfefbe",
+                        "on-tertiary-container": "#792484",
+                        "inverse-on-surface": "#2a3320",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed": "#002107",
+                        "on-primary-fixed": "#151f00",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#161e0d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(26, 34, 17, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .active-glass-card {
+            background: rgba(163, 201, 58, 0.15);
+            border: 1.5px solid #a3c93a;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-stone-200/50 dark:border-zinc-800/50 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur-md flex items-center justify-between px-6 h-16 w-full z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#A3C93A]" data-icon="clinical_notes">clinical_notes</span>
+<span class="text-lg font-bold text-[#A3C93A] uppercase tracking-widest font-manrope">Cannab'IA</span>
+</div>
+<div class="text-stone-400 dark:text-zinc-500 font-manrope tracking-tight font-semibold text-sm">
+            Etapa 01 de 04
+        </div>
+</header>
+<main class="flex-1 pt-24 pb-32 px-6 flex flex-col max-w-lg mx-auto w-full">
+<!-- Abstract Botanical Background Element -->
+<div class="fixed top-0 right-0 -z-10 w-full h-full opacity-20 pointer-events-none">
+<div class="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] rounded-full bg-primary/20 blur-[100px]"></div>
+<div class="absolute bottom-[20%] left-[-10%] w-[250px] h-[250px] rounded-full bg-secondary-container/30 blur-[80px]"></div>
+</div>
+<!-- Question Header -->
+<div class="mb-8">
+<h1 class="text-3xl font-headline font-bold text-on-surface leading-tight tracking-tight mb-4">
+                Qual o principal motivo do seu atendimento?
+            </h1>
+<!-- AI Logic Box -->
+<div class="flex gap-4 p-4 rounded-xl bg-surface-container-high/50 border border-outline-variant/30">
+<div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                    A nossa IA ajudará a correlacionar os seus sintomas com os perfis de terpenos ideais.
+                </p>
+</div>
+</div>
+<!-- Selection Grid -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Option 1 (Active State Example) -->
+<button class="active-glass-card group text-left p-6 rounded-lg transition-all duration-300 scale-98">
+<div class="flex items-center justify-between">
+<div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-0">
+<span class="material-symbols-outlined text-[#A3C93A] text-2xl" data-icon="healing">healing</span>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-[#A3C93A] flex items-center justify-center">
+<div class="w-3 h-3 bg-[#A3C93A] rounded-full"></div>
+</div>
+</div>
+<h3 class="mt-4 font-headline font-semibold text-lg text-on-surface">Controle de Dor</h3>
+<p class="text-sm text-on-surface-variant mt-1">Alívio de tensões físicas e inflamações.</p>
+</button>
+<!-- Option 2 -->
+<button class="glass-card group text-left p-6 rounded-lg hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="flex items-center justify-between">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-stone-400 text-2xl" data-icon="spa">spa</span>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant"></div>
+</div>
+<h3 class="mt-4 font-headline font-semibold text-lg text-on-surface">Ansiedade &amp; Estresse</h3>
+<p class="text-sm text-on-surface-variant mt-1">Redução de cortisol e equilíbrio emocional.</p>
+</button>
+<!-- Option 3 -->
+<button class="glass-card group text-left p-6 rounded-lg hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="flex items-center justify-between">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-stone-400 text-2xl" data-icon="bedtime">bedtime</span>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant"></div>
+</div>
+<h3 class="mt-4 font-headline font-semibold text-lg text-on-surface">Melhora do Sono</h3>
+<p class="text-sm text-on-surface-variant mt-1">Ciclos mais profundos e reparadores.</p>
+</button>
+<!-- Option 4 -->
+<button class="glass-card group text-left p-6 rounded-lg hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="flex items-center justify-between">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-stone-400 text-2xl" data-icon="eco">eco</span>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant"></div>
+</div>
+<h3 class="mt-4 font-headline font-semibold text-lg text-on-surface">Bem-estar Geral</h3>
+<p class="text-sm text-on-surface-variant mt-1">Manutenção da homeostase diária.</p>
+</button>
+</div>
+<!-- Decorative Floral Element -->
+<div class="mt-12 flex justify-center opacity-30">
+<img alt="Botanical detail" class="w-32 h-32 object-cover rounded-full mix-blend-screen" data-alt="macro close-up of a vibrant green cannabis leaf with intricate crystalline trichomes against a dark moody background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPMRq65OuhylUcRM-_tjje1lVZYN-8laU838nkiYrWMpiW2BBrJfqXHyo1QFBhvW87NlfhGH6T7_KV8lFf7PYtbl-jLE3n03pxy4fb1dIY5OwPs500VJWnbQSbgXVMDq08goIpF4hwkTQCzZdtu7ieMe1Y0VTGVUrsN38q2G_o8oI5T8BFcNZz1vgy9mSChBWO5OO-zVp-Vh8xFAXVQEgU-Sf6ptmE1fpcU7iAgs81sQmn79pMf6VsI8T87DolIP9j867SMbVK18Nq"/>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-8 pb-8 pt-4 bg-stone-50/90 dark:bg-zinc-950/90 backdrop-blur-lg rounded-t-[2.5rem] border-t border-stone-200/30 dark:border-zinc-800/30 shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+<button class="flex flex-col items-center justify-center text-stone-400 dark:text-zinc-600 px-8 py-3 hover:bg-[#A3C93A]/5 transition-colors active:scale-98">
+<span class="material-symbols-outlined text-[#A3C93A] mb-1" data-icon="arrow_back_ios">arrow_back_ios</span>
+<span class="font-manrope text-xs font-bold uppercase tracking-widest">Back</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-8 py-3 hover:bg-[#A3C93A]/5 transition-colors active:scale-98">
+<span class="material-symbols-outlined text-[#A3C93A] mb-1" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+<span class="font-manrope text-xs font-bold uppercase tracking-widest">Next</span>
+</button>
+</nav>
+</body></html>

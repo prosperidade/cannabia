@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Terminal - Financeiro Gerencial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#aed445",
+                    "surface-container-high": "#242d1a",
+                    "outline-variant": "#444937",
+                    "surface-container": "#1a2211",
+                    "tertiary": "#ffc4fe",
+                    "secondary": "#a4d2a4",
+                    "on-primary-container": "#3e5200",
+                    "background": "#0e1606",
+                    "surface-container-low": "#161e0d",
+                    "inverse-primary": "#4f6700",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-primary": "#273500",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-tint": "#aed445",
+                    "on-tertiary": "#580064",
+                    "secondary-container": "#29522e",
+                    "surface-dim": "#0e1606",
+                    "surface": "#0e1606",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-secondary": "#0e3817",
+                    "on-surface-variant": "#c5c9b1",
+                    "error": "#ffb4ab",
+                    "primary": "#bee654",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "primary-fixed": "#c9f15e",
+                    "surface-container-highest": "#2f3824",
+                    "on-surface": "#dce6cb",
+                    "tertiary-fixed": "#ffd6fc",
+                    "on-tertiary-fixed": "#36003e",
+                    "inverse-surface": "#dce6cb",
+                    "on-tertiary-container": "#792484",
+                    "error-container": "#93000a",
+                    "outline": "#8f937d",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-container": "#f998ff",
+                    "surface-variant": "#2f3824",
+                    "on-error": "#690005",
+                    "surface-bright": "#333c29",
+                    "on-secondary-fixed": "#002107",
+                    "surface-container-lowest": "#091003",
+                    "on-secondary-container": "#96c496",
+                    "on-primary-fixed": "#151f00",
+                    "primary-container": "#a3c93a",
+                    "on-background": "#dce6cb",
+                    "inverse-on-surface": "#2a3320",
+                    "secondary-fixed": "#bfefbe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-card {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(143, 147, 125, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img alt="Admin Profile" class="w-full h-full object-cover" data-alt="Professional headshot of a clinical administrator with a clean tech-focused aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQTGsRX0gJJ-v8TFhOk26MxFyaNwPf7O5YPDnyNkr6yOXfm0gDYzm-zALiWQrytW4JyBXhDh7Tob2FX8akdKtY3A0lr3bSoLIXrmz0BtIGGWQmBrxkZLFtvdpWYgPd8jZBzi3DQBIW8OoEtvK17EwPsgajXVpt-Z2D3dGTJLwzbDG6yv4Lq9HvAFeiH3M95KQEOZOsZ7XaSpt2HDEJhp1h2NXJCvqdLNtMbN23gpBrrnYIWVrPxT6tlz-YRbA9zyPYdRKcIEh5ZsRR"/>
+</div>
+<h1 class="text-lg font-bold text-[#A3C93A] uppercase tracking-widest font-headline">Clinical Terminal</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:bg-stone-800/50 transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-5 space-y-8">
+<!-- Dashboard Header -->
+<header class="space-y-1">
+<h2 class="text-3xl font-headline font-extrabold tracking-tight text-on-surface">Financeiro Gerencial</h2>
+<p class="text-on-surface-variant text-sm font-medium opacity-80">Período: 01 Set — 30 Set</p>
+</header>
+<!-- KPI Grid (2x2) -->
+<section class="grid grid-cols-2 gap-4">
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary-container" data-icon="monetization_on">monetization_on</span>
+<span class="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full">+12%</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant">Receita Total</p>
+<p class="text-xl font-headline font-bold text-on-surface">R$ 142,5k</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary-container" data-icon="confirmation_number">confirmation_number</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant">Ticket Médio</p>
+<p class="text-xl font-headline font-bold text-on-surface">R$ 480,00</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-error" data-icon="pending_actions">pending_actions</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant">Pagamentos Pendentes</p>
+<p class="text-xl font-headline font-bold text-on-surface">R$ 12,8k</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant">Repasse Médico</p>
+<p class="text-xl font-headline font-bold text-on-surface">R$ 58,2k</p>
+</div>
+</div>
+</section>
+<!-- Revenue Growth Chart -->
+<section class="glass-card p-6 rounded-3xl">
+<div class="flex justify-between items-end mb-6">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Crescimento de Receita</h3>
+<span class="text-[10px] font-bold text-primary-container">Mensal</span>
+</div>
+<div class="flex items-end justify-between h-32 gap-2">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[40%]"></div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[65%]"></div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[55%]"></div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[85%]"></div>
+<div class="w-full bg-primary rounded-t-lg h-[100%] shadow-[0_0_20px_rgba(190,230,84,0.3)]"></div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant/60 uppercase">
+<span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span class="text-primary">Set</span>
+</div>
+</section>
+<!-- Physician Disbursements -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Repasses Médicos</h3>
+<button class="text-primary-container text-xs font-bold flex items-center gap-1">
+                    Ver Todos <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="space-y-3">
+<!-- Doctor Card 1 -->
+<div class="glass-card p-4 rounded-2xl flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 border border-outline-variant/30">
+<img alt="Physician" class="w-full h-full object-cover" data-alt="Portrait of a male doctor in professional medical attire with soft clinical lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMKfYt9Nfutn5MGCZOfNCq31Xf3Ej5hulqL3tXfDWtwC7ysg1sXKw-wGaZD0yAn-PFHg6ZHaIpVM08oYvRfPGdvNWN62kK99a-ISP7RhcgZ5rN9xxisQJmt3DgPfD66IcqacAi_J1XyNOToBHyrDrWS82YpsVJu2G8dHFickNcdrnOI5fa8FFOlPRvevQmD3FFWVuGQ4JomSbk0YqDgZu6bvnlAB7koH3ZKH1fSMJVINZ3Vg01QIeLN1oVUPVFMvfl2aXt_1j7NNrA"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-on-surface text-sm">Dr. Arthur Silva</h4>
+<p class="text-[10px] text-on-surface-variant font-medium">Cardiologia • 60/40 Split</p>
+</div>
+<span class="text-primary font-headline font-extrabold text-sm">R$ 12.450</span>
+</div>
+<div class="mt-2 w-full bg-surface-container-lowest h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[60%]"></div>
+</div>
+</div>
+</div>
+<!-- Doctor Card 2 -->
+<div class="glass-card p-4 rounded-2xl flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 border border-outline-variant/30">
+<img alt="Physician" class="w-full h-full object-cover" data-alt="Portrait of a female physician in a clinical setting with a bright modern background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP_OEcEQ7-pbcS2kekKSM_TV6eCIa4uq0TJpJd6-M-GSEc_4yLT5byWTU8F0g4uRpWG8trjGaxQB2VUiMBD0ShzDRT4EPz-fvPHrCjjKQtoO1xVLuli9C2V9xDPOZY21jvcqPhAIBQ77JMLqdPNQOsmtV58ZuarJkHcW999fHRRmYgg-JeYETpFqqUDPUOpdcBZwCSE7Nii2gnRBxylZYtxW2cAQk-lJNvnr3VVSMbyoAhOWAdExWMf8uDo1FKK4nPl5-TgL2W4JoX"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-on-surface text-sm">Dra. Helena Costa</h4>
+<p class="text-[10px] text-on-surface-variant font-medium">Neurologia • 70/30 Split</p>
+</div>
+<span class="text-primary font-headline font-extrabold text-sm">R$ 18.900</span>
+</div>
+<div class="mt-2 w-full bg-surface-container-lowest h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[70%]"></div>
+</div>
+</div>
+</div>
+<!-- Doctor Card 3 -->
+<div class="glass-card p-4 rounded-2xl flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 border border-outline-variant/30">
+<img alt="Physician" class="w-full h-full object-cover" data-alt="Professional medical specialist headshot with warm ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQoieI3gvH0VqsP8L3AMXTFSDp9Y4HFbK2om8cpm1fUzxnqiaSX9p_bJuAu0QDdkENdgI0qqOVlVqnXsGPMKA-Yam4UvooB89yy3zuLR4JPJH2xZoIggnO7YoLo9dAGP_kZhDyqOmcQo4DJ8AfKnHat5bT_1GTAxWNVREZKLyJa2CWH2N8Ylm6GetHzK_HsOTF9i5eaJPGekCK0uhq2mctj2CXise9-qMhwX_vGxMobwZQcNnOJjsZV9STDe46NJhCw8TQh1I8Ku_1"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-on-surface text-sm">Dr. Ricardo Mendes</h4>
+<p class="text-[10px] text-on-surface-variant font-medium">Ortopedia • 50/50 Split</p>
+</div>
+<span class="text-primary font-headline font-extrabold text-sm">R$ 8.200</span>
+</div>
+<div class="mt-2 w-full bg-surface-container-lowest h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[50%]"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_12px_24px_rgba(190,230,84,0.4)] flex items-center justify-center active:scale-90 transition-transform duration-150 z-40">
+<span class="material-symbols-outlined" data-icon="ios_share">ios_share</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-[2.5rem] border-t border-stone-800/50 bg-stone-950/90 backdrop-blur-xl flex justify-around items-center px-4 pt-3 pb-8 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-5 py-2 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="payments">payments</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Billing</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 px-5 py-2 hover:bg-stone-800/30 rounded-full transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Patients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 px-5 py-2 hover:bg-stone-800/30 rounded-full transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="insights">insights</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 px-5 py-2 hover:bg-stone-800/30 rounded-full transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Settings</span>
+</a>
+</nav>
+</body></html>

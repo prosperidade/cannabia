@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestão de Atendimentos - Cannab'IA</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#242d1a",
+                    "on-tertiary-fixed": "#36003e",
+                    "surface-container-highest": "#2f3824",
+                    "on-primary": "#273500",
+                    "surface-container": "#1a2211",
+                    "tertiary-fixed": "#ffd6fc",
+                    "primary-fixed-dim": "#aed445",
+                    "on-surface": "#dce6cb",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "on-surface-variant": "#c5c9b1",
+                    "outline-variant": "#444937",
+                    "tertiary-container": "#f998ff",
+                    "on-tertiary": "#580064",
+                    "secondary-fixed": "#bfefbe",
+                    "on-primary-fixed": "#151f00",
+                    "inverse-on-surface": "#2a3320",
+                    "on-error": "#690005",
+                    "surface-container-lowest": "#091003",
+                    "surface-dim": "#0e1606",
+                    "tertiary": "#ffc4fe",
+                    "outline": "#8f937d",
+                    "surface": "#0e1606",
+                    "surface-container-low": "#161e0d",
+                    "on-primary-container": "#3e5200",
+                    "surface-variant": "#2f3824",
+                    "on-secondary-container": "#96c496",
+                    "error": "#ffb4ab",
+                    "surface-tint": "#aed445",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-tertiary-container": "#792484",
+                    "surface-bright": "#333c29",
+                    "secondary-container": "#29522e",
+                    "inverse-surface": "#dce6cb",
+                    "secondary": "#a4d2a4",
+                    "primary-fixed": "#c9f15e",
+                    "on-secondary-fixed": "#002107",
+                    "primary": "#bee654",
+                    "on-secondary": "#0e3817",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "background": "#0e1606",
+                    "on-background": "#dce6cb",
+                    "primary-container": "#a3c93a",
+                    "inverse-primary": "#4f6700",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "tertiary-fixed-dim": "#fcaaff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(36, 45, 26, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .active-status {
+            background: rgba(174, 212, 69, 0.15);
+            color: #bee654;
+        }
+        .pending-status {
+            background: rgba(249, 152, 255, 0.15);
+            color: #ffc4fe;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10 flex justify-between items-center px-6 h-16 shadow-2xl shadow-black/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary-container/30">
+<img alt="Doctor Profile Picture" class="w-full h-full object-cover" data-alt="Professional portrait of a confident medical practitioner in a clean clinic setting, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5fGOc1sNMC2Pb9JGbq15IqbR4-GMmqsnyXA_WfNn1KaR6lK54wSdbJzOpJBWYT9p7e10mf3C349lBVjQyfqNdcSMoIl_hA0yDicXZuwI-elFzBaObBhEptvZt6CPZXpd-Nt6WYgGRU1XampW81dsVFOuLnH2KRrFVc7MBqXJPxOi5Tl51GfZfO6esgSLld0u3uXBFSmjf8heScRggHA2iwTOYL7hOQ94cSeTap-BttSQeupl8_2gpNXQXsrdsicMYFXlkSW58lY9u"/>
+</div>
+<span class="text-xl font-bold text-[#A3C93A] font-manrope tracking-tight">Cannab'IA</span>
+</div>
+<button class="material-symbols-outlined text-slate-400 hover:bg-white/5 transition-colors p-2 rounded-full active:scale-95 duration-150" data-icon="settings">
+            settings
+        </button>
+</header>
+<main class="pt-20 px-6 space-y-6">
+<!-- Welcome & Stats -->
+<section class="mt-4">
+<h1 class="text-2xl font-bold font-headline text-on-background">Gestão de Atendimentos</h1>
+<p class="text-on-surface-variant text-sm mt-1">Bem-vindo, Dr. Silas Vance</p>
+<div class="grid grid-cols-2 gap-4 mt-6">
+<div class="glass-card p-4 rounded-lg relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<span class="material-symbols-outlined text-primary" data-icon="trending_up">trending_up</span>
+</div>
+<p class="text-[10px] uppercase tracking-wider text-outline">Novos este mês</p>
+<p class="text-2xl font-bold text-primary mt-1">24</p>
+</div>
+<div class="glass-card p-4 rounded-lg relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<span class="material-symbols-outlined text-tertiary" data-icon="analytics">analytics</span>
+</div>
+<p class="text-[10px] uppercase tracking-wider text-outline">Eficácia sugerida</p>
+<p class="text-2xl font-bold text-tertiary mt-1">92%</p>
+</div>
+</div>
+</section>
+<!-- Search & Filters -->
+<section class="space-y-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-3 pl-12 pr-4 text-on-surface focus:ring-1 focus:ring-primary-container text-sm" placeholder="Buscar paciente ou ID..." type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<button class="px-5 py-2 rounded-full bg-primary-container text-on-primary-container text-xs font-semibold whitespace-nowrap">Todos</button>
+<button class="px-5 py-2 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium whitespace-nowrap hover:bg-surface-container-high transition-colors">Ativos</button>
+<button class="px-5 py-2 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium whitespace-nowrap hover:bg-surface-container-high transition-colors">Pendente Revisão</button>
+<button class="px-5 py-2 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium whitespace-nowrap hover:bg-surface-container-high transition-colors">Concluído</button>
+</div>
+</section>
+<!-- Patient Cases List -->
+<section class="space-y-4">
+<!-- Card 1 -->
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-lg font-semibold text-on-surface font-headline">Elena Moretti</h3>
+<span class="text-[11px] font-mono text-outline uppercase tracking-widest">#CBA-9021</span>
+</div>
+<span class="px-3 py-1 rounded-full text-[10px] font-bold active-status uppercase">Ativo</span>
+</div>
+<div class="flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden">
+<img alt="Dr. Silas Vance" class="w-full h-full object-cover" data-alt="Close-up of a smiling male doctor with glasses and white coat, clinical background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAaaJd8mhVNDDeTc4kZC6HvkQ3kG2f-ioOk0TCc3h1LEGB3AFDVUdu4T0-dZKBW1-E-AiXiXJs4HWMmUF4qTQgvgH69WbkGqiTPn_yyJRFaU6i3lQlR1mcQPq_WfIrQzKZ6nnl6i7e7X8K7z3EcLWUU5_uV-lbjFkOSsYpa2tUXc1mPjHF70oJQf0GA-F6OifMn8yBOOHLgPqDSeBgYu1UP5oph10qa1-h3KuBqH1VUFM5t6MfR01pkOVgQ4_7-LI2c9SLG9_tBPgZ"/>
+</div>
+<span class="text-xs text-on-surface-variant">Dr. Silas Vance</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-[11px]">Hoje, 14:30</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-lg font-semibold text-on-surface font-headline">Julian Schmidt</h3>
+<span class="text-[11px] font-mono text-outline uppercase tracking-widest">#CBA-8842</span>
+</div>
+<span class="px-3 py-1 rounded-full text-[10px] font-bold pending-status uppercase">Pendente Revisão</span>
+</div>
+<div class="flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden">
+<img alt="Dr. Silas Vance" class="w-full h-full object-cover" data-alt="Doctor headshot for clinical portal profile, professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALa95u807Ayzkg9MCuUuKwlZnjWiea75EmQqOd4A8Q2hIheovxJdzLHmDOaGHa6T6dNcZR0SB6hnr5-qnIy8ZiM617cndO5blGvyg7cxCnAe7jcS6MCDVnBqAtbnSK0wcA83nVAY4ZJ5H1dLKqhpvySOPn9rbuPMbGkvmzALH0xBBCtALO26zAOa8PTHJ7BMKlSujHTCAjr_gYuxRh669-UHMCz7hH_1w43Xf5hw74kRNMqS5Tyu6DCdEqf0eept7q7s3crWTjAHB_"/>
+</div>
+<span class="text-xs text-on-surface-variant">Dr. Silas Vance</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-[11px]">Ontem, 09:15</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-lg font-semibold text-on-surface font-headline">Clara Estevan</h3>
+<span class="text-[11px] font-mono text-outline uppercase tracking-widest">#CBA-9104</span>
+</div>
+<span class="px-3 py-1 rounded-full text-[10px] font-bold active-status uppercase">Ativo</span>
+</div>
+<div class="flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden">
+<img alt="Dr. Silas Vance" class="w-full h-full object-cover" data-alt="Male doctor profile photo, medical professional aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdQZoeGPCmq17oWuDgtjXxcXIGpWRWBZ2SgWewiNBtkvxKzkfWYgr53s_dnUjbVN8imIrwfkan6hId7K29JURwvMt4FGeKRbmB7X6C2L-lzZq7ulBXfxyluCo5-UPu_a7b2Pz0MXi-v3668ezk13G7qXqvjvDYyjX2ZArXH2N15sg45tvf_25j-9P9KuDoF2MBMR0GbWZOBDEVhrAHQ5vrIyok5F2m7uvRAPOKU_CKpiOX3_La_djsJebDuxRvpiurMTNFPv7lJ39u"/>
+</div>
+<span class="text-xs text-on-surface-variant">Dr. Silas Vance</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-[11px]">3 de Out, 16:45</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-28 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg shadow-primary/20 flex items-center justify-center active:scale-90 transition-all duration-200 z-40">
+<span class="material-symbols-outlined font-bold" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-slate-950/90 backdrop-blur-xl rounded-t-[32px] flex justify-around items-center px-4 pt-3 pb-8 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center bg-[#A3C93A]/20 text-[#A3C93A] rounded-full px-5 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[11px] font-medium mt-1">Patients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-[#A3C93A] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-manrope text-[11px] font-medium mt-1">Schedule</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-[#A3C93A] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="ecg">ecg</span>
+<span class="font-manrope text-[11px] font-medium mt-1">Vitals</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-[#A3C93A] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="font-manrope text-[11px] font-medium mt-1">Lab</span>
+</a>
+</nav>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

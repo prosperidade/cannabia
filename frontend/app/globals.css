@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --bg: #07111f;
   --panel: rgba(11, 23, 42, 0.82);

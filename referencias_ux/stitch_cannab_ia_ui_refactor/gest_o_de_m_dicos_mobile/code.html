@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#0e1606",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed": "#c9f15e",
+                    "on-tertiary-container": "#792484",
+                    "surface-container-high": "#242d1a",
+                    "outline": "#8f937d",
+                    "on-surface": "#dce6cb",
+                    "tertiary-container": "#f998ff",
+                    "surface-container-highest": "#2f3824",
+                    "surface-container": "#1a2211",
+                    "surface-bright": "#333c29",
+                    "on-error": "#690005",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "error-container": "#93000a",
+                    "on-primary": "#273500",
+                    "background": "#0e1606",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "primary": "#bee654",
+                    "secondary-container": "#29522e",
+                    "on-secondary-fixed": "#002107",
+                    "on-tertiary-fixed": "#36003e",
+                    "on-primary-container": "#3e5200",
+                    "inverse-primary": "#4f6700",
+                    "on-secondary-container": "#96c496",
+                    "surface-dim": "#0e1606",
+                    "secondary-fixed": "#bfefbe",
+                    "outline-variant": "#444937",
+                    "inverse-on-surface": "#2a3320",
+                    "surface-container-lowest": "#091003",
+                    "tertiary-fixed": "#ffd6fc",
+                    "secondary": "#a4d2a4",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "primary-container": "#a3c93a",
+                    "tertiary": "#ffc4fe",
+                    "on-tertiary": "#580064",
+                    "on-surface-variant": "#c5c9b1",
+                    "on-secondary": "#0e3817",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "on-primary-fixed": "#151f00",
+                    "on-background": "#dce6cb",
+                    "surface-tint": "#aed445",
+                    "surface-variant": "#2f3824",
+                    "surface-container-low": "#161e0d",
+                    "primary-fixed-dim": "#aed445",
+                    "inverse-surface": "#dce6cb",
+                    "error": "#ffb4ab"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-2 border-[#A3C93A] overflow-hidden">
+<img alt="Physician Profile" class="w-full h-full object-cover" data-alt="Close up professional portrait of a senior physician in a dark medical studio with soft botanical lighting accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjhhAi2EeF8IFfRM-pMfxQUW-1d3q3VTXmE8961EJoUgZHnDBpKiLgJnFPx-Y9t8-0bjvwu9lG8-Uws8wnkQ6dWFaiRbRLabH0XdM3NKpI-UEAnAZSoTo_DiXjJtIUP7BMJCMJgEuPy0IAAfP8qtj8H3wI2Qr4CGn-KF_Qt8dVewyBUhZ_aX65bqbK2Z1AD4Ug-QDnCKITndvif3Wvc_M_E7ddbY914wR5qS_uLPXPrWx0TrjHg5VDuUTeocQsZjmBuURYwKAoii3m"/>
+</div>
+<span class="text-lg font-bold text-[#A3C93A] uppercase tracking-widest font-manrope">Clinical Terminal</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:text-[#A3C93A] transition-colors active:opacity-70">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 space-y-8">
+<!-- Summary Section -->
+<section class="overflow-x-auto -mx-6 px-6 no-scrollbar">
+<div class="flex gap-4 min-w-max pb-2">
+<!-- Médicos Ativos -->
+<div class="bg-surface-container border border-outline-variant/30 p-5 rounded-lg w-40 backdrop-blur-sm">
+<p class="text-stone-500 text-[10px] uppercase font-bold tracking-widest mb-1">Médicos Ativos</p>
+<div class="flex items-end gap-1">
+<span class="text-3xl font-extrabold text-primary-container tracking-tighter">42</span>
+<span class="text-[10px] text-primary mb-1 font-semibold">+2</span>
+</div>
+</div>
+<!-- Pendências CRM -->
+<div class="bg-surface-container border border-outline-variant/30 p-5 rounded-lg w-40 backdrop-blur-sm">
+<p class="text-stone-500 text-[10px] uppercase font-bold tracking-widest mb-1">Pendências CRM</p>
+<div class="flex items-end gap-1">
+<span class="text-3xl font-extrabold text-primary-container tracking-tighter">07</span>
+<span class="material-symbols-outlined text-error text-lg mb-1" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+</div>
+<!-- Carga Média -->
+<div class="bg-surface-container border border-outline-variant/30 p-5 rounded-lg w-40 backdrop-blur-sm">
+<p class="text-stone-500 text-[10px] uppercase font-bold tracking-widest mb-1">Carga Média</p>
+<div class="flex items-end gap-1">
+<span class="text-3xl font-extrabold text-primary-container tracking-tighter">5.2</span>
+<span class="text-[10px] text-stone-500 mb-1 font-semibold">hrs</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Main List Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xl font-extrabold text-on-surface tracking-tight">Corpo Clínico</h2>
+<button class="text-xs font-bold text-primary tracking-widest uppercase py-1 px-3 border border-primary/20 rounded-full">Filtrar</button>
+</div>
+<div class="space-y-3">
+<!-- Dr. Ricardo Alencar -->
+<div class="bg-stone-900/40 border border-stone-800/40 rounded-lg p-4 flex items-center justify-between backdrop-blur-md">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high border border-outline-variant/30 overflow-hidden">
+<img alt="Dr. Ricardo Alencar" class="w-full h-full object-cover" data-alt="Professional male doctor headshot with soft background lighting, neutral green tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIQnQJ2Cj8jTmbepB388lVfvwmmJ8YeQ2e1P4M17eiojnZfjkq8UuODXHxLuw8QIa2iwQc_9w08NSi9IEGIM13DXt6fdKWJ9rheiYG3GCxZgH6zLUwTMvFfQoGJIC1jzsyCHybmIUCGWW94JH3bEvQ4LA6V-uWp6mRNJ_slhxOXuRZAKcLCWayGnbvTcD71EiNYa2m6M5_0qNeo7YWcL1dLi5bdLZ0etYiWjtXb1n7uJNR9a8m2VhwiXTGPQ4qwcCBNKguoFD2oNEO"/>
+</div>
+<div>
+<h3 class="text-sm font-bold text-on-surface">Dr. Ricardo Alencar</h3>
+<p class="text-xs text-stone-500">CRM 12844</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full uppercase tracking-tighter">Disponível</span>
+<span class="material-symbols-outlined text-stone-600 text-lg">more_vert</span>
+</div>
+</div>
+<!-- Dra. Helena Martins -->
+<div class="bg-stone-900/40 border border-stone-800/40 rounded-lg p-4 flex items-center justify-between backdrop-blur-md">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high border border-outline-variant/30 overflow-hidden">
+<img alt="Dra. Helena Martins" class="w-full h-full object-cover" data-alt="Professional female doctor headshot in clinical setting with botanical plant in background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgscmEIoLNG8mOJ50A7ThciirMbvZDJnvzWCFp3xvMseHlF8nMDOHi5RUQn5mZQ4AHKU1PAWYjO1idaa0AbM2eZttGNoyjFVPTS4LhqgWIsIEk4_uWmaAyq4RaoXtL7NQLsmLEENj2HAxFAmuxSSBLTQQihiVNfTzThMk2eSXIxhm6PFwkXh0vgWtmVfBWOakuc1q8Cor4iyEvUwGABX3kn6uvw_Ah1wE31J_TzN0aUixec2J2ct03EGkSDmAtB4gPi9uAVOuNtIG6"/>
+</div>
+<div>
+<h3 class="text-sm font-bold text-on-surface">Dra. Helena Martins</h3>
+<p class="text-xs text-stone-500">CRM 44921</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 bg-stone-800 text-stone-500 text-[10px] font-bold rounded-full uppercase tracking-tighter">Offline</span>
+<span class="material-symbols-outlined text-stone-600 text-lg">more_vert</span>
+</div>
+</div>
+<!-- Dr. Lucas Faria -->
+<div class="bg-stone-900/40 border border-stone-800/40 rounded-lg p-4 flex items-center justify-between backdrop-blur-md">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high border border-outline-variant/30 overflow-hidden">
+<img alt="Dr. Lucas Faria" class="w-full h-full object-cover" data-alt="Young male physician portrait in minimalist dark studio, professional medical attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmnhjFZlseQtF8mVlQE5_InKo5ai3H5ctWYaz7GsUBy9DeMHptAvNyoXgaA0elXsiEM0VVX7pR0k6kqX1bRtoOrxos_4D4KjuYcgboHZiEFiUzt5j8GwgpdtWMK78GJuTLEU8lYuZ63Q2LEIIy_4brRZ8pv-IZLYl_9eSZ6b0NGQk94ldbmI1Mw1A4msKdDD6ED1KdAm679Rr-JxO9jYA8W3nl9P7VuNg8lbjjQ7gj2QeKViUz-JKO5-OeNsCoT-OFYH2CTNKfhJH_"/>
+</div>
+<div>
+<h3 class="text-sm font-bold text-on-surface">Dr. Lucas Faria</h3>
+<p class="text-xs text-stone-500 font-medium italic text-error">CRM Pendente</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 bg-error/10 text-error text-[10px] font-bold rounded-full uppercase tracking-tighter">Validar</span>
+<span class="material-symbols-outlined text-stone-600 text-lg">more_vert</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Card -->
+<section class="space-y-4">
+<h2 class="text-sm font-bold text-stone-500 uppercase tracking-widest">Documentação Pendente</h2>
+<div class="bg-gradient-to-br from-surface-container-high to-surface-container-lowest border border-primary/20 rounded-lg p-5 relative overflow-hidden">
+<!-- Botanical Accent Shape -->
+<div class="absolute -top-4 -right-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl"></div>
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden border border-outline-variant/50">
+<img alt="Beatriz Souza" class="w-full h-full object-cover" data-alt="Candid portrait of a professional woman with a clean clinical background, warm soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD6J45A3l2XsE81amoyYkiqXN7PPncDl4Re-67Gwtuogb8qQbQwMmv50YTE30cz6_9IVKfQeX-Z34_K99BGCTTThtAPtJlcFwVQEE9by1tTz1HdBwNfi5qSeZQNeJlIOKHNraFHlUuP1LJiLjdJRjLEPFK_Oevx21kFAFPM35JZB3zv_Q8bpbYz3r2pf8ueUExSZvrybleVKOYPpnvGmKHQJwcIm9OPrUBERMhZ40AgChkVj4VN9lQktTZ4XypBctFwUxLjAA0KIt1"/>
+</div>
+<div>
+<h3 class="text-base font-bold text-on-surface">Beatriz Souza</h3>
+<p class="text-[10px] text-primary-container font-bold uppercase tracking-widest mt-0.5">Novo Cadastro</p>
+<p class="text-xs text-stone-500 mt-1">Anestesista • Hospital Central</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 mt-2">
+<button class="flex-1 py-3 bg-stone-800 hover:bg-stone-700 text-on-surface text-xs font-bold rounded-full transition-all uppercase tracking-widest border border-stone-700">
+                        Visualizar
+                    </button>
+<button class="flex-1 py-3 bg-primary-container hover:bg-primary text-on-primary-container text-xs font-bold rounded-full transition-all uppercase tracking-widest">
+                        Aprovar
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-8 bg-stone-950/90 backdrop-blur-xl rounded-t-[2rem] border-t border-stone-800/40 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<!-- Status -->
+<a class="flex flex-col items-center justify-center text-stone-500 scale-95 active:scale-90 transition-transform hover:text-stone-200" href="#">
+<span class="material-symbols-outlined mb-1">clinical_notes</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Status</span>
+</a>
+<!-- Credentials (Active) -->
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-1 px-4 scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">badge</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Credentials</span>
+</a>
+<!-- Metrics -->
+<a class="flex flex-col items-center justify-center text-stone-500 scale-95 active:scale-90 transition-transform hover:text-stone-200" href="#">
+<span class="material-symbols-outlined mb-1">monitoring</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Metrics</span>
+</a>
+<!-- Records -->
+<a class="flex flex-col items-center justify-center text-stone-500 scale-95 active:scale-90 transition-transform hover:text-stone-200" href="#">
+<span class="material-symbols-outlined mb-1">history_edu</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter">Records</span>
+</a>
+</nav>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "secondary-container": "#29522e",
+                        "on-primary-fixed": "#151f00",
+                        "on-primary-container": "#3e5200",
+                        "inverse-primary": "#4f6700",
+                        "surface-container-lowest": "#091003",
+                        "outline-variant": "#444937",
+                        "surface-dim": "#0e1606",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-tertiary": "#580064",
+                        "on-secondary-fixed": "#002107",
+                        "primary": "#bee654",
+                        "surface-container-highest": "#2f3824",
+                        "background": "#0e1606",
+                        "on-background": "#dce6cb",
+                        "inverse-surface": "#dce6cb",
+                        "tertiary": "#ffc4fe",
+                        "secondary-fixed": "#bfefbe",
+                        "surface-container": "#1a2211",
+                        "surface-tint": "#aed445",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-secondary": "#0e3817",
+                        "surface-bright": "#333c29",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "surface-variant": "#2f3824",
+                        "on-surface": "#dce6cb",
+                        "on-error-container": "#ffdad6",
+                        "inverse-on-surface": "#2a3320",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-container": "#96c496",
+                        "outline": "#8f937d",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#242d1a",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "primary-fixed-dim": "#aed445",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "surface": "#0e1606",
+                        "tertiary-container": "#f998ff",
+                        "primary-fixed": "#c9f15e",
+                        "primary-container": "#a3c93a",
+                        "on-tertiary-container": "#792484",
+                        "on-error": "#690005",
+                        "on-primary": "#273500",
+                        "error": "#ffb4ab",
+                        "secondary": "#a4d2a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32 overflow-x-hidden">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img class="w-full h-full object-cover" data-alt="Professional medical doctor portrait in clinic, soft studio lighting, professional attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXGW2rhSHPlrnAiNdlH8hQLl1433Mk_uw0qqsA1f1sE2UEhX_UvfAJu0WsnyDjBfuGFnKGwMWoyYy1nbTeuREMeSCoBSk9wnFGsD0KEDjwttLQiSAhnUqlyLYSQgVxQSBi3xDsnKUmURhgC09VMcMNaOPYDYSEKRo9q-20BQkTpQZXXqFbKWfgl4dGVCJg2oTx8FMjgtkHsTjKS_HCUmqZzohtNHXJS9zGXtp0kTMIU_BjZfiZnTwp-SIOpboTP0sk1M9YJSHjZ9Bd"/>
+</div>
+<span class="text-lg font-bold text-[#A3C93A] uppercase tracking-widest font-['Manrope']">Clinical Insights</span>
+</div>
+<button class="text-stone-400 hover:bg-stone-800/50 transition-colors active:scale-95 duration-200 p-2 rounded-full">
+<span class="material-symbols-outlined">settings_heart</span>
+</button>
+</nav>
+<main class="mt-20 px-4 space-y-6">
+<!-- Search and Filter Section -->
+<section class="flex gap-2">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-3 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary placeholder-outline/50 font-body" placeholder="Search patient..." type="text"/>
+</div>
+<button class="bg-surface-container p-3 rounded-full flex items-center justify-center text-on-surface active:scale-95 transition-all">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</section>
+<!-- AI Clinical Insights Summary (High Level) -->
+<section class="bg-gradient-to-br from-secondary-container/40 to-surface-container border border-white/5 rounded-lg p-5">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">psychology</span>
+<h2 class="font-headline font-bold text-sm uppercase tracking-wider text-primary">AI Insights Summary</h2>
+</div>
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">LIVE ANALYSIS</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="text-[10px] text-outline uppercase font-semibold">Confidence</p>
+<p class="text-2xl font-headline font-extrabold text-on-background">94.8%</p>
+</div>
+<div class="space-y-1 text-right">
+<p class="text-[10px] text-outline uppercase font-semibold">Protocols</p>
+<p class="text-2xl font-headline font-extrabold text-on-background">08</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-white/5">
+<p class="text-xs text-on-surface-variant leading-relaxed italic">"Optimal patient stratification detected in Current Queue. Prioritize ID: 4920 for metabolic stabilization."</p>
+</div>
+</section>
+<!-- Priority Call to Action -->
+<section>
+<button class="w-full bg-primary text-on-primary py-4 rounded-lg font-headline font-extrabold flex items-center justify-center gap-3 shadow-lg shadow-primary/20 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined font-variation-settings: 'FILL' 1;">play_circle</span>
+<span>Iniciar Consulta</span>
+</button>
+</section>
+<!-- Main Patient Queue -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline font-bold text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">reorder</span>
+                    Current Queue
+                </h3>
+<span class="text-xs text-outline font-medium">12 Patients Pending</span>
+</div>
+<!-- Patient Card 1 - High Risk -->
+<div class="bg-surface-container-high rounded-lg p-4 border-l-4 border-error shadow-sm">
+<div class="flex gap-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-error/30">
+<img class="w-full h-full object-cover" data-alt="Close-up of a middle aged woman looking calmly at camera, clinical neutral lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsDutcl1pIFJkmL3qt2xYGSXZvi-njBAFCdOl3Xbx2a-au3UfpF4mmPJixjlZNe9khebg5EUk-kFS1_gBpx1BFIe6R0wCf1BqcgTxLEHksUfVEsDoJR4l-ooUXhDaxzabNWREKXgIX_wDkgpEPjbUqqwF59orIDvDiMMWdq7iZl2G6HGHUDKbcumrEzO7_ZOoXCEAVmMJuRJJoNNTrqAqOx26-jSU-ZOiKsZLO7ONaoPh2zJWRjbZTa_TUUB7_SnEbAMxDb7mbFYu-"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-error text-on-error w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">!</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-on-surface">Elena Rodriguez</h4>
+<p class="text-[10px] text-outline">ID: #4920 • 42y</p>
+</div>
+<div class="bg-error/10 text-error px-2 py-1 rounded text-[10px] font-bold tracking-tighter uppercase">Risco IA: High</div>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="text-xs font-semibold text-secondary">Match: 98%</span>
+</div>
+<div class="text-[10px] text-outline-variant bg-surface-container p-1 rounded">Waiting: 12m</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Patient Card 2 - Medium Risk -->
+<div class="bg-surface-container rounded-lg p-4 border-l-4 border-yellow-500/50 shadow-sm">
+<div class="flex gap-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-500/20">
+<img class="w-full h-full object-cover" data-alt="Portrait of an elderly gentleman with grey beard, bright medical facility background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMV1fNyIv-XqcMfOlt6Xqn7zx0Td3Yt1ioYIQLD97lo9BYn2VKGzfgD2r058RuFhktIqmZDCDsOQxxbfkUQYn5McFxL1PIv2nKqabilVePiBH9eyqkmKlKWzirfNCSlwskBbdwfp42NfysX4pmJeE92_4UizKedvqlJxEDfmDRCH9zCNZlJZvMSCBgMnp4ALkVKN3BuJyxgL82TSsS3J8QYotVaTlOWOS8kNWhjNY6TqdUH65memAoNE9X1BnQijMVaqRwPN8hdaKw"/>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-on-surface">Marcus Thorne</h4>
+<p class="text-[10px] text-outline">ID: #3381 • 68y</p>
+</div>
+<div class="bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded text-[10px] font-bold tracking-tighter uppercase">Risco IA: Med</div>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="text-xs font-semibold text-secondary">Match: 82%</span>
+</div>
+<div class="text-[10px] text-outline-variant bg-surface-container p-1 rounded">Waiting: 28m</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Patient Card 3 - Low Risk -->
+<div class="bg-surface-container rounded-lg p-4 border-l-4 border-primary/30 shadow-sm opacity-80">
+<div class="flex gap-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Young professional woman portrait, soft focused laboratory environment in background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYo0GlqGTQAKpC3LRBRSAF-awB3tyEyDYy8_2K9LjoOk32XIUEjBDCkISkUnZN92PXJgJh-vtD9u1H5PG3QiDQunweK3qAhs4tbjFok37JXjpOc0bd_tIAOhxQ3dnvo4lAr5zeVPfzfuYmLu__Psplx2tbjGpAaxyEIhXZaV-WtcAdcwY7Y7mFvFxkdnkSwZRROq3nznz4zAWuxD9mGntD9qkG9pHvmO3QBKgUnVw-PDQoaeazGS5YQTdfPAl31vTzeCY2n2KNNzaH"/>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-on-surface">Sarah Chen</h4>
+<p class="text-[10px] text-outline">ID: #5102 • 29y</p>
+</div>
+<div class="bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-bold tracking-tighter uppercase">Risco IA: Low</div>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="text-xs font-semibold text-secondary">Match: 74%</span>
+</div>
+<div class="text-[10px] text-outline-variant bg-surface-container p-1 rounded">Waiting: 45m</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Infrastructure Status Section -->
+<section class="bg-surface-container-low rounded-lg p-4 flex items-center justify-around border border-white/5">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<div class="flex flex-col">
+<span class="text-[8px] text-outline uppercase font-bold tracking-tighter">Cloud Node Alpha</span>
+<span class="text-[10px] text-on-surface font-medium">9ms Latency</span>
+</div>
+</div>
+<div class="h-8 w-[1px] bg-white/5"></div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="flex flex-col">
+<span class="text-[8px] text-outline uppercase font-bold tracking-tighter">AI Inference Engine</span>
+<span class="text-[10px] text-on-surface font-medium">Operational</span>
+</div>
+</div>
+<div class="h-8 w-[1px] bg-white/5"></div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<div class="flex flex-col">
+<span class="text-[8px] text-outline uppercase font-bold tracking-tighter">Legacy Archive</span>
+<span class="text-[10px] text-error font-medium">Read-Only</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<footer class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-stone-950/90 backdrop-blur-xl rounded-t-[2rem] border-t border-stone-800/50 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<div class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-5 py-1 transition-all duration-300 ease-out tap-highlight-none">
+<span class="material-symbols-outlined">reorder</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter">Queue</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-200 transition-all duration-300 ease-out tap-highlight-none">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter">Insights</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-200 transition-all duration-300 ease-out tap-highlight-none">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter">Infrastructure</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-200 transition-all duration-300 ease-out tap-highlight-none">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter">Alerts</span>
+</div>
+</footer>
+</body></html>

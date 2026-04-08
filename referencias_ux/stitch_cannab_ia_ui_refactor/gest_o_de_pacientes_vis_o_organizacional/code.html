@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FloraMed Logic | Gestão de Pacientes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#2f3824",
+                    "on-tertiary-fixed": "#36003e",
+                    "on-surface": "#dce6cb",
+                    "on-secondary-container": "#96c496",
+                    "primary-fixed": "#c9f15e",
+                    "on-tertiary": "#580064",
+                    "inverse-on-surface": "#2a3320",
+                    "on-background": "#dce6cb",
+                    "outline-variant": "#444937",
+                    "on-surface-variant": "#c5c9b1",
+                    "secondary-fixed": "#bfefbe",
+                    "on-error": "#690005",
+                    "surface-container-lowest": "#091003",
+                    "inverse-surface": "#dce6cb",
+                    "surface-container-high": "#242d1a",
+                    "inverse-primary": "#4f6700",
+                    "secondary-container": "#29522e",
+                    "on-tertiary-container": "#792484",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "surface-container-low": "#161e0d",
+                    "surface-bright": "#333c29",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#0e1606",
+                    "on-primary-fixed": "#151f00",
+                    "surface-tint": "#aed445",
+                    "surface-dim": "#0e1606",
+                    "on-primary-container": "#3e5200",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "primary-fixed-dim": "#aed445",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffd6fc",
+                    "primary-container": "#a3c93a",
+                    "secondary": "#a4d2a4",
+                    "on-secondary": "#0e3817",
+                    "primary": "#bee654",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "on-primary": "#273500",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "tertiary-container": "#f998ff",
+                    "on-secondary-fixed": "#002107",
+                    "surface-container": "#1a2211",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "tertiary": "#ffc4fe",
+                    "background": "#0e1606",
+                    "surface-container-highest": "#2f3824",
+                    "outline": "#8f937d",
+                    "error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #0e1606;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(190, 230, 84, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(41, 82, 46, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="font-body text-on-background antialiased min-h-screen">
+<!-- SideNavBar Shell -->
+<nav class="fixed left-0 top-0 w-72 flex flex-col p-6 z-40 bg-stone-950/60 backdrop-blur-xl rounded-r-[40px] h-[calc(100vh-32px)] my-4 ml-4 border-r border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.3)] font-['Manrope'] antialiased tracking-tight">
+<div class="mb-12 px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-lime-400 flex items-center justify-center text-stone-950">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-lime-400 uppercase tracking-widest">FloraMed</h1>
+<p class="text-[10px] text-stone-500 uppercase tracking-[0.2em]">Clinical Intelligence</p>
+</div>
+</div>
+<div class="space-y-2 flex-1">
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium">Painel</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl bg-lime-400/10 text-lime-400 font-bold border-r-4 border-lime-400 scale-105 transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-medium">Pacientes</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-medium">Corpo Médico</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="font-medium">Inventário</span>
+</a>
+</div>
+<div class="mt-auto pt-6 border-t border-white/5 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium">Configurações</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-2xl text-stone-500 hover:text-stone-300 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined text-error">logout</span>
+<span class="font-medium">Sair</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar Shell -->
+<header class="flex justify-between items-center px-10 py-3 ml-80 mr-8 sticky top-4 z-50 bg-stone-950/40 backdrop-blur-md rounded-full mt-4 border border-white/5 shadow-lg shadow-black/20 backdrop-saturate-150 transition-all">
+<div class="flex items-center gap-6">
+<span class="hidden md:block font-black text-lime-500 text-sm font-headline uppercase tracking-tighter">FloraMed Logic</span>
+<div class="h-6 w-[1px] bg-white/10 hidden md:block"></div>
+<div class="relative flex items-center group">
+<span class="material-symbols-outlined absolute left-3 text-stone-500 group-focus-within:text-lime-400 transition-colors">search</span>
+<input class="bg-stone-900/50 border-none rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-lime-400/50 w-64 placeholder:text-stone-600 transition-all" placeholder="Buscar paciente ou CPF..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-stone-400 hover:text-lime-200 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-lime-400 rounded-full border-2 border-stone-950"></span>
+</button>
+<button class="p-2 text-stone-400 hover:text-lime-200 transition-all">
+<span class="material-symbols-outlined">genetics</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-full text-xs font-bold hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/20">
+                Novo Paciente
+            </button>
+<div class="w-8 h-8 rounded-full border border-lime-400/30 overflow-hidden cursor-pointer hover:scale-105 transition-transform">
+<img alt="Avatar do Administrador" class="w-full h-auto" data-alt="close up headshot of a professional doctor with glasses and medical attire in a clean minimalist style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj_YqsxI-tlBYkYu8rqY8XeEhHI5DpIPMMxEfm0CysoEMDXc8UinE_2Mf-IwaXrf3YdLupenWuTuYbbGQcRMmawREc_Tzxy32haUJLMf2K1dpiNJQ3tuNAfVBJ6RGELpR4rvfyCoefy867jC-Y6o8WS4qpm2A_2VrMe1fTdjdEyyf_vr8y85ziBiwTvxjtP5PCq3uZCiVc_MrqQ247oobMbQzelKq0t3H_Ajt908OkIAaO8luQCsGvuV_RFCI4SkJyjK7RQJscPFb3"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-80 mr-8 mt-12 pb-12">
+<!-- Header & Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container p-6 rounded-lg border border-white/5 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-lime-400/5 rounded-full blur-2xl group-hover:bg-lime-400/10 transition-colors"></div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2">Total de Pacientes</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface">1,284</h2>
+<span class="text-lime-400 text-xs font-bold pb-1 flex items-center"><span class="material-symbols-outlined text-sm">trending_up</span> +12%</span>
+</div>
+</div>
+<div class="bg-surface-container p-6 rounded-lg border border-white/5 relative overflow-hidden group">
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2">Em Onboarding</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface">42</h2>
+<span class="text-stone-500 text-xs font-medium pb-1">Novos este mês</span>
+</div>
+</div>
+<div class="bg-surface-container p-6 rounded-lg border border-white/5 relative overflow-hidden group">
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2">Taxa de Retenção</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface">94.8%</h2>
+<div class="flex-1 h-1.5 bg-stone-800 rounded-full mb-2 ml-4 overflow-hidden">
+<div class="h-full bg-lime-400 w-[94.8%] rounded-full shadow-[0_0_10px_rgba(190,230,84,0.4)]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Table Controls -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6 px-2">
+<h3 class="text-xl font-headline font-bold text-on-surface flex items-center gap-2">
+<span class="w-2 h-6 bg-lime-400 rounded-full"></span>
+                Lista de Pacientes
+            </h3>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-high px-4 py-2 rounded-full border border-white/5 flex items-center gap-3">
+<span class="text-xs text-stone-500">Status:</span>
+<select class="bg-transparent border-none p-0 text-xs font-bold text-lime-400 focus:ring-0 cursor-pointer">
+<option>Todos</option>
+<option>Em Tratamento</option>
+<option>Onboarding</option>
+<option>Aguardando</option>
+</select>
+</div>
+<div class="bg-surface-container-high px-4 py-2 rounded-full border border-white/5 flex items-center gap-3">
+<span class="text-xs text-stone-500">Condição:</span>
+<select class="bg-transparent border-none p-0 text-xs font-bold text-lime-400 focus:ring-0 cursor-pointer">
+<option>Qualquer</option>
+<option>Ansiedade</option>
+<option>Dor Crônica</option>
+<option>Insônia</option>
+</select>
+</div>
+<button class="bg-surface-container-highest p-2 rounded-full text-stone-400 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Glassmorphism Table -->
+<div class="relative">
+<div class="absolute inset-0 bg-lime-900/5 blur-[120px] -z-10 rounded-full"></div>
+<div class="overflow-x-auto bg-stone-950/40 backdrop-blur-xl rounded-lg border border-white/10 shadow-2xl">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/5">
+<th class="px-6 py-5 text-xs font-bold text-stone-500 uppercase tracking-widest">Nome do Paciente</th>
+<th class="px-6 py-5 text-xs font-bold text-stone-500 uppercase tracking-widest">Status</th>
+<th class="px-6 py-5 text-xs font-bold text-stone-500 uppercase tracking-widest">Médico Responsável</th>
+<th class="px-6 py-5 text-xs font-bold text-stone-500 uppercase tracking-widest">Condição Principal</th>
+<th class="px-6 py-5 text-xs font-bold text-stone-500 uppercase tracking-widest">Última Consulta</th>
+<th class="px-6 py-5 text-xs font-bold text-stone-500 uppercase tracking-widest text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<!-- Row 1 -->
+<tr class="group hover:bg-white/5 transition-all">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/10 p-0.5">
+<img class="w-full h-full rounded-full bg-stone-800" data-alt="Portrait of a middle aged man with a warm smile and professional attire, high quality digital art style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDhfNVTgkL-sBADCDZmIY4sKwoKWyw5EdHjeUyFdimxyLB842RLy47atE0Le62SRMZUK5OIFwdrK2G1RWLvhQ2CrsK0aFAJuwSynG2cI8-6PYWrx-rIp1t7SvSNdij34eDWH8dEBqz9jwnKMS7Tq46g3nBr72CXLQMcyQizLkifwfK2-nnhrHY_es3AbJB8IVUViMfvyljU4MIF9v0vIL3Pd28Ezi-5xo7EIY3VU3pL05ck1giwnj4sWyY3QeiTr57LDi_Zimth1HA"/>
+</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Ricardo Oliveira</div>
+<div class="text-[10px] text-stone-500">CPF: 123.***.***-90</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-lime-400/10 text-lime-400 text-[10px] font-black uppercase">
+<span class="w-1.5 h-1.5 bg-lime-400 rounded-full animate-pulse"></span>
+                                    Em Tratamento
+                                </span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-300">Dr. Helena Mendes</td>
+<td class="px-6 py-5">
+<span class="bg-surface-variant/50 px-2.5 py-1 rounded-md text-xs border border-white/5 text-on-surface-variant">Ansiedade</span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-400">12 Out, 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 text-stone-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-white/5 transition-all">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/10 p-0.5">
+<img class="w-full h-full rounded-full bg-stone-800" data-alt="Portrait of a young woman with creative styling and gentle features, vibrant digital illustration style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIlat-e4E2Iwyvi9UTQp74JAJQjAF_wF5v_0wqhub16o77RyZZPA_qennpdvAQbwPjI-FuFLe3SxyMZOw3YapufRFm4i7kr9xuPmCamWpYmgQsF2WYHj9oNBtkaJaFlTe9kzgLk82swf64FAY_V_XJLIIrRxAXQJ32xmuHo0__4Dz0XTF2fCpR1fKWUxZLj1ezMB6vDTEflt2qshfbA0a8nCTQy1psp8CWNW0RJC5tQItKPrhsT6H9mfp5ThhiN7geAcSC6ySwpTLQ"/>
+</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Beatriz Soares</div>
+<div class="text-[10px] text-stone-500">CPF: 456.***.***-32</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-container/20 text-tertiary-container text-[10px] font-black uppercase">
+                                    Onboarding
+                                </span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-300">Dr. Marcos Vinícius</td>
+<td class="px-6 py-5">
+<span class="bg-surface-variant/50 px-2.5 py-1 rounded-md text-xs border border-white/5 text-on-surface-variant">Dor Crônica</span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-400">---</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 text-stone-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-white/5 transition-all">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/10 p-0.5">
+<img class="w-full h-full rounded-full bg-stone-800" data-alt="Headshot of an elderly gentleman with distinguished features and spectacles, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6FGurrHsY3AQXU9af166nP6lu6NMMTa-wTrWhj6IbbHz863xYmCwgg_eklXUf0DDDuGJccbdZPf-2vCElgKwJc3iHPwfaLM2f3Dgu9H6J9AGt2QhB5JdERn272RvrwcdRHuFvsb2UWzmvQ43_Zwx50FtMhan1nW_26vFVzadLOnIRfaJskd70KDKowr-qS_2raYbkMZK7u5OAAUOF_L8iCzgs1-_t5Yi9mD9bk086WMJ60N12kfFkYzUr9M-D9xy8htLghjdGSW59"/>
+</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Arnaldo Santos</div>
+<div class="text-[10px] text-stone-500">CPF: 882.***.***-11</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/30 text-secondary-container text-[10px] font-black uppercase">
+                                    Aguardando Retorno
+                                </span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-300">Dr. Helena Mendes</td>
+<td class="px-6 py-5">
+<span class="bg-surface-variant/50 px-2.5 py-1 rounded-md text-xs border border-white/5 text-on-surface-variant">Insônia</span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-400">05 Set, 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 text-stone-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-white/5 transition-all">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/10 p-0.5">
+<img class="w-full h-full rounded-full bg-stone-800" data-alt="Portrait of a young adult with a calm expression and modern glasses, clean vector style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4o1Wh8FXaeEqQpgziSU5OFZ9k6ye0TdrbdvnwcxLd2GlyMzvnA7OMeuNLNCHZaGnz61wPr0wLFTV_qU79IZqn_5MhSSxyjLIDV4MyOvOihB0DIlgHzDYI7TT5SMeQUz12mBFak7FeNtUOF3NOdws_YtvNEhChNJ2-XaQfYMcjWXJ6tjVxI9voH1AtQW8mtopbODPMWE16g9ZQkyMcgeAEKIYqQOyTcN5-16n76H45zZlkXLXqKWF3zYubqo91g1giSvp0mX2_NswG"/>
+</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Mariana Luz</div>
+<div class="text-[10px] text-stone-500">CPF: 331.***.***-05</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container/20 text-error text-[10px] font-black uppercase">
+                                    Inativo
+                                </span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-300">Dr. Marcos Vinícius</td>
+<td class="px-6 py-5">
+<span class="bg-surface-variant/50 px-2.5 py-1 rounded-md text-xs border border-white/5 text-on-surface-variant">Depressão</span>
+</td>
+<td class="px-6 py-5 text-sm text-stone-400">15 Ago, 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-lime-400/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 text-stone-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="mt-6 flex items-center justify-between px-2">
+<p class="text-xs text-stone-500 font-medium">Mostrando <span class="text-on-surface">1 - 4</span> de 1,284 pacientes</p>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 text-stone-500 hover:bg-white/5 transition-all"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-lime-400 text-stone-950 font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 text-stone-400 hover:bg-white/5 transition-all text-xs">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 text-stone-400 hover:bg-white/5 transition-all text-xs">3</button>
+<span class="text-stone-600 px-1">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 text-stone-400 hover:bg-white/5 transition-all text-xs">48</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 text-stone-500 hover:bg-white/5 transition-all"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB Suppression Policy: Primary Action is in TopBar, so no FAB needed here to maintain Botanical Precision clarity -->
+</body></html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Estoque &amp; Dispensação - Cannab'IA</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "surface-dim": "#0e1606",
+                    "surface-container-high": "#242d1a",
+                    "secondary-container": "#29522e",
+                    "on-error-container": "#ffdad6",
+                    "inverse-primary": "#4f6700",
+                    "primary-container": "#a3c93a",
+                    "on-primary-container": "#3e5200",
+                    "surface-container-low": "#161e0d",
+                    "secondary-fixed": "#bfefbe",
+                    "on-primary-fixed": "#151f00",
+                    "background": "#0e1606",
+                    "on-tertiary-container": "#792484",
+                    "on-tertiary": "#580064",
+                    "on-secondary": "#0e3817",
+                    "on-tertiary-fixed": "#36003e",
+                    "primary-fixed-dim": "#aed445",
+                    "on-primary": "#273500",
+                    "surface-variant": "#2f3824",
+                    "on-secondary-container": "#96c496",
+                    "tertiary": "#ffc4fe",
+                    "inverse-on-surface": "#2a3320",
+                    "surface-container-lowest": "#091003",
+                    "secondary": "#a4d2a4",
+                    "on-surface": "#dce6cb",
+                    "surface-container-highest": "#2f3824",
+                    "surface": "#0e1606",
+                    "error-container": "#93000a",
+                    "primary": "#bee654",
+                    "tertiary-container": "#f998ff",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "surface-container": "#1a2211",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffd6fc",
+                    "outline": "#8f937d",
+                    "on-error": "#690005",
+                    "inverse-surface": "#dce6cb",
+                    "surface-tint": "#aed445",
+                    "outline-variant": "#444937",
+                    "on-background": "#dce6cb",
+                    "on-secondary-fixed": "#002107",
+                    "primary-fixed": "#c9f15e",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "on-surface-variant": "#c5c9b1",
+                    "surface-bright": "#333c29"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0e1606;
+        }
+        h1, h2, h3, .brand-font {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10 shadow-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center border border-primary/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up professional portrait of a medical laboratory technician in a modern clinical setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw4fKAK4l9egyVJK8ZrYTq8VXT86w46k52tNBNaIXUWIK9vBAsxXRpSkh4fMlQXzZN6EPriVoVonJjYnKDqhodCU3yQgBNdbZy4JkamVMMB2LKSW6cwPr8RihsRRpxGlN8WbaKG33FEs99g8LRllhxyvGJ6pNc9pbUfhkS0aZlKzCICs99mJMABAgRmGJhtg5G4opvCwqFhrzAQ3KGnWJzo27FR3oCjLGvB4MMnlKU3zZbvuE1XbKsh9rdTEUpovd-svJcKHJrcVZr"/>
+</div>
+<h1 class="text-xl font-bold text-[#A3C93A] uppercase tracking-widest brand-font">Estoque &amp; Dispensação</h1>
+</div>
+<button class="text-[#A3C93A] hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="mt-20 px-4 space-y-8">
+<!-- Quick Stats Bento -->
+<section class="grid grid-cols-2 gap-4">
+<div class="glass-card col-span-2 p-5 rounded-lg flex justify-between items-center relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
+<div>
+<p class="text-xs font-medium uppercase tracking-widest text-on-surface-variant opacity-70">Total Units</p>
+<h2 class="text-3xl font-extrabold text-on-surface mt-1">2.484</h2>
+<span class="text-xs font-bold text-primary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +12.4%
+                    </span>
+</div>
+<div class="w-16 h-16 text-primary/40 opacity-50">
+<span class="material-symbols-outlined !text-6xl" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+</div>
+<!-- Inventory Status Circles -->
+<div class="glass-card p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<div class="relative w-16 h-16 flex items-center justify-center mb-2">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-highest" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-error" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175" stroke-dashoffset="140" stroke-width="6"></circle>
+</svg>
+<span class="absolute text-[10px] font-bold">20%</span>
+</div>
+<p class="text-[10px] uppercase font-bold text-error tracking-tighter">Critical</p>
+</div>
+<div class="glass-card p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<div class="relative w-16 h-16 flex items-center justify-center mb-2">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-highest" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-primary" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175" stroke-dashoffset="31" stroke-width="6"></circle>
+</svg>
+<span class="absolute text-[10px] font-bold text-on-surface">82%</span>
+</div>
+<p class="text-[10px] uppercase font-bold text-primary tracking-tighter">Normal</p>
+</div>
+</section>
+<!-- Active Inventory Section -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="text-lg font-bold text-on-surface tracking-tight">Active Inventory</h3>
+<button class="text-xs font-bold text-primary uppercase tracking-widest">See All</button>
+</div>
+<div class="space-y-3">
+<!-- Product Card 1 -->
+<div class="glass-card p-4 rounded-lg flex items-center gap-4 transition-transform active:scale-[0.98]">
+<div class="w-14 h-14 rounded bg-surface-container flex items-center justify-center border border-white/5 overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="Macro photography of a high-quality medical cannabis flower with amber trichomes and crystalline texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm3rRcAaA-WEXENnNgJ3oSXGXtLuXQ2zBjuN0vPDZPeriKs7eIK30dLyA37fcXhrskvsI0hOOob98eQ4jN-UV7Nx3OhWz9JQ1f0-P9d2GQl3t5L87RIepESS4dfaJFDPRm10T166LlF92Aw01qcMQOjgjIUHTQnqKSbJunpNQqikdYQVYp_tQHo6UgLqUnVEYiiXPCU9pqVLb_o5NZKqeYW52iHQKCYyWmqfqzPbypgjlyG0lyf9-pobYnun-ZJU3JY-uiVYVUpEWg"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface text-sm">Northern Lights CBD</h4>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs text-on-surface-variant">420g</span>
+<span class="w-1 h-1 bg-white/20 rounded-full"></span>
+<span class="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-bold uppercase tracking-wider">Normal</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2 (CRITICAL) -->
+<div class="glass-card p-4 rounded-lg flex items-center gap-4 border-l-4 border-error transition-transform active:scale-[0.98]">
+<div class="w-14 h-14 rounded bg-surface-container flex items-center justify-center border border-error/20 overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="Studio shot of amber-colored medical CBD oil bottle with a dropper against a dark botanical background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC8yT9ZEzt5Fl5-IhIbm9nwAQ1UqAidGwp7u0o0isUnlhztA3P4HIoHSYUp1WuqsMWfDd5zvSgNRYYwJawF1rbbIpMub5QUulrwK741mlFqFdDg21fPKH7D3KIQtYq5zCU0ZWbkJdoD3jb3Zbz1q6S1UQbHh6C4YAdzi9KxOzBED8-nlPmLE6RH9Y7EagCD3aOkSHLQYcV62NBdv0wVc0FYam1xAQAlQ72-zK7CXecOJApInyZ_cIEpUdmI8hXvWowAQSoSPdMAnGj"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface text-sm">Full Spectrum Oil 10%</h4>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs text-on-surface-variant">12 unid</span>
+<span class="w-1 h-1 bg-white/20 rounded-full"></span>
+<span class="text-[10px] px-2 py-0.5 bg-error/10 text-error rounded-full font-bold uppercase tracking-wider animate-pulse">Crítico</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="glass-card p-4 rounded-lg flex items-center gap-4 transition-transform active:scale-[0.98]">
+<div class="w-14 h-14 rounded bg-surface-container flex items-center justify-center border border-white/5 overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="Detailed view of dried medical cannabis hybrid buds showing diverse shades of green and orange pistils" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfavT6H3AxnkRIJqDdH-6kPBXpvIxTDMA2s_eqipjMWx0xZvxTDoJH8Unauax1nSdhWYMu7q-2HntP8qadMO2SS_g5ZZ_RgRUuomUIKp2iHCyDrOtZSTExeFvxoVpQf-7PHdzYJYnr4lUqAJ_NYJNABOkznlL5DT4_Ekd27KicOMClJaoJKi-y0FjAvCOXEO_t1-RLjAg15FJ4ZnJV9bl6vkui0HjCgHiUunWqY05Qi0mODjxNUDRImJZ1zMbBer6gGKBbPNLSxi67"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface text-sm">Blue Dream Hybrid</h4>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs text-on-surface-variant">1,250g</span>
+<span class="w-1 h-1 bg-white/20 rounded-full"></span>
+<span class="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-bold uppercase tracking-wider">Normal</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Dispensations -->
+<section class="space-y-4">
+<h3 class="text-lg font-bold text-on-surface tracking-tight">Recent Dispensations</h3>
+<div class="space-y-2">
+<!-- Dispensation 1 -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-surface-container-low">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="person">person</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-on-surface">Ana Beatriz</p>
+<p class="text-[10px] text-on-surface-variant">Full Spectrum Oil 10%</p>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant font-medium">14:30</p>
+</div>
+<!-- Dispensation 2 -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-surface-container-low">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="person">person</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-on-surface">Marcos Oliver</p>
+<p class="text-[10px] text-on-surface-variant">Northern Lights CBD</p>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant font-medium">11:15</p>
+</div>
+<!-- Dispensation 3 -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-surface-container-low">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="person">person</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-on-surface">Clara Mendonça</p>
+<p class="text-[10px] text-on-surface-variant">Blue Dream Hybrid</p>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant font-medium">Ontem</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 w-16 h-16 bg-[#A3C93A] text-[#151f00] rounded-2xl shadow-2xl shadow-[#A3C93A]/40 flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-90 z-40">
+<span class="material-symbols-outlined !text-3xl" data-icon="add" style="font-variation-settings: 'wght' 700;">add</span>
+<span class="text-[9px] font-black uppercase tracking-tighter">Novo Lote</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-[40px] bg-slate-950/70 backdrop-blur-xl border-t border-white/5 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex justify-around items-center h-20 px-4 pb-4">
+<a class="flex flex-col items-center justify-center text-slate-500 py-2 px-4 hover:text-[#A3C93A]/80 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-2 px-4 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="potted_plant" style="font-variation-settings: 'FILL' 1;">potted_plant</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Treatment</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 py-2 px-4 hover:text-[#A3C93A]/80 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Documents</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 py-2 px-4 hover:text-[#A3C93A]/80 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Appointments</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestão de Tenants - Clinical Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffd6fc",
+                        "surface-container-lowest": "#091003",
+                        "surface-container-high": "#242d1a",
+                        "surface-container": "#1a2211",
+                        "surface-variant": "#2f3824",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-secondary-fixed": "#002107",
+                        "error-container": "#93000a",
+                        "on-primary": "#273500",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary-container": "#3e5200",
+                        "on-tertiary-container": "#792484",
+                        "surface-bright": "#333c29",
+                        "inverse-surface": "#dce6cb",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-error": "#690005",
+                        "outline": "#8f937d",
+                        "primary-fixed": "#c9f15e",
+                        "secondary-fixed": "#bfefbe",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "on-secondary-container": "#96c496",
+                        "surface-tint": "#aed445",
+                        "on-primary-fixed": "#151f00",
+                        "tertiary-container": "#f998ff",
+                        "surface-dim": "#0e1606",
+                        "primary-container": "#a3c93a",
+                        "secondary": "#a4d2a4",
+                        "on-secondary": "#0e3817",
+                        "background": "#0e1606",
+                        "on-tertiary-fixed": "#36003e",
+                        "outline-variant": "#444937",
+                        "on-tertiary": "#580064",
+                        "surface": "#0e1606",
+                        "secondary-container": "#29522e",
+                        "surface-container-highest": "#2f3824",
+                        "primary": "#bee654",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-surface": "#dce6cb",
+                        "on-background": "#dce6cb",
+                        "inverse-primary": "#4f6700",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "primary-fixed-dim": "#aed445",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "tertiary": "#ffc4fe",
+                        "inverse-on-surface": "#2a3320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .brand { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(143, 147, 125, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center px-6 py-3 w-full fixed top-0 z-50 bg-stone-950/80 backdrop-blur-md border-b border-white/10 shadow-2xl shadow-black/50">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#A3C93A]">Clinical Intelligence</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-manrope tracking-tight text-sm uppercase font-semibold text-stone-400 hover:text-stone-100 transition-colors duration-300 cursor-pointer active:scale-95" href="#">Dashboard</a>
+<a class="font-manrope tracking-tight text-sm uppercase font-semibold text-[#A3C93A] border-b-2 border-[#A3C93A] pb-1 cursor-pointer active:scale-95" href="#">Admin Console</a>
+<a class="font-manrope tracking-tight text-sm uppercase font-semibold text-stone-400 hover:text-stone-100 transition-colors duration-300 cursor-pointer active:scale-95" href="#">Reporting</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-white/5 p-2 rounded-full cursor-pointer hover:bg-white/10 transition-colors duration-300">
+<span class="material-symbols-outlined text-[#A3C93A]">notifications</span>
+</div>
+<div class="bg-white/5 p-2 rounded-full cursor-pointer hover:bg-white/10 transition-colors duration-300">
+<span class="material-symbols-outlined text-[#A3C93A]">settings</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-primary-container overflow-hidden border border-white/20">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Close-up of a professional medical doctor with a kind expression and silver hair wearing a white coat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAawIiO239PotaLwsiHmcw2O84I_UtXbFgvy3QrUyypJ53XkszjQEiaymByac7Xy6nb_mxMKub4-Zxdn9oK_DoJ1qirZRmaiczzcIdQ5bJhMpQplQMg1b0BvoezDCiTahSlYx0t5Yr7yXNxzA7GgYcEwQCDuZuIXUlXt_kpm8P4PT1qQ315itutaYrhjddqrwv7_KVxP_UGY3XdofrOIb6DQZWOsA2zcTZTiAd7O69eirAkLhq35Den-WiXPJ3V1eD6LesqGkuUivaB"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 z-40 bg-stone-950 h-screen w-64 border-r border-white/10 rounded-r-3xl shadow-[10px_0_30px_rgba(0,0,0,0.5)] pt-20">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-4">
+<div class="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary">biotech</span>
+</div>
+<div>
+<h3 class="text-[#A3C93A] font-black uppercase text-sm">Lab-01 Terminal</h3>
+<p class="text-[10px] text-stone-500 font-medium">Clinical Precision AI</p>
+</div>
+</div>
+<button class="w-full bg-[#A3C93A] text-[#151f00] font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                New Patient Admission
+            </button>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<div class="text-stone-500 hover:text-stone-200 px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/5 hover:translate-x-1 cursor-pointer">
+<span class="material-symbols-outlined">clinical_notes</span>
+<span class="font-manrope text-xs font-medium">Patient Queue</span>
+</div>
+<div class="text-stone-500 hover:text-stone-200 px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/5 hover:translate-x-1 cursor-pointer">
+<span class="material-symbols-outlined">psychiatry</span>
+<span class="font-manrope text-xs font-medium">Risk Analysis</span>
+</div>
+<div class="bg-[#A3C93A]/10 text-[#A3C93A] border-r-4 border-[#A3C93A] px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:translate-x-1 cursor-pointer">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span class="font-manrope text-xs font-medium">Admin Console</span>
+</div>
+<div class="text-stone-500 hover:text-stone-200 px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/5 hover:translate-x-1 cursor-pointer">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-manrope text-xs font-medium">System Health</span>
+</div>
+<div class="text-stone-500 hover:text-stone-200 px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/5 hover:translate-x-1 cursor-pointer">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-manrope text-xs font-medium">Metrics</span>
+</div>
+</nav>
+<div class="px-4 border-t border-white/5 pt-4">
+<div class="text-stone-500 hover:text-stone-200 px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-manrope text-xs font-medium">Security Log</span>
+</div>
+<div class="text-stone-500 hover:text-stone-200 px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-manrope text-xs font-medium">Logout</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-8 pb-12">
+<!-- Header Section -->
+<header class="flex justify-between items-end mb-10">
+<div>
+<nav class="flex text-xs text-on-surface-variant gap-2 mb-2">
+<span class="opacity-60">Admin Console</span>
+<span class="opacity-60">/</span>
+<span class="text-primary font-semibold">Gestão de Tenants</span>
+</nav>
+<h1 class="text-4xl font-extrabold tracking-tighter text-on-surface">Gestão de Tenants</h1>
+<p class="text-on-surface-variant max-w-md mt-2 text-sm">Control infrastructure isolation, performance metrics, and global health of the clinical intelligence network.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high border border-outline-variant text-on-surface px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">description</span>
+                    Report
+                </button>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">domain_add</span>
+                    New Tenant
+                </button>
+</div>
+</header>
+<!-- System Vitality Section (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="glass-card rounded-3xl p-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">timer</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Real-Time Latency</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-on-surface">12</span>
+<span class="text-lg font-bold text-primary">ms</span>
+</div>
+<p class="text-[10px] text-primary mt-2 flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-xs">trending_down</span>
+                    -4.2% FROM PEAK
+                </p>
+</div>
+<div class="glass-card rounded-3xl p-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-secondary/10 transition-colors"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="h-10 w-10 bg-secondary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">hub</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Connection Pool</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-on-surface">84</span>
+<span class="text-lg font-bold text-secondary">%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-secondary w-[84%]"></div>
+</div>
+</div>
+<div class="glass-card rounded-3xl p-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-tertiary/10 transition-colors"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="h-10 w-10 bg-tertiary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">psychology_alt</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">AI Inference Speed</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-on-surface">0.8</span>
+<span class="text-lg font-bold text-tertiary">s</span>
+</div>
+<p class="text-[10px] text-tertiary mt-2 flex items-center gap-1 font-bold uppercase">
+<span class="material-symbols-outlined text-xs">bolt</span>
+                    Optimized Cache Hit
+                </p>
+</div>
+</section>
+<!-- Tenants Metrics Table -->
+<div class="glass-card rounded-3xl overflow-hidden">
+<div class="px-8 py-6 border-b border-white/5 flex justify-between items-center bg-white/2">
+<h2 class="text-lg font-bold">Network Infrastructure</h2>
+<div class="flex gap-2">
+<div class="bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-xs">filter_list</span>
+<span class="text-xs font-medium">Filter</span>
+</div>
+<div class="bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-xs">search</span>
+<span class="text-xs font-medium text-stone-500">Search ID...</span>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold bg-surface-container-low/50">
+<th class="px-8 py-4">Tenant &amp; ID</th>
+<th class="px-8 py-4">Region</th>
+<th class="px-8 py-4">Current Load (REQ/S)</th>
+<th class="px-8 py-4">Database Status</th>
+<th class="px-8 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="h-9 w-9 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-xs text-primary">MH</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Mayo Health</div>
+<div class="text-[10px] font-mono text-on-surface-variant">T-100293-AX</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2">
+<img class="w-5 h-4 rounded-sm object-cover" data-alt="US flag with vibrant colors on a clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJxsZFIKJE9OH13lSa0a4joUMsHryjpHM-zVkHi73Bxg8_jaq6o43QFuAX_6v0IhI4TJr3lyC6OxZjAKhwBny7o7sIjp6iFYm8LyYtDYhEM3xZRFmqSrvx6hiK2fVRvnvY9LLyCBx3kRq9u4Wmck_faLF60aJFWDEpvg12KaNqTPVtmC-gWvC1FgpkPmc0zEh3PiTQbeiHpg0sA0ePWRAq0WJngUlEnyfFMsVOvtlr8Hf9LGxOBmZn68g0X6APjf_HCOnWiFZY0KUO"/>
+<span class="text-xs font-medium">US-East-1</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="w-48">
+<div class="flex justify-between mb-1">
+<span class="text-[10px] font-bold">1,240 req/s</span>
+<span class="text-[10px] text-primary">42%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[42%]"></div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+<div class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></div>
+<span class="text-[10px] font-bold uppercase text-primary">Healthy</span>
+</div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="h-9 w-9 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-xs text-primary">CL</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Cleveland Clinic</div>
+<div class="text-[10px] font-mono text-on-surface-variant">T-223491-BZ</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2">
+<img class="w-5 h-4 rounded-sm object-cover" data-alt="European Union flag with crisp details and deep blue color" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD_bzDgrNIXzQhpJ5Pvj_gM1_uhqC4gqOGMmThR18vgroA59CGTa2AScxTb9xZJ8-uuQ9ntmZfmQCgNZ7Dxp1TTDuTbgmZ-Ntuo7-P3lYkBcRgxZ94Cfwa8IC0NnRZU9X4AUfUA15utXWhIjR8c7QnuivTqtFawwIQ8_FX9AXWgGf8LzwxvsyhM1vX9g-Mq2RuZQ6evtXGtCVZgmn_ckWEu_UsB6_kBqFjLTxDT2OY9WfyLLW0IDp55yBF5MPmlzLwsBQb6ELlzB4X"/>
+<span class="text-xs font-medium">EU-West-3</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="w-48">
+<div class="flex justify-between mb-1">
+<span class="text-[10px] font-bold">2,890 req/s</span>
+<span class="text-[10px] text-secondary">88%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[88%]"></div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/10 border border-secondary/20">
+<div class="h-1.5 w-1.5 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-bold uppercase text-secondary">Healthy</span>
+</div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="h-9 w-9 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-xs text-error">JH</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Johns Hopkins</div>
+<div class="text-[10px] font-mono text-on-surface-variant">T-004582-CY</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2">
+<img class="w-5 h-4 rounded-sm object-cover" data-alt="US flag showing the stars and stripes in soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiPV-l88uAe6O1J6_v4rqhtDVCFSovPLE4BAGX3bQi3wghlSB2jBQkq3-h4UqVTg8Srtz_PUS-7hV2T0cwb999WmCfH9i9MiQA9GOMtMUrkkkXqV6F3gTYgz05JYYQMZARbqJrW3vBPP4ZA2K-yFg4B8y9FrlNn81nkGiqa9kMT5kGQ5ZLAsCBfpGC4Fr-FMN9iJ90UV4X4oo4z-7Hw4XB8EjZrmyo4Itc3UVM2IegycmTrXnMVxO4nyTmPAAgwmgU7ej4tqTWM4Aw"/>
+<span class="text-xs font-medium">US-West-2</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="w-48">
+<div class="flex justify-between mb-1">
+<span class="text-[10px] font-bold">4,120 req/s</span>
+<span class="text-[10px] text-error">94%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-error w-[94%]"></div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container/30 border border-error/20">
+<div class="h-1.5 w-1.5 rounded-full bg-error"></div>
+<span class="text-[10px] font-bold uppercase text-error">Warning</span>
+</div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="h-9 w-9 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-xs text-primary">SC</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Stanford Care</div>
+<div class="text-[10px] font-mono text-on-surface-variant">T-882049-DD</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2">
+<img class="w-5 h-4 rounded-sm object-cover" data-alt="Flag of Singapore showing crescent moon and stars on a red and white field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1-6FLDpkD1ejUMRW1VfV0mSNAFNE8nCnhxIF_7DZiYzGYIiuUF8G5RCY6jjtEq65QEUdAsDxqMfjveFEOaZQXMjoXvVlx71ZFP9UMSsXEQ2XqIK11jJK7qWjo_7LjjyqRlITDS-6X-Gh5Kow4iOvf8BUCXd_Hj7n8g20nzLqAK05Wj-eiTXANfRy_oUaBDRqOZqWtbonLKPVagwMSGy1Aksz23T0wRwlX2AtihjhtNhaMNwMQ0lKDUXeSIzakOX61kgYypJGlTuHO"/>
+<span class="text-xs font-medium">AP-Southeast-1</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="w-48">
+<div class="flex justify-between mb-1">
+<span class="text-[10px] font-bold">850 req/s</span>
+<span class="text-[10px] text-primary">18%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[18%]"></div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+<span class="text-[10px] font-bold uppercase text-primary">Healthy</span>
+</div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer Pagination -->
+<div class="px-8 py-4 border-t border-white/5 flex justify-between items-center bg-white/2">
+<span class="text-xs text-on-surface-variant">Showing 4 of 28 Active Tenants</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container border border-outline-variant disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container border border-outline-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- System Alerts / Notifications -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="glass-card rounded-3xl p-6 border-l-4 border-primary">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<div>
+<h4 class="text-sm font-bold mb-1">Security Audit Successful</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Infrastructure-wide pen-test completed. All isolation boundaries verified for PHI/PII compliance.</p>
+<span class="text-[10px] font-bold text-primary mt-2 block uppercase tracking-tighter">Verified 2h ago</span>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border-l-4 border-secondary">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">database</span>
+<div>
+<h4 class="text-sm font-bold mb-1">Scaling Auto-Threshold</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Tenant Johns Hopkins (T-004582-CY) triggered high-load threshold. Vertical scaling initiated.</p>
+<span class="text-[10px] font-bold text-secondary mt-2 block uppercase tracking-tighter">Active Scaling</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

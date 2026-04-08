@@ -1,156 +1,86 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { startTransition, type ReactNode, useState } from "react";
+import { startTransition, type ReactNode } from "react";
 
 import { logout } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import { useSystemStatus } from "@/lib/use-system-status";
-import { SystemStatusBar } from "@/components/system-status-bar";
-import { Badge } from "@/components/ui/badge";
-import { CardSkeleton } from "@/components/ui/skeleton";
+import { SidebarLayout, type SidebarNavItem } from "@/components/layouts/sidebar-layout";
 
-type AdminNavItem = {
-  href: string;
-  label: string;
-};
-
-const NAV_ITEMS: AdminNavItem[] = [
-  { href: "/admin", label: "Visão geral" },
-  { href: "/admin/tenants", label: "Tenants" },
+const NAV_ITEMS: SidebarNavItem[] = [
+  { label: "Visao Geral", icon: "dashboard", href: "/admin" },
+  { label: "Organizacoes", icon: "apartment", href: "/admin/tenants" },
+  { label: "Usuarios", icon: "manage_accounts", href: "/admin/usuarios" },
+  { label: "Auditoria IA", icon: "monitoring", href: "/admin/auditoria" },
+  { label: "Sistema", icon: "settings", href: "/admin/sistema" },
 ];
+
+function resolveActiveHref(pathname: string): string {
+  // Return the most specific nav item that matches the current pathname
+  const match = [...NAV_ITEMS]
+    .filter((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  return match?.href ?? "/admin";
+}
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const session = useApiSession();
-  const status = useSystemStatus();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   async function handleLogout() {
-    setBusy(true);
-    setError(null);
     try {
       await logout(session.data?.csrf_token ?? "");
       router.push("/login");
       router.refresh();
-    } catch (logoutError) {
-      setError(logoutError instanceof Error ? logoutError.message : "Falha ao sair.");
-    } finally {
-      setBusy(false);
+    } catch {
+      // silently fail
     }
   }
 
+  /* ── Loading state ── */
   if (session.loading) {
     return (
-      <div className="loading-screen">
-        <CardSkeleton lines={4} />
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm text-stone-500 font-headline uppercase tracking-widest">
+            Carregando...
+          </p>
+        </div>
       </div>
     );
   }
 
+  /* ── Auth guard ── */
   if (!session.data?.authenticated) {
-    router.replace("/login");
+    startTransition(() => {
+      router.replace("/login");
+    });
     return null;
   }
 
-  const isActive = (href: string) => {
-    if (href === "/admin") return pathname === "/admin";
-    return pathname.startsWith(href);
-  };
-
   return (
-    <div className="app-frame">
-      <aside aria-label="Menu administrativo" className="side-rail">
-        <div className="brand-mark">
-          <div className="brand-orb" />
-          <div>
-            <div className="brand-kicker">CannabIA</div>
-            <strong>Admin Console</strong>
-          </div>
-        </div>
-
-        <nav aria-label="Navegação administrativa" className="rail-nav">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              aria-current={isActive(item.href) ? "page" : undefined}
-              className={isActive(item.href) ? "active" : ""}
-              href={item.href}
-              key={item.href}
-            >
-              {item.label}
-            </Link>
-          ))}
-
-          <hr style={{ border: "none", borderTop: "1px solid var(--line)", margin: "8px 0" }} />
-
-          <Link
-            aria-current={pathname.startsWith("/dashboard") ? "page" : undefined}
-            className={pathname.startsWith("/dashboard") ? "active" : ""}
-            href="/dashboard"
-          >
-            ← Painel clínico
-          </Link>
-        </nav>
-
-        <div className="rail-meta">
-          <div className="meta-block">
-            <span className="meta-label">Admin</span>
-            <strong>{session.data.user?.username ?? "--"}</strong>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span className="meta-label">Sistema</span>
-            <Badge
-              pulse={status.overall !== "healthy"}
-              tone={
-                status.overall === "healthy"
-                  ? "success"
-                  : status.overall === "degraded"
-                    ? "warning"
-                    : status.overall === "offline"
-                      ? "danger"
-                      : status.overall === "unhealthy"
-                        ? "danger"
-                        : "neutral"
-              }
-            >
-              {status.overall === "healthy"
-                ? "Operacional"
-                : status.overall === "degraded"
-                  ? "Degradado"
-                  : status.overall === "unhealthy"
-                    ? "Indisponível"
-                    : status.overall === "offline"
-                      ? "Offline"
-                      : "Verificando..."}
-            </Badge>
-          </div>
-          <button
-            className="ghost-button"
-            disabled={busy}
-            onClick={() => {
-              startTransition(() => {
-                void handleLogout();
-              });
-            }}
-            type="button"
-          >
-            {busy ? "Saindo..." : "Sair"}
-          </button>
-          {error ? (
-            <div aria-live="assertive" className="inline-error" role="alert">
-              {error}
-            </div>
-          ) : null}
-        </div>
-      </aside>
-
-      <main className="workspace" id="main-content">
-        <SystemStatusBar status={status} />
-        {children}
-      </main>
-    </div>
+    <SidebarLayout
+      navItems={NAV_ITEMS}
+      activeHref={resolveActiveHref(pathname)}
+      brandTitle="Cannab'IA"
+      brandSubtitle="Painel Administrativo"
+      user={
+        session.data.user
+          ? {
+              name: session.data.user.username ?? "Admin",
+              role: session.data.user.role ?? "administrator",
+            }
+          : undefined
+      }
+      onLogout={() => {
+        startTransition(() => {
+          void handleLogout();
+        });
+      }}
+    >
+      {children}
+    </SidebarLayout>
   );
 }

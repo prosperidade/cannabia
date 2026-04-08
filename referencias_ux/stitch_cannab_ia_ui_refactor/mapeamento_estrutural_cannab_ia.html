@@ -1,0 +1,49 @@
+# PRD Técnico: Refatoração Frontend Cannab'IA
+
+## 1. Visão Geral
+Refatoração completa da interface do sistema clínico/médico Cannab'IA, focando em uma experiência moderna (Botanical Precision), acessível e de alta performance.
+
+## 2. Stack Tecnológica
+- **Framework:** Next.js 15.2.2 (App Router)
+- **Biblioteca Base:** React 19 + TypeScript
+- **Estilização:** CSS Customizado (variáveis CSS), sem Tailwind.
+- **Componentes UI:** Radix UI (Primitivos).
+- **Animações:** Framer Motion.
+- **Porta de Dev:** 3001
+- **Backend (Proxy):** Flask em 127.0.0.1:5000 via `/api/v1/[...path]`
+
+## 3. Arquitetura de Páginas e Rotas
+
+### Área Clínica (AppShell)
+- `/dashboard`: Painel principal com métricas e gráficos.
+- `/atendimentos`: Lista de casos com filtros e busca.
+- `/atendimentos/[id]`: Prontuário detalhado e timeline do paciente.
+- `/agendamentos`: Gestão de consultas.
+- `/mensagens`: Chat clínico e histórico.
+- `/triagem`: Fluxo wizard interativo de anamnese.
+- `/medico/triagem-dashboard`: Analytics de inteligência clínica.
+
+### Área Administrativa
+- `/admin`: Dashboard de saúde do sistema.
+- `/admin/tenants`: Gestão de instâncias (multi-tenant).
+
+### Geral
+- `/login`: Autenticação.
+- `/auditoria-ia`: Logs de performance e custo de IA.
+
+## 4. Design System (Tokens)
+- **Prefix:** `ds-*`
+- **Tema:** Dark Nature (Verde Oliva #2C3522).
+- **Acento:** Verde Limão (#A3C93A) para CTAs.
+- **Efeitos:** Glassmorphism moderado.
+
+## 5. Padrões de Desenvolvimento
+- **Estado:** `useState` local (sem necessidade imediata de Redux/Zustand).
+- **Data Fetching:** `lib/api.ts` (sem cache agressivo por enquanto).
+- **Auth:** Cookies de sessão + CSRF.
+- **Acessibilidade:** Foco total em ARIA e navegação por teclado.
+
+## 6. Roadmap de Refatoração
+1. **Passo 1-4:** Concluídos (Design System, Primitivos, Wizard de Triagem).
+2. **Próximo:** Consolidação das páginas de Dashboard e Atendimentos.
+3. **Melhorias Futuras:** Modularização do CSS, Testes, i18n e Caching.

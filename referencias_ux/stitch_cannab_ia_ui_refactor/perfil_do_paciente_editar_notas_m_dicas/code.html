@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#36003e",
+                        "secondary-container": "#29522e",
+                        "inverse-primary": "#4f6700",
+                        "secondary-fixed": "#bfefbe",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "surface-container-lowest": "#091003",
+                        "inverse-surface": "#dce6cb",
+                        "on-surface-variant": "#c5c9b1",
+                        "background": "#0e1606",
+                        "on-secondary": "#0e3817",
+                        "on-error": "#690005",
+                        "surface-container": "#1a2211",
+                        "on-secondary-fixed": "#002107",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#ffc4fe",
+                        "on-secondary-container": "#96c496",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2f3824",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-container-highest": "#2f3824",
+                        "primary-fixed": "#c9f15e",
+                        "inverse-on-surface": "#2a3320",
+                        "on-tertiary-container": "#792484",
+                        "tertiary-container": "#f998ff",
+                        "outline": "#8f937d",
+                        "surface": "#0e1606",
+                        "on-primary-fixed": "#151f00",
+                        "surface-bright": "#333c29",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-tint": "#aed445",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#242d1a",
+                        "primary-fixed-dim": "#aed445",
+                        "on-primary-container": "#3e5200",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary": "#273500",
+                        "primary": "#bee654",
+                        "surface-container-low": "#161e0d",
+                        "on-tertiary": "#580064",
+                        "surface-dim": "#0e1606",
+                        "on-surface": "#dce6cb",
+                        "outline-variant": "#444937",
+                        "on-background": "#dce6cb",
+                        "primary-container": "#a3c93a",
+                        "secondary": "#a4d2a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(60, 70, 45, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[280px] border-r border-stone-800 bg-stone-950 flex flex-col p-6 gap-8 z-50">
+<div class="flex items-center gap-3">
+<img alt="Cannab'IA System Logo" class="w-10 h-10 rounded-lg object-cover" data-alt="Modern geometric logo for a clinical intelligence company featuring stylized botanical leaves and digital patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiPOxrsCaOmEXMme-DUCgg7LQY1QhiufxFoAkzIt3QXK7Hindv2mpgjUOWY6gu6AXr8yCA8FelIelRgNvfI2dbDDiAPQqX-ySg2qxiw7ABA_BAogkMjFk0OWviEqUb0zaRErdQTE1_L1oGXzpEK4NKmyyG94TpI95XyIlYSsbP-x3y929d78b7Hc4jrjZ8H5PGdDCqMv-nPBwXfQ2-NWwxu5uMiCm_WSSrXv05rsrnYg9dw_vpbFwmcJpk-FN3vPhnxC71mAC_b5SE"/>
+<div>
+<h1 class="text-lime-400 font-black font-headline tracking-tighter">Cannab'IA</h1>
+<p class="text-stone-500 text-xs font-manrope">Clinical Intelligence</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-4 px-4 py-3 text-stone-500 hover:text-stone-200 hover:bg-white/5 rounded-full transition-all duration-300 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-manrope text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-lime-400 bg-lime-400/10 rounded-full transition-all duration-300" href="#">
+<span class="material-symbols-outlined">clinical_notes</span>
+<span class="font-manrope text-sm font-medium">Patient Records</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-stone-500 hover:text-stone-200 hover:bg-white/5 rounded-full transition-all duration-300 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">science</span>
+<span class="font-manrope text-sm font-medium">Clinical Trials</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-stone-500 hover:text-stone-200 hover:bg-white/5 rounded-full transition-all duration-300 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="font-manrope text-sm font-medium">Botany Lab</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-stone-500 hover:text-stone-200 hover:bg-white/5 rounded-full transition-all duration-300 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-manrope text-sm font-medium">Analytics</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2 border-t border-white/5 pt-6">
+<button class="mb-4 bg-primary text-on-primary font-bold py-3 px-6 rounded-full flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+                New Patient
+            </button>
+<a class="flex items-center gap-4 px-4 py-2 text-stone-500 hover:text-stone-200 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-manrope text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-2 text-stone-500 hover:text-stone-200 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-manrope text-sm font-medium">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-20 bg-stone-950/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-8 z-40 shadow-2xl shadow-lime-900/10">
+<div class="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-full border border-white/10 w-96">
+<span class="material-symbols-outlined text-stone-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-full" placeholder="Search patient ID, name, or condition..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="p-2 text-stone-400 hover:bg-white/5 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-stone-400 hover:bg-white/5 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-3 border-l border-white/10 pl-6">
+<div class="text-right">
+<p class="text-xs font-bold font-headline text-lime-400">Dr. Marcus Vance</p>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest">Lead Physician</p>
+</div>
+<img alt="Lead Physician Profile" class="w-10 h-10 rounded-full border border-lime-400/30 object-cover" data-alt="Portrait of a professional male doctor in a modern clinical setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhPku3vqJpSIIKEdVVNc4QvX86DB-dKNw-tDG7L5fqgBlGPkl0W7UYwOVzVc_5shFUmHUfpiBR2xk_cGbpy4STxpeWxzf15w7gkS4LWNqx5B1dEMDEjbSrQn8spVi46qgyY_maUOScyOQeJvE3Km-FF_I6Ipm5bab-R8Fhf4958qmwPrkRwy1M514AJmhDkGgptUiPMTpHKnPOk4ZCx-Z6PEndQ11LYvtm_N7tEXXr_K4ChHMv8jG_TA52Ki1qrxHKqf-3b-eRLpFb"/>
+</div>
+</div>
+</header>
+<!-- Patient Content -->
+<section class="pt-28 px-10 pb-12 max-w-7xl mx-auto space-y-8">
+<!-- Patient Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div class="flex items-center gap-8">
+<div class="relative">
+<div class="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+<img alt="Elena Sterling" class="relative w-32 h-32 rounded-3xl object-cover border-2 border-primary/20 shadow-2xl" data-alt="Close-up portrait of a woman with red hair and thoughtful expression in soft, cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZLKpVgBJvPZ57osczrKS_IrxrFXqiwnE4jZ_kPcsRCUm5Y9__yeiF9kMARuJ1c4zaX68I1ze7it-L9uViJVQ3-6nHgM4mLQvO6nivV50WjQks_XFlPY73J0oHabjnaeAoxS_Npx0BCn-x8UY85eiUcmiFOTNkO5quz9ZfaE1omCF8nJxzVCbPZxARJEMoJD4sO92vhyuMFF46j54w4x5MNR7vj1ebMu_VWRfOh_xkUsscOUNOjKbLI4Bf4ESzojd2DGvBE7X-YO7I"/>
+<span class="absolute -bottom-2 -right-2 bg-primary text-on-primary text-[10px] font-black px-3 py-1 rounded-full shadow-lg">ACTIVE</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-4">
+<h2 class="text-4xl font-bold font-headline tracking-tighter text-on-surface">Elena Sterling</h2>
+<span class="text-primary/60 font-mono text-lg">#CB-7721</span>
+</div>
+<div class="flex gap-6 text-stone-400 text-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">calendar_today</span> 34 Years</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">female</span> Female</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Portland, OR</span>
+</div>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-all flex items-center gap-2 text-sm font-medium">
+<span class="material-symbols-outlined text-sm">edit</span> Edit Profile
+                    </button>
+<button class="px-6 py-3 rounded-full bg-primary text-on-primary hover:opacity-90 transition-all flex items-center gap-2 text-sm font-bold shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">print</span> Export Report
+                    </button>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Health Metrics -->
+<div class="col-span-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="glass-card p-6 rounded-2xl flex flex-col justify-between group hover:border-primary/20 transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">speed</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">BMI Index</span>
+</div>
+<div class="mt-4">
+<h3 class="text-3xl font-black font-headline text-on-surface">22.4</h3>
+<p class="text-xs text-lime-400 flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">arrow_drop_down</span> -0.2 from last month
+                            </p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl flex flex-col justify-between group hover:border-primary/20 transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">favorite</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Heart Rate</span>
+</div>
+<div class="mt-4">
+<h3 class="text-3xl font-black font-headline text-on-surface">68 <span class="text-sm font-normal text-stone-500">BPM</span></h3>
+<p class="text-xs text-stone-500 mt-1">Normal Range</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl flex flex-col justify-between group hover:border-primary/20 transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">monitor_heart</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Blood Pressure</span>
+</div>
+<div class="mt-4">
+<h3 class="text-3xl font-black font-headline text-on-surface">118/75</h3>
+<p class="text-xs text-lime-400 mt-1 italic">Optimal clinical state</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl flex flex-col justify-between group hover:border-primary/20 transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">bedtime</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Sleep Quality</span>
+</div>
+<div class="mt-4">
+<h3 class="text-3xl font-black font-headline text-on-surface">84%</h3>
+<div class="w-full bg-white/5 h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-[84%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Section Left -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<!-- AI Botanical Analysis -->
+<div class="glass-card p-8 rounded-3xl border-primary/10">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="text-xl font-bold font-headline text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">biotech</span>
+                                    AI Botanical Sensitivity Analysis
+                                </h3>
+<p class="text-stone-500 text-sm">Genetic &amp; metabolic response mapping</p>
+</div>
+<span class="bg-primary/10 text-primary text-[10px] font-black px-4 py-1.5 rounded-full border border-primary/20">V2.4 ENGINE</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-6">
+<h4 class="text-xs font-black text-stone-400 uppercase tracking-[0.2em]">Terpene Affinity</h4>
+<div class="space-y-5">
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface">Myrcene</span>
+<span class="text-primary font-bold">High (92%)</span>
+</div>
+<div class="w-full h-2 bg-white/5 rounded-full">
+<div class="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(163,201,58,0.4)]" style="width: 92%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface">Limonene</span>
+<span class="text-primary font-bold">Moderate (64%)</span>
+</div>
+<div class="w-full h-2 bg-white/5 rounded-full">
+<div class="h-full bg-primary/60 rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface">Linalool</span>
+<span class="text-stone-500">Low (18%)</span>
+</div>
+<div class="w-full h-2 bg-white/5 rounded-full">
+<div class="h-full bg-stone-700 rounded-full" style="width: 18%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<h4 class="text-xs font-black text-stone-400 uppercase tracking-[0.2em]">Cannabinoid Metabolism</h4>
+<div class="flex items-center justify-center p-4">
+<!-- Simplified Visual Representation -->
+<div class="relative w-32 h-32 flex items-center justify-center">
+<div class="absolute inset-0 border-4 border-dashed border-primary/20 rounded-full animate-spin-slow"></div>
+<div class="text-center">
+<span class="text-2xl font-black text-on-surface block leading-none">THC</span>
+<span class="text-[10px] text-primary block">FAST</span>
+</div>
+</div>
+<div class="ml-8 space-y-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-sm text-on-surface">CBD Sensitivity: <strong class="text-primary">8.4</strong></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-white/20"></span>
+<span class="text-sm text-stone-400">CBG Tolerance: <strong>High</strong></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Clinical History & Timeline -->
+<div class="glass-card p-8 rounded-3xl">
+<h3 class="text-xl font-bold font-headline text-on-surface mb-8">Clinical History</h3>
+<div class="relative space-y-8 before:content-[''] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-white/5">
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary border-4 border-background"></div>
+<p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Oct 24, 2023</p>
+<h4 class="text-on-surface font-bold mt-1">Therapeutic Review &amp; Dosage Adjustment</h4>
+<p class="text-sm text-stone-400 mt-2">Dr. Vance adjusted the Myrcene-dominant formula to alleviate recurring insomnia. Reported 15% improvement in sleep latency.</p>
+<div class="mt-3 flex gap-2">
+<span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] text-stone-300">Prescription Updated</span>
+<span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] text-stone-300">Sleep Study</span>
+</div>
+</div>
+<div class="relative pl-10 opacity-70">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-stone-700 border-4 border-background"></div>
+<p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Sept 12, 2023</p>
+<h4 class="text-on-surface font-bold mt-1">Quarterly Lab Diagnostics</h4>
+<p class="text-sm text-stone-400 mt-2">Comprehensive metabolic panel and cannabinoid receptor density scan (CRD-S) completed.</p>
+</div>
+<div class="relative pl-10 opacity-50">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-stone-800 border-4 border-background"></div>
+<p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Aug 05, 2023</p>
+<h4 class="text-on-surface font-bold mt-1">Initial Consultation</h4>
+<p class="text-sm text-stone-400 mt-2">Patient intake for chronic anxiety management using botanical precision medicine.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Section Right -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Current Prescription -->
+<div class="bg-primary p-1 rounded-3xl">
+<div class="bg-stone-950 p-8 rounded-[2.5rem] space-y-6">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-xl font-bold font-headline text-on-surface">Active Prescription</h3>
+<p class="text-primary text-xs font-bold mt-1">RX #8812-FLOWER</p>
+</div>
+<span class="material-symbols-outlined text-primary text-4xl">potted_plant</span>
+</div>
+<div class="p-6 rounded-2xl bg-white/5 border border-white/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">medication</span>
+</div>
+<h4 class="text-on-surface font-bold">Botanical Formula: <span class="text-primary">Indica-L04</span></h4>
+<div class="mt-4 space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-stone-500">Dosage</span>
+<span class="text-on-surface font-medium">0.5ml / 8hrs</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-stone-500">Method</span>
+<span class="text-on-surface font-medium">Sublingual Oil</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-stone-500">Potency</span>
+<span class="text-on-surface font-medium">20:1 CBD/THC</span>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold text-stone-500 uppercase">Treatment Progress</span>
+<span class="text-on-surface font-bold">12 / 30 <span class="text-xs text-stone-500 font-normal">Days Left</span></span>
+</div>
+<div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 40%"></div>
+</div>
+</div>
+<button class="w-full py-4 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">history_edu</span>
+                                Renew Prescription
+                            </button>
+</div>
+</div>
+<!-- Clinical Notes / Quick Actions -->
+<div class="glass-card p-8 rounded-3xl space-y-6"><h3 class="text-lg font-bold font-headline text-on-surface flex items-center justify-between">
+    Physician's Notes
+    <span class="material-symbols-outlined text-primary/50 text-sm">edit_note</span>
+</h3>
+<div class="space-y-4">
+<div class="relative group">
+<textarea class="w-full bg-black/40 border border-white/10 rounded-2xl p-5 text-sm text-stone-300 italic leading-relaxed focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none min-h-[140px] resize-none scrollbar-hide" placeholder="Enter clinical observations...">"Elena is showing exceptional responsiveness to the myrcene-terpene profile. Suggest maintaining current dosage for another 14 days before evaluating CBG introduction."</textarea>
+<div class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-[10px] text-stone-600 font-mono uppercase">Auto-saving...</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<p class="text-[10px] text-stone-500 font-medium uppercase tracking-wider flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[12px]">history</span>
+            Last updated: Oct 25, 2023 - 14:22
+        </p>
+<button class="px-5 py-2.5 bg-primary text-on-primary rounded-full text-xs font-black flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">save</span>
+            Save Notes
+        </button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="p-4 rounded-2xl bg-white/5 border border-white/5 text-stone-300 text-xs font-bold hover:bg-white/10 transition-all flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-primary">videocam</span>
+        Tele-Consult
+    </button>
+<button class="p-4 rounded-2xl bg-white/5 border border-white/5 text-stone-300 text-xs font-bold hover:bg-white/10 transition-all flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-primary">chat_bubble</span>
+        Patient Chat
+    </button>
+</div></div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

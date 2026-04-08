@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#bee654",
+                        "on-background": "#dce6cb",
+                        "inverse-surface": "#dce6cb",
+                        "surface-dim": "#0e1606",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "secondary-fixed": "#bfefbe",
+                        "outline-variant": "#444937",
+                        "surface-container": "#1a2211",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "on-tertiary-container": "#792484",
+                        "on-secondary-container": "#96c496",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#580064",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "on-surface": "#dce6cb",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#f998ff",
+                        "tertiary-fixed": "#ffd6fc",
+                        "surface": "#0e1606",
+                        "primary-fixed": "#c9f15e",
+                        "primary-fixed-dim": "#aed445",
+                        "surface-variant": "#2f3824",
+                        "tertiary": "#ffc4fe",
+                        "on-secondary-fixed": "#002107",
+                        "inverse-primary": "#4f6700",
+                        "secondary-container": "#29522e",
+                        "surface-container-lowest": "#091003",
+                        "on-primary": "#273500",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-high": "#242d1a",
+                        "surface-container-low": "#161e0d",
+                        "surface-tint": "#aed445",
+                        "primary-container": "#a3c93a",
+                        "surface-bright": "#333c29",
+                        "secondary": "#a4d2a4",
+                        "on-secondary": "#0e3817",
+                        "on-surface-variant": "#c5c9b1",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-primary-fixed": "#151f00",
+                        "on-primary-container": "#3e5200",
+                        "outline": "#8f937d",
+                        "surface-container-highest": "#2f3824",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-tertiary-fixed": "#36003e",
+                        "background": "#0e1606"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(143, 147, 125, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 z-50 bg-stone-950 border-r border-stone-800/50 flex flex-col h-full py-8 font-manrope text-sm font-medium shadow-2xl shadow-black/50">
+<div class="px-6 mb-10">
+<div class="text-lg font-black uppercase text-lime-500 tracking-widest">Medical Cannabis</div>
+<div class="text-xs text-stone-500 font-normal">Clinical Lab v2.1</div>
+</div>
+<nav class="flex-1 flex flex-col space-y-1">
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+                Visão Geral
+            </a>
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="inventory_2">inventory_2</span>
+                Estoque
+            </a>
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="medical_services">medical_services</span>
+                Dispensação
+            </a>
+<!-- Active State: Auditoria IA -->
+<a class="text-lime-400 bg-lime-500/10 border-r-2 border-lime-500 flex items-center px-6 py-4 transition-all hover:bg-stone-900 hover:translate-x-1 duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="query_stats">query_stats</span>
+                Auditoria IA
+            </a>
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="description">description</span>
+                Relatórios
+            </a>
+</nav>
+<div class="px-6 mt-auto pt-8 border-t border-stone-800/50 flex flex-col space-y-1">
+<a class="text-stone-500 flex items-center py-3 hover:text-stone-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="help_outline">help_outline</span>
+                Suporte
+            </a>
+<a class="text-stone-500 flex items-center py-3 hover:text-stone-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="logout">logout</span>
+                Sair
+            </a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-0 z-40 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/50 flex justify-between items-center h-16 px-6 w-full ml-64 font-manrope tracking-tight">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-lg">search</span>
+<input class="w-full bg-stone-900/50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-lime-500/50 text-stone-200" placeholder="Buscar logs ou clínicas..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="text-stone-400 hover:text-lime-500 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-stone-400 hover:text-lime-500 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-3 border-l border-stone-800/50 pl-6">
+<div class="text-right">
+<p class="text-xs font-bold text-stone-200">Dr. Henrique Silva</p>
+<p class="text-[10px] text-lime-500 uppercase tracking-wider">Auditor Chefe</p>
+</div>
+<img alt="Médico Responsável" class="w-10 h-10 rounded-full border border-lime-500/30 object-cover" data-alt="Professional portrait of a male doctor in clinical attire with a modern tech-inspired background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqGshOw0lose-OzykV4enDE9d3wI37dNbya96PiIxeQkBu89j5p1BLthVfZ8UYOfedEWNJVK7B90MH5LT2hyr-fzfEB1fF69uLASxxIrfHtOH6_2fDYdZAFUMPYCup65yAkLZD5jlgGAX5WTrADCmWiyE_RBT8R1HJ9AQGTNDuN0uxqwQ77ZKOqp07SdWGBjCiKAs0UKYhD67nWpEIEUv2RA-cpg-FENqQDJ1zbTjfQJ808jYvVp86k07tiRBl8qZJJxvOJ171m92_"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-24 px-8 pb-12">
+<!-- Header & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+<div>
+<h1 class="text-4xl font-headline font-extrabold tracking-tighter text-on-background mb-2">Auditoria de <span class="text-primary">Performance IA</span></h1>
+<p class="text-on-surface-variant max-w-lg">Monitoramento granular de custos, tokens e precisão clínica dos modelos de linguagem em produção.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+<select class="bg-transparent border-none focus:ring-0 text-on-surface cursor-pointer font-medium">
+<option>Últimos 30 dias</option>
+<option>Últimos 7 dias</option>
+<option>Este mês</option>
+</select>
+</div>
+<div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-primary text-sm">domain</span>
+<select class="bg-transparent border-none focus:ring-0 text-on-surface cursor-pointer font-medium">
+<option>Todas as Clínicas</option>
+<option>Clínica Central</option>
+<option>Lab Sul</option>
+</select>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-all cursor-pointer active:scale-95">
+<span class="material-symbols-outlined text-sm">download</span>
+                    Exportar Relatório
+                </button>
+</div>
+</div>
+<!-- Bento Grid: Indicators -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<!-- Accuracy Indicator -->
+<div class="md:col-span-2 glass-panel p-8 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="analytics">analytics</span>
+</div>
+<div class="relative z-10">
+<h3 class="text-xs uppercase tracking-widest text-primary font-bold mb-6">Precisão vs Feedback Médico</h3>
+<div class="flex items-end gap-4 mb-4">
+<span class="text-6xl font-headline font-black tracking-tighter text-on-background">98.4%</span>
+<div class="flex flex-col mb-2">
+<span class="text-lime-400 text-xs font-bold flex items-center">
+<span class="material-symbols-outlined text-xs">arrow_upward</span> +2.1%
+                            </span>
+<span class="text-on-surface-variant text-[10px]">vs mês anterior</span>
+</div>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98.4%] rounded-full shadow-[0_0_10px_rgba(190,230,84,0.5)]"></div>
+</div>
+<div class="mt-6 flex justify-between text-[11px] text-on-surface-variant">
+<span>3.2k Validações manuais</span>
+<span>12 Divergências clínicas</span>
+</div>
+</div>
+</div>
+<!-- Cost Indicator -->
+<div class="glass-panel p-8 rounded-lg flex flex-col justify-between">
+<div>
+<h3 class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Custo Total (Mês)</h3>
+<p class="text-3xl font-headline font-bold text-on-background">U$ 1,240.50</p>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/30">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-xs text-on-surface-variant">GPT-4: 82%</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-xs text-on-surface-variant">Claude 3: 18%</span>
+</div>
+</div>
+</div>
+<!-- Token Usage -->
+<div class="glass-panel p-8 rounded-lg flex flex-col justify-between bg-gradient-to-br from-surface-container to-surface-container-high">
+<div>
+<h3 class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-1">Total de Tokens</h3>
+<p class="text-3xl font-headline font-bold text-on-background">14.8M</p>
+</div>
+<div class="mt-4">
+<p class="text-[10px] text-on-surface-variant mb-2">EFICIÊNCIA DE PROMPT</p>
+<div class="flex items-center gap-1">
+<div class="h-1 flex-1 bg-primary rounded-full"></div>
+<div class="h-1 flex-1 bg-primary rounded-full opacity-60"></div>
+<div class="h-1 flex-1 bg-primary rounded-full opacity-30"></div>
+<div class="h-1 flex-1 bg-surface rounded-full"></div>
+</div>
+<p class="text-[10px] text-primary mt-2">Otimização: +15.4%</p>
+</div>
+</div>
+</div>
+<!-- Center Section: Graph & Logs -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Evolution Chart Mock -->
+<div class="lg:col-span-2 glass-panel p-8 rounded-lg">
+<div class="flex justify-between items-center mb-10">
+<h3 class="font-headline font-bold text-lg">Evolução de Custos e Requisições</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2 text-xs">
+<span class="w-3 h-1 bg-primary rounded-full"></span>
+<span class="text-on-surface-variant">Custos (USD)</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="w-3 h-1 bg-tertiary rounded-full"></span>
+<span class="text-on-surface-variant">Volume</span>
+</div>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-4 px-2 relative">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5">
+<div class="border-t border-on-surface w-full"></div>
+<div class="border-t border-on-surface w-full"></div>
+<div class="border-t border-on-surface w-full"></div>
+<div class="border-t border-on-surface w-full"></div>
+</div>
+<!-- Bars -->
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[40%] group-hover:bg-primary/40 transition-all"></div>
+<span class="text-[10px] text-on-surface-variant">01/Nov</span>
+</div>
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[55%] group-hover:bg-primary/40 transition-all"></div>
+<span class="text-[10px] text-on-surface-variant">05/Nov</span>
+</div>
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/40 rounded-t-sm h-[85%] border-t-2 border-primary group-hover:bg-primary/60 transition-all"></div>
+<span class="text-[10px] text-on-surface-variant">10/Nov</span>
+</div>
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[45%] group-hover:bg-primary/40 transition-all"></div>
+<span class="text-[10px] text-on-surface-variant">15/Nov</span>
+</div>
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[60%] group-hover:bg-primary/40 transition-all"></div>
+<span class="text-[10px] text-on-surface-variant">20/Nov</span>
+</div>
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[35%] group-hover:bg-primary/40 transition-all"></div>
+<span class="text-[10px] text-on-surface-variant">25/Nov</span>
+</div>
+<div class="group relative flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/50 rounded-t-sm h-[95%] border-t-2 border-primary group-hover:bg-primary/70 transition-all shadow-[0_-5px_15px_rgba(190,230,84,0.1)]"></div>
+<span class="text-[10px] text-on-surface-variant">Hoje</span>
+</div>
+</div>
+</div>
+<!-- AI Distribution by Function -->
+<div class="glass-panel p-8 rounded-lg flex flex-col">
+<h3 class="font-headline font-bold text-lg mb-8">Uso por Função</h3>
+<div class="space-y-6 flex-1">
+<div class="space-y-2">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface">Anamnese Assistida</span>
+<span class="text-on-surface-variant">42%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[42%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface">Prescrição Inteligente</span>
+<span class="text-on-surface-variant">35%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[35%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface">Auditoria de Prontuário</span>
+<span class="text-on-surface-variant">15%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[15%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface">Outros</span>
+<span class="text-on-surface-variant">8%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-outline w-[8%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 bg-surface-variant/20 p-4 rounded-lg border border-primary/10">
+<p class="text-[11px] leading-relaxed text-on-surface-variant">
+<span class="text-primary font-bold italic">Insight:</span> A automação de anamnese reduziu o tempo de consulta em média 12 minutos por paciente neste tenant.
+                    </p>
+</div>
+</div>
+<!-- Table of Logs -->
+<div class="lg:col-span-3 glass-panel rounded-lg overflow-hidden border-none">
+<div class="p-6 border-b border-outline-variant/10 flex justify-between items-center">
+<h3 class="font-headline font-bold text-lg">Logs de Processamento em Tempo Real</h3>
+<div class="flex gap-2">
+<button class="text-xs text-on-surface-variant hover:text-on-surface border border-outline-variant/30 px-3 py-1 rounded-full transition-colors">Filtros Avançados</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-[11px] uppercase tracking-widest text-on-surface-variant">
+<th class="px-6 py-4 font-bold">Data/Hora</th>
+<th class="px-6 py-4 font-bold">Modelo</th>
+<th class="px-6 py-4 font-bold">Função</th>
+<th class="px-6 py-4 font-bold">Tokens</th>
+<th class="px-6 py-4 font-bold">Custo (USD)</th>
+<th class="px-6 py-4 font-bold text-center">Status Clinico</th>
+<th class="px-6 py-4 font-bold text-right">Ação</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-outline-variant/10">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4 text-on-surface">24/11/2023 14:22</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-primary rounded-full"></span>
+                                        gpt-4-turbo
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<span class="bg-primary-container/20 text-on-primary-container px-2 py-0.5 rounded text-[10px] font-bold">Anamnese</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">2,450</td>
+<td class="px-6 py-4 font-mono">$0.0735</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4 text-on-surface">24/11/2023 14:15</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-primary rounded-full"></span>
+                                        gpt-4-turbo
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<span class="bg-tertiary-container/20 text-on-tertiary-container px-2 py-0.5 rounded text-[10px] font-bold">Prescrição</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">1,820</td>
+<td class="px-6 py-4 font-mono">$0.0546</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4 text-on-surface">24/11/2023 13:58</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-tertiary rounded-full"></span>
+                                        claude-3-opus
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<span class="bg-surface-variant/40 text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase">Auditoria</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">12,400</td>
+<td class="px-6 py-4 font-mono">$0.1860</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="verified_user">verified_user</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4 text-on-surface">24/11/2023 13:42</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-primary rounded-full"></span>
+                                        gpt-4-turbo
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<span class="bg-primary-container/20 text-on-primary-container px-2 py-0.5 rounded text-[10px] font-bold">Anamnese</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">3,120</td>
+<td class="px-6 py-4 font-mono">$0.0936</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="material-symbols-outlined text-error" data-icon="report" style="font-variation-settings: 'FILL' 1;">report</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-outline-variant/10 flex justify-between items-center text-xs text-on-surface-variant">
+<p>Exibindo 4 de 42,102 requisições</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded bg-surface-container-high hover:bg-surface-variant transition-colors">Anterior</button>
+<button class="px-3 py-1 rounded bg-primary text-on-primary font-bold">1</button>
+<button class="px-3 py-1 rounded bg-surface-container-high hover:bg-surface-variant transition-colors">2</button>
+<button class="px-3 py-1 rounded bg-surface-container-high hover:bg-surface-variant transition-colors">Próximo</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual Aesthetic Element (Blurred Orbs) -->
+<div class="fixed top-0 right-0 -z-10 w-96 h-96 bg-primary/10 blur-[150px] pointer-events-none"></div>
+<div class="fixed bottom-0 left-64 -z-10 w-80 h-80 bg-secondary/5 blur-[120px] pointer-events-none"></div>
+</body></html>

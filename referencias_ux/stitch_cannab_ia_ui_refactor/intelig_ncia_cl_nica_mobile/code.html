@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-bright": "#333c29",
+            "outline": "#8f937d",
+            "on-secondary-fixed-variant": "#274f2c",
+            "surface-container-highest": "#2f3824",
+            "error-container": "#93000a",
+            "secondary-fixed": "#bfefbe",
+            "on-tertiary-fixed-variant": "#741e80",
+            "primary": "#bee654",
+            "on-secondary-container": "#96c496",
+            "surface-container-lowest": "#091003",
+            "background": "#0e1606",
+            "on-secondary-fixed": "#002107",
+            "primary-fixed": "#c9f15e",
+            "primary-container": "#a3c93a",
+            "on-primary-container": "#3e5200",
+            "primary-fixed-dim": "#aed445",
+            "on-tertiary": "#580064",
+            "tertiary": "#ffc4fe",
+            "surface-container": "#1a2211",
+            "tertiary-fixed": "#ffd6fc",
+            "outline-variant": "#444937",
+            "on-surface-variant": "#c5c9b1",
+            "inverse-surface": "#dce6cb",
+            "on-secondary": "#0e3817",
+            "on-tertiary-container": "#792484",
+            "surface-tint": "#aed445",
+            "secondary-container": "#29522e",
+            "tertiary-fixed-dim": "#fcaaff",
+            "inverse-primary": "#4f6700",
+            "inverse-on-surface": "#2a3320",
+            "surface-dim": "#0e1606",
+            "surface-variant": "#2f3824",
+            "error": "#ffb4ab",
+            "on-primary-fixed": "#151f00",
+            "on-primary": "#273500",
+            "secondary-fixed-dim": "#a4d2a4",
+            "on-surface": "#dce6cb",
+            "surface-container-high": "#242d1a",
+            "on-error": "#690005",
+            "surface": "#0e1606",
+            "surface-container-low": "#161e0d",
+            "tertiary-container": "#f998ff",
+            "on-primary-fixed-variant": "#3a4d00",
+            "on-background": "#dce6cb",
+            "secondary": "#a4d2a4",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-fixed": "#36003e"
+          },
+          "borderRadius": {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .glass-card {
+      background: rgba(47, 56, 36, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(143, 147, 125, 0.2);
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img alt="Doctor Profile" data-alt="Close up portrait of a professional medical doctor in a clinical setting with soft laboratory lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg_9vPgfQ8GoiN9IjHcSWW24Z0gSJQW8Fpx_REWIdm8JB9W-LWtlcEi9IWmsiJ8u5XLWbOAg9deuDZHXh1viTpvIAjTvfUCW-ALIBdespJnqR5WRiFio8TmRnfLFkswICqkJOgnuR9Muxc2WBEtlGbl_Xd2WCpDV6pxvJXZgfcPiNSqHtxr5h6WlwjqWaQyNZmV5-C9fabE7Z8hRXVptNcDYOfybIBqgvBZgqApKD6Z4b-A_xJiDU1HSmI6n_pi21d28IC6CuN86z0"/>
+</div>
+<span class="text-[#A3C93A] font-bold text-lg tracking-tighter font-headline">Clinical Intelligence</span>
+</div>
+<button class="text-stone-400 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined">settings_heart</span>
+</button>
+</header>
+<main class="mt-20 px-4 space-y-6">
+<!-- Section 1: Patient Overview Stats -->
+<section class="grid grid-cols-1 gap-3">
+<h2 class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold px-1">Clinical Effectiveness</h2>
+<div class="grid grid-cols-3 gap-2">
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between aspect-square border-l-4 border-l-primary-container">
+<span class="text-[10px] text-outline font-medium leading-tight">Effectiveness</span>
+<div class="flex flex-col">
+<span class="text-2xl font-headline font-extrabold text-primary">84.2%</span>
+<span class="text-[8px] text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">trending_up</span> +2.1%
+            </span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between aspect-square border-l-4 border-l-secondary">
+<span class="text-[10px] text-outline font-medium leading-tight">Symptom Red.</span>
+<div class="flex flex-col">
+<span class="text-2xl font-headline font-extrabold text-secondary">67.8%</span>
+<span class="text-[8px] text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">check_circle</span> Stable
+            </span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col justify-between aspect-square border-l-4 border-l-primary">
+<span class="text-[10px] text-outline font-medium leading-tight">Adherence</span>
+<div class="flex flex-col">
+<span class="text-2xl font-headline font-extrabold text-on-background">91.5%</span>
+<span class="text-[8px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">timer</span> Goal: 90%
+            </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: AI Preventive Alerts -->
+<section class="space-y-3">
+<div class="flex justify-between items-end px-1">
+<h2 class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold">AI Preventive Alerts</h2>
+<span class="text-[10px] text-primary font-bold">3 CRITICAL</span>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4">
+<div class="glass-card min-w-[280px] p-4 rounded-2xl relative overflow-hidden shrink-0 border-t-2 border-t-error">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined text-4xl">warning</span>
+</div>
+<div class="flex items-center gap-2 mb-3">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="text-xs font-bold text-error">High Priority</span>
+</div>
+<p class="text-sm font-medium mb-1">Patient ID #0942</p>
+<p class="text-xs text-on-surface-variant leading-relaxed">System identified a <span class="text-error font-bold">12% decrease</span> below therapeutic target for sleep regulation.</p>
+<div class="mt-4 flex gap-2">
+<button class="bg-surface-container-highest text-on-surface text-[10px] px-3 py-1.5 rounded-full font-bold">Review Data</button>
+<button class="bg-error/20 text-error text-[10px] px-3 py-1.5 rounded-full font-bold">Intervene</button>
+</div>
+</div>
+<div class="glass-card min-w-[280px] p-4 rounded-2xl relative overflow-hidden shrink-0 border-t-2 border-t-tertiary">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-xs font-bold text-tertiary">Metabolic Shift</span>
+</div>
+<p class="text-sm font-medium mb-1">Patient ID #1105</p>
+<p class="text-xs text-on-surface-variant leading-relaxed">Absorption rate fluctuating. Recommend adjustment of terpene profile for bioavailability.</p>
+<div class="mt-4">
+<button class="bg-surface-container-highest text-on-surface text-[10px] px-3 py-1.5 rounded-full font-bold">Optimize Dose</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Botanical Correlations -->
+<section class="glass-card rounded-3xl p-5 space-y-4">
+<h2 class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold">Botanical Correlations</h2>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs">
+<span class="font-medium text-on-surface">Myrcene</span>
+<span class="text-primary font-bold">78%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 78%"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs">
+<span class="font-medium text-on-surface">Limonene</span>
+<span class="text-primary font-bold">62%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 62%"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs">
+<span class="font-medium text-on-surface">Caryophyllene</span>
+<span class="text-primary font-bold">45%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-outline" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<div class="pt-2">
+<img class="w-full h-24 object-cover rounded-xl opacity-40 mix-blend-luminosity" data-alt="Macro photography of organic botanical structures and plant cells showing scientific precision and detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBloR_-8XXKIVxHSc71_MnKP4tketgU_hFAiul-UJ-2iMBPeulcW0VpFHnmSFutytWJjEfzL-S0TDCk1B7d4lgetzXuXdbPquIoxbqlrGFchs9QxnEhtdUVsuQUQMJVxVF26aLVQNgMhKKuaDSzm8JjOFqgh_jym3sb9UwDlmsR5hmo0JriKmkhu8ODZYY9ipGW05YoDYfMJ_6daCAX_Gc9LG927yjTCWHYofcStEBaGUXtq_dq22bzmzPD7ClQ2pi3tB4sEEHACbfL"/>
+</div>
+</section>
+<!-- Section 4: Symptom Heatmap -->
+<section class="space-y-3">
+<h2 class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold px-1">Symptom Heatmap</h2>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-3 glass-card rounded-2xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-lg">psychology</span>
+</div>
+<span class="text-sm font-medium">Anxiety</span>
+</div>
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/20">Optimized</span>
+</div>
+<div class="flex items-center justify-between p-3 glass-card rounded-2xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-lg">medical_services</span>
+</div>
+<span class="text-sm font-medium">Chronic Pain</span>
+</div>
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-secondary/20 text-secondary border border-secondary/20">Improving</span>
+</div>
+<div class="flex items-center justify-between p-3 glass-card rounded-2xl opacity-70">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-outline/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-lg">bedtime</span>
+</div>
+<span class="text-sm font-medium">Insomnia</span>
+</div>
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-outline/20 text-outline border border-outline/20">Monitoring</span>
+</div>
+</div>
+</section>
+<!-- Section 5: Research Insights -->
+<section class="pb-8">
+<h2 class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold px-1 mb-3">Research Insights: Correlation</h2>
+<div class="glass-card rounded-3xl overflow-hidden">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-highest/50">
+<th class="p-3 text-[10px] font-bold text-outline">DOSAGE (MG)</th>
+<th class="p-3 text-[10px] font-bold text-outline">STRAIN</th>
+<th class="p-3 text-[10px] font-bold text-outline text-right">EFFECT</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-stone-800/50">
+<tr>
+<td class="p-3 text-xs font-medium">10.5</td>
+<td class="p-3 text-xs text-on-surface-variant italic">Blue Dream</td>
+<td class="p-3 text-xs text-primary font-bold text-right">+18.2%</td>
+</tr>
+<tr>
+<td class="p-3 text-xs font-medium">15.0</td>
+<td class="p-3 text-xs text-on-surface-variant italic">OG Kush</td>
+<td class="p-3 text-xs text-primary font-bold text-right">+22.4%</td>
+</tr>
+<tr>
+<td class="p-3 text-xs font-medium">5.5</td>
+<td class="p-3 text-xs text-on-surface-variant italic">Jack Herer</td>
+<td class="p-3 text-xs text-outline font-bold text-right">-2.1%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-4 bg-stone-950/90 backdrop-blur-xl z-50 rounded-t-[32px] border-t border-stone-800/50 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<div class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-2 px-4 transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">Overview</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 py-2 px-4 hover:text-[#A3C93A]/80 transition-colors active:scale-90 transition-all duration-300 ease-out">
+<span class="material-symbols-outlined">show_chart</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">Evolution</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 py-2 px-4 hover:text-[#A3C93A]/80 transition-colors active:scale-90 transition-all duration-300 ease-out">
+<span class="material-symbols-outlined">eco</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">Botany</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 py-2 px-4 hover:text-[#A3C93A]/80 transition-colors active:scale-90 transition-all duration-300 ease-out">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">AI Insights</span>
+</div>
+</nav>
+</body></html>

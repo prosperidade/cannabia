@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VerdeClin Admin - Gestão de Faturamento</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#ffc4fe",
+                        "secondary-fixed": "#bfefbe",
+                        "on-background": "#dce6cb",
+                        "inverse-surface": "#dce6cb",
+                        "surface-tint": "#aed445",
+                        "on-tertiary-fixed": "#36003e",
+                        "surface-container": "#1a2211",
+                        "surface-bright": "#333c29",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-secondary": "#0e3817",
+                        "primary": "#bee654",
+                        "surface-container-highest": "#2f3824",
+                        "background": "#0e1606",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-secondary-fixed": "#002107",
+                        "on-tertiary": "#580064",
+                        "secondary-container": "#29522e",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-primary-container": "#3e5200",
+                        "inverse-primary": "#4f6700",
+                        "on-primary-fixed": "#151f00",
+                        "outline-variant": "#444937",
+                        "surface-container-lowest": "#091003",
+                        "surface-dim": "#0e1606",
+                        "on-primary": "#273500",
+                        "secondary": "#a4d2a4",
+                        "error": "#ffb4ab",
+                        "surface-container-high": "#242d1a",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "primary-fixed-dim": "#aed445",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "tertiary-container": "#f998ff",
+                        "surface": "#0e1606",
+                        "on-error": "#690005",
+                        "primary-fixed": "#c9f15e",
+                        "primary-container": "#a3c93a",
+                        "on-tertiary-container": "#792484",
+                        "on-secondary-container": "#96c496",
+                        "outline": "#8f937d",
+                        "error-container": "#93000a",
+                        "surface-variant": "#2f3824",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-surface": "#dce6cb",
+                        "on-error-container": "#ffdad6",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-fixed-variant": "#274f2c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 z-50 bg-slate-950 flex flex-col h-full py-6 border-r border-[#A3C93A]/10 shadow-2xl font-manrope text-sm font-medium">
+<div class="px-6 mb-8 flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Corporate minimalist logo for VerdeClin medical clinic featuring a stylized green leaf inside a hexagonal laboratory flask" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXcFtEM6YhAxv5WEirTprHCZjHTh0T4omTQE36Idr-vVH2VNzFxRTJKJkzZvrkou0d9PP90YG6Kmr6wx6HJq5GzBKHUMZ2rjnmc3DcbFyBMyMcMVw7JxT2viFqQ0DIXQegS_GaoHXiu2TZtLxdPTJOJsMd80z6LB-fqsEVrZ178vv5mXieLM7J-gW6HOAJ1ot-_D7Ww_dBrdG1H-Jv5KoetBg6GFz4Yr8WSOvEea3E8d08FwLOvk7T9xuPVodK2a4TiGDqo1bf15nO"/>
+<div class="flex flex-col">
+<span class="text-lg font-black text-[#A3C93A] uppercase tracking-widest">VerdeClin</span>
+<span class="text-[10px] text-slate-500 uppercase tracking-[0.2em]">Gestão Botânica</span>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all duration-300 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Active State: Faturamento -->
+<a class="flex items-center gap-3 px-4 py-3 bg-[#A3C93A]/10 text-[#A3C93A] border-r-4 border-[#A3C93A] transition-all duration-300 ease-in-out rounded-l-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Faturamento</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all duration-300 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span>Médicos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all duration-300 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Pacientes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all duration-300 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span>Relatórios</span>
+</a>
+</nav>
+<div class="px-3 mt-auto pt-6 border-t border-slate-900">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all duration-300 ease-in-out rounded-lg mb-1" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Suporte</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all duration-300 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Sair</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pl-64 flex flex-col min-h-screen">
+<!-- TopAppBar (Authority: JSON) -->
+<header class="bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 border-b border-[#A3C93A]/10 shadow-xl shadow-black/20 font-manrope antialiased flex justify-between items-center h-16 px-8 w-full">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-bold tracking-tight text-[#A3C93A]">Gestão de Faturamento</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden md:block w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" data-icon="search">search</span>
+<input class="w-full bg-slate-900 border-none rounded-full py-1.5 pl-10 pr-4 text-xs focus:ring-1 focus:ring-[#A3C93A] text-slate-200" placeholder="Buscar faturas ou pacientes..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-[#A3C93A] transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-slate-400 hover:text-[#A3C93A] transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full border border-[#A3C93A]/30 overflow-hidden">
+<img alt="Avatar do Administrador" class="w-full h-full object-cover" data-alt="Professional headshot of a medical administrator in a dark studio setting with soft rim lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBabQE8yAAVjV9oRC96ijApe15qnGgc-Rtf4NCGeOXD2q5onkNS-2HMV_m4mWHLzLV7GPLQHhtAZZBwKqVfsNvWZDG7UjZKjbX1_C0IX2jja2h28gTHjubNpOl_kkKsdrBcJckL92-u6vx7QLB-EnlRZAFlFAeKHxxIQEIdWIIy0q_WNA9wASnfVGsgxMiUObOViEBw1wa9OOBM1iSXnDk0US9KVxNYYEuWJ35YL0aQ883rCfJsqp_FBfNNYbXRXLdgqzpQWcDkOqJu"/>
+</div>
+</div>
+</div>
+</header>
+<div class="p-8 space-y-8">
+<!-- Alert Section: Critical Inadimplência -->
+<section class="bg-error-container/20 border border-error/20 p-4 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h3 class="text-on-error-container font-semibold">Inadimplência Crítica Detectada</h3>
+<p class="text-sm text-on-error-container/80">Existem 12 faturas com mais de 60 dias de atraso que requerem ação imediata.</p>
+</div>
+</div>
+<button class="bg-error text-on-error px-6 py-2 rounded-full font-bold text-sm hover:opacity-90 transition-opacity">Ver Pendências</button>
+</section>
+<!-- Metrics Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="text-slate-400 text-sm font-medium">Receita Total (Mês)</span>
+<div class="mt-2 flex items-baseline gap-2">
+<h2 class="text-3xl font-extrabold text-primary tracking-tight">R$ 142.580,00</h2>
+<span class="text-primary-container text-xs font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span> 8.4%
+                        </span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%] rounded-full"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" data-icon="pending_actions">pending_actions</span>
+</div>
+<span class="text-slate-400 text-sm font-medium">Faturas Pendentes</span>
+<div class="mt-2 flex items-baseline gap-2">
+<h2 class="text-3xl font-extrabold text-on-surface tracking-tight">48 <span class="text-sm font-normal text-slate-500">faturas</span></h2>
+</div>
+<p class="mt-4 text-xs text-slate-400">Total a receber: <strong class="text-secondary">R$ 18.940,00</strong></p>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group border-error/10">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-error" data-icon="assignment_late">assignment_late</span>
+</div>
+<span class="text-slate-400 text-sm font-medium">Taxa de Inadimplência</span>
+<div class="mt-2 flex items-baseline gap-2">
+<h2 class="text-3xl font-extrabold text-error tracking-tight">4.2%</h2>
+<span class="text-error text-xs font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_down">trending_down</span> 1.2%
+                        </span>
+</div>
+<p class="mt-4 text-xs text-slate-400">Referência: Mês anterior (5.4%)</p>
+</div>
+</section>
+<!-- Chart & Actions Row -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Cash Flow Visualization -->
+<section class="lg:col-span-2 glass-card p-8 rounded-lg">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-xl font-bold">Fluxo de Caixa Mensal</h3>
+<p class="text-xs text-slate-400">Comparativo de Entradas vs Projeções</p>
+</div>
+<div class="flex gap-2">
+<span class="flex items-center gap-1.5 text-[10px] text-slate-400">
+<span class="w-2 h-2 rounded-full bg-primary"></span> Entradas
+                            </span>
+<span class="flex items-center gap-1.5 text-[10px] text-slate-400">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span> Projeção
+                            </span>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-4 px-2">
+<!-- Simulated Chart Bars -->
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary-container/20 rounded-t-sm h-32 relative">
+<div class="absolute bottom-0 w-full bg-primary/60 rounded-t-sm h-[70%] group-hover:bg-primary transition-all"></div>
+</div>
+<span class="text-[10px] mt-2 text-slate-500">Jan</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary-container/20 rounded-t-sm h-40 relative">
+<div class="absolute bottom-0 w-full bg-primary/60 rounded-t-sm h-[85%] group-hover:bg-primary transition-all"></div>
+</div>
+<span class="text-[10px] mt-2 text-slate-500">Fev</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary-container/20 rounded-t-sm h-36 relative">
+<div class="absolute bottom-0 w-full bg-primary/60 rounded-t-sm h-[60%] group-hover:bg-primary transition-all"></div>
+</div>
+<span class="text-[10px] mt-2 text-slate-500">Mar</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary-container/20 rounded-t-sm h-48 relative">
+<div class="absolute bottom-0 w-full bg-primary/60 rounded-t-sm h-[92%] group-hover:bg-primary transition-all"></div>
+</div>
+<span class="text-[10px] mt-2 text-slate-500">Abr</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary-container/20 rounded-t-sm h-52 relative">
+<div class="absolute bottom-0 w-full bg-primary/60 rounded-t-sm h-[75%] group-hover:bg-primary transition-all"></div>
+</div>
+<span class="text-[10px] mt-2 text-slate-500">Mai</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary-container/20 rounded-t-sm h-60 relative">
+<div class="absolute bottom-0 w-full bg-primary/60 rounded-t-sm h-[98%] group-hover:bg-primary transition-all"></div>
+</div>
+<span class="text-[10px] mt-2 text-slate-500">Jun</span>
+</div>
+</div>
+</section>
+<!-- Quick Actions Card -->
+<section class="glass-card p-8 rounded-lg flex flex-col">
+<h3 class="text-xl font-bold mb-6">Ações Rápidas</h3>
+<div class="space-y-4">
+<button class="w-full flex items-center justify-between p-4 bg-primary text-on-primary rounded-xl font-semibold hover:opacity-90 transition-all active:scale-[0.98]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+<span>Cobrança em Massa</span>
+</div>
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-highest text-on-surface rounded-xl font-semibold hover:bg-surface-container transition-all active:scale-[0.98] border border-outline/20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+<span>Exportar Relatórios (PDF/XLS)</span>
+</div>
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-highest text-on-surface rounded-xl font-semibold hover:bg-surface-container transition-all active:scale-[0.98] border border-outline/20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span>Nova Fatura Manual</span>
+</div>
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<div class="mt-auto pt-6">
+<div class="p-4 rounded-xl bg-primary-container/10 border border-primary/10">
+<span class="text-[10px] uppercase tracking-wider text-primary font-bold">Resumo de Hoje</span>
+<div class="flex items-center justify-between mt-2">
+<span class="text-sm">Pagamentos Recebidos</span>
+<span class="font-bold text-primary">R$ 4.250</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Invoices List Table -->
+<section class="glass-card rounded-lg overflow-hidden">
+<div class="p-6 border-b border-outline/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<h3 class="text-xl font-bold">Listagem de Faturas</h3>
+<div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+<button class="px-4 py-1.5 rounded-full bg-primary text-on-primary text-xs font-semibold whitespace-nowrap">Todas</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container-highest text-slate-300 text-xs font-semibold hover:bg-secondary-container/30 transition-colors whitespace-nowrap">Pagas</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container-highest text-slate-300 text-xs font-semibold hover:bg-secondary-container/30 transition-colors whitespace-nowrap">Pendentes</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container-highest text-slate-300 text-xs font-semibold hover:bg-secondary-container/30 transition-colors whitespace-nowrap">Atrasadas</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-outline/5">
+<th class="px-6 py-4 font-bold">Paciente / ID</th>
+<th class="px-6 py-4 font-bold">Vencimento</th>
+<th class="px-6 py-4 font-bold">Valor</th>
+<th class="px-6 py-4 font-bold">Status</th>
+<th class="px-6 py-4 font-bold text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline/5">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Paciente" class="w-full h-full object-cover" data-alt="Close-up portrait of a mature woman smiling softly with artistic natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2pAsEFgrOYiTjnPev8Vt9BEQHBP-rtTU3L-tc84fAs1Gxl__ljBwleggS-ff92SPqLxoBJnmlFc-vlfRAC8OOTeHpmE-1myaDGRe787hhfXllrsETtHV2OdBvqISS2FJRShogeJHvepQubRCevzuIqkoEpiN7YN7YyghfchYZApNGwmd18SWoqvnxUJ4owqE4v9b9lbhpBNep6SFwkGxagSv9e3QeNK4Uv_gvyG5ZuLc6bFGCOVMyeok5fMeMr09eqEtfH3QaWGxS"/>
+</div>
+<div>
+<div class="text-sm font-semibold text-on-surface">Beatriz Helena Santos</div>
+<div class="text-[10px] text-slate-500">#FAT-2024-0891</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-300">12 Abr 2024</td>
+<td class="px-6 py-4 text-sm font-bold text-on-surface">R$ 450,00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Pago
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Paciente" class="w-full h-full object-cover" data-alt="Portrait of a distinguished man with graying beard and glasses, looking directly at camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeyE4LEawyMcOTOSGqoc_6GaMybBT9ktPYUBLWRDgZau1XQsPaQWjt4zUYTCSAjlFgB1_M6OlzFryMQOnYfzu9CaNEhoeIGmLrgyYCWWvTnML19ac41PvR792RZQf-6Avkft1yMWwRcRupzXoJqqmoiMIi8vj5ZlFVGobwHvKgnSCW2Oh_l35_SFuGoZP82HXu6druecElOzJJilwFPmnGoq8ROoEesEey2PIfwfVmcA-VBq9vPACrX75lAHMCPHWCCS9WYq5PZ6Hl"/>
+</div>
+<div>
+<div class="text-sm font-semibold text-on-surface">Ricardo Mendonça</div>
+<div class="text-[10px] text-slate-500">#FAT-2024-0902</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-300">22 Mai 2024</td>
+<td class="px-6 py-4 text-sm font-bold text-on-surface">R$ 1.280,00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest text-primary text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Pendente
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notification_add">notification_add</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group bg-error-container/5">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Paciente" class="w-full h-full object-cover" data-alt="Bright outdoor portrait of a young man with a friendly expression in soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa1_lHKIRDMgZBv1wkNvxFztLiQX0KUkANSP3WvDOeFuLsZQCwE1LUG0EU99O3QoNmhop7qfO5hAVlThEZt7BHOzPw0UxL8CEOTZKAnMFMJZfEmrtPiaaEmoHciVS05Na1adArl6N2aqxldIjZkzx-buwQRIw8ccaFZca2rcJk-ZwSceWkkY_eUoNykg5-SppLlyAUKY6Y1Pl4VBOi-Zi5C9HOCbVhPxj7SsdP_Pv3c0Ds_hmHdkOf5ZWbmAGt4MvsCLoM-HipcAX4"/>
+</div>
+<div>
+<div class="text-sm font-semibold text-on-surface">Carlos Eduardo Lima</div>
+<div class="text-[10px] text-slate-500">#FAT-2024-0875</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-error font-medium">10 Mar 2024</td>
+<td class="px-6 py-4 text-sm font-bold text-on-surface">R$ 320,00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error/10 text-error text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Atrasado
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="bg-error/20 text-error px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-error/30 transition-colors">Cobrar</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-outline/10 flex items-center justify-between">
+<span class="text-xs text-slate-500">Mostrando 1-10 de 156 faturas</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg border border-outline/10 text-slate-400 hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-2 rounded-lg border border-outline/10 text-slate-400 hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<footer class="mt-auto p-8 border-t border-[#A3C93A]/5 text-center">
+<p class="text-[10px] text-slate-600 uppercase tracking-widest font-bold">VerdeClin © 2024 — Botanical Intelligence Medical Management</p>
+</footer>
+</main>
+</body></html>

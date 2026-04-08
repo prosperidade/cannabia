@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aetheris Medical | Secure Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#f998ff",
+                        "on-error": "#690005",
+                        "outline-variant": "#444937",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-background": "#dce6cb",
+                        "error-container": "#93000a",
+                        "surface-container-highest": "#2f3824",
+                        "secondary-container": "#29522e",
+                        "on-secondary-container": "#96c496",
+                        "surface-bright": "#333c29",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "surface-dim": "#0e1606",
+                        "on-secondary": "#0e3817",
+                        "secondary-fixed": "#bfefbe",
+                        "inverse-on-surface": "#2a3320",
+                        "on-secondary-fixed": "#002107",
+                        "surface-tint": "#aed445",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "inverse-surface": "#dce6cb",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface": "#0e1606",
+                        "primary-container": "#a3c93a",
+                        "on-surface": "#dce6cb",
+                        "on-tertiary-container": "#792484",
+                        "primary-fixed-dim": "#aed445",
+                        "outline": "#8f937d",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-primary-container": "#3e5200",
+                        "on-primary": "#273500",
+                        "secondary": "#a4d2a4",
+                        "primary-fixed": "#c9f15e",
+                        "on-primary-fixed": "#151f00",
+                        "surface-container-lowest": "#091003",
+                        "surface-variant": "#2f3824",
+                        "tertiary-fixed": "#ffd6fc",
+                        "tertiary": "#ffc4fe",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-tertiary": "#580064",
+                        "primary": "#bee654",
+                        "inverse-primary": "#4f6700",
+                        "surface-container": "#1a2211",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "surface-container-high": "#242d1a",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "background": "#0e1606"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(14, 22, 6, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30 min-h-screen">
+<!-- TopNavBar -->
+<nav class="bg-stone-950/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-stone-800/50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<img alt="Aetheris Medical Logo" class="h-8 w-auto" data-alt="Minimalist geometric medical logo featuring stylized botanical leaves and a DNA helix, professional dark theme aesthetics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1FGRJJORuseiT-id1DJo31QLy3gMpD2DfZiThfN8ojyjYBvuclBk18S6yC1AybEIqC1CLl8aLXavWC5JAhT1769vUasH0xJr__4_wBCoKmaK9A-p8oeWtd4kILZ8DrCLw3qDDjhWE3ljO3gMCepzyOEeFmR_o6-_QLDwYiXjEPC6Bz6A_4QRspVqiEtDqYCpik7t246A-Jg2BIzUdBNA2ttWiIdhHj13iarD_N5H_HYoL8ChY2_FpUNFIGZQemk1bj-agKd2fL0Te"/>
+<span class="text-xl font-bold tracking-tighter text-white">Aetheris Medical</span>
+</div>
+<div class="hidden md:flex gap-8">
+<a class="font-manrope uppercase tracking-widest text-xs text-stone-400 hover:text-stone-200 transition-colors" href="#">Consultations</a>
+<a class="font-manrope uppercase tracking-widest text-xs text-stone-400 hover:text-stone-200 transition-colors" href="#">Prescriptions</a>
+<a class="font-manrope uppercase tracking-widest text-xs text-stone-400 hover:text-stone-200 transition-colors" href="#">Pharmacy</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-stone-800/40 transition-colors p-2 rounded-full scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined text-[#A3C93A]">notifications</span>
+</button>
+<button class="hover:bg-stone-800/40 transition-colors p-2 rounded-full scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined text-[#A3C93A]">history</span>
+</button>
+<div class="h-8 w-8 rounded-full border border-primary/20 overflow-hidden">
+<img alt="Physician Profile" data-alt="Professional portrait of a physician in a modern clinical setting with soft natural lighting and medical equipment background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn2csm1I6Qjx4IBcNWR9xk92RqpzszsGeA9dODHx1RRu4SKcQJdYi1Zig2_-xnC7cHhotEAxwu4kNl2VXxMMEUrDYoSeS90LKrUoGhvYqe5gKEGlbnSmIdj5V31b85aQaJCX5aJYEnBdO3kNo9erxKT5XlptOOtiKjv1r0Rak_huK7B_SiIRLxEyjRykZ8InnW8P6n90HoUK3ZLiq-ImOUQtBX0kMcSfF54HL9EIp4d6805kY45viC6DB2YSfZhfd8h6V6KrsetSQm"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-12 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Checkout Details -->
+<div class="lg:col-span-8 space-y-8">
+<header>
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-on-surface mb-2">Finalize Consultation</h1>
+<p class="text-on-surface-variant font-light">Complete your secure payment to confirm your appointment with Aetheris Lab specialists.</p>
+</header>
+<!-- Payment Method Section -->
+<section class="glass-panel p-8 rounded-lg shadow-2xl">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline text-xl font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">payments</span>
+                        Payment Method
+                    </h2>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant/40" style="font-variation-settings: 'FILL' 1;">credit_card</span>
+<span class="material-symbols-outlined text-on-surface-variant/40">account_balance_wallet</span>
+</div>
+</div>
+<!-- Payment Tabs -->
+<div class="flex gap-4 mb-8 p-1 bg-surface-container-low rounded-full w-fit">
+<button class="px-6 py-2 rounded-full bg-primary-container text-on-primary-container font-medium text-sm flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-sm">credit_card</span>
+                        Credit Card
+                    </button>
+<button class="px-6 py-2 rounded-full text-stone-400 hover:text-stone-200 font-medium text-sm flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-sm">qr_code_2</span>
+                        PIX
+                    </button>
+</div>
+<!-- Credit Card Form -->
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-manrope uppercase tracking-widest text-on-surface-variant">Cardholder Name</label>
+<input class="w-full bg-stone-900/50 border-stone-800 rounded-lg py-3 px-4 text-on-surface placeholder:text-stone-600 focus:ring-primary focus:border-primary transition-all" placeholder="Johnathan Doe" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-manrope uppercase tracking-widest text-on-surface-variant">Card Number</label>
+<div class="relative">
+<input class="w-full bg-stone-900/50 border-stone-800 rounded-lg py-3 px-4 text-on-surface placeholder:text-stone-600 focus:ring-primary focus:border-primary transition-all" placeholder="0000 0000 0000 0000" type="text"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-stone-600">contactless</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-manrope uppercase tracking-widest text-on-surface-variant">Expiry Date</label>
+<input class="w-full bg-stone-900/50 border-stone-800 rounded-lg py-3 px-4 text-on-surface placeholder:text-stone-600 focus:ring-primary focus:border-primary transition-all" placeholder="MM/YY" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-manrope uppercase tracking-widest text-on-surface-variant">CVV</label>
+<input class="w-full bg-stone-900/50 border-stone-800 rounded-lg py-3 px-4 text-on-surface placeholder:text-stone-600 focus:ring-primary focus:border-primary transition-all" placeholder="***" type="password"/>
+</div>
+</div>
+<!-- Trust Badges -->
+<div class="pt-6 border-t border-stone-800/50 flex flex-wrap gap-6 items-center">
+<div class="flex items-center gap-2 text-stone-500 text-xs">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+                            256-bit SSL Encryption
+                        </div>
+<div class="flex items-center gap-2 text-stone-500 text-xs">
+<span class="material-symbols-outlined text-sm">security</span>
+                            PCI DSS Compliant
+                        </div>
+<div class="flex items-center gap-2 text-stone-500 text-xs">
+<span class="material-symbols-outlined text-sm">lock</span>
+                            Secure Gateway
+                        </div>
+</div>
+</form>
+</section>
+<!-- Discount Section -->
+<section class="glass-panel p-6 rounded-lg">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">sell</span>
+<div class="flex-1">
+<label class="block text-xs font-manrope uppercase tracking-widest text-on-surface-variant mb-2">Discount Coupon</label>
+<div class="flex gap-2">
+<input class="flex-1 bg-stone-900/50 border-stone-800 rounded-lg py-2 px-4 text-on-surface placeholder:text-stone-600 focus:ring-primary focus:border-primary transition-all" placeholder="Enter code" type="text"/>
+<button class="bg-stone-800 hover:bg-stone-700 text-on-surface px-6 rounded-lg text-sm font-medium transition-colors">Apply</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Order Summary -->
+<aside class="lg:col-span-4 space-y-6">
+<div class="glass-panel p-8 rounded-lg sticky top-24">
+<h2 class="font-headline text-xl font-bold text-white mb-6">Order Summary</h2>
+<!-- Product Detail -->
+<div class="flex gap-4 mb-8">
+<div class="h-16 w-16 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'opsz' 40;">medical_services</span>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Premium Consultation</h3>
+<p class="text-sm text-on-surface-variant">Dr. Specialist - AI Lab</p>
+<p class="text-xs text-primary mt-1">Oct 24, 2023 • 14:30 PM</p>
+</div>
+</div>
+<!-- Price Breakdown -->
+<div class="space-y-4 mb-8">
+<div class="flex justify-between items-center text-sm">
+<span class="text-stone-400">Consultation Fee</span>
+<span class="text-on-surface font-medium">$150.00</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-stone-400">Platform Service Fee</span>
+<span class="text-on-surface font-medium">$12.50</span>
+</div>
+<div class="flex justify-between items-center text-sm text-primary">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">add_circle</span>
+                            Discount (WELCOME20)
+                        </span>
+<span class="font-medium">-$20.00</span>
+</div>
+<div class="pt-4 border-t border-stone-800/50 flex justify-between items-end">
+<span class="text-on-surface-variant font-manrope uppercase tracking-widest text-xs">Total Amount</span>
+<span class="text-3xl font-black text-[#A3C93A] tracking-tighter leading-none">$142.50</span>
+</div>
+</div>
+<!-- CTA Button -->
+<button class="w-full bg-[#A3C93A] hover:bg-[#b8e046] text-[#273500] font-headline font-extrabold text-lg py-4 rounded-full flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl shadow-[#A3C93A]/10">
+                    Finalize Payment
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<!-- Secure Messaging -->
+<div class="mt-6 flex items-center justify-center gap-2 text-stone-500 text-[10px] uppercase tracking-widest font-manrope">
+<span class="material-symbols-outlined text-xs">encrypted</span>
+                    Encrypted Transaction
+                </div>
+</div>
+<!-- Side Support Info -->
+<div class="glass-panel p-6 rounded-lg flex items-start gap-4">
+<div class="bg-secondary-container p-2 rounded-full">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">help_outline</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-on-surface">Need help?</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Our clinical support team is available 24/7 for technical assistance during your checkout process.</p>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer Security Overlay -->
+<footer class="mt-12 py-12 border-t border-stone-800/30 bg-stone-950/40">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="col-span-2">
+<div class="flex items-center gap-3 mb-4 opacity-50">
+<img alt="Footer Logo" class="h-6 w-auto grayscale" data-alt="Monochrome medical logo detail on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2s8nKsZCjzeFVfxReeOE8wkP_lCXCn9NyaehTie_Kcc1gCpeilvDBBpQaYNI4ihBGTGC9lY_XW4xhsYFpEn44Mc2lrIYK4qJ3fGH_kiV26dkiTvMoPovv70wv4DXv81eFozw1KjXjnOKd2r0Bd5XNLnCgAI0acJpB50V3GxsetK8w-K85F60o3Xu7OcsEHTGD1fsc0lLYHswGRDF6c49B_mXO9QAdKSySO8f6BY-HkNLGmpuY5q0UP-XqUmpMHj594oxaLMw-rqJB"/>
+<span class="font-bold text-white tracking-tighter">Aetheris Medical</span>
+</div>
+<p class="text-stone-500 text-xs max-w-md leading-relaxed">
+                    Aetheris Medical Lab uses proprietary AI algorithms to assist botanical clinical precision. 
+                    All transactions are handled through secure, audited payment gateways. 
+                    Privacy Policy | Terms of Service
+                </p>
+</div>
+<div class="flex md:justify-end col-span-2 gap-8 grayscale opacity-30 pointer-events-none">
+<img alt="Visa" class="h-6" data-alt="Official Visa payment network logo on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4h1jrvgdNXpIDdDtuErTIWhR02Vs009HfKDQjsplEhvlh9Kes5nxXhU7DLLN_ES7bojlxYEhnE1J-6Vb4Iiijwe5xvl6K27Iy5Y73frK7_G9SGd5udgFV1uaZFLadixBui8DrLN8Fce-d7R6k9POtR1y-fUXH74E_zO7ZWuOSgPXTR4_DEKfsY_p8aXgnkQKa6F3gn1cc6iGmXRq0K-Pjqry2iw6U1rj2sxOAxCvkBZ4jtqj3cqXEU4xtKrjSei_VsnPJkLIT4xBB"/>
+<img alt="Mastercard" class="h-6" data-alt="Official Mastercard payment network logo on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUAG8rsq7Yg7jQt5HwPYVaQnFEGddtIxjJCSxpUWeAYCbim_UNFNM3LXsMmvcdc1UEby0WPlViKiYdBvzpqsgD544wHcox13f4b41m1ufb8pCEG4LkpWxWd9uhioInnpPJ7QcY8816SMGDCQJQMIifBZVr6nlMc6sWTq1mkplL7NNx6x0qX4p_uJOmfFF9Ltf8Lm9y0OZN3cgbiXJ0PeKq38NKFoGaMLRrSwgOX0Tg6Xm8reyMUahOi0nNmXinoxkelBMjVSnpfzBH"/>
+<img alt="Amex" class="h-6" data-alt="Official American Express logo on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh_d6QMjXHxUwPIPrZFiBKKS0bRKFHRQYx9bd-kU0jjL_uR4sO9OGi37ajeAkGKCIPk0all9QxNM5XqjBsntbuPVXsHIxgXHT1E1vyPciQuZccyUz-R7Q9xSqFNlo-YZnASNdekUXbqV1iJYraZhWpxSYY2oBwiiHR18gGHY_-0dN8Olgq8p-jbTg886VA0T3R1kAz2F3fdn7MK1OmyVG2708R-hrgIrqrgWsNoULH5xyMCUDSOgVxdNXCR0STXQosaC3EFy11BhLL"/>
+</div>
+</div>
+</footer>
+</body></html>

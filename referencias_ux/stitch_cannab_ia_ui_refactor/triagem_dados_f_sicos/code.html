@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#bee654",
+                        "tertiary-container": "#f998ff",
+                        "on-secondary-fixed": "#002107",
+                        "inverse-primary": "#4f6700",
+                        "surface-container-high": "#242d1a",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "secondary": "#a4d2a4",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary-container": "#3e5200",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#2f3824",
+                        "surface-bright": "#333c29",
+                        "surface-container-lowest": "#091003",
+                        "background": "#0e1606",
+                        "on-tertiary-container": "#792484",
+                        "error": "#ffb4ab",
+                        "surface-container": "#1a2211",
+                        "on-error": "#690005",
+                        "primary-fixed": "#c9f15e",
+                        "on-primary": "#273500",
+                        "primary-fixed-dim": "#aed445",
+                        "secondary-fixed": "#bfefbe",
+                        "error-container": "#93000a",
+                        "primary-container": "#a3c93a",
+                        "on-background": "#dce6cb",
+                        "on-secondary-container": "#96c496",
+                        "secondary-container": "#29522e",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-tertiary": "#580064",
+                        "inverse-surface": "#dce6cb",
+                        "outline": "#8f937d",
+                        "surface-tint": "#aed445",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "on-secondary": "#0e3817",
+                        "inverse-on-surface": "#2a3320",
+                        "outline-variant": "#444937",
+                        "on-primary-fixed": "#151f00",
+                        "on-surface": "#dce6cb",
+                        "tertiary-fixed": "#ffd6fc",
+                        "tertiary": "#ffc4fe",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-container-highest": "#2f3824",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-dim": "#0e1606",
+                        "surface": "#0e1606",
+                        "surface-container-low": "#161e0d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #2C3522; /* Olive background requested */
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(60, 70, 45, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.2);
+            border-radius: 24px;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #A3C93A;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(163, 201, 58, 0.4);
+        }
+        .custom-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #A3C93A;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(163, 201, 58, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-transparent flex justify-center items-center w-full px-6 py-4 max-w-2xl mx-auto">
+<div class="flex items-center gap-3">
+<img alt="Cannab'IA Botanical Logo" class="h-10 w-auto object-contain" data-alt="Microscopic view of a cannabis trichome with bioluminescent green highlights and scientific crystalline structures in a clean laboratory setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw3QUyhuLhru1QJO0SajaSMjlmXzYJWTqsx6wBe_tsQQ9uogWYcwpg2jM77xR4Y9qQ9lqk0RVtp0KPf-q9quf-5CLFZmoAS8_qE6sXUqwPATq7NaSLZYsP905k-DzsrA1-SR7suJw304bD1Ax7vZXmMjQSWN9p4VlbVAhOLg1FMkkvT1ox5zJKMIv71Qa21P7QtOfjc1WnRw-wDo_ucrcuy49VxzYXOsv8eO-X6z7WNppfEZyJp_rIaSGSmBT2YeSPYIiddVGeluBX"/>
+<h1 class="font-manrope font-black tracking-tighter text-lg text-[#A3C93A]">Cannab'IA</h1>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center justify-center px-4 pt-20 pb-32">
+<!-- Progress Bar Container -->
+<div class="w-full max-w-md mb-8">
+<div class="flex justify-between items-end mb-2">
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-[#A3C93A]">Etapa 01</span>
+<span class="font-label text-xs text-on-surface-variant">33% Concluído</span>
+</div>
+<div class="h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-1/3 transition-all duration-500 shadow-[0_0_10px_#A3C93A]"></div>
+</div>
+</div>
+<!-- Main Wizard Card -->
+<div class="glass-card w-full max-w-md p-8 shadow-2xl relative overflow-hidden">
+<!-- Decorative botanical element -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<div class="mb-8">
+<h2 class="font-headline text-2xl font-bold text-on-surface leading-tight mb-2">
+                        Dados Físicos
+                    </h2>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">
+                        Vamos começar pelos seus dados básicos. Qual sua altura e peso atual?
+                    </p>
+</div>
+<form class="space-y-12">
+<!-- Altura Slider -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="font-headline text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">straighten</span>
+                                Altura
+                            </label>
+<div class="flex items-baseline gap-1">
+<span class="text-3xl font-manrope font-bold text-primary">175</span>
+<span class="text-sm font-label text-on-surface-variant">cm</span>
+</div>
+</div>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer custom-slider" max="220" min="120" type="range" value="175"/>
+<div class="flex justify-between text-[10px] text-on-surface-variant font-label uppercase tracking-tighter">
+<span>120 cm</span>
+<span>220 cm</span>
+</div>
+</div>
+<!-- Peso Slider -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="font-headline text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">monitor_weight</span>
+                                Peso
+                            </label>
+<div class="flex items-baseline gap-1">
+<span class="text-3xl font-manrope font-bold text-primary">72</span>
+<span class="text-sm font-label text-on-surface-variant">kg</span>
+</div>
+</div>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer custom-slider" max="150" min="40" type="range" value="72"/>
+<div class="flex justify-between text-[10px] text-on-surface-variant font-label uppercase tracking-tighter">
+<span>40 kg</span>
+<span>150 kg</span>
+</div>
+</div>
+</form>
+</div>
+</div>
+<!-- Biophilic Accent -->
+<div class="mt-12 flex items-center gap-4 text-primary/40 opacity-50">
+<span class="material-symbols-outlined text-4xl">eco</span>
+<div class="h-px w-12 bg-primary/20"></div>
+<span class="material-symbols-outlined text-4xl">science</span>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-10 pb-8 pt-4 bg-slate-950/40 backdrop-blur-xl rounded-t-[40px] border-t border-white/10 shadow-2xl">
+<button class="flex flex-col items-center justify-center text-slate-400 px-8 py-3 hover:opacity-80 transition-opacity active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1">arrow_back</span>
+<span class="font-manrope font-semibold text-xs uppercase tracking-widest">Back</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#A3C93A] text-slate-950 rounded-full px-12 py-3 hover:bg-[#A3C93A]/90 transition-all active:scale-95 duration-200 shadow-lg shadow-primary/20">
+<div class="flex items-center gap-2">
+<span class="font-manrope font-bold text-xs uppercase tracking-widest">Next</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</button>
+</nav>
+<!-- Background Decoration -->
+<div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px]"></div>
+<div class="absolute bottom-[-5%] left-[-5%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px]"></div>
+</div>
+</body></html>

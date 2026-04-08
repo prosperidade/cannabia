@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cannab'IA | AI Audit &amp; Cost Control</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#bfefbe",
+                    "on-secondary-fixed": "#002107",
+                    "on-background": "#dce6cb",
+                    "inverse-surface": "#dce6cb",
+                    "surface-variant": "#2f3824",
+                    "on-primary": "#273500",
+                    "primary": "#bee654",
+                    "on-error": "#690005",
+                    "on-secondary-container": "#96c496",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "inverse-on-surface": "#2a3320",
+                    "background": "#0e1606",
+                    "on-surface-variant": "#c5c9b1",
+                    "surface-container-high": "#242d1a",
+                    "on-tertiary-fixed": "#36003e",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-container-low": "#161e0d",
+                    "outline-variant": "#444937",
+                    "surface-bright": "#333c29",
+                    "surface-dim": "#0e1606",
+                    "outline": "#8f937d",
+                    "on-tertiary": "#580064",
+                    "inverse-primary": "#4f6700",
+                    "surface-container-highest": "#2f3824",
+                    "tertiary": "#ffc4fe",
+                    "primary-fixed": "#c9f15e",
+                    "on-secondary": "#0e3817",
+                    "tertiary-container": "#f998ff",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "tertiary-fixed": "#ffd6fc",
+                    "secondary": "#a4d2a4",
+                    "secondary-container": "#29522e",
+                    "primary-fixed-dim": "#aed445",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "surface": "#0e1606",
+                    "on-primary-fixed": "#151f00",
+                    "on-primary-container": "#3e5200",
+                    "on-tertiary-container": "#792484",
+                    "surface-container": "#1a2211",
+                    "error": "#ffb4ab",
+                    "primary-container": "#a3c93a",
+                    "on-surface": "#dce6cb",
+                    "surface-container-lowest": "#091003",
+                    "surface-tint": "#aed445",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "on-tertiary-fixed-variant": "#741e80"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .text-glow {
+            text-shadow: 0 0 15px rgba(190, 230, 84, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-6 h-16 shadow-2xl shadow-lime-900/20">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-lime-500/30">
+<img alt="Clinical Director Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional clinical director in a modern laboratory setting with soft green botanical reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHxp03rIIdV9Slbn9g5r5dLQa3EMBacdJVU9V2vr56G_c_lcM35waZM6YVNuahPGVje528FQMQaqdxYVjw_v8fZBiSumtMQ7otqsAiYKgWMQko_hyqtPlYOKjeavquiSO5_j83EDhmbn1SOAcbtKzbQLAHxsmVs8C3Woos28pP0ot_vPMSvAMu-d1oAlRDFWz20H6dcpq9hH1w0A_OTWikG41ghDP_8WhAW1qFSk4AX_61ojCZS1eKYDFOXbQhqRraWtWJcM_Wl_Jd"/>
+</div>
+<span class="text-2xl font-bold text-lime-500 uppercase tracking-widest font-headline">Cannab'IA</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-lime-500 hover:bg-white/5 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="pt-20 px-4 space-y-6">
+<!-- Summary Cards Stack -->
+<section class="space-y-3">
+<div class="glass-card rounded-xl p-5 relative overflow-hidden group">
+<div class="flex justify-between items-start mb-2">
+<div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-1">Audit Precision</p>
+<h2 class="text-3xl font-extrabold text-white font-headline">98.4%</h2>
+</div>
+<div class="bg-primary/20 text-primary px-2 py-1 rounded text-[10px] font-bold">+0.2%</div>
+</div>
+<!-- Mini Chart Visual -->
+<div class="h-12 flex items-end gap-1 mt-2">
+<div class="bg-primary/20 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-primary/20 w-full h-[75%] rounded-t-sm"></div>
+<div class="bg-primary/30 w-full h-[65%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[85%] rounded-t-sm"></div>
+<div class="bg-primary/60 w-full h-[70%] rounded-t-sm"></div>
+<div class="bg-primary w-full h-[95%] rounded-t-sm shadow-[0_0_10px_rgba(190,230,84,0.4)]"></div>
+</div>
+</div>
+<div class="glass-card rounded-xl p-5">
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-1">Total Cost (MTD)</p>
+<div class="flex items-baseline gap-2 mb-4">
+<h2 class="text-3xl font-extrabold text-white font-headline">$1,240.50</h2>
+<span class="text-stone-500 text-xs font-medium">/ 18 days</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-stone-300">GPT-4o</span>
+<span class="text-white font-medium">$842.00</span>
+</div>
+<div class="w-full bg-stone-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[68%]"></div>
+</div>
+<div class="flex justify-between text-xs mb-1 pt-1">
+<span class="text-stone-300">Claude 3.5</span>
+<span class="text-white font-medium">$398.50</span>
+</div>
+<div class="w-full bg-stone-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[32%]"></div>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-xl p-5 flex items-center justify-between">
+<div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-1">Token Throughput</p>
+<h2 class="text-2xl font-extrabold text-white font-headline">14.8M</h2>
+</div>
+<div class="text-right">
+<div class="flex items-center text-primary gap-1 mb-1">
+<span class="material-symbols-outlined text-sm" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-xs font-bold">Optimized</span>
+</div>
+<p class="text-[10px] text-stone-500 font-medium">Efficiency: 92%</p>
+</div>
+</div>
+</section>
+<!-- Usage Chart -->
+<section class="glass-card rounded-xl p-5">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-sm font-bold text-white uppercase tracking-tight">Usage Trend (Daily)</h3>
+<span class="text-[10px] text-stone-400 font-medium">7D View</span>
+</div>
+<div class="h-40 flex items-end justify-between px-2 gap-2">
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[40%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">MON</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[55%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">TUE</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[45%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">WED</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary-container/40 rounded-t-lg h-[70%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">THU</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary-container/60 rounded-t-lg h-[85%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">FRI</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary-container/10 rounded-t-lg h-[20%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">SAT</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary rounded-t-lg h-[30%]"></div>
+<span class="text-[8px] text-stone-500 font-bold">SUN</span>
+</div>
+</div>
+</section>
+<!-- Usage by Function -->
+<section class="space-y-4">
+<h3 class="text-sm font-bold text-white uppercase tracking-tight px-1">Functional Distribution</h3>
+<div class="space-y-4 px-1">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface">Clinical Triage</span>
+<span class="text-stone-400">42%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[42%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface">Digital Prescription</span>
+<span class="text-stone-400">28%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[28%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface">Automated Audit</span>
+<span class="text-stone-400">21%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[21%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface">Administrative AI</span>
+<span class="text-stone-400">9%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[9%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Real-time Log Section -->
+<section class="space-y-4 pb-12">
+<div class="flex justify-between items-center px-1">
+<h3 class="text-sm font-bold text-white uppercase tracking-tight">Recent Activity</h3>
+<button class="text-xs text-primary font-bold">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Log Item 1 -->
+<div class="glass-card rounded-xl p-4 flex justify-between items-center">
+<div class="flex gap-3 items-center">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="clinical_notes">clinical_notes</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Prescription Audit</p>
+<p class="text-[10px] text-stone-500 font-medium">Today, 14:22 • GPT-4o</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-lime-400">$0.14</p>
+<p class="text-[10px] text-stone-500">2.4k tokens</p>
+</div>
+</div>
+<!-- Log Item 2 -->
+<div class="glass-card rounded-xl p-4 flex justify-between items-center">
+<div class="flex gap-3 items-center">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="analytics">analytics</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Triage Analysis</p>
+<p class="text-[10px] text-stone-500 font-medium">Today, 13:05 • Claude 3.5</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-lime-400">$0.08</p>
+<p class="text-[10px] text-stone-500">1.8k tokens</p>
+</div>
+</div>
+<!-- Log Item 3 -->
+<div class="glass-card rounded-xl p-4 flex justify-between items-center">
+<div class="flex gap-3 items-center">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="admin_panel_settings">admin_panel_settings</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white">System Compliance</p>
+<p class="text-[10px] text-stone-500 font-medium">Today, 11:48 • GPT-4o</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-lime-400">$0.22</p>
+<p class="text-[10px] text-stone-500">4.1k tokens</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-3xl border-t border-white/10 bg-stone-950/90 backdrop-blur-2xl flex justify-around items-center h-20 px-4 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<!-- Audit (Active) -->
+<a class="flex flex-col items-center justify-center bg-lime-500/20 text-lime-400 rounded-full px-5 py-1.5 transition-all active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-0.5">Audit</span>
+</a>
+<!-- Costs -->
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-lime-200 transition-all active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-0.5">Costs</span>
+</a>
+<!-- Clinical -->
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-lime-200 transition-all active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-0.5">Clinical</span>
+</a>
+<!-- Admin -->
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-lime-200 transition-all active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-0.5">Admin</span>
+</a>
+</nav>
+</body></html>

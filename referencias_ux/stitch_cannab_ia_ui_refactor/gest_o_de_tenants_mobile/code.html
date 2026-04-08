@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestão de Tenants - Clinical Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#1a2211",
+                        "primary-container": "#a3c93a",
+                        "on-background": "#dce6cb",
+                        "tertiary-fixed": "#ffd6fc",
+                        "inverse-surface": "#dce6cb",
+                        "on-tertiary": "#580064",
+                        "secondary-container": "#29522e",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#091003",
+                        "on-tertiary-container": "#792484",
+                        "primary": "#bee654",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-primary-container": "#3e5200",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "primary-fixed": "#c9f15e",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "inverse-on-surface": "#2a3320",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-tertiary-fixed": "#36003e",
+                        "surface-container-high": "#242d1a",
+                        "outline": "#8f937d",
+                        "tertiary-container": "#f998ff",
+                        "on-surface": "#dce6cb",
+                        "on-secondary": "#0e3817",
+                        "surface-bright": "#333c29",
+                        "on-primary": "#273500",
+                        "surface-container-highest": "#2f3824",
+                        "surface-variant": "#2f3824",
+                        "surface-container-low": "#161e0d",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#aed445",
+                        "on-primary-fixed": "#151f00",
+                        "tertiary": "#ffc4fe",
+                        "secondary": "#a4d2a4",
+                        "inverse-primary": "#4f6700",
+                        "surface": "#0e1606",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "on-surface-variant": "#c5c9b1",
+                        "background": "#0e1606",
+                        "on-secondary-container": "#96c496",
+                        "surface-tint": "#aed445",
+                        "outline-variant": "#444937",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#bfefbe",
+                        "on-secondary-fixed": "#002107",
+                        "surface-dim": "#0e1606"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(60, 70, 45, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e1606;
+            background-image: radial-gradient(circle at 0% 0%, rgba(163, 201, 58, 0.05) 0%, transparent 50%),
+                              radial-gradient(circle at 100% 100%, rgba(41, 82, 46, 0.1) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-stone-950/80 backdrop-blur-md text-[#A3C93A] font-manrope tracking-tight border-b border-white/10 shadow-none flex items-center justify-between px-6 h-16 w-full z-50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img alt="Admin Profile" data-alt="Stylized minimalist avatar of a medical professional with green surgical scrubs on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDulGaLAAEOGb8AvNcu_q4sjLXwdOeZ-IAFfMmAO5d5yEEpZtwWn-2KeRA6x46DdI0tfGtDLZhhJ8VNz67bj3PEBFigdN4QmA6ROEge7RWOYBb1__ngPmJrTExUdRrwAEIBTxDNeA_fzX81HORKPx7LRInuC-lyIT4uOkHzdnYKifmE4ryP7NINuVjZ-GaTVs1ELA5aYnbCpWCzgeD5_NIcYnL7A1ij2UdsGonPh0fbMk6fMY4Rb0XeAHQZjB6LKqImwqkgmry8tCMu"/>
+</div>
+<h1 class="text-lg font-bold text-[#A3C93A]">Clinical Admin</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined hover:text-[#A3C93A] transition-colors active:scale-95 duration-200">search</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-4 max-w-md mx-auto">
+<!-- Section Header -->
+<div class="flex items-end justify-between mb-8 px-2">
+<div>
+<p class="text-primary-fixed-dim text-xs font-semibold uppercase tracking-widest mb-1">Management</p>
+<h2 class="font-headline text-3xl font-extrabold text-on-background tracking-tighter">Tenants</h2>
+</div>
+<button class="bg-[#A3C93A] text-on-primary px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Tenant
+            </button>
+</div>
+<!-- Tenant Cards List -->
+<div class="space-y-4">
+<!-- Card 1: Mayo Clinic Brazil -->
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-xl font-bold text-on-background leading-none mb-1">Mayo Clinic Brazil</h3>
+<span class="inline-flex items-center gap-1 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                            SA-East-1
+                        </span>
+</div>
+<div class="bg-secondary-container/50 border border-secondary text-secondary px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                        Active
+                    </div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-2">
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Throughput</p>
+<p class="text-lg font-headline font-bold text-[#A3C93A]">842 REQ/S</p>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Load</p>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-[#A3C93A] w-[65%]"></div>
+</div>
+<span class="text-xs font-bold text-on-surface">65%</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2 pt-2 border-t border-white/5">
+<button class="flex-1 bg-white/5 hover:bg-white/10 py-2.5 rounded-full text-xs font-bold text-on-surface flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">settings</span>
+                        Settings
+                    </button>
+<button class="flex-1 bg-error-container/20 border border-error/20 hover:bg-error-container/30 py-2.5 rounded-full text-xs font-bold text-error flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">pause_circle</span>
+                        Suspend
+                    </button>
+</div>
+</div>
+<!-- Card 2: MedLabs Global -->
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-xl font-bold text-on-background leading-none mb-1">MedLabs Global</h3>
+<span class="inline-flex items-center gap-1 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                            US-East-1
+                        </span>
+</div>
+<div class="bg-orange-900/20 border border-orange-400/50 text-orange-400 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></span>
+                        High Latency
+                    </div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-2">
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Throughput</p>
+<p class="text-lg font-headline font-bold text-[#A3C93A]">2.1k REQ/S</p>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Load</p>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-orange-400 w-[92%]"></div>
+</div>
+<span class="text-xs font-bold text-on-surface">92%</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2 pt-2 border-t border-white/5">
+<button class="flex-1 bg-white/5 hover:bg-white/10 py-2.5 rounded-full text-xs font-bold text-on-surface flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">settings</span>
+                        Settings
+                    </button>
+<button class="flex-1 bg-error-container/20 border border-error/20 hover:bg-error-container/30 py-2.5 rounded-full text-xs font-bold text-error flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">pause_circle</span>
+                        Suspend
+                    </button>
+</div>
+</div>
+<!-- Card 3: BioCenter Zurich -->
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-xl font-bold text-on-background leading-none mb-1">BioCenter Zurich</h3>
+<span class="inline-flex items-center gap-1 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                            EU-West-1
+                        </span>
+</div>
+<div class="bg-stone-800 border border-stone-500 text-stone-300 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">refresh</span>
+                        Provisioning
+                    </div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-2">
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Throughput</p>
+<p class="text-lg font-headline font-bold text-stone-500">0 REQ/S</p>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Load</p>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-stone-600 w-[10%]"></div>
+</div>
+<span class="text-xs font-bold text-stone-500">0%</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2 pt-2 border-t border-white/5">
+<button class="flex-1 bg-white/5 hover:bg-white/10 py-2.5 rounded-full text-xs font-bold text-on-surface flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">settings</span>
+                        Settings
+                    </button>
+<button class="flex-1 bg-error-container/20 border border-error/20 hover:bg-error-container/30 py-2.5 rounded-full text-xs font-bold text-error flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">pause_circle</span>
+                        Suspend
+                    </button>
+</div>
+</div>
+</div>
+<!-- Infrastructure Health Summary -->
+<div class="mt-12 space-y-4">
+<h3 class="font-headline text-lg font-bold text-on-background px-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[#A3C93A]">analytics</span>
+                Global Infrastructure
+            </h3>
+<div class="grid grid-cols-1 gap-3">
+<div class="glass-card p-5 rounded-lg flex items-center justify-between border-l-4 border-l-[#A3C93A]">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mb-1">Total Nodes</p>
+<p class="text-2xl font-headline font-extrabold text-on-background leading-none">1,204</p>
+</div>
+<div class="p-3 bg-[#A3C93A]/10 rounded-full">
+<span class="material-symbols-outlined text-[#A3C93A]">hub</span>
+</div>
+</div>
+<div class="glass-card p-5 rounded-lg flex items-center justify-between border-l-4 border-l-[#A3C93A]">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mb-1">Avg Throughput</p>
+<p class="text-2xl font-headline font-extrabold text-on-background leading-none">14.2k <span class="text-xs font-normal text-on-surface-variant">req/s</span></p>
+</div>
+<div class="p-3 bg-[#A3C93A]/10 rounded-full">
+<span class="material-symbols-outlined text-[#A3C93A]">bolt</span>
+</div>
+</div>
+<div class="glass-card p-5 rounded-lg flex items-center justify-between border-l-4 border-l-[#A3C93A]">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mb-1">Data Consumed</p>
+<p class="text-2xl font-headline font-extrabold text-on-background leading-none">4.8 <span class="text-xs font-normal text-on-surface-variant">PB</span></p>
+</div>
+<div class="p-3 bg-[#A3C93A]/10 rounded-full">
+<span class="material-symbols-outlined text-[#A3C93A]">database</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Decorative Spacer for Nav -->
+<div class="h-10"></div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-stone-950/90 backdrop-blur-xl rounded-t-[2rem] border-t border-white/5 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 hover:bg-white/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-5 py-2 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Infrastructure</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 hover:bg-white/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Logs</span>
+</a>
+</nav>
+</body></html>

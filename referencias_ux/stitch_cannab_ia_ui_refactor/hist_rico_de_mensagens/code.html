@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Messages | Cannab'IA Clinical Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffd6fc",
+                        "secondary": "#a4d2a4",
+                        "surface": "#0e1606",
+                        "surface-container-high": "#242d1a",
+                        "secondary-fixed": "#bfefbe",
+                        "primary": "#bee654",
+                        "tertiary": "#ffc4fe",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "secondary-container": "#29522e",
+                        "surface-container": "#1a2211",
+                        "primary-fixed": "#c9f15e",
+                        "outline": "#8f937d",
+                        "on-primary-fixed": "#151f00",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-primary-container": "#3e5200",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "error": "#ffb4ab",
+                        "primary-container": "#a3c93a",
+                        "surface-container-highest": "#2f3824",
+                        "outline-variant": "#444937",
+                        "on-tertiary-container": "#792484",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-variant": "#2f3824",
+                        "surface-bright": "#333c29",
+                        "on-background": "#dce6cb",
+                        "background": "#0e1606",
+                        "on-secondary-container": "#96c496",
+                        "on-tertiary": "#580064",
+                        "inverse-on-surface": "#2a3320",
+                        "primary-fixed-dim": "#aed445",
+                        "on-secondary": "#0e3817",
+                        "tertiary-container": "#f998ff",
+                        "surface-container-lowest": "#091003",
+                        "inverse-surface": "#dce6cb",
+                        "inverse-primary": "#4f6700",
+                        "on-primary": "#273500",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-tint": "#aed445",
+                        "on-surface-variant": "#c5c9b1",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0e1606",
+                        "on-surface": "#dce6cb",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-fixed": "#002107"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .chat-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #444937;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 selection:text-primary">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-6 bg-slate-950/80 backdrop-blur-xl h-screen w-64 border-r border-white/10 font-manrope antialiased shadow-2xl z-50">
+<div class="mb-10">
+<h1 class="text-2xl font-bold tracking-tighter text-[#A3C93A]">Cannab'IA</h1>
+<p class="text-xs uppercase tracking-widest text-slate-500 mt-1">Clinical Intelligence</p>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors transition-all duration-300 ease-in-out hover:translate-x-1 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors transition-all duration-300 ease-in-out hover:translate-x-1 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Patients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors transition-all duration-300 ease-in-out hover:translate-x-1 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+<span>Clinical Trials</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors transition-all duration-300 ease-in-out hover:translate-x-1 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span>Lab</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#A3C93A] bg-[#A3C93A]/10 rounded-full font-bold transition-all duration-300 ease-in-out hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span>Messages</span>
+</a>
+</div>
+<div class="mt-auto pt-6 border-t border-white/5 flex items-center gap-3">
+<img alt="Clinic Administrator Profile" class="w-10 h-10 rounded-full object-cover border border-[#A3C93A]/30" data-alt="portrait of a professional male doctor with a kind expression in a modern clinic setting with natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQX1o1gTIlcL_BsvkvC0kOOJBGmdrLYLhhDP0uiWu3_r_PDIGITAYNRPGgFeqszW8mXvwEPADjt3KfjRz0pmUuyLNDaK3Yn4bkQkeXvNggruaVS4ak0JCSUOenOdmjlNigh4f5OlWnwIkfQKZTNCOlysGqJRen2cPdgr08ykDBzFsJw-vIJYOeSoHqWB_qutPf19Ez2ZLlOuwEZ2t01QW3A04GHtTW6s7wEyxZS7sgsBmxuVCaNEkSI3-PJSt73_3vLLU2fx7VHe13"/>
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-slate-200 truncate">Dr. Julian Thorne</p>
+<p class="text-xs text-slate-500">Chief Medical Officer</p>
+</div>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 flex justify-between items-center px-8 z-40 bg-slate-950/40 backdrop-blur-md w-full h-20 border-b border-white/10 shadow-sm font-manrope">
+<div class="flex items-center w-full max-w-xl">
+<div class="relative w-full focus-within:ring-1 focus-within:ring-[#A3C93A]/50 rounded-full transition-all">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined" data-icon="search">search</span>
+<input class="w-full bg-white/5 border-none rounded-full py-2.5 pl-12 pr-4 text-sm text-slate-200 placeholder:text-slate-500 focus:ring-0" placeholder="Search conversations, patients or reports..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:bg-white/10 rounded-full transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-white/10 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-px h-6 bg-white/10 mx-2"></div>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-primary/20" data-alt="Close-up profile of medical specialist in professional attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbvEHSmn-keG0YHKd_Bw458M0o2qx6LVm18FBVI9PxK2VLpWm1cUEJ4zIwWsQx4KrXPDs0tjnYAkFP1sx5Z-WdY5HRnIQ37EvZvDY2IVOy_mVfHgMH7FnuEdWYkUiMsMGvkvBLVcJWMmqXz9-ejGVDfyaxbo6ptcztaFWN6vSrxvhU13M012rFjpJMoncEF6q_tsi8SptX1RQ0a4pBmoQYypV5ux81sXtwaUInqM69OmRPFqvAFnvvFgbYEZ6MLnGMFebM3qdGwIfP"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-64 pt-20 h-screen flex overflow-hidden">
+<!-- Conversation Sidebar (Left) -->
+<aside class="w-80 flex-shrink-0 border-r border-white/5 flex flex-col bg-surface-container-lowest/50">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-headline font-bold text-on-surface">Inbox</h2>
+<button class="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</div>
+<div class="flex gap-2 mb-6">
+<button class="px-3 py-1 text-xs font-semibold rounded-full bg-primary text-on-primary">All</button>
+<button class="px-3 py-1 text-xs font-semibold rounded-full bg-white/5 text-slate-400 hover:text-slate-200">Patients</button>
+<button class="px-3 py-1 text-xs font-semibold rounded-full bg-white/5 text-slate-400 hover:text-slate-200">Staff</button>
+</div>
+</div>
+<div class="flex-grow overflow-y-auto chat-scroll px-3 pb-6">
+<!-- Active Conversation -->
+<div class="p-4 mb-2 rounded-2xl bg-primary/10 border border-primary/20 cursor-pointer transition-all">
+<div class="flex gap-3">
+<div class="relative">
+<img alt="Elena Sterling" class="w-12 h-12 rounded-full object-cover" data-alt="Close-up portrait of a woman with curly hair looking thoughtful in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0a5VRAOz7ktI1YEvsO2V875QW-k5GUVtSeLASzztv60cyToFoFbhkCICdcZ3fDuglAlHv1e7EYVzQLLqicsXhO7ZQIGbIex0CkZbUjz_HWZnPN5JdIekXR7vmm8l-2-TWv3KKWYNxDBbPgwG1iPCuTcKpOX834AwAuiekITbbPJxKiUwLr_yfzZSj5vmijcTolfxThumg6uee0WT0kq9oIeOhYlLM6VcCa4QhSB2W9DJu4naUNm5fcWlJNscF1vwgELgvSCgD4RwN"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-[#0e1606] rounded-full"></span>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<span class="text-sm font-bold text-on-surface truncate">Elena Sterling</span>
+<span class="text-[10px] text-primary font-medium">2m ago</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium truncate">Thank you, doctor. The new dosage feels much better.</p>
+</div>
+</div>
+</div>
+<!-- Other Conversations -->
+<div class="p-4 mb-2 rounded-2xl hover:bg-white/5 cursor-pointer transition-all group">
+<div class="flex gap-3">
+<img alt="Arthur Vance" class="w-12 h-12 rounded-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Portrait of a mature man with graying hair and glasses, professional and calm atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfgFO3aOIIz2f6V1NBSxgPLsQpQ9jcBjDuzkr7WrMPrUEeXd8BBL5MUGtanzVxFsYP6KN3Ou9fhjfMpA3Tl3s53u3HpncXxJH5XTKzRz32Fw2JZcKHVoDErdeSCfsqIN0iMFKeiD7hf7V5U3CVnJbQps0ooXLR1kEEN_4hVA0jf-6dxdsGT1gUyIjaG9Gsrxkdj4inS5GdaWGJz0go7MZzSJMjcGPqIpehi_wCD67b2RhNS1GF_j8L5yQLJsfp-X1Fz59NrRuj_sPv"/>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<span class="text-sm font-bold text-slate-400 group-hover:text-slate-200 truncate">Arthur Vance</span>
+<span class="text-[10px] text-slate-500">1h ago</span>
+</div>
+<p class="text-xs text-slate-500 group-hover:text-slate-400 truncate">Did the laboratory send the final results yet?</p>
+</div>
+<div class="flex-shrink-0 self-center">
+<span class="w-2 h-2 bg-primary rounded-full block"></span>
+</div>
+</div>
+</div>
+<div class="p-4 mb-2 rounded-2xl hover:bg-white/5 cursor-pointer transition-all group">
+<div class="flex gap-3">
+<img alt="Sarah Jenkins" class="w-12 h-12 rounded-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Portrait of a young woman with smiling eyes and soft aesthetic background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwYYtYHG-ILqNQ7vxCZ8rA4Xptv2IMdYI3pNw7EPYjQeKUA-Lj-H8egrIFs8Hemsf4Wi0wOiKX1j3o2l2G1y_MRnX5X8xEO6a4DX2ePlYEvku_2GNwfyXMjwW4pE9c5nJn06HQ3NJ2HIZJy_fQoJFHASkRrJnOnUHSOgLlq-cuYp5H9Wkxg2KNHSfM8GmyGXPnNQhkubarlnRI-DsUvBS-1Kdmb1K20gFVc0mYBjXSUkvf4pYaQ2tO-9o-jJyrJSDsXQwlr017zB4p"/>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<span class="text-sm font-bold text-slate-400 group-hover:text-slate-200 truncate">Sarah Jenkins</span>
+<span class="text-[10px] text-slate-500">4h ago</span>
+</div>
+<p class="text-xs text-slate-500 group-hover:text-slate-400 truncate">I'm experiencing some mild fatigue this morning.</p>
+</div>
+</div>
+</div>
+<div class="p-4 mb-2 rounded-2xl hover:bg-white/5 cursor-pointer transition-all group">
+<div class="flex gap-3">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">
+                            MC
+                        </div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<span class="text-sm font-bold text-slate-400 group-hover:text-slate-200 truncate">Marcus Chen</span>
+<span class="text-[10px] text-slate-500">Yesterday</span>
+</div>
+<p class="text-xs text-slate-500 group-hover:text-slate-400 truncate">Requesting renewal for Prescription #8821.</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Chat Main Area (Right) -->
+<section class="flex-grow flex flex-col relative">
+<!-- Chat Header -->
+<header class="h-20 glass-panel border-b border-white/5 px-8 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Elena Sterling" class="w-10 h-10 rounded-full object-cover" data-alt="detailed face of a middle aged woman with gentle features" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3lL7z6g_kSlmhEPYm59YmK0E7n9bx2hRIlgG_qQhc1Iz6h8QH6KnUJrZykAE0gQ0UEzgxXSyKlsHjpV0vMz2WadmGGtTSCSs_8RmRaIMLe_gSCLTjobRIOsuSA6-gdNufwF-HELtLfyZCh2LEdjUfnI3CtGE8Pa-5G9BCvxh567c7oFdZztj5UAhf8R_qmeHMJ_G1-s8mAiUo99IKdnh5XcQh14iq03HWRP-Zkb5F-oBLxoqfknO9kfGFod4p207yLCPsG7N7Vq8b"/>
+<span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-surface-container-high rounded-full"></span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface">Elena Sterling</h3>
+<div class="flex items-center gap-2">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="text-[10px] font-medium text-primary uppercase tracking-widest">Protocol Phase II • Stable</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-on-surface text-sm font-medium hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="description">description</span>
+                        Patient Records
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary text-sm font-bold hover:shadow-[0_0_20px_rgba(190,230,84,0.3)] transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="videocam" style="font-variation-settings: 'FILL' 1;">videocam</span>
+                        Video Call
+                    </button>
+<button class="p-2 text-slate-400 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Message Thread -->
+<div class="flex-grow overflow-y-auto chat-scroll p-8 flex flex-col gap-6">
+<div class="flex flex-col items-center my-4">
+<span class="px-4 py-1 rounded-full bg-white/5 text-[10px] font-semibold text-slate-500 uppercase tracking-widest border border-white/5">Tuesday, Oct 24</span>
+</div>
+<!-- Patient Message -->
+<div class="flex gap-4 max-w-[70%]">
+<div class="flex-shrink-0 self-end">
+<img alt="Patient" class="w-8 h-8 rounded-full" data-alt="portrait of female patient" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG84g9Ag8mVg3ZQ2fdRSzj6gcC3BQ_6_e5X7iEeSWXDtJU-KqioxJyoTrarCrGYbkqhgbRK_MyavkYxi67wXiE0fWYVEpfPXnStpzGgAxCPooGyeKb7uvOeOFjOV9rQMkITC9dbbOhnAsX9cyhxgJUvH8w2LLft3bk6YvTPjcWsy5NxkQKA29avTZLPZSBDvM_g2bzaiRYKnpjdO7Au3VvPZfTgolmxqNv7jLQTOUvqyF3AODVFaQoPxlEW1ZdkZceBrhl5TUVxhcO"/>
+</div>
+<div>
+<div class="glass-panel p-4 rounded-2xl rounded-bl-none text-on-surface-variant text-sm leading-relaxed">
+                            Good morning, Dr. Thorne. I've been tracking my sleep patterns since we adjusted the terpene profile in the prescription. I'm finding it much easier to fall asleep, but I'm a bit groggy around 7 AM.
+                        </div>
+<span class="text-[10px] text-slate-500 mt-1 ml-1">08:42 AM</span>
+</div>
+</div>
+<!-- Physician Message -->
+<div class="flex flex-col items-end gap-1 max-w-[70%] self-end">
+<div class="bg-primary-container text-on-primary-container p-4 rounded-2xl rounded-br-none text-sm leading-relaxed shadow-lg shadow-primary/5">
+                        That's promising regarding the onset of sleep, Elena. The morning grogginess might be a residual effect of the Myrcene concentration.
+                    </div>
+<div class="bg-primary-container text-on-primary-container p-4 rounded-2xl text-sm leading-relaxed shadow-lg shadow-primary/5">
+                        I'll review your latest biometrics from the wearable sync. We might want to shift the intake window 30 minutes earlier in the evening.
+                    </div>
+<div class="flex items-center gap-1.5 mt-1 mr-1">
+<span class="text-[10px] text-slate-500">09:15 AM</span>
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="done_all">done_all</span>
+</div>
+</div>
+<!-- System Notification/Botanical Accent -->
+<div class="flex justify-center">
+<div class="flex items-center gap-3 px-4 py-2 rounded-xl bg-secondary-container/20 border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="monitoring">monitoring</span>
+<span class="text-[11px] font-medium text-secondary">New Biometric Data Synced • View Report</span>
+</div>
+</div>
+<!-- Patient Message -->
+<div class="flex gap-4 max-w-[70%]">
+<div class="flex-shrink-0 self-end">
+<img alt="Patient" class="w-8 h-8 rounded-full" data-alt="portrait of female patient" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp2-lcf2USEmns-5talRLfPTDSxlqiyNloP47gUxGLWTu_DlkrNd_trYdZh3y96jB07H5dACzLEaIQxNqnw2dfRaMBc3gLJmlpNfITPhYOrZJso8-F6xawZKyM-Rn7gtJnODlzAMQ9iB2-XaKt6oVE7HufHGZZafmqnFzaEJJfGrXVsLTVOCbJVEK1lj2rZYLCbBjWCTz_iTMqZJZnlhNGrPEbWWYkL-Xwqk8jtTqgqSGeP9uwBcMdwTa_03OTpiic-z08bETUKPAN"/>
+</div>
+<div>
+<div class="glass-panel p-4 rounded-2xl rounded-bl-none text-on-surface-variant text-sm leading-relaxed">
+                            Thank you, doctor. The new dosage feels much better overall. I've uploaded the log of my symptoms from yesterday afternoon.
+                        </div>
+<div class="mt-2 glass-panel p-3 rounded-xl border-dashed border-white/20 flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-colors">
+<div class="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-bold text-on-surface">symptom_log_oct23.pdf</p>
+<p class="text-[10px] text-slate-500">1.2 MB • PDF Document</p>
+</div>
+<span class="material-symbols-outlined text-slate-500" data-icon="download">download</span>
+</div>
+<span class="text-[10px] text-slate-500 mt-1 ml-1">10:04 AM</span>
+</div>
+</div>
+</div>
+<!-- Message Input Area -->
+<footer class="p-6 bg-surface-container-low/80 backdrop-blur-xl border-t border-white/5">
+<div class="flex items-end gap-4 max-w-5xl mx-auto">
+<div class="flex-shrink-0 flex gap-1 mb-1">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors rounded-full hover:bg-primary/10">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors rounded-full hover:bg-primary/10" title="Attach Prescription">
+<span class="material-symbols-outlined" data-icon="prescriptions">medical_services</span>
+</button>
+</div>
+<div class="flex-grow relative">
+<textarea class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-5 text-sm text-on-surface placeholder:text-slate-500 focus:ring-1 focus:ring-primary/50 focus:border-primary/50 focus:bg-white/10 transition-all resize-none" placeholder="Type a clinical message..." rows="1"></textarea>
+</div>
+<div class="flex-shrink-0 mb-1">
+<button class="w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="send" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+<div class="mt-3 flex justify-center gap-6">
+<div class="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+<span class="material-symbols-outlined text-[14px]" data-icon="lock">lock</span>
+                        HIPAA Compliant Encryption Active
+                    </div>
+</div>
+</footer>
+</section>
+</main>
+</body></html>

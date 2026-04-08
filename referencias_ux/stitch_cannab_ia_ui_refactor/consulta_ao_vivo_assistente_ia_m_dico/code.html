@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BioPrecision | Live Consultation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#bee654",
+                    "inverse-primary": "#4f6700",
+                    "surface-container-low": "#161e0d",
+                    "on-secondary-container": "#96c496",
+                    "surface-container-lowest": "#091003",
+                    "surface-dim": "#0e1606",
+                    "primary-container": "#a3c93a",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "secondary-fixed": "#bfefbe",
+                    "on-secondary-fixed": "#002107",
+                    "surface-bright": "#333c29",
+                    "secondary": "#a4d2a4",
+                    "primary-fixed-dim": "#aed445",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "inverse-surface": "#dce6cb",
+                    "inverse-on-surface": "#2a3320",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-background": "#dce6cb",
+                    "outline": "#8f937d",
+                    "on-error": "#690005",
+                    "on-primary": "#273500",
+                    "on-tertiary-fixed": "#36003e",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "on-primary-fixed": "#151f00",
+                    "tertiary-container": "#f998ff",
+                    "surface": "#0e1606",
+                    "background": "#0e1606",
+                    "tertiary-fixed": "#ffd6fc",
+                    "primary-fixed": "#c9f15e",
+                    "error": "#ffb4ab",
+                    "on-tertiary": "#580064",
+                    "surface-container": "#1a2211",
+                    "tertiary": "#ffc4fe",
+                    "surface-container-highest": "#2f3824",
+                    "secondary-container": "#29522e",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-tertiary-container": "#792484",
+                    "on-surface": "#dce6cb",
+                    "on-secondary": "#0e3817",
+                    "on-primary-container": "#3e5200",
+                    "outline-variant": "#444937",
+                    "surface-tint": "#aed445",
+                    "on-surface-variant": "#c5c9b1",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-variant": "#2f3824",
+                    "surface-container-high": "#242d1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(14, 22, 6, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(197, 201, 177, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(163, 201, 58, 0.4);
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/50 font-manrope tracking-tight">
+<div class="flex items-center gap-6">
+<span class="text-lg font-bold text-[#A3C93A]">Clinical Intelligence</span>
+<div class="h-6 w-px bg-white/10"></div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="text-sm font-semibold uppercase tracking-widest text-white/90">LIVE: João Silva</span>
+<span class="font-mono text-[#A3C93A] bg-[#A3C93A]/10 px-2 py-0.5 rounded text-sm">12:44</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-error/10 hover:bg-error/20 text-error px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-tighter border border-error/20 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">emergency</span>
+                Emergency
+            </button>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-white/60 hover:text-white transition-colors cursor-pointer p-2">notifications</span>
+<span class="material-symbols-outlined text-white/60 hover:text-white transition-colors cursor-pointer p-2">settings</span>
+</div>
+<img alt="Dr. Physician Profile" class="w-8 h-8 rounded-full border border-[#A3C93A]/30" data-alt="Portrait of a professional doctor with a kind expression in a clinical setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0bxWps4DORptkwSg9vRmuUbIkHfWMzcvPk0IQ6myJVknKjr_QKZys797UzxuLs3YY1KzL7ALp2sOKhEl8HKaPGkzlVGAD0PBYX5fVit_zjQBW1pCe4YjGLPTAcR9i_GUtW3Zt89nTRxU2qYoGWtRHVJZwudRDX6V9nGw2jktSGebZVCH-LiqLGluQh2LqkMeF_7kES9VV8eZO8Ykl8VyPf73_TYYUQmAnaThWR1eiwp_3QVyiBinJloSFAuhw6uIQf8-N-YoD9fdj"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 bottom-0 z-40 flex flex-col py-8 overflow-hidden bg-slate-950/40 backdrop-blur-md border-r border-white/5 w-20 hover:w-64 transition-all duration-300 group font-manrope text-sm">
+<div class="px-4 mb-10 flex items-center gap-4 overflow-hidden">
+<div class="min-w-[40px] h-10 rounded-xl bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">psychiatry</span>
+</div>
+<div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+<p class="text-xs font-black uppercase tracking-widest text-[#A3C93A]">BioPrecision</p>
+<p class="text-[10px] text-white/40">v2.4.0-Clinical</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2 px-2">
+<div class="flex items-center gap-4 text-white/40 p-3 hover:bg-white/5 hover:text-white transition-all rounded-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</span>
+</div>
+<div class="flex items-center gap-4 bg-[#A3C93A]/10 text-[#A3C93A] rounded-full p-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="videocam" style="font-variation-settings: 'FILL' 1;">videocam</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity font-bold">Consultations</span>
+</div>
+<div class="flex items-center gap-4 text-white/40 p-3 hover:bg-white/5 hover:text-white transition-all rounded-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity">Archives</span>
+</div>
+<div class="flex items-center gap-4 text-white/40 p-3 hover:bg-white/5 hover:text-white transition-all rounded-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity">Laboratory</span>
+</div>
+</nav>
+<div class="px-2 mt-auto">
+<div class="flex items-center gap-4 text-white/40 p-3 hover:bg-white/5 hover:text-white transition-all rounded-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity">Support</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-20 mt-16 p-6 h-[calc(100vh-64px)] overflow-hidden flex gap-6">
+<!-- Left Column: Video Feed -->
+<section class="flex-1 relative rounded-lg overflow-hidden glass-panel group shadow-2xl">
+<div class="absolute inset-0 bg-black/20 z-0"></div>
+<img alt="Patient Video Feed" class="w-full h-full object-cover" data-alt="Close up portrait of an elderly man with silver hair and glasses, sitting in a dimly lit home environment, looking at a screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs8IUweFrNBiv6bRWCc9w9JXUJ53po5gMTLbMcuOL2c2_e4qea6A9uzeo0o0kLUdLw-YOQkNGVW_sMV25GWVG-KJyPT0K7CHp-g3_ce91eQy9W0q8XA3DtbRmS-F6bH2kOzgKG3_hJE6KPM_XzGpG6sfDl1GSErVENUUwJ5YRxlnfRnCzZpoAnK55twsZCXZckJ6QSDF-iSIjUfxgFfXjei0of8b3t6tq2LbUYkifsyxQQqD65fy22HJ0nF0umW92YVy4lkzuuOTUi"/>
+<!-- Floating Indicators -->
+<div class="absolute top-6 left-6 flex flex-col gap-2">
+<div class="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-white/80">Signal: Excellent</span>
+</div>
+<div class="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-primary">location_on</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-white/80">São Paulo, BR</span>
+</div>
+</div>
+<!-- Self Preview -->
+<div class="absolute top-6 right-6 w-32 aspect-video rounded-lg overflow-hidden border-2 border-primary/40 shadow-xl">
+<img alt="Physician View" class="w-full h-full object-cover" data-alt="A male doctor in a white coat looking into the camera in a modern clinical office with plants in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0bJN_d2Ajmxwc4lDyjDvJgZrdPYCoCbWrPJXsr6-StjZs8RBYv_iJRI7K8nV8G8q3lI8jn_CkyVlWAV7fzp95imWo5JBwLyIn2v8UWASeXUB3AeDMwz3thAy-Lv7b6khoAwX18q2NNTiBnziSHkYKGOvGQrI3BGEOTP3Jn4co2bSethSAj9DyLK1lwEB2RNJoY2tHlNks3sjNoOD1DhqVNLd169YlS-GAemVJxcgznGgF22DoJ3U-V-RLelQWGlCV3IyzR6UGC60x"/>
+</div>
+<!-- Video Controls -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-6 px-8 py-4 glass-panel rounded-full border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+<button class="p-3 rounded-full hover:bg-white/10 transition-colors text-white/80"><span class="material-symbols-outlined">mic</span></button>
+<button class="p-3 rounded-full hover:bg-white/10 transition-colors text-white/80"><span class="material-symbols-outlined">videocam</span></button>
+<button class="p-3 rounded-full hover:bg-white/10 transition-colors text-white/80"><span class="material-symbols-outlined">screen_share</span></button>
+<div class="w-px h-6 bg-white/10"></div>
+<button class="bg-red-600 hover:bg-red-500 p-4 rounded-full text-white shadow-lg transition-all transform active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">call_end</span>
+</button>
+</div>
+</section>
+<!-- Right Column: AI Assistant Panel -->
+<section class="w-96 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+<!-- Insights da IA -->
+<div class="glass-panel rounded-lg p-5 border-l-4 border-l-primary shadow-lg">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-manrope font-bold text-sm uppercase tracking-widest flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+                        Insights da IA
+                    </h3>
+<span class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">REAL-TIME</span>
+</div>
+<div class="space-y-4">
+<div class="bg-white/5 rounded-lg p-3 border border-white/5">
+<div class="flex justify-between items-start mb-1">
+<p class="text-xs font-semibold text-white/90">Possível Neuropatia Periférica</p>
+<span class="text-xs font-mono text-primary">88%</span>
+</div>
+<div class="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[88%] shadow-[0_0_8px_#bee654]"></div>
+</div>
+<p class="text-[10px] text-white/40 mt-2 italic">Observado tremor leve em extremidades e relato de parestesia.</p>
+</div>
+</div>
+</div>
+<!-- Protocolo Sugerido -->
+<div class="glass-panel rounded-lg p-5 shadow-lg">
+<h3 class="font-manrope font-bold text-sm uppercase tracking-widest flex items-center gap-2 mb-4 text-white/80">
+<span class="material-symbols-outlined text-lg">medication_liquid</span>
+                    Protocolo Sugerido
+                </h3>
+<div class="p-4 rounded-lg bg-primary-container/10 border border-primary-container/20">
+<p class="text-xs text-primary-container font-bold mb-1">Fórmula Sugerida:</p>
+<p class="text-sm text-white/90 font-medium leading-relaxed">CBD Full Spectrum 50mg/ml</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="text-[10px] text-white/40 font-mono">Dose: 0.5ml (12/12h)</span>
+<button class="text-[10px] underline text-primary hover:text-white transition-colors">Ver Detalhes</button>
+</div>
+</div>
+</div>
+<!-- Prescrição Digital -->
+<div class="glass-panel rounded-lg p-5 shadow-lg flex-1 flex flex-col">
+<h3 class="font-manrope font-bold text-sm uppercase tracking-widest flex items-center gap-2 mb-4 text-white/80">
+<span class="material-symbols-outlined text-lg">edit_note</span>
+                    Prescrição Digital
+                </h3>
+<div class="flex-1 space-y-3">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] uppercase font-bold text-white/30 tracking-widest">Observações Clínicas</label>
+<textarea class="bg-white/5 border border-white/10 rounded-lg p-3 text-xs text-white/70 focus:border-primary/40 focus:ring-0 w-full resize-none h-24" placeholder="Adicionar notas da consulta..."></textarea>
+</div>
+<div class="flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/5">
+<span class="material-symbols-outlined text-sm text-white/40">attach_file</span>
+<span class="text-[10px] text-white/60">Anexar Exames de Imagem</span>
+</div>
+</div>
+<button class="mt-4 w-full bg-primary hover:bg-primary-fixed-dim text-on-primary font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all transform active:scale-[0.98]">
+<span class="material-symbols-outlined text-sm">contract</span>
+                    Gerar Receita
+                </button>
+</div>
+<!-- Evidências -->
+<div class="glass-panel rounded-lg p-5 shadow-lg">
+<h3 class="font-manrope font-bold text-sm uppercase tracking-widest flex items-center gap-2 mb-3 text-white/80">
+<span class="material-symbols-outlined text-lg">menu_book</span>
+                    Evidências
+                </h3>
+<ul class="space-y-3">
+<li>
+<a class="flex flex-col group" href="#">
+<span class="text-[11px] text-primary group-hover:underline leading-tight">Cannabinoids in Neuropathy Management: A Meta-Analysis</span>
+<span class="text-[9px] text-white/30 uppercase mt-1">PubMed • 2023</span>
+</a>
+</li>
+<li class="h-px bg-white/5"></li>
+<li>
+<a class="flex flex-col group" href="#">
+<span class="text-[11px] text-primary group-hover:underline leading-tight">Safety profile of full-spectrum extracts in elderly patients</span>
+<span class="text-[9px] text-white/30 uppercase mt-1">ClinicalTrials.gov</span>
+</a>
+</li>
+</ul>
+</div>
+</section>
+</main>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(163, 201, 58, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(163, 201, 58, 0.4);
+        }
+    </style>
+</body></html>

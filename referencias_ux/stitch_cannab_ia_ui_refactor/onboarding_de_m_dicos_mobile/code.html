@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#1a2211",
+                        "on-background": "#dce6cb",
+                        "outline-variant": "#444937",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "surface-dim": "#0e1606",
+                        "surface-container-lowest": "#091003",
+                        "on-secondary-fixed": "#002107",
+                        "surface": "#0e1606",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "secondary": "#a4d2a4",
+                        "surface-variant": "#2f3824",
+                        "primary-container": "#a3c93a",
+                        "surface-tint": "#aed445",
+                        "primary-fixed": "#c9f15e",
+                        "on-tertiary-container": "#792484",
+                        "tertiary-container": "#f998ff",
+                        "surface-bright": "#333c29",
+                        "inverse-on-surface": "#2a3320",
+                        "secondary-container": "#29522e",
+                        "on-surface": "#dce6cb",
+                        "primary": "#bee654",
+                        "on-primary-container": "#3e5200",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "outline": "#8f937d",
+                        "on-primary-fixed": "#151f00",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#ffc4fe",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed": "#36003e",
+                        "surface-container-highest": "#2f3824",
+                        "inverse-primary": "#4f6700",
+                        "on-surface-variant": "#c5c9b1",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#580064",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "tertiary-fixed": "#ffd6fc",
+                        "primary-fixed-dim": "#aed445",
+                        "secondary-fixed": "#bfefbe",
+                        "on-secondary": "#0e3817",
+                        "inverse-surface": "#dce6cb",
+                        "background": "#0e1606",
+                        "on-secondary-container": "#96c496",
+                        "on-primary": "#273500",
+                        "surface-container-high": "#242d1a",
+                        "surface-container-low": "#161e0d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(44, 53, 34, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        body {
+            background-color: #0e1606;
+            background-image: radial-gradient(circle at 0% 0%, #2c3522 0%, transparent 50%), 
+                              radial-gradient(circle at 100% 100%, #1a2211 0%, transparent 50%);
+            min-height: 100vh;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 border-b border-stone-800/50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#A3C93A]">clinical_notes</span>
+<h1 class="font-manrope font-semibold tracking-tight text-xl text-[#A3C93A]">Physician Onboarding</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-stone-700">
+<img alt="Profile photo of new physician" class="w-full h-full object-cover" data-alt="Close-up professional portrait of a smiling doctor in a white coat with soft clinical lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_sRRxnP5_HkxNcLD_S9EtPNFRK7Lj5R3HrFF7MnClKUQ0_dnPe0L8LIMD7AZvXS186zrtGGDD4tzQOCq_QXhui2OAmffXhETfxRcwCE9oojAZr06eg-SFd6RF9uGYh6rJY5q2739XMgrJLwyJOoBkoPhLIx2V9URJ6lrkdHaBZ5Icf2Nzv-5qBH_kNgFrUSp7ZMyTu9nYWuHh9PoLT2HHAIvwvl05PS6imInebargSMRaDDP6Lks0vIIaWbVU2KftS3Yb8EJje0bm"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto space-y-8">
+<!-- Screen Title & Progress -->
+<section class="space-y-6">
+<h2 class="text-3xl font-headline font-extrabold text-on-background tracking-tight">Credenciamento Médico</h2>
+<div class="space-y-3">
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-label font-bold uppercase tracking-widest text-primary">75% Completo</span>
+<span class="text-[10px] font-label text-on-surface-variant">Próximo: Perfil Clínico</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[75%] rounded-full shadow-[0_0_12px_rgba(163,201,58,0.4)]"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label font-semibold text-on-surface-variant uppercase tracking-tighter">
+<span class="text-primary">Dados</span>
+<span class="text-primary">Documentos</span>
+<span class="text-outline">Perfil Clínico</span>
+</div>
+</div>
+</section>
+<!-- Specialist Tip -->
+<div class="bg-primary-container p-5 rounded-lg flex gap-4 items-start shadow-xl relative overflow-hidden">
+<div class="absolute -right-4 -top-4 opacity-10">
+<span class="material-symbols-outlined text-8xl" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<div class="bg-on-primary-container/20 p-2 rounded-full">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="space-y-1">
+<h3 class="text-on-primary-container font-headline font-bold text-sm">Dica de Especialista</h3>
+<p class="text-on-primary-container/80 text-xs leading-relaxed font-medium">Certifique-se de que as cópias digitais do CRM e Diploma estejam em alta resolução para acelerar o processo de validação em 48h.</p>
+</div>
+</div>
+<!-- Document Uploads (Vertical Cards) -->
+<section class="space-y-4">
+<h3 class="text-sm font-headline font-bold text-on-surface-variant uppercase tracking-widest px-1">Upload de Documentos</h3>
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4 group hover:border-primary/30 transition-all">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<p class="text-on-background font-semibold">Cópia do CRM</p>
+<p class="text-xs text-on-surface-variant">Formato PDF ou JPG (Max. 5MB)</p>
+</div>
+<span class="material-symbols-outlined text-primary-container">upload_file</span>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant rounded-md text-xs font-bold text-on-surface-variant hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                    Selecionar Arquivo
+                </button>
+</div>
+<div class="glass-card p-5 rounded-lg flex flex-col gap-4 group hover:border-primary/30 transition-all">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<p class="text-on-background font-semibold">Diploma de Graduação</p>
+<p class="text-xs text-on-surface-variant">Frente e verso obrigatórios</p>
+</div>
+<span class="material-symbols-outlined text-primary-container">school</span>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant rounded-md text-xs font-bold text-on-surface-variant hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                    Selecionar Arquivo
+                </button>
+</div>
+</section>
+<!-- Status Card -->
+<section class="glass-card rounded-lg overflow-hidden border-l-4 border-primary">
+<div class="p-5 bg-white/5 border-b border-stone-800/30 flex justify-between items-center">
+<h3 class="font-headline font-bold text-on-background">Verificação de Credenciais</h3>
+<span class="bg-primary/20 text-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Em Análise</span>
+</div>
+<div class="p-5 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm text-on-surface-variant">Antecedentes Criminais</span>
+</div>
+<span class="text-[10px] font-bold text-primary">OK</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm text-on-surface-variant">Regularidade Financeira</span>
+</div>
+<span class="text-[10px] font-bold text-primary">OK</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm animate-pulse">pending</span>
+<span class="text-sm text-on-surface-variant">Validação do CRM</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary italic">Pendente...</span>
+</div>
+</div>
+</section>
+<!-- Navigation Buttons -->
+<div class="flex gap-4 pt-4">
+<button class="flex-1 py-4 px-6 rounded-lg bg-surface-container border border-outline-variant font-headline font-bold text-on-background active:scale-95 transition-transform">
+                Voltar
+            </button>
+<button class="flex-[2] py-4 px-6 rounded-lg bg-primary-container font-headline font-bold text-on-primary-container shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                Próxima Etapa
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full h-20 px-8 flex justify-around items-center z-50 bg-stone-950/90 backdrop-blur-lg border-t border-stone-800/50 rounded-t-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">Progress</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-4 py-1">
+<span class="material-symbols-outlined" data-icon="upload_file" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">Documents</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">Status</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">Support</span>
+</div>
+</nav>
+</body></html>

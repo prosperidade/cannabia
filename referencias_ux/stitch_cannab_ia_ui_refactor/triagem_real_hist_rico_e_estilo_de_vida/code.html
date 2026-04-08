@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#36003e",
+                        "surface-container": "#1a2211",
+                        "on-primary-container": "#3e5200",
+                        "on-surface-variant": "#c5c9b1",
+                        "inverse-primary": "#4f6700",
+                        "surface-variant": "#2f3824",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-tertiary-container": "#792484",
+                        "surface-container-highest": "#2f3824",
+                        "inverse-on-surface": "#2a3320",
+                        "secondary-fixed": "#bfefbe",
+                        "outline": "#8f937d",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#dce6cb",
+                        "secondary": "#a4d2a4",
+                        "tertiary-container": "#f998ff",
+                        "on-tertiary": "#580064",
+                        "primary-container": "#a3c93a",
+                        "primary-fixed-dim": "#aed445",
+                        "on-surface": "#dce6cb",
+                        "on-secondary-container": "#96c496",
+                        "on-primary": "#273500",
+                        "surface-bright": "#333c29",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-container-low": "#161e0d",
+                        "secondary-container": "#29522e",
+                        "primary": "#bee654",
+                        "on-primary-fixed": "#151f00",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#091003",
+                        "on-secondary": "#0e3817",
+                        "on-background": "#dce6cb",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#0e1606",
+                        "outline-variant": "#444937",
+                        "background": "#0e1606",
+                        "surface-tint": "#aed445",
+                        "primary-fixed": "#c9f15e",
+                        "tertiary": "#ffc4fe",
+                        "surface-container-high": "#242d1a",
+                        "surface": "#0e1606",
+                        "tertiary-fixed": "#ffd6fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(143, 147, 125, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col items-center justify-start overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md dark:bg-stone-950/80 z-50">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#A3C93A]" data-icon="clinical_notes">clinical_notes</span>
+<span class="text-lg font-bold tracking-widest text-[#A3C93A] uppercase font-headline">Clinical Triage</span>
+</div>
+<div class="text-stone-500 font-manrope tracking-tight font-light">Etapa 03 de 04</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-md px-6 pt-24 pb-32">
+<!-- Progress Indicator -->
+<div class="w-full mb-10 space-y-3">
+<div class="flex justify-between items-end">
+<h2 class="font-headline text-3xl font-light tracking-tight text-on-background">Histórico &amp; Estilo de Vida</h2>
+<span class="text-primary text-sm font-bold">75%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[75%] rounded-full transition-all duration-1000 ease-out"></div>
+</div>
+</div>
+<p class="text-on-surface-variant font-body mb-8 leading-relaxed">Conte-nos um pouco sobre seu histórico e hábitos para personalizarmos seu protocolo.</p>
+<!-- Question Cards Group -->
+<div class="space-y-6">
+<!-- Question 1: Toggle -->
+<div class="glass-card p-6 rounded-lg transition-all duration-300 hover:border-primary/40">
+<div class="flex items-start justify-between gap-4">
+<div class="space-y-1">
+<label class="font-headline font-semibold text-on-surface">Já utilizou Cannabis medicinal?</label>
+<p class="text-xs text-on-surface-variant">Histórico prévio ajuda na dosagem inicial.</p>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-surface-variant after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container peer-checked:after:bg-on-primary"></div>
+</div>
+</div>
+</div>
+<!-- Question 2: Multiple Choice / Segmented Control -->
+<div class="glass-card p-6 rounded-lg">
+<label class="font-headline font-semibold text-on-surface block mb-4">Pratica exercícios regularmente?</label>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 p-3 rounded-full border border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span>
+<span class="font-label text-sm">Não</span>
+</button>
+<button class="flex items-center justify-center gap-2 p-3 rounded-full border-2 border-primary-container bg-primary-container/10 text-primary-container">
+<span class="material-symbols-outlined text-sm" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+<span class="font-label text-sm">Sim</span>
+</button>
+</div>
+<div class="mt-4 grid grid-cols-1 gap-2">
+<button class="text-left px-4 py-2 text-xs text-on-surface-variant italic opacity-70">
+                        Selecione a frequência se sim...
+                    </button>
+</div>
+</div>
+<!-- Question 3: Toggle with Detail -->
+<div class="glass-card p-6 rounded-lg transition-all duration-300">
+<div class="flex items-center justify-between mb-4">
+<label class="font-headline font-semibold text-on-surface">Possui alergias conhecidas?</label>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-surface-variant after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container peer-checked:after:bg-on-primary"></div>
+</div>
+</div>
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-4 text-sm text-on-surface focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all placeholder:text-stone-600" placeholder="Descreva suas alergias (medicamentosas ou alimentares)..." rows="3"></textarea>
+<div class="absolute bottom-3 right-3">
+<span class="material-symbols-outlined text-stone-600 text-lg" data-icon="edit_note">edit_note</span>
+</div>
+</div>
+</div>
+<!-- Decorative Botanical Element -->
+<div class="relative h-40 w-full rounded-xl overflow-hidden mt-8 grayscale opacity-40 mix-blend-screen">
+<img alt="Botanical detail" class="w-full h-full object-cover" data-alt="Macro photography of organic leaf patterns and veins with cinematic dark green lighting and scientific laboratory atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUxWTfJBQQjFp_s-kWJSl3s45nPPq8Y0m7njeQNRcYc9H1Q_-qOHiCwdacwnCXdqxc_vMvuDLVn8jUKGr9KEOeCoZFKz6iCaaHqYLItg0YINohZe2YCa0T8G-f_YtefHskhQH7Uh312Tw8MXHR1hjhXfU2_PVNiScboI8C2kjwwyfW4xvueLk9XisG54FPLFFlv9BkoAGexk0gNY8Nl04YjwvGkpRPx5Ff-DGqetet8AeCTCVjQUG8HpRDVAu0oPuJqWD5hDfmp-_M"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-between items-center px-10 py-6 pb-8 bg-stone-950/90 backdrop-blur-xl dark:bg-stone-950/90 rounded-t-[2rem] border-t border-stone-800/50 shadow-2xl shadow-black">
+<!-- Back Button -->
+<button class="flex flex-col items-center justify-center text-stone-400 p-2 hover:bg-[#A3C93A]/10 hover:text-[#A3C93A] transition-all duration-300 tap-highlight-none">
+<span class="material-symbols-outlined mb-1" data-icon="arrow_back">arrow_back</span>
+<span class="font-manrope text-xs font-semibold uppercase tracking-widest">Back</span>
+</button>
+<!-- Next Button (Active State) -->
+<button class="flex flex-col items-center justify-center bg-[#A3C93A] text-stone-950 rounded-full px-8 py-2 transition-all duration-300 tap-highlight-none active:scale-95">
+<div class="flex items-center gap-2">
+<span class="font-manrope text-xs font-semibold uppercase tracking-widest">Next</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</button>
+</nav>
+</body></html>

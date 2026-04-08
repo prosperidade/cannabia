@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffd6fc",
+                        "outline": "#8f937d",
+                        "on-primary": "#273500",
+                        "surface-container": "#1a2211",
+                        "surface": "#0e1606",
+                        "on-tertiary": "#580064",
+                        "on-background": "#dce6cb",
+                        "primary-container": "#a3c93a",
+                        "on-tertiary-fixed": "#36003e",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "primary-fixed": "#c9f15e",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "primary-fixed-dim": "#aed445",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#161e0d",
+                        "on-surface-variant": "#c5c9b1",
+                        "secondary-container": "#29522e",
+                        "on-primary-fixed": "#151f00",
+                        "on-primary-container": "#3e5200",
+                        "inverse-primary": "#4f6700",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "secondary-fixed": "#bfefbe",
+                        "on-tertiary-container": "#792484",
+                        "tertiary": "#ffc4fe",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "inverse-on-surface": "#2a3320",
+                        "primary": "#bee654",
+                        "on-secondary-container": "#96c496",
+                        "surface-container-highest": "#2f3824",
+                        "surface-container-high": "#242d1a",
+                        "on-surface": "#dce6cb",
+                        "surface-tint": "#aed445",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "inverse-surface": "#dce6cb",
+                        "surface-dim": "#0e1606",
+                        "outline-variant": "#444937",
+                        "error-container": "#93000a",
+                        "on-secondary": "#0e3817",
+                        "on-error": "#690005",
+                        "on-secondary-fixed": "#002107",
+                        "background": "#0e1606",
+                        "surface-container-lowest": "#091003",
+                        "tertiary-container": "#f998ff",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2f3824",
+                        "surface-bright": "#333c29",
+                        "secondary": "#a4d2a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #444937; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#A3C93A]">clinical_notes</span>
+<span class="font-manrope uppercase tracking-widest text-xs font-bold text-zinc-500">Clinical Queue</span>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img alt="Doctor Profile" data-alt="professional portrait of a confident female doctor in a modern clinical setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLKV8IWrXYdfYSwQjs7GbPCsJPbXW8cUJWWWYcKG2PRyigHhqEB8aPIYIJf2olzpstVRKhca1dfbij22RV1jJmQ6kzx2p9pEiIoCCRjUEfuH45nbG8GbJLEOEZ3flwDzDRiGTAMZQFls3M55F1MTiKbQUIljeOyiR1frEWNGl92x_vhQRm26A9oPjVXOXdI634y4FRFgzipBJw5cQQ8oWDsUcoY4RD0R2c1Kvk-ZvSmJCP-OddxY_1oixDTT5CiitQ8dFRAZ_zdoB7"/>
+</div>
+</nav>
+<main class="pt-20 px-5 space-y-6">
+<!-- Patient Profile Header -->
+<header class="flex items-end gap-5 py-4">
+<div class="relative">
+<div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-primary/20">
+<img alt="Elena Sterling" data-alt="portrait of a middle aged woman with silver hair, kind eyes, soft focus garden background with morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3JgFwyEBfFUbM8vwFJrn350VsSEJEMLkdMzD-NY22PE4RldwlG_nYYw7B3kNxSuUtFg1bOy4kH-4dlf4Ek-JJiz6MPY7B4u6MMiNLr8RLLoUZLPub0LrQIeCHYI3brPtwAkcz98KET_8rNVBksQ9X0odYbYUe31tiyfZS-uDbdfpEiot-5L1Pb7XBoBWAmtD5th3MwPeqiRFrcfvBl9mAQ_j_jYL_QM5USsNbLVRinW3J4cXJ6CIcZX86nDaDzd6Lnk6FsN_l9V3Z"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded-full shadow-lg uppercase tracking-tighter">
+                    Stable
+                </div>
+</div>
+<div class="flex-1 pb-1">
+<h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-background">Elena Sterling</h1>
+<p class="text-on-surface-variant text-sm font-medium">Patient ID: #882-019 • 54 Yrs</p>
+</div>
+</header>
+<!-- Compact Metrics Grid -->
+<section class="grid grid-cols-2 gap-3">
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Heart Rate</p>
+<p class="text-lg font-headline font-bold text-on-surface">72 <span class="text-xs font-normal text-on-surface-variant">bpm</span></p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">weight</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">BMI</p>
+<p class="text-lg font-headline font-bold text-on-surface">24.2 <span class="text-xs font-normal text-on-surface-variant">kg/m²</span></p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">thermostat</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Temp</p>
+<p class="text-lg font-headline font-bold text-on-surface">98.6 <span class="text-xs font-normal text-on-surface-variant">°F</span></p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">blood_pressure</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">BP</p>
+<p class="text-lg font-headline font-bold text-on-surface">118/76</p>
+</div>
+</div>
+</section>
+<!-- Central Notes Area -->
+<section class="glass-panel p-5 rounded-3xl shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-7xl">edit_note</span>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">psychiatry</span>
+<h2 class="font-headline font-bold text-lg">Physician's Notes</h2>
+</div>
+<div class="relative">
+<textarea class="w-full bg-surface-container-low border-outline-variant rounded-2xl p-4 text-on-surface placeholder:text-outline h-48 focus:ring-primary focus:border-primary resize-none text-sm leading-relaxed" placeholder="Enter clinical observations, AI-assisted diagnosis markers, or follow-up requirements...">Patient continues to respond well to the modified botanical extract regimen. Sleep patterns have stabilized. Recommendation: Maintain current dosage for another 2 weeks before re-evaluation of neurological markers. BMI remains in the optimal range.</textarea>
+</div>
+<button class="mt-4 w-full bg-[#A3C93A] hover:bg-primary py-4 rounded-xl flex items-center justify-center gap-2 text-on-primary font-bold transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+                Save Notes
+            </button>
+</section>
+<!-- Active Prescriptions -->
+<section class="space-y-3">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant px-1">Active Prescriptions</h3>
+<div class="space-y-2">
+<div class="glass-panel p-4 rounded-2xl flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="bg-tertiary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-tertiary">pill</span>
+</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Metformin HCL</p>
+<p class="text-xs text-on-surface-variant">500mg • Twice Daily</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<div class="glass-panel p-4 rounded-2xl flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">eco</span>
+</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Phyto-Neurol A4</p>
+<p class="text-xs text-on-surface-variant">10ml • Evening</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Clinical History Timeline -->
+<section class="space-y-4 pb-4">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant px-1">Clinical History</h3>
+<div class="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[1px] before:bg-outline-variant">
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary border-4 border-background box-content"></div>
+<div>
+<p class="text-[10px] font-bold text-primary uppercase">Oct 12, 2023</p>
+<p class="text-sm font-bold text-on-surface">Initial Consultation</p>
+<p class="text-xs text-on-surface-variant mt-1 italic">"Patient reporting mild fatigue and irregular sleep cycles."</p>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-outline-variant border-4 border-background box-content"></div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Sep 05, 2023</p>
+<p class="text-sm font-bold text-on-surface">Biomarker Screening</p>
+<p class="text-xs text-on-surface-variant mt-1">Full panel laboratory results uploaded to cloud.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-4 z-50 rounded-t-[40px] border-t border-white/5 bg-zinc-900/90 backdrop-blur-xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-5 py-2 scale-95 active:scale-90 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-manrope text-[10px] font-semibold tracking-tight">Patients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 p-2 hover:bg-white/5 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-manrope text-[10px] font-semibold tracking-tight">Metrics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 p-2 hover:bg-white/5 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">psychiatry</span>
+<span class="font-manrope text-[10px] font-semibold tracking-tight">AI Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 p-2 hover:bg-white/5 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-[10px] font-semibold tracking-tight">Settings</span>
+</a>
+</nav>
+</body></html>

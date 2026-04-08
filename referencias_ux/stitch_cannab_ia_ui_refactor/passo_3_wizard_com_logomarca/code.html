@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffd6fc",
+                    "tertiary": "#ffc4fe",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "surface-variant": "#2f3824",
+                    "inverse-primary": "#4f6700",
+                    "on-tertiary": "#580064",
+                    "primary": "#bee654",
+                    "surface-container-high": "#242d1a",
+                    "surface-container": "#1a2211",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-error-container": "#ffdad6",
+                    "error": "#ffb4ab",
+                    "background": "#0e1606",
+                    "on-tertiary-container": "#792484",
+                    "on-surface-variant": "#c5c9b1",
+                    "on-primary-container": "#3e5200",
+                    "on-primary": "#273500",
+                    "primary-fixed-dim": "#aed445",
+                    "outline": "#8f937d",
+                    "secondary": "#a4d2a4",
+                    "primary-fixed": "#c9f15e",
+                    "surface-container-lowest": "#091003",
+                    "on-primary-fixed": "#151f00",
+                    "on-secondary": "#0e3817",
+                    "surface-dim": "#0e1606",
+                    "on-secondary-fixed": "#002107",
+                    "secondary-fixed": "#bfefbe",
+                    "inverse-on-surface": "#2a3320",
+                    "surface-container-low": "#161e0d",
+                    "surface-tint": "#aed445",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface": "#0e1606",
+                    "primary-container": "#a3c93a",
+                    "on-surface": "#dce6cb",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "inverse-surface": "#dce6cb",
+                    "on-error": "#690005",
+                    "tertiary-container": "#f998ff",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#2f3824",
+                    "secondary-container": "#29522e",
+                    "outline-variant": "#444937",
+                    "on-tertiary-fixed": "#36003e",
+                    "on-background": "#dce6cb",
+                    "on-secondary-container": "#96c496",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "surface-bright": "#333c29"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glassmorphism-blur {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .tonal-shift {
+            background: linear-gradient(180deg, rgba(26, 34, 17, 0) 0%, rgba(14, 22, 6, 0.95) 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 h-16 bg-stone-900/80 backdrop-blur-md rounded-b-3xl border-b border-stone-800/50 shadow-xl shadow-lime-900/10">
+<div class="flex items-center gap-3"><img alt="Cannab'ia Logo" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0uiBfNKgw5UDu0zDfYvfoZL1A7_8yP0AUXhToxTgABpMrhm3XJkIIu1wSxRzHP4fF9e8Q_7Ok8PIBwHrABvqG0p1q40hCVRv3dII1aAs7sk5REpuYV9tpsyzWme5T5xl85uoteRaAj7nhHdmX-fARBQzsFgxqrbTet0JRhpGCZsg3pMaLK56VRbxX498QaUbF_yFh5Hf1uPk9Zo5-Yp3QcMkfiUpeX5LloVB_SofcKN0MEQnTn-O7IvroSz4VrhINpzOxwL6yCwzUoI"/></div>
+<!-- Progress Bar Indicator -->
+<div class="flex flex-col items-end gap-1.5 min-w-[120px]">
+<div class="flex justify-between w-full text-[10px] font-bold tracking-widest text-stone-400">
+<span>PROGRESS</span>
+<span>66%</span>
+</div>
+<div class="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 66%"></div>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 pb-32 px-6 flex flex-col items-center justify-center min-h-screen overflow-hidden relative">
+<!-- Background Organic Shape -->
+<div class="absolute top-1/4 -right-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="absolute bottom-1/4 -left-20 w-80 h-80 bg-secondary/10 blur-[100px] rounded-full pointer-events-none"></div>
+<!-- Animation Visualizer Overlay (Conceptual Framer Motion Hint) -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+<div class="w-full flex justify-end opacity-20 transform translate-x-32 scale-90 blur-sm">
+<div class="bg-surface-container border border-outline-variant p-10 rounded-xl w-80 h-96"></div>
+</div>
+</div>
+<!-- Question Card (The Focused Content) -->
+<section class="relative z-10 w-full max-w-lg">
+<div class="bg-stone-900/40 border border-stone-800/60 p-8 md:p-12 rounded-xl glassmorphism-blur shadow-2xl">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 bg-primary-container/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<span class="text-primary-fixed-dim font-headline text-sm font-semibold tracking-wide">ETAPA 03</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-headline font-extrabold text-on-surface leading-tight mb-10">
+                    Quais sintomas você está sentindo?
+                </h2>
+<!-- Options List (Interactive Feel) -->
+<div class="space-y-4">
+<label class="group flex items-center p-5 bg-stone-800/30 border border-stone-700/50 rounded-lg cursor-pointer hover:bg-stone-800/60 transition-all active:scale-[0.98]">
+<input class="w-5 h-5 rounded border-stone-600 bg-transparent text-primary focus:ring-primary/20 transition-all" type="checkbox"/>
+<span class="ml-4 font-body text-on-surface-variant font-medium">Dor de cabeça persistente</span>
+</label>
+<label class="group flex items-center p-5 bg-stone-800/30 border border-stone-700/50 rounded-lg cursor-pointer hover:bg-stone-800/60 transition-all active:scale-[0.98]">
+<input class="w-5 h-5 rounded border-stone-600 bg-transparent text-primary focus:ring-primary/20 transition-all" type="checkbox"/>
+<span class="ml-4 font-body text-on-surface-variant font-medium">Febre acima de 38°C</span>
+</label>
+<label class="group flex items-center p-5 bg-stone-800/30 border border-stone-700/50 rounded-lg cursor-pointer hover:bg-stone-800/60 transition-all active:scale-[0.98]">
+<input class="w-5 h-5 rounded border-stone-600 bg-transparent text-primary focus:ring-primary/20 transition-all" type="checkbox"/>
+<span class="ml-4 font-body text-on-surface-variant font-medium">Cansaço extremo ou fadiga</span>
+</label>
+</div>
+<!-- Framer Motion Interaction Hint -->
+<div class="mt-12 flex items-center justify-center gap-2 text-stone-500">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+<p class="text-[10px] font-bold uppercase tracking-[0.2em]">Visual Engine: Slide-in Active</p>
+</div>
+</div>
+<!-- Illustration Hint -->
+<div class="mt-8 flex justify-center">
+<img alt="Cannab'ia Branding" class="w-48 h-auto mx-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-500" src="https://lh3.googleusercontent.com/aida/ADBb0uiBfNKgw5UDu0zDfYvfoZL1A7_8yP0AUXhToxTgABpMrhm3XJkIIu1wSxRzHP4fF9e8Q_7Ok8PIBwHrABvqG0p1q40hCVRv3dII1aAs7sk5REpuYV9tpsyzWme5T5xl85uoteRaAj7nhHdmX-fARBQzsFgxqrbTet0JRhpGCZsg3pMaLK56VRbxX498QaUbF_yFh5Hf1uPk9Zo5-Yp3QcMkfiUpeX5LloVB_SofcKN0MEQnTn-O7IvroSz4VrhINpzOxwL6yCwzUoI"/>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-10 py-8 bg-stone-900/90 backdrop-blur-xl rounded-t-[40px] border-t border-stone-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<!-- Back Button (Inactive Style) -->
+<button class="flex flex-row items-center gap-2 text-stone-400 border border-stone-700 rounded-full px-8 py-3 hover:brightness-110 transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back_ios</span>
+<span class="font-manrope font-semibold text-[11px] uppercase tracking-widest">Voltar</span>
+</button>
+<!-- Next Button (Active Style) -->
+<button class="flex flex-row items-center gap-2 bg-[#A3C93A] text-stone-950 rounded-full px-8 py-3 hover:brightness-110 transition-all active:scale-105 group">
+<span class="font-manrope font-semibold text-[11px] uppercase tracking-widest">Próximo</span>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+</button>
+</nav>
+<!-- Desktop Floating Helper (For UX Context) -->
+<div class="hidden lg:flex fixed bottom-32 right-12 flex-col items-end gap-4 pointer-events-none">
+<div class="bg-surface-container-high/60 backdrop-blur border border-outline-variant p-4 rounded-xl max-w-xs shadow-2xl">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+<span class="text-[10px] font-bold tracking-widest uppercase text-primary">Wizard Engine</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                As transições entre etapas utilizam <b>Framer Motion</b> com animações de <i>Spring</i> e <i>Slide</i> para garantir uma experiência clínica fluida e premium.
+            </p>
+</div>
+</div>
+</body></html>

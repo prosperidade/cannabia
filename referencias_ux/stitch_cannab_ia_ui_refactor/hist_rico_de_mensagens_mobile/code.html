@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#a4d2a4",
+                        "inverse-primary": "#4f6700",
+                        "tertiary-fixed": "#ffd6fc",
+                        "surface-dim": "#0e1606",
+                        "on-tertiary-fixed": "#36003e",
+                        "tertiary": "#ffc4fe",
+                        "error-container": "#93000a",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "surface-container": "#1a2211",
+                        "primary-fixed": "#c9f15e",
+                        "tertiary-container": "#f998ff",
+                        "on-secondary-container": "#96c496",
+                        "inverse-on-surface": "#2a3320",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-container-lowest": "#091003",
+                        "on-primary": "#273500",
+                        "on-error": "#690005",
+                        "inverse-surface": "#dce6cb",
+                        "secondary-fixed": "#bfefbe",
+                        "surface-tint": "#aed445",
+                        "primary-fixed-dim": "#aed445",
+                        "error": "#ffb4ab",
+                        "background": "#0e1606",
+                        "surface-container-highest": "#2f3824",
+                        "surface": "#0e1606",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-secondary-fixed": "#002107",
+                        "primary-container": "#a3c93a",
+                        "on-surface": "#dce6cb",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "secondary-container": "#29522e",
+                        "on-background": "#dce6cb",
+                        "on-tertiary-container": "#792484",
+                        "primary": "#bee654",
+                        "surface-variant": "#2f3824",
+                        "outline": "#8f937d",
+                        "on-tertiary": "#580064",
+                        "on-secondary": "#0e3817",
+                        "outline-variant": "#444937",
+                        "surface-container-low": "#161e0d",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary-container": "#3e5200",
+                        "surface-container-high": "#242d1a",
+                        "on-primary-fixed": "#151f00",
+                        "on-error-container": "#ffdad6",
+                        "surface-bright": "#333c29",
+                        "tertiary-fixed-dim": "#fcaaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md dark:bg-zinc-950/80 border-b border-white/5 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img alt="Doctor Profile" class="w-full h-full object-cover" data-alt="Close-up professional portrait of a confident medical researcher in a dark lab setting with subtle green backlighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhMWbISUefK925NBduG66HYTbyrWduXV98h7vrDDB6_obJVFgL7A_6u3WXiA5dRGm84FODcR-b8k2oY8qR3RFsFD7dh8ofuaymHK_2ieV93NTO2Y9CrUh_j7THzgGSEud0gDG9JcjNpn8ZeRfdGxmjLL7z9qO_rbgxx9AnCQP9E7dLf_c04muDfOAiGY7JslJMZbu3VlIlX0M5-w5k9OjU5WE1ZB4-6lVN3P51F2A7uNVTO-NSIrH-ZGevahYSFhjf7Q5jHsmiuSTG"/>
+</div>
+<h1 class="font-manrope tracking-tight text-xl font-bold text-[#A3C93A] uppercase tracking-widest">Botanical Lab</h1>
+</div>
+<button class="text-[#A3C93A] hover:opacity-80 transition-opacity tap-highlight-none active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+</header>
+<main class="pt-24 px-5 max-w-2xl mx-auto">
+<!-- Section Header & Search -->
+<div class="mb-8">
+<h2 class="font-headline text-3xl font-extrabold text-on-surface mb-6 tracking-tight">Mensagens</h2>
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+</div>
+<input class="w-full bg-surface-container-high border-none rounded-2xl py-4 pl-12 pr-4 text-on-surface placeholder-outline-variant focus:ring-2 focus:ring-primary/30 transition-all font-body" placeholder="Filtrar conversas..." type="text"/>
+</div>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-3 mb-8 overflow-x-auto pb-2 no-scrollbar">
+<button class="px-5 py-2 rounded-full bg-primary-container text-on-primary-container text-xs font-bold uppercase tracking-wider whitespace-nowrap">Todas</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider whitespace-nowrap border border-white/5">Pacientes</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider whitespace-nowrap border border-white/5">Staff</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider whitespace-nowrap border border-white/5">Arquivadas</button>
+</div>
+<!-- Message List -->
+<div class="space-y-4">
+<!-- Active Thread: Elena Sterling -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4 active:scale-[0.98] transition-transform cursor-pointer">
+<div class="relative">
+<div class="w-14 h-14 rounded-2xl overflow-hidden">
+<img alt="Elena Sterling" class="w-full h-full object-cover" data-alt="Portrait of a woman with a gentle expression, soft natural lighting, botanical garden background in soft focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKhy2QIceSoilfv6BgOfD1AyfM9wLUrmc2glmxRD2LVBgGsDwZ22CUyr4G_ArZMum31pAoK__JNsxKzlSp-bfzuXspJVo6pEXOrwLHqzLSggYHVpjxrmMHVyToWhe3YKBplzpnv_Gr0fMoitgoA9GJbIPEkHgrNmEI-hFuwL-TMtUOzJMifc8exvSjFxa7Jkub91zCbVJtUgH4bfSihU7dv5B_kk4I8F8luMx4pP__09vi9uwy5d4I1C88lNE2afIB7mRniIhOEfMn"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-[#A3C93A] border-2 border-[#0e1606] rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-headline font-bold text-on-surface truncate">Elena Sterling</h3>
+<span class="text-[10px] font-bold text-[#A3C93A] uppercase tracking-tighter">Agora</span>
+</div>
+<p class="text-sm text-primary font-medium truncate">Doutor, as gotas de CBD estão ajudando...</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="w-2 h-2 rounded-full bg-[#A3C93A] shadow-[0_0_8px_#A3C93A]"></div>
+</div>
+</div>
+<!-- Thread: Arthur Vance -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4 active:scale-[0.98] transition-transform cursor-pointer">
+<div class="w-14 h-14 rounded-2xl overflow-hidden">
+<img alt="Arthur Vance" class="w-full h-full object-cover" data-alt="Senior laboratory technician with glasses, clinical setting, high-tech background with green glowing elements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxb30QeOpjfBQde6LaMUsoNRNqyWPKz7xPpaLumGQI0ZnU06JUpf-CdZtfb0Cg-vtXNW5lBjSDsbJMXRrMOS9j7l2NhW7ncnrNJJBdlPbRo5Dc4g_Pr-7Z_bQp1cZEDIQmCUBSC0fFw78J5tiVJd3WfQGmC9Wqv0yxNKXTqWSod1WZ7ZfiiBjDW-LgpvSCxez3GPTitRrvbBDaA20BHA-F7bZYhOaQgLC_x1XklHPImd6tySoNJjVwf5XxwEknlOR2DsyrmrsYu7CV"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-headline font-bold text-on-surface truncate">Arthur Vance</h3>
+<span class="text-[10px] font-medium text-outline uppercase tracking-tighter">14:20</span>
+</div>
+<p class="text-sm text-outline-variant truncate">Os resultados da cepa G-42 estão prontos para revisão.</p>
+</div>
+</div>
+<!-- Thread: Sarah Miller -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4 opacity-80 active:scale-[0.98] transition-transform cursor-pointer">
+<div class="w-14 h-14 rounded-2xl overflow-hidden grayscale">
+<img alt="Sarah Miller" class="w-full h-full object-cover" data-alt="Young woman in casual attire, minimalist studio lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDingxnKZSCVqZ9jdMo7p68laRYnE22aBxjsoe7iQw4gqhL1n8TuTMtTA2wOcGLhZSzsYgsts4cLVo4FFf66k4f04IPmZLISlSCTx98qq84F5q-0OKwd1_B_g9hQ9OXmCRnQ1O2cMoiyFFqt327uAiSUAywqv6b3piTlKTvfQHrf7N5ySQBxDYN9P7cvfsL4gOB8clN5FG8AVDme2DFn2JN3FTZEzfWutuDTlUS8tfOo7Svp81KMC5JvSstdnjRbMhZ_9IIG8x-Wuv0"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-headline font-bold text-on-surface truncate">Sarah Miller</h3>
+<span class="text-[10px] font-medium text-outline uppercase tracking-tighter">Ontem</span>
+</div>
+<p class="text-sm text-outline-variant truncate">Obrigada pelo acompanhamento clínico.</p>
+</div>
+</div>
+<!-- Thread: Lucas Thorne -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4 active:scale-[0.98] transition-transform cursor-pointer">
+<div class="w-14 h-14 rounded-2xl overflow-hidden">
+<img alt="Lucas Thorne" class="w-full h-full object-cover" data-alt="Middle-aged man in professional attire, indoor setting with warm side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUXAvAy2RlKS2IGKlgqjkKK5-YrFT2VQkVhTS8RMnP034jNoWIr96j6yGsMGogTvEm6nh1x2vn1P4FAb15XtPYSFn7EOeHHsr6AUTDiwERH0JAZX1f8OUTKjsEfh7vu2-9H9nmOiRUAtz919s6bdJakvQPSYs9O_rA2P2aJazZyrKSAE9uva5yJt_wwQbeNQYnfJafq9oGvz_qb_SF8XSUNvD0pFxoy7OTihDtasfaHHIT6oLV_o_7j1ofOkCV9oVuewiBRvevLYaA"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-headline font-bold text-on-surface truncate">Lucas Thorne</h3>
+<span class="text-[10px] font-medium text-outline uppercase tracking-tighter">Qua</span>
+</div>
+<p class="text-sm text-outline-variant truncate">Podemos agendar a coleta de amostras?</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-28 w-16 h-16 bg-[#A3C93A] text-on-primary-fixed flex items-center justify-center rounded-2xl shadow-[0_8px_24px_rgba(163,201,58,0.4)] active:scale-90 transition-transform z-40">
+<span class="material-symbols-outlined text-3xl" data-icon="add_comment" style="font-variation-settings: 'FILL' 1;">add_comment</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-stone-950/90 dark:bg-zinc-950/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/10 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-zinc-500 hover:text-[#A3C93A] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-500 hover:text-[#A3C93A] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Patients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-1 px-4 Active: scale-110 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Messaging</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-500 hover:text-[#A3C93A] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="science">science</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Lab</span>
+</a>
+</nav>
+</body></html>

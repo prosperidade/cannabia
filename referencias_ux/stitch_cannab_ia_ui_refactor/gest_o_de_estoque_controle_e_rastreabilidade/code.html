@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#bee654",
+                        "on-secondary-fixed": "#002107",
+                        "surface-bright": "#333c29",
+                        "primary-container": "#a3c93a",
+                        "on-background": "#dce6cb",
+                        "tertiary-container": "#f998ff",
+                        "on-surface": "#dce6cb",
+                        "surface-container-high": "#242d1a",
+                        "on-secondary-container": "#96c496",
+                        "on-primary": "#273500",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#0e1606",
+                        "error": "#ffb4ab",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "outline-variant": "#444937",
+                        "on-primary-fixed": "#151f00",
+                        "primary-fixed": "#c9f15e",
+                        "inverse-surface": "#dce6cb",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "secondary-container": "#29522e",
+                        "secondary-fixed": "#bfefbe",
+                        "surface-variant": "#2f3824",
+                        "outline": "#8f937d",
+                        "tertiary-fixed": "#ffd6fc",
+                        "surface-container-lowest": "#091003",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-primary-container": "#3e5200",
+                        "background": "#0e1606",
+                        "on-tertiary": "#580064",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "inverse-primary": "#4f6700",
+                        "tertiary": "#ffc4fe",
+                        "secondary": "#a4d2a4",
+                        "on-tertiary-container": "#792484",
+                        "on-secondary": "#0e3817",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-container-highest": "#2f3824",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "error-container": "#93000a",
+                        "surface-tint": "#aed445",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-low": "#161e0d",
+                        "surface-container": "#1a2211",
+                        "surface": "#0e1606",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#aed445"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #0e1606; color: #dce6cb; font-family: 'Inter', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .glass-card { background: rgba(60, 70, 45, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(190, 230, 84, 0.1); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-50 bg-stone-900/90 dark:bg-stone-950/90 backdrop-blur-xl border-r border-stone-800/50 shadow-2xl font-manrope text-sm font-medium">
+<div class="flex flex-col h-full py-6">
+<div class="px-6 mb-8">
+<h1 class="text-lg font-black text-lime-400 uppercase tracking-widest">GreenLab</h1>
+<p class="text-[10px] text-stone-500 tracking-widest uppercase">Cannabis Medicinal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-lime-400 border-r-4 border-lime-400 bg-lime-400/10 transition-all" href="#">
+<span class="material-symbols-outlined">inventory_2</span> Estoque
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined">potted_plant</span> Cultivo
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined">group</span> Pacientes
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined">account_balance</span> Associações
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined">analytics</span> Relatórios
+                </a>
+</nav>
+<div class="mt-auto border-t border-stone-800/50 pt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">help</span> Suporte
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">logout</span> Sair
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 bg-[#0e1606]">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center px-6 h-16 w-full bg-stone-900/80 backdrop-blur-md dark:bg-stone-950/80 border-b border-stone-800/50 shadow-xl fixed top-0 z-40 font-manrope text-sm tracking-tight left-0 md:left-64 md:w-[calc(100%-16rem)]">
+<div class="flex items-center gap-4">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-lime-400">menu</span>
+</div>
+<span class="text-xl font-bold tracking-tighter text-lime-400">VerdeGestão</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-stone-800/50 px-3 py-1.5 rounded-full border border-stone-700/50">
+<span class="material-symbols-outlined text-stone-400 text-lg mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-48 text-stone-200" placeholder="Buscar no estoque..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-stone-400 cursor-pointer hover:text-lime-400 transition-colors">notifications</span>
+<span class="material-symbols-outlined text-stone-400 cursor-pointer hover:text-lime-400 transition-colors">settings</span>
+<img alt="Avatar do Gestor" class="w-8 h-8 rounded-full border border-lime-400/30" data-alt="Professional avatar of a clinic manager with soft studio lighting and dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8RyLZJD93ksVoeFLy-Ga_fhNW4aA834HfguvkwMTAgqBi7wvulGyUFK2ABFlByY06auHIjYP58LkJ-wn_Q-OIYNa9EQyHQ2o4LFgz3cYMf5Nne72bPRk45tEw4i_cm0Nl5WyZ5P8QPEm0J574wNDdL0gLhP0XkvbXzWFnAsexWK7LEqkNRx_bJTpO88L2cUc7DaJr8m6kOVz7EDIYvaiue-GGelSMcpr4tbULIJTy-jBtgqDKp-K71aqkHAlxMwSB5R5aZAgPydNj"/>
+</div>
+</div>
+</header>
+<div class="p-6 mt-16 max-w-7xl mx-auto space-y-8">
+<!-- Hero Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-4 py-4">
+<div>
+<nav class="flex items-center gap-2 text-[10px] text-stone-500 uppercase tracking-widest mb-2">
+<span>Organização</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-lime-400">Estoque</span>
+</nav>
+<h2 class="text-3xl font-extrabold font-manrope text-on-surface tracking-tight">Gestão de Estoque</h2>
+<p class="text-stone-400 text-sm mt-1">Controle analítico de fitofármacos e derivados.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                    Novo Lote/Produto
+                </button>
+</section>
+<!-- Metrics Bento Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">inventory</span>
+</div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider">Total de Itens</p>
+<h3 class="text-3xl font-manrope font-black text-on-surface mt-1">1.248</h3>
+<div class="mt-4 flex items-center gap-1 text-[10px] text-lime-400">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12% este mês</span>
+</div>
+</div>
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-error">alarm_on</span>
+</div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider">Próximos do Vencimento</p>
+<h3 class="text-3xl font-manrope font-black text-error mt-1">14</h3>
+<div class="mt-4 flex items-center gap-1 text-[10px] text-error">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span>Requer atenção imediata</span>
+</div>
+</div>
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary">payments</span>
+</div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider">Valor em Estoque</p>
+<h3 class="text-3xl font-manrope font-black text-on-surface mt-1">R$ 84k</h3>
+<div class="mt-4 flex items-center gap-1 text-[10px] text-stone-400">
+<span>Atualizado há 1h</span>
+</div>
+</div>
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group border-l-4 border-l-primary">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">biotech</span>
+</div>
+<p class="text-stone-400 text-xs font-semibold uppercase tracking-wider">Alertas de Lote</p>
+<h3 class="text-3xl font-manrope font-black text-on-surface mt-1">03</h3>
+<div class="mt-4 flex items-center gap-1 text-[10px] text-primary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Rastreabilidade OK</span>
+</div>
+</div>
+</section>
+<!-- Main Inventory Table & Filters -->
+<section class="space-y-4">
+<div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+<div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+<button class="bg-surface-container-high text-on-surface px-4 py-2 rounded-full text-xs font-medium border border-outline-variant/30 flex items-center gap-2 whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">filter_alt</span> Categorias
+                        </button>
+<button class="bg-surface-container-high text-on-surface px-4 py-2 rounded-full text-xs font-medium border border-outline-variant/30 flex items-center gap-2 whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">check_circle</span> Status
+                        </button>
+<button class="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold border border-primary/20 flex items-center gap-2 whitespace-nowrap">
+                            Limpar Filtros
+                        </button>
+</div>
+<div class="relative w-full md:w-72">
+<input class="w-full bg-surface-container-low border border-stone-800 rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Filtrar por lote ou produto..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-stone-500">search</span>
+</div>
+</div>
+<!-- Modern Table -->
+<div class="glass-card rounded-2xl overflow-hidden border border-stone-800/50">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-stone-900/50 border-b border-stone-800/50">
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-stone-400">Produto</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-stone-400">Lote</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-stone-400">Validade</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-stone-400">Qtd / Unidade</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-center">Status</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-stone-400"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-stone-800/30">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1">science</span>
+</div>
+<div>
+<p class="font-manrope font-bold text-sm">Óleo CBD 10% Full Spectrum</p>
+<p class="text-[10px] text-stone-500 uppercase">Frasco 30ml</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-mono text-stone-300">#GL-2023-08</td>
+<td class="px-6 py-4 text-xs text-stone-300">12 Out 2024</td>
+<td class="px-6 py-4 text-xs font-bold">45 <span class="text-stone-500 font-normal">unid</span></td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tight bg-primary/20 text-primary border border-primary/20">Disponível</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-stone-500 hover:text-white transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1">eco</span>
+</div>
+<div>
+<p class="font-manrope font-bold text-sm">Flores Secas (Cultivo Premium)</p>
+<p class="text-[10px] text-stone-500 uppercase">Variedade Indica</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-mono text-stone-300">#CP-2024-01</td>
+<td class="px-6 py-4 text-xs text-stone-300">22 Abr 2024</td>
+<td class="px-6 py-4 text-xs font-bold">120 <span class="text-stone-500 font-normal">g</span></td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tight bg-orange-500/20 text-orange-400 border border-orange-500/20">Baixo Estoque</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-stone-500 hover:text-white transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1">medical_services</span>
+</div>
+<div>
+<p class="font-manrope font-bold text-sm">Cápsulas Isoladas 50mg</p>
+<p class="text-[10px] text-stone-500 uppercase">Pote 60 Caps</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-mono text-stone-300">#CI-2023-11</td>
+<td class="px-6 py-4 text-xs text-error font-semibold">05 Jan 2024</td>
+<td class="px-6 py-4 text-xs font-bold">08 <span class="text-stone-500 font-normal">unid</span></td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tight bg-error/20 text-error border border-error/20">Vencido</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-stone-500 hover:text-white transition-colors">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-stone-900/30 border-t border-stone-800/50 flex justify-between items-center">
+<p class="text-[10px] text-stone-500 uppercase tracking-widest">Exibindo 3 de 142 itens</p>
+<div class="flex gap-2">
+<button class="p-1 rounded-lg border border-stone-800 hover:bg-stone-800 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-1 rounded-lg border border-stone-800 hover:bg-stone-800 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Layout: Latest Dispenses -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 glass-card rounded-2xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-manrope font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">history</span>
+                            Últimas Saídas / Dispensações
+                        </h4>
+<button class="text-xs text-primary font-bold hover:underline">Ver Histórico Completo</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-stone-900/50 border border-stone-800/50">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm">outbound</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold">02x Óleo CBD 10% (Lote #GL-2023-08)</p>
+<p class="text-[10px] text-stone-500 uppercase tracking-tight">Paciente: João Silva • Há 15 min</p>
+</div>
+<div class="text-right">
+<span class="material-symbols-outlined text-stone-500 cursor-pointer">receipt_long</span>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl bg-stone-900/50 border border-stone-800/50">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm">outbound</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold">10g Flores Secas (Lote #CP-2024-01)</p>
+<p class="text-[10px] text-stone-500 uppercase tracking-tight">Paciente: Maria Oliveira • Hoje, 09:30</p>
+</div>
+<div class="text-right">
+<span class="material-symbols-outlined text-stone-500 cursor-pointer">receipt_long</span>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
+<div>
+<h4 class="font-manrope font-bold text-lg mb-2">Relatório de Rastreabilidade</h4>
+<p class="text-xs text-stone-400 mb-6 leading-relaxed">Gere um log completo de toda a movimentação de um lote específico para fins de auditoria sanitária.</p>
+<div class="space-y-3">
+<div class="relative">
+<select class="w-full bg-surface-container-low border border-stone-800 rounded-xl px-4 py-2.5 text-xs text-stone-200 outline-none appearance-none">
+<option>Selecionar Lote...</option>
+<option>#GL-2023-08 - Óleo CBD</option>
+<option>#CP-2024-01 - Flores Secas</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-stone-500 pointer-events-none">expand_more</span>
+</div>
+<button class="w-full bg-stone-800 hover:bg-stone-700 text-on-surface py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">download</span>
+                                Exportar PDF Auditável
+                            </button>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-stone-800/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-lime-400/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-400">verified_user</span>
+</div>
+<div>
+<p class="text-[10px] uppercase font-black text-lime-400">Conformidade Sanitária</p>
+<p class="text-[11px] text-stone-400 leading-tight">Sistema operando sob diretrizes da RDC 327/2019.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Sticky FAB for Mobile Context -->
+<button class="md:hidden fixed bottom-6 right-6 bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-2xl z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</main>
+</body></html>

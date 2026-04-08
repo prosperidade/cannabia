@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#2f3824",
+                        "inverse-on-surface": "#2a3320",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-tertiary-container": "#792484",
+                        "inverse-primary": "#4f6700",
+                        "surface-variant": "#2f3824",
+                        "surface-container": "#1a2211",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-primary-container": "#3e5200",
+                        "primary-container": "#a3c93a",
+                        "on-tertiary": "#580064",
+                        "primary-fixed-dim": "#aed445",
+                        "on-surface": "#dce6cb",
+                        "on-secondary-container": "#96c496",
+                        "on-primary": "#273500",
+                        "inverse-surface": "#dce6cb",
+                        "tertiary-container": "#f998ff",
+                        "secondary": "#a4d2a4",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#8f937d",
+                        "secondary-fixed": "#bfefbe",
+                        "surface-container-lowest": "#091003",
+                        "on-secondary": "#0e3817",
+                        "on-background": "#dce6cb",
+                        "secondary-container": "#29522e",
+                        "on-primary-fixed": "#151f00",
+                        "on-error": "#690005",
+                        "primary": "#bee654",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-bright": "#333c29",
+                        "on-secondary-fixed": "#002107",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-container-low": "#161e0d",
+                        "tertiary": "#ffc4fe",
+                        "surface-container-high": "#242d1a",
+                        "tertiary-fixed": "#ffd6fc",
+                        "surface": "#0e1606",
+                        "primary-fixed": "#c9f15e",
+                        "surface-tint": "#aed445",
+                        "surface-dim": "#0e1606",
+                        "outline-variant": "#444937",
+                        "background": "#0e1606",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary-fixed-variant": "#3a4d00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .biophilic-gradient {
+            background: radial-gradient(circle at top right, rgba(190, 230, 84, 0.08), transparent),
+                        radial-gradient(circle at bottom left, rgba(41, 82, 46, 0.1), transparent);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar Implementation -->
+<aside class="fixed left-0 top-0 h-screen w-64 z-40 bg-stone-950/90 backdrop-blur-xl border-r border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.5)] flex flex-col pt-20 pb-6">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-6">
+<img alt="CannabIA System Logo" class="w-10 h-10 rounded-full border border-primary/20" data-alt="Minimalist botanical logo with geometric leaf patterns and futuristic clinical aesthetic white and lime green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCod0MXviA5vFt2mOnFUIU0qfGucIO48uan-z3cXN9RTiAbgnROFA9a5f4Ll0lr-2DwSyu_I79DyL9KoRew-NdYMh_IRkbYDOl03WBPpvR5sFmheEb2eByJ2b8bFAWdBajEuqLe1Y0SefcgjP1rhZc5omuid07brnU0jWaAzkbBsW-Mi8oJPibeK5ppk9RD_-vmyHRL2eDjlRjMROlgXA8TL-Zgu7Eq8fBpRSoROy1NgDodGrVg4fghkLZSof2WFCWj8HLYcw4e5ndg"/>
+<div>
+<h2 class="text-lime-500 font-black text-sm uppercase tracking-tighter">Clinical Intelligence</h2>
+<p class="text-[10px] text-stone-500 font-semibold tracking-widest uppercase">Botanical Precision Engine</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-lime-400 bg-lime-400/10 border-r-4 border-lime-400 px-4 py-3 font-manrope text-xs uppercase tracking-widest font-semibold transition-all hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined">analytics</span> Clinical Overview
+            </a>
+<a class="flex items-center gap-3 text-stone-500 px-4 py-3 hover:text-stone-200 font-manrope text-xs uppercase tracking-widest font-semibold transition-all hover:bg-white/5 hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined">genetics</span> Genomic Analysis
+            </a>
+<a class="flex items-center gap-3 text-stone-500 px-4 py-3 hover:text-stone-200 font-manrope text-xs uppercase tracking-widest font-semibold transition-all hover:bg-white/5 hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined">science</span> Dosage AI
+            </a>
+<a class="flex items-center gap-3 text-stone-500 px-4 py-3 hover:text-stone-200 font-manrope text-xs uppercase tracking-widest font-semibold transition-all hover:bg-white/5 hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined">assignment_ind</span> Patient Logs
+            </a>
+<a class="flex items-center gap-3 text-stone-500 px-4 py-3 hover:text-stone-200 font-manrope text-xs uppercase tracking-widest font-semibold transition-all hover:bg-white/5 hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined">potted_plant</span> Botanical Library
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-colors active:scale-95 duration-200">
+                Request Lab Sync
+            </button>
+<div class="mt-6 border-t border-white/5 pt-4">
+<a class="flex items-center gap-3 text-stone-500 px-4 py-2 hover:text-stone-200 text-xs font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">help_outline</span> Support
+                </a>
+<a class="flex items-center gap-3 text-stone-500 px-4 py-2 hover:text-stone-200 text-xs font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">logout</span> Sign Out
+                </a>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Implementation -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-white/10 shadow-2xl shadow-lime-900/10 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-8 pl-64">
+<span class="text-xl font-bold tracking-tighter text-lime-400 font-headline">Cannab'IA</span>
+<div class="flex gap-6 font-manrope text-sm tracking-tight">
+<a class="text-stone-400 hover:text-lime-200 transition-colors active:scale-95 duration-200" href="#">Dashboard</a>
+<a class="text-stone-400 hover:text-lime-200 transition-colors active:scale-95 duration-200" href="#">Patients</a>
+<a class="text-stone-400 hover:text-lime-200 transition-colors active:scale-95 duration-200" href="#">Research</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex gap-3 text-stone-400">
+<span class="material-symbols-outlined hover:text-lime-400 cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined hover:text-lime-400 cursor-pointer transition-colors">settings</span>
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-full text-xs font-bold font-manrope hover:bg-primary transition-colors active:scale-95">
+                New Consultation
+            </button>
+<img alt="Dr. Profile Avatar" class="w-8 h-8 rounded-full ring-2 ring-primary/20" data-alt="Professional headshot of a medical doctor in a modern clinical setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS2GoefchDKA3s6gxl-q2jYRRPXJB2DPqm0w0CDR6QgF8ki0C-fU0t0KlTdzq51-ieVlLF3zFJowSQzh2QY1KAIi_1gD5q22PT4GsofQIaWKV3gjCG9Yi46arary6K1VOqEaD4G6RRgYD6M_GAPpdWbTMlbmSpinxTRA6zAkhXV2DP5b5Y-_Rim4rwVVUxt56ilXsMHz6DRZN6YCtdQexcXD-M2kq4EFyI6jmislpMogK4nqB8vyM2mL9D2UTJ2Vr-n2TegX100Aaa"/>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-24 pb-12 px-8 min-h-screen biophilic-gradient">
+<!-- Header -->
+<div class="mb-10">
+<h1 class="text-4xl font-headline font-extrabold tracking-tight text-on-surface mb-2">Inteligência Clínica &amp; Analytics</h1>
+<p class="text-on-surface-variant font-light max-w-2xl">Monitoramento em tempo real da performance terapêutica botânica e precisão diagnóstica baseada em dados laboratoriais.</p>
+</div>
+<!-- Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary">monitoring</span>
+</div>
+<p class="text-xs font-label uppercase tracking-widest text-on-surface-variant mb-2">Eficácia Média do Tratamento</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-primary">84.2</span>
+<span class="text-xl font-headline font-bold text-primary-container">%</span>
+<span class="text-xs text-secondary ml-auto flex items-center"><span class="material-symbols-outlined text-sm">trending_up</span> +2.4%</span>
+</div>
+<div class="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 84%;"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-secondary">health_metrics</span>
+</div>
+<p class="text-xs font-label uppercase tracking-widest text-on-surface-variant mb-2">Redução de Sintomas Críticos</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-secondary">67.8</span>
+<span class="text-xl font-headline font-bold text-secondary-fixed-dim">%</span>
+<span class="text-xs text-secondary ml-auto flex items-center"><span class="material-symbols-outlined text-sm">trending_up</span> +5.1%</span>
+</div>
+<div class="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 67%;"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-tertiary">verified</span>
+</div>
+<p class="text-xs font-label uppercase tracking-widest text-on-surface-variant mb-2">Aderência ao Protocolo</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-tertiary">91.5</span>
+<span class="text-xl font-headline font-bold text-tertiary-fixed-dim">%</span>
+<span class="text-xs text-stone-500 ml-auto flex items-center">Estável</span>
+</div>
+<div class="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary" style="width: 91%;"></div>
+</div>
+</div>
+</div>
+<!-- Middle Section: Strains & Heatmap -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+<!-- Top Strains Chart -->
+<div class="lg:col-span-2 glass-card p-8 rounded-lg">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="text-xl font-headline font-bold text-on-surface">Top Strains/Terpenos Prescritos</h3>
+<p class="text-sm text-on-surface-variant">Correlação entre genética e eficácia observada</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">more_vert</span>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-12 items-center gap-4">
+<div class="col-span-3 text-sm font-semibold text-on-surface">Myrcene Rich / OG</div>
+<div class="col-span-7 h-8 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary/80 flex items-center px-4 text-[10px] font-bold text-on-primary" style="width: 85%">EFICÁCIA: 85%</div>
+</div>
+<div class="col-span-2 text-right text-xs text-on-surface-variant">142 Prescr.</div>
+</div>
+<div class="grid grid-cols-12 items-center gap-4">
+<div class="col-span-3 text-sm font-semibold text-on-surface">Limonene / Super S.</div>
+<div class="col-span-7 h-8 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary/60 flex items-center px-4 text-[10px] font-bold text-on-primary" style="width: 72%">EFICÁCIA: 72%</div>
+</div>
+<div class="col-span-2 text-right text-xs text-on-surface-variant">98 Prescr.</div>
+</div>
+<div class="grid grid-cols-12 items-center gap-4">
+<div class="col-span-3 text-sm font-semibold text-on-surface">Linalool / Lavender</div>
+<div class="col-span-7 h-8 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary/40 flex items-center px-4 text-[10px] font-bold text-on-primary" style="width: 64%">EFICÁCIA: 64%</div>
+</div>
+<div class="col-span-2 text-right text-xs text-on-surface-variant">76 Prescr.</div>
+</div>
+<div class="grid grid-cols-12 items-center gap-4">
+<div class="col-span-3 text-sm font-semibold text-on-surface">Caryophyllene / GSC</div>
+<div class="col-span-7 h-8 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary/20 flex items-center px-4 text-[10px] font-bold text-on-primary" style="width: 48%">EFICÁCIA: 48%</div>
+</div>
+<div class="col-span-2 text-right text-xs text-on-surface-variant">54 Prescr.</div>
+</div>
+</div>
+</div>
+<!-- Heatmap -->
+<div class="glass-card p-8 rounded-lg">
+<h3 class="text-xl font-headline font-bold text-on-surface mb-6">Mapa de Calor de Sintomas</h3>
+<div class="space-y-4">
+<div class="p-4 rounded-lg bg-primary-container/20 border border-primary/20 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">sentiment_very_satisfied</span>
+<span class="text-sm font-bold">Ansiedade</span>
+</div>
+<span class="text-xs font-bold text-primary">OTIMIZADO</span>
+</div>
+<div class="p-4 rounded-lg bg-secondary-container/20 border border-secondary/20 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">flare</span>
+<span class="text-sm font-bold">Dor Crônica</span>
+</div>
+<span class="text-xs font-bold text-secondary">MELHORANDO</span>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-highest/40 border border-white/5 flex justify-between items-center opacity-60">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">bedtime</span>
+<span class="text-sm font-bold">Insônia</span>
+</div>
+<span class="text-xs font-bold">EM OBSERVAÇÃO</span>
+</div>
+<div class="p-4 rounded-lg bg-error-container/10 border border-error/20 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">warning</span>
+<span class="text-sm font-bold">Espasticidade</span>
+</div>
+<span class="text-xs font-bold text-error">ALERTA</span>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/5">
+<img class="w-full h-24 object-cover rounded grayscale" data-alt="Abstract microscopic visualization of plant cellular structures with glowing fluorescent markers on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDWWIXb0MGcuBrsa2gno4gm6SKHYpMjemvEXXM8m2weg1ivNEe28A6twUNyzgKx1vi3MnXXpLOwmASQYoYlcxmAM_6Hqd6JZspXgQLEAPW1-P_pGy-uRJyR6WTdDFS3HXPNobROVAwzzdLlsST6xW8CehGEXAtSrzKMjSww6wty-bHDXtz5TMZfpx0z_AUYLds0erRqXb2gJeXATXgAE0qiyxHiuzzwUx7nCNa8Jf6rO5ceuhnfiisLJMWB9Ow9j15hiDNq5Z068TI"/>
+</div>
+</div>
+</div>
+<!-- Lower Section: Alerts & Insights -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+<!-- AI Alerts -->
+<div class="lg:col-span-1 space-y-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary">smart_toy</span>
+<h3 class="text-lg font-headline font-bold text-on-surface">Alertas Preventivos IA</h3>
+</div>
+<div class="glass-card p-4 rounded-lg border-l-4 border-primary">
+<p class="text-xs font-bold text-primary mb-1">Paciente ID #0942</p>
+<p class="text-sm text-on-surface leading-snug">Evolução de 12% abaixo da meta. Sugerimos revisão de dosagem de Terpinolene.</p>
+</div>
+<div class="glass-card p-4 rounded-lg border-l-4 border-tertiary">
+<p class="text-xs font-bold text-tertiary mb-1">Correlação Atípica</p>
+<p class="text-sm text-on-surface leading-snug">Detecção de resistência progressiva ao protocolo CBD 10:1 em 4 pacientes.</p>
+</div>
+<div class="glass-card p-4 rounded-lg border-l-4 border-secondary">
+<p class="text-xs font-bold text-secondary mb-1">Otimização Possível</p>
+<p class="text-sm text-on-surface leading-snug">Protocolos de sono respondendo melhor a dosagens 20min mais cedo.</p>
+</div>
+</div>
+<!-- Research Insights Table -->
+<div class="lg:col-span-3 glass-card rounded-lg overflow-hidden">
+<div class="p-6 border-b border-white/5 flex justify-between items-center">
+<h3 class="text-lg font-headline font-bold">Insights de Pesquisa: Dosagem vs Resultados</h3>
+<button class="text-xs text-primary font-bold hover:underline">Exportar Dados (.CSV)</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low text-[10px] uppercase tracking-widest text-on-surface-variant">
+<tr>
+<th class="px-6 py-4">Fórmula / Dosagem</th>
+<th class="px-6 py-4 text-center">Frequência Diária</th>
+<th class="px-6 py-4">Sintoma Principal</th>
+<th class="px-6 py-4">Tempo de Resposta</th>
+<th class="px-6 py-4 text-right">Eficácia IA</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-semibold text-on-surface">Full Spectrum 20:1 (30mg)</td>
+<td class="px-6 py-4 text-center">2x</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-surface-container rounded-full text-[10px]">Inflamação</span></td>
+<td class="px-6 py-4 text-on-surface-variant">4 dias</td>
+<td class="px-6 py-4 text-right font-bold text-primary">88%</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-semibold text-on-surface">Isolado CBD (50mg)</td>
+<td class="px-6 py-4 text-center">1x</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-surface-container rounded-full text-[10px]">Ansiedade</span></td>
+<td class="px-6 py-4 text-on-surface-variant">45 min</td>
+<td class="px-6 py-4 text-right font-bold text-primary">76%</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-semibold text-on-surface">Terpene Mix Calm (5 drops)</td>
+<td class="px-6 py-4 text-center">3x</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-surface-container rounded-full text-[10px]">Estresse</span></td>
+<td class="px-6 py-4 text-on-surface-variant">15 min</td>
+<td class="px-6 py-4 text-right font-bold text-secondary">62%</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-semibold text-on-surface">THC-Dominant 1:5 (10mg)</td>
+<td class="px-6 py-4 text-center">1x</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-surface-container rounded-full text-[10px]">Dor Oncológica</span></td>
+<td class="px-6 py-4 text-on-surface-variant">30 min</td>
+<td class="px-6 py-4 text-right font-bold text-primary">94%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden on Dash per rules, but showing the structure for completeness if required on main interaction) -->
+<!-- Suppressed on Dashboard/Details screens per protocol -->
+</body></html>

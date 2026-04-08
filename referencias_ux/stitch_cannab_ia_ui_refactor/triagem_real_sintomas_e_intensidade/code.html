@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Triage - Etapa 02</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#36003e",
+                        "surface-container": "#1a2211",
+                        "on-primary-container": "#3e5200",
+                        "on-surface-variant": "#c5c9b1",
+                        "inverse-primary": "#4f6700",
+                        "surface-variant": "#2f3824",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-tertiary-container": "#792484",
+                        "surface-container-highest": "#2f3824",
+                        "inverse-on-surface": "#2a3320",
+                        "secondary-fixed": "#bfefbe",
+                        "outline": "#8f937d",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#dce6cb",
+                        "secondary": "#a4d2a4",
+                        "tertiary-container": "#f998ff",
+                        "on-tertiary": "#580064",
+                        "primary-container": "#a3c93a",
+                        "primary-fixed-dim": "#aed445",
+                        "on-surface": "#dce6cb",
+                        "on-secondary-container": "#96c496",
+                        "on-primary": "#273500",
+                        "surface-bright": "#333c29",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-container-low": "#161e0d",
+                        "secondary-container": "#29522e",
+                        "primary": "#bee654",
+                        "on-primary-fixed": "#151f00",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#091003",
+                        "on-secondary": "#0e3817",
+                        "on-background": "#dce6cb",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#0e1606",
+                        "outline-variant": "#444937",
+                        "background": "#0e1606",
+                        "surface-tint": "#aed445",
+                        "primary-fixed": "#c9f15e",
+                        "tertiary": "#ffc4fe",
+                        "surface-container-high": "#242d1a",
+                        "surface": "#0e1606",
+                        "tertiary-fixed": "#ffd6fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(163, 201, 58, 0.2);
+            border-radius: 2px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #bee654;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(190, 230, 84, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md dark:bg-stone-950/80 z-50">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#A3C93A] text-2xl" data-icon="clinical_notes">clinical_notes</span>
+<span class="text-lg font-bold tracking-widest text-[#A3C93A] uppercase font-headline">Cannab'IA</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Etapa 02 de 04</span>
+<div class="w-24 h-1 bg-stone-800 rounded-full mt-1 overflow-hidden">
+<div class="w-1/2 h-full bg-[#A3C93A]"></div>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto">
+<!-- Question Section -->
+<section class="mb-10">
+<h1 class="text-3xl font-headline font-light tracking-tight leading-tight text-on-surface">
+                Quais <span class="text-primary font-normal italic">sintomas</span> você está sentindo e qual a intensidade?
+            </h1>
+<p class="mt-4 text-on-surface-variant font-body text-sm leading-relaxed">
+                Arraste o marcador para indicar a intensidade de 0 a 10 para cada sintoma selecionado.
+            </p>
+</section>
+<!-- Symptoms Grid/List -->
+<div class="space-y-4">
+<!-- Symptom Card 1 -->
+<div class="glass-card p-6 rounded-lg transition-all duration-300 hover:border-primary/30">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="bolt">bolt</span>
+</div>
+<h3 class="font-headline font-semibold text-lg text-on-surface">Dor Crônica</h3>
+</div>
+<span class="text-2xl font-headline font-bold text-primary">7</span>
+</div>
+<div class="relative w-full px-1">
+<input class="accent-primary" max="10" min="0" type="range" value="7"/>
+<div class="flex justify-between mt-2 text-[10px] uppercase tracking-tighter text-stone-500 font-bold">
+<span>Leve</span>
+<span>Moderada</span>
+<span>Intensa</span>
+</div>
+</div>
+</div>
+<!-- Symptom Card 2 -->
+<div class="glass-card p-6 rounded-lg transition-all duration-300 border-primary/20">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="bedtime">bedtime</span>
+</div>
+<h3 class="font-headline font-semibold text-lg text-on-surface">Insônia</h3>
+</div>
+<span class="text-2xl font-headline font-bold text-primary">4</span>
+</div>
+<div class="relative w-full px-1">
+<input class="accent-primary" max="10" min="0" type="range" value="4"/>
+<div class="flex justify-between mt-2 text-[10px] uppercase tracking-tighter text-stone-500 font-bold">
+<span>Leve</span>
+<span>Moderada</span>
+<span>Intensa</span>
+</div>
+</div>
+</div>
+<!-- Symptom Card 3 -->
+<div class="glass-card p-6 rounded-lg transition-all duration-300 hover:border-primary/30">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="psychology">psychology</span>
+</div>
+<h3 class="font-headline font-semibold text-lg text-on-surface">Ansiedade</h3>
+</div>
+<span class="text-2xl font-headline font-bold text-primary">9</span>
+</div>
+<div class="relative w-full px-1">
+<input class="accent-primary" max="10" min="0" type="range" value="9"/>
+<div class="flex justify-between mt-2 text-[10px] uppercase tracking-tighter text-stone-500 font-bold">
+<span>Leve</span>
+<span>Moderada</span>
+<span>Intensa</span>
+</div>
+</div>
+</div>
+<!-- Add More Button -->
+<button class="w-full py-4 border-2 border-dashed border-stone-800 rounded-lg flex items-center justify-center gap-2 text-stone-500 hover:text-primary hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span class="text-xs font-bold uppercase tracking-widest">Adicionar outro sintoma</span>
+</button>
+</div>
+<!-- Botanical Decorative Element -->
+<div class="mt-12 flex justify-center opacity-20 grayscale pointer-events-none">
+<img alt="Botanical background" class="w-32 h-32 object-cover rounded-full mix-blend-screen" data-alt="microscopic view of plant cells or botanical structures in high contrast green and black aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8LR-AFhgXyCO2cNEE_ySZ7a-aFL1i_-dX_9yMgfVAj8aH99v8JKz34eNY7mrv39ncQdWzDPt8vy4l81GjWW2w_8KbbaOV6Egnia2u_IsCp17jwZHT3V3u_YB0vSsvxsOf2IyaAP0vWTgRes41B69LrnLu58kL1PsuXlPfhtPIcaX7bNe2KCBk5Cwo-67_NTivn_kRCERGSymN6Q9jLISUvT4YbfMzosIwzVz7xREvcm-h7igsES_ohbgs2t5Xhy7N-u3v_mxXFFxs"/>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-between items-center px-10 py-6 pb-8 bg-stone-950/90 backdrop-blur-xl dark:bg-stone-950/90 rounded-t-[2rem] border-t border-stone-800/50 shadow-2xl shadow-black">
+<!-- Back Button -->
+<button class="flex flex-col items-center justify-center text-stone-400 p-2 hover:bg-[#A3C93A]/10 hover:text-[#A3C93A] transition-all duration-300 scale-95 active:duration-100">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+<span class="font-manrope text-xs font-semibold uppercase tracking-widest mt-1">Back</span>
+</button>
+<!-- Next Button (Active) -->
+<button class="flex flex-col items-center justify-center bg-[#A3C93A] text-stone-950 rounded-full px-8 py-2 transition-all duration-300 scale-95 active:duration-100 shadow-lg shadow-primary/20">
+<div class="flex items-center gap-2">
+<span class="font-manrope text-xs font-bold uppercase tracking-widest">Next</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</button>
+</nav>
+</body></html>

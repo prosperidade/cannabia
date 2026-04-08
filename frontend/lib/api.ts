@@ -227,6 +227,49 @@ export async function createAppointment(csrfToken: string, payload: AppointmentP
   return response.data;
 }
 
+export async function calculateDosage(csrfToken: string, payload: Record<string, unknown>) {
+  return request<Record<string, unknown>>("/prescriptions/calculate", {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function emitPrescription(csrfToken: string, payload: Record<string, unknown>) {
+  return request<Record<string, unknown>>("/prescriptions/emit", {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function listPrescriptions() {
+  return request<Record<string, unknown>[]>("/prescriptions");
+}
+
+export async function getPrescription(id: string) {
+  return request<Record<string, unknown>>(`/prescriptions/${id}`);
+}
+
+export async function listTenants() {
+  const response = await request<import("@/lib/types-admin").Tenant[]>("/admin/tenants");
+  return response.data;
+}
+
+export async function createTenant(
+  csrfToken: string,
+  payload: { name: string; slug: string; type: string; plan: string },
+) {
+  const response = await request<{ created: boolean; tenant_id: number }>("/admin/tenants", {
+    method: "POST",
+    headers: {
+      "X-CSRF-Token": csrfToken,
+    },
+    body: JSON.stringify(payload),
+  });
+  return response.data;
+}
+
 export async function getAiMetrics(filters: AiMetricsFilters = {}) {
   const params = new URLSearchParams();
   if (filters.status?.trim()) {
@@ -241,4 +284,57 @@ export async function getAiMetrics(filters: AiMetricsFilters = {}) {
   const query = params.toString() ? `?${params.toString()}` : "";
   const response = await request<AiAuditData>(`/admin/ai-metrics${query}`);
   return response.data;
+}
+
+// ── Patient Portal ──
+export async function getPatientProfile() {
+  return request<Record<string, unknown>>("/patient/profile");
+}
+export async function getPatientTreatment() {
+  return request<Record<string, unknown>>("/patient/treatment");
+}
+export async function submitDiaryEntry(csrfToken: string, payload: Record<string, unknown>) {
+  return request<Record<string, unknown>>("/patient/diary", {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+}
+export async function getDiaryHistory(days?: number) {
+  const qs = days ? `?days=${days}` : "";
+  return request<Record<string, unknown>>(`/patient/diary${qs}`);
+}
+export async function getPatientEvolution() {
+  return request<Record<string, unknown>>("/patient/evolution");
+}
+
+// ── Returns ──
+export async function listReturns() {
+  return request<Record<string, unknown>>("/returns");
+}
+
+// ── Org Management ──
+export async function getOrgDashboard() {
+  return request<Record<string, unknown>>("/org/dashboard");
+}
+export async function listOrgPatients(params?: { search?: string; status?: string; page?: number; page_size?: number }) {
+  const qs = new URLSearchParams();
+  if (params?.search) qs.set("search", params.search);
+  if (params?.status) qs.set("status", params.status);
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.page_size) qs.set("page_size", String(params.page_size));
+  const q = qs.toString();
+  return request<Record<string, unknown>>(`/org/patients${q ? `?${q}` : ""}`);
+}
+export async function listOrgDoctors() {
+  return request<Record<string, unknown>>("/org/doctors");
+}
+export async function getOrgStock() {
+  return request<Record<string, unknown>>("/org/stock");
+}
+export async function getOrgBilling() {
+  return request<Record<string, unknown>>("/org/billing");
+}
+export async function getOrgFinancial() {
+  return request<Record<string, unknown>>("/org/financial");
 }

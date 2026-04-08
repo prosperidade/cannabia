@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cannab'IA - Portal do Paciente</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#1a2211",
+                        "on-surface": "#dce6cb",
+                        "on-error": "#690005",
+                        "on-primary-container": "#3e5200",
+                        "surface-tint": "#aed445",
+                        "surface-container-low": "#161e0d",
+                        "inverse-surface": "#dce6cb",
+                        "surface": "#0e1606",
+                        "primary": "#bee654",
+                        "background": "#0e1606",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "inverse-primary": "#4f6700",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-background": "#dce6cb",
+                        "on-secondary": "#0e3817",
+                        "secondary-fixed": "#bfefbe",
+                        "on-secondary-container": "#96c496",
+                        "tertiary": "#ffc4fe",
+                        "on-primary": "#273500",
+                        "error": "#ffb4ab",
+                        "on-tertiary-container": "#792484",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "surface-container-high": "#242d1a",
+                        "primary-fixed": "#c9f15e",
+                        "surface-container-highest": "#2f3824",
+                        "outline": "#8f937d",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-variant": "#2f3824",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-lowest": "#091003",
+                        "tertiary-container": "#f998ff",
+                        "surface-dim": "#0e1606",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed": "#36003e",
+                        "tertiary-fixed": "#ffd6fc",
+                        "primary-fixed-dim": "#aed445",
+                        "secondary": "#a4d2a4",
+                        "secondary-container": "#29522e",
+                        "outline-variant": "#444937",
+                        "on-primary-fixed": "#151f00",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-bright": "#333c29",
+                        "on-tertiary": "#580064",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002107",
+                        "primary-container": "#a3c93a",
+                        "on-secondary-fixed-variant": "#274f2c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(190, 230, 84, 0.1);
+        }
+        .bg-mesh {
+            background: radial-gradient(circle at 0% 0%, rgba(190, 230, 84, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, rgba(164, 210, 164, 0.05) 0%, transparent 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-32 bg-mesh">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-lime-500/30">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a smiling male patient in a clinical but warm setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP4vtFnJDnebk86zMoUsCiONUaeEMs6cj4KdLFQtYlg68sHE_Czo2UHYBe6SoC8ONom1QS4TK6HrChfHhDJfpOh9TqGixhDyonxG1PEJVgH6Hf2hn0c4_nsyBgKU0mDegftBknwsK5P-dvzTBGoi429sgWg4tg0hQmc4tDSUbeFrzK_wuOFNPI9yPXMACdQ810MKr5NTn4nvMDKiM5IcC2QYp83G1x9XvrpKlMvUXJTW2PAxeDr85vggCrDwF-Y0v6puSYpNk_3aFw"/>
+</div>
+<span class="text-lg font-bold text-lime-500 uppercase tracking-widest font-manrope">Cannab'IA</span>
+</div>
+<button class="text-lime-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto space-y-8">
+<!-- Welcome Section -->
+<section>
+<h1 class="text-2xl font-headline font-extrabold tracking-tight text-on-surface">Olá, João Silva</h1>
+<p class="text-on-surface-variant text-sm mt-1">Sua jornada de cuidado botânico continua hoje.</p>
+</section>
+<!-- Glassmorphism Highlight Card -->
+<div class="glass-card rounded-lg p-6 space-y-6">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-lime-400/80 mb-1">Próximo Agendamento</p>
+<h3 class="text-lg font-headline font-bold">Terça, 24 Out</h3>
+<p class="text-sm text-on-surface-variant">14:30 • Dr. Botanical (Video)</p>
+</div>
+<div class="bg-primary/20 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">event</span>
+</div>
+</div>
+<div class="pt-4 border-t border-white/5">
+<div class="flex justify-between items-center mb-3">
+<span class="text-xs font-semibold uppercase tracking-wider text-on-surface">Status do Tratamento</span>
+<span class="text-xs font-bold text-primary">Fase 2: Estabilização</span>
+</div>
+<div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 65%"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[10px] text-stone-500">Dia 18 de 30</span>
+<span class="text-[10px] text-stone-500">65% concluído</span>
+</div>
+</div>
+</div>
+<!-- Call to Action: WhatsApp -->
+<a class="flex items-center justify-between bg-primary p-5 rounded-lg active:scale-95 transition-transform duration-200" href="#">
+<div class="flex items-center gap-4">
+<div class="bg-on-primary rounded-full p-2">
+<span class="material-symbols-outlined text-primary text-2xl">chat</span>
+</div>
+<div>
+<h4 class="font-bold text-on-primary leading-none">Falar com Médico</h4>
+<p class="text-on-primary/70 text-xs mt-1">Suporte imediato via WhatsApp</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-primary">arrow_forward</span>
+</a>
+<!-- Symptoms Diary -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h2 class="font-headline font-bold text-lg">Diário de Sintomas</h2>
+<button class="text-primary text-xs font-bold uppercase tracking-wider">Ver Histórico</button>
+</div>
+<div class="glass-card rounded-lg p-5">
+<p class="text-sm text-center mb-6 text-on-surface-variant">Como você está se sentindo agora?</p>
+<div class="flex justify-between items-center">
+<button class="flex flex-col items-center gap-2 group">
+<span class="text-3xl grayscale group-hover:grayscale-0 transition-all">🤩</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase">Ótimo</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<span class="text-3xl grayscale group-hover:grayscale-0 transition-all">🙂</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase">Bem</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<span class="text-3xl grayscale group-hover:grayscale-0 transition-all">😐</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase">Neutro</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<span class="text-3xl grayscale group-hover:grayscale-0 transition-all">😕</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase">Baixo</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<span class="text-3xl grayscale group-hover:grayscale-0 transition-all">😖</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase">Mal</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Quick Access Bento -->
+<section class="grid grid-cols-2 gap-4 pb-12">
+<div class="glass-card p-4 rounded-lg flex flex-col justify-between h-32">
+<span class="material-symbols-outlined text-secondary">medication</span>
+<div>
+<p class="text-[10px] font-bold text-stone-500 uppercase mb-1">Posologia</p>
+<p class="text-sm font-bold">3 gotas • 12/12h</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-lg flex flex-col justify-between h-32">
+<span class="material-symbols-outlined text-tertiary">lab_research</span>
+<div>
+<p class="text-[10px] font-bold text-stone-500 uppercase mb-1">Concentração</p>
+<p class="text-sm font-bold">CBD Full Spectrum</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-4 bg-stone-950/90 backdrop-blur-lg border-t border-stone-800/30 rounded-t-[2rem] shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-lime-400 scale-110" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[10px] font-semibold font-manrope uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-lime-200 transition-colors" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="text-[10px] font-semibold font-manrope uppercase mt-1">Tratamento</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-lime-200 transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-[10px] font-semibold font-manrope uppercase mt-1">Documentos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-lime-200 transition-colors" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="text-[10px] font-semibold font-manrope uppercase mt-1">Consultas</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Retornos e Ajustes Mobile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#ffc4fe",
+                        "primary-container": "#a3c93a",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "on-surface-variant": "#c5c9b1",
+                        "on-secondary": "#0e3817",
+                        "on-tertiary": "#580064",
+                        "on-secondary-container": "#96c496",
+                        "tertiary-fixed": "#ffd6fc",
+                        "secondary": "#a4d2a4",
+                        "surface-container-lowest": "#091003",
+                        "surface-dim": "#0e1606",
+                        "secondary-fixed": "#bfefbe",
+                        "outline-variant": "#444937",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-tint": "#aed445",
+                        "primary-fixed-dim": "#aed445",
+                        "inverse-surface": "#dce6cb",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2f3824",
+                        "surface-container-low": "#161e0d",
+                        "on-primary-fixed": "#151f00",
+                        "on-background": "#dce6cb",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-bright": "#333c29",
+                        "surface-container-highest": "#2f3824",
+                        "surface-container": "#1a2211",
+                        "tertiary-container": "#f998ff",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "surface": "#0e1606",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#8f937d",
+                        "on-surface": "#dce6cb",
+                        "surface-container-high": "#242d1a",
+                        "primary-fixed": "#c9f15e",
+                        "on-tertiary-container": "#792484",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-primary-container": "#3e5200",
+                        "inverse-primary": "#4f6700",
+                        "background": "#0e1606",
+                        "on-primary": "#273500",
+                        "on-secondary-fixed": "#002107",
+                        "secondary-container": "#29522e",
+                        "primary": "#bee654",
+                        "secondary-fixed-dim": "#a4d2a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+        .alert-pulse {
+            box-shadow: 0 0 0 0 rgba(255, 180, 171, 0.4);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 180, 171, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 180, 171, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 180, 171, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full z-50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary overflow-hidden border border-primary/30">
+<img alt="physician profile photo" class="w-full h-full object-cover" data-alt="professional portrait of a confident male physician in a clinical setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6TxcOciWIsydHM4IguZ-ApJM9kYJdt8Yg6iMvyLqKR_XlZCPgh0Ec02kPGH3_OeywuNhHwVIUbou-GsCN8NtGqhLqr62t9Dfj4eDNXtUrFByr_2knwPnc9Tt8FcjJ-iV1bGmPRfX2uL1aTH5ZAfJAumIX4cBzcAD_W9aDr0J6kIvKJtVq6-HHTt9IbtbmYEwm6wCoz8Yg9RyRpu4aqvriLy8so8EuVfX1--EZRpjdUA6rb_vbAGYzpZYJKOsqrdZ1KQqUNkeGaeNg"/>
+</div>
+<span class="text-lg font-bold text-[#A3C93A] tracking-widest uppercase font-headline">Physician Portal</span>
+</div>
+<button class="text-stone-400 hover:text-[#A3C93A] transition-colors duration-300 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="mt-20 px-4 space-y-8">
+<!-- Page Title -->
+<section>
+<h1 class="text-2xl font-extrabold font-headline text-stone-100 tracking-tight">Retornos e Ajustes</h1>
+<p class="text-sm text-on-surface-variant font-medium">Protocolos sob supervisão de IA</p>
+</section>
+<!-- Critical IA Alerts -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xs font-bold uppercase tracking-widest text-primary/70">Alertas Críticos</h2>
+<span class="flex h-2 w-2 rounded-full bg-error alert-pulse"></span>
+</div>
+<div class="flex flex-col gap-4">
+<div class="glass-card p-4 rounded-xl border-l-4 border-error flex gap-4 items-start">
+<div class="bg-error/10 p-2 rounded-lg text-error">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+<div>
+<h3 class="font-bold text-stone-100 text-sm">Paciente Elena Sterling</h3>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Detectado aumento súbito nos níveis de dor reportados. Sugestão: Ajuste de Analgesia imediato.</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-xl border-l-4 border-tertiary-container flex gap-4 items-start">
+<div class="bg-tertiary-container/10 p-2 rounded-lg text-tertiary-container">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+</div>
+<div>
+<h3 class="font-bold text-stone-100 text-sm">João Silva</h3>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Estoque crítico de medicação protocolar. Previsão de esgotamento em 48h.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Metrics Row -->
+<section class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
+<div class="glass-card min-w-[140px] p-4 rounded-xl flex flex-col gap-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Tratamentos</span>
+<span class="text-2xl font-extrabold text-primary">124</span>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+<div class="glass-card min-w-[140px] p-4 rounded-xl flex flex-col gap-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Ajustes</span>
+<span class="text-2xl font-extrabold text-secondary">08</span>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-1/3"></div>
+</div>
+</div>
+<div class="glass-card min-w-[140px] p-4 rounded-xl flex flex-col gap-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Adesão</span>
+<span class="text-2xl font-extrabold text-tertiary">92%</span>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[92%]"></div>
+</div>
+</div>
+</section>
+<!-- Patient List -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xs font-bold uppercase tracking-widest text-primary/70">Lista de Pacientes</h2>
+<button class="text-xs font-semibold text-primary flex items-center gap-1">
+                    Filtrar <span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+<div class="space-y-3">
+<!-- Patient Card 1 -->
+<div class="glass-card p-5 rounded-2xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border border-primary/20 text-primary font-bold text-lg">
+                                MS
+                            </div>
+<div>
+<h4 class="font-bold text-stone-100">Mariana Souza</h4>
+<p class="text-[10px] font-medium text-on-surface-variant tracking-wide">PROTOCOLO: OMEGA-PREMIUM</p>
+</div>
+</div>
+<span class="bg-error/10 text-error text-[10px] font-bold px-2 py-1 rounded-full border border-error/20">AJUSTE RECOMENDADO</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-stone-800/50">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">Última Lab</span>
+<span class="text-xs font-semibold text-stone-200">Há 2 dias</span>
+</div>
+<button class="bg-primary text-on-primary-container px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform">Revisar</button>
+</div>
+</div>
+<!-- Patient Card 2 -->
+<div class="glass-card p-5 rounded-2xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border border-secondary/20 text-secondary font-bold text-lg">
+                                RB
+                            </div>
+<div>
+<h4 class="font-bold text-stone-100">Ricardo Bueno</h4>
+<p class="text-[10px] font-medium text-on-surface-variant tracking-wide">PROTOCOLO: REGEN-CORE</p>
+</div>
+</div>
+<span class="bg-secondary/10 text-secondary text-[10px] font-bold px-2 py-1 rounded-full border border-secondary/20">ESTÁVEL</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-stone-800/50">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">Última Lab</span>
+<span class="text-xs font-semibold text-stone-200">Há 1 semana</span>
+</div>
+<button class="bg-stone-800 text-stone-300 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform">Ver</button>
+</div>
+</div>
+<!-- Patient Card 3 -->
+<div class="glass-card p-5 rounded-2xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border border-primary/20 text-primary font-bold text-lg">
+                                CF
+                            </div>
+<div>
+<h4 class="font-bold text-stone-100">Camila Faria</h4>
+<p class="text-[10px] font-medium text-on-surface-variant tracking-wide">PROTOCOLO: HYDRA-BOOST</p>
+</div>
+</div>
+<span class="bg-error/10 text-error text-[10px] font-bold px-2 py-1 rounded-full border border-error/20">AJUSTE RECOMENDADO</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-stone-800/50">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">Última Lab</span>
+<span class="text-xs font-semibold text-stone-200">Há 4 horas</span>
+</div>
+<button class="bg-primary text-on-primary-container px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform">Revisar</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Health Engine Status -->
+<section class="pb-10">
+<div class="glass-card p-6 rounded-2xl space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+<h3 class="text-xs font-bold uppercase tracking-widest text-stone-100">Health Engine Processing</h3>
+</div>
+<div class="flex items-end justify-between h-20 gap-1.5">
+<div class="w-full bg-primary/20 rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-primary/40 rounded-t-sm h-[65%]"></div>
+<div class="w-full bg-primary/60 rounded-t-sm h-[85%]"></div>
+<div class="w-full bg-primary rounded-t-sm h-[100%]"></div>
+<div class="w-full bg-primary/70 rounded-t-sm h-[50%]"></div>
+<div class="w-full bg-primary/40 rounded-t-sm h-[30%]"></div>
+<div class="w-full bg-primary/90 rounded-t-sm h-[75%]"></div>
+<div class="w-full bg-primary/50 rounded-t-sm h-[55%]"></div>
+</div>
+<div class="flex justify-between text-[10px] font-bold text-on-surface-variant">
+<span>BIOMARKER ANALYSIS</span>
+<span class="text-primary">8.4 GB/S</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-stone-950/90 backdrop-blur-xl rounded-t-[2rem] border-t border-stone-800/30 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full px-4 py-1.5 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Status</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:bg-stone-800/50 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Credentials</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:bg-stone-800/50 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Metrics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 hover:bg-stone-800/50 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1">Records</span>
+</a>
+</nav>
+</body></html>

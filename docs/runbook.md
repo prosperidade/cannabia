@@ -563,6 +563,116 @@ curl http://localhost:5000/api/v1/chat/metrics -H "Cookie: session=<cookie>"
 | Sessões não expirando | Cleanup lazy a cada `CHAT_CLEANUP_INTERVAL_S` | Aguardar próximo ciclo ou restart |
 | `error: "Sessão inválida."` no WS | Socket operando em sessão de outro sid | Reconectar e re-emitir `join_session` |
 
+### Setup Local Completo (Novo — 2026-04-07)
+
+**Script**: `scripts/setup_local.py`
+
+**Pré-requisitos**: PostgreSQL local rodando, DATABASE_URL no `.env` apontando para `localhost:5432/cannabia`
+
+**Execução**:
+```bash
+cd c:\Users\Administrador\Desktop\Cannabia
+env\Scripts\activate
+python scripts/setup_local.py
+```
+
+**O que faz**:
+1. Roda todas as migrations (000-013) via `src/infra/run_migrations.py`
+2. Cria usuarios base via `scripts/seed_users.py` (admin, medico, atendente, paciente)
+3. Popula dados demo via `scripts/seed_comprehensive.py` (~200 registros)
+
+**Usuarios de teste**:
+
+| Login | Senha | Role | Painel |
+|-------|-------|------|--------|
+| `admin` | `admin123` | Admin | `/admin` |
+| `medico` | `medico123` | Medico | `/med/dashboard` |
+| `atendente` | `atendente123` | Atendente | `/org/dashboard` |
+| `paciente` | `paciente123` | Paciente | `/p/dashboard` |
+
+**Iniciar sistema**:
+```bash
+# Terminal 1 — Backend
+python -m src.app
+# Roda em http://127.0.0.1:5000
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+# Roda em http://127.0.0.1:3001
+```
+
+### Frontend — Stack e Rotas (Novo — 2026-04-07)
+
+**Stack**: Next.js 16.2.2 + React 19 + TypeScript + Tailwind CSS v3 (Material Design 3 dark theme)
+
+**Design System**:
+- Cores: primary=#bee654, surface=#0e1606, error=#ffb4ab (40+ tokens MD3)
+- Fontes: Manrope (headlines), Inter (body), Material Symbols Outlined (icones)
+- Efeitos: glass-panel (glassmorphism com backdrop-blur)
+- Componentes: 12 primitivos em `components/ui-tw/`
+- Layouts: SidebarLayout (desktop), MobileLayout (mobile), WizardLayout (triagem)
+
+**Rotas por persona (48 total)**:
+
+| Persona | Base | Rotas | Layout |
+|---------|------|-------|--------|
+| Paciente | `/p/*` + `/triagem` | 5 paginas | MobileLayout |
+| Medico | `/med/*` | 13 paginas | SidebarLayout |
+| Organizacao | `/org/*` | 12 paginas | SidebarLayout |
+| Admin | `/admin/*` | 4 paginas | SidebarLayout |
+| Sistema | `/`, `/login`, `/settings` + redirects | 9 paginas | Standalone |
+
+**Proxy API**: `/api/v1/[...path]` repassa para Flask backend em `BACKEND_ORIGIN` (default `http://127.0.0.1:5000`)
+
+### Migration 013 — Tabelas e Colunas Faltantes (Novo — 2026-04-07)
+
+**Arquivo**: `migrations/013_missing_tables_and_columns.sql`
+
+**Tabelas criadas**:
+- `symptom_diary` — diario de sintomas do paciente
+- `stock_inventory` — estoque de produtos canabicos
+- `stock_dispensations` — dispensacao ao paciente
+- `billing` — faturamento clinico simples
+
+**Colunas adicionadas**:
+- `patients.user_id` — link paciente ↔ usuario
+- `patients.status` — status do paciente (ativo, em_tratamento, etc.)
+- `treatment_plans.*` — 11 colunas clinicas (plan_name, cbd_thc_ratio, dosage, etc.)
+
+**View criada**:
+- `clinic_members` — alias para `user_clinics` (resolve referencia em org_management.py)
+
+### Novos Endpoints Backend (2026-04-07)
+
+**`src/web/routes/patient_portal.py`** — Blueprint `/api/v1/patient`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/patient/profile` | Perfil do paciente logado |
+| GET | `/patient/treatment` | Plano terapeutico ativo |
+| POST | `/patient/diary` | Registrar entrada no diario |
+| GET | `/patient/diary` | Historico do diario |
+| GET | `/patient/evolution` | Metricas de evolucao |
+
+**`src/web/routes/returns.py`** — Blueprint `/api/v1`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/returns` | Pacientes para retorno/ajuste |
+
+**`src/web/routes/org_management.py`** — Blueprint `/api/v1/org`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/org/dashboard` | KPIs organizacionais |
+| GET | `/org/patients` | Lista de pacientes |
+| GET | `/org/doctors` | Lista de medicos |
+| GET | `/org/stock` | Estoque |
+| POST | `/org/stock/entry` | Entrada de estoque |
+| POST | `/org/stock/dispensation` | Dispensacao |
+| GET | `/org/billing` | Faturamento |
+| GET | `/org/financial` | Financeiro |
+
 ---
 
 ## Observação final

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Symptom Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-bright": "#333c29",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#242d1a",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "outline-variant": "#444937",
+                        "tertiary-container": "#f998ff",
+                        "primary-fixed-dim": "#aed445",
+                        "on-secondary-container": "#96c496",
+                        "primary-fixed": "#c9f15e",
+                        "on-surface": "#dce6cb",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "secondary-container": "#29522e",
+                        "on-tertiary-fixed": "#36003e",
+                        "surface-tint": "#aed445",
+                        "primary": "#bee654",
+                        "on-primary": "#273500",
+                        "background": "#0e1606",
+                        "on-tertiary": "#580064",
+                        "surface": "#0e1606",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "surface-dim": "#0e1606",
+                        "surface-container-highest": "#2f3824",
+                        "surface-container": "#1a2211",
+                        "primary-container": "#a3c93a",
+                        "secondary-fixed": "#bfefbe",
+                        "on-tertiary-container": "#792484",
+                        "inverse-on-surface": "#2a3320",
+                        "inverse-surface": "#dce6cb",
+                        "on-secondary": "#0e3817",
+                        "tertiary-fixed": "#ffd6fc",
+                        "inverse-primary": "#4f6700",
+                        "surface-container-low": "#161e0d",
+                        "on-primary-fixed": "#151f00",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#002107",
+                        "error-container": "#93000a",
+                        "outline": "#8f937d",
+                        "on-error": "#690005",
+                        "on-background": "#dce6cb",
+                        "on-primary-container": "#3e5200",
+                        "secondary": "#a4d2a4",
+                        "tertiary": "#ffc4fe",
+                        "surface-container-lowest": "#091003",
+                        "surface-variant": "#2f3824",
+                        "secondary-fixed-dim": "#a4d2a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body select-none">
+<!-- TopAppBar -->
+<header class="flex items-center px-6 h-16 w-full z-50 fixed top-0 w-full border-b border-white/10 bg-stone-950/80 backdrop-blur-md">
+<div class="flex items-center gap-4 w-full">
+<span class="material-symbols-outlined text-[#A3C93A] transition-all duration-300 active:scale-95 cursor-pointer">arrow_back</span>
+<h1 class="text-[#A3C93A] font-manrope uppercase tracking-widest font-bold text-lg">Symptom Diary</h1>
+</div>
+</header>
+<main class="pt-20 pb-32 px-6">
+<!-- Hero Section: Mood Selector -->
+<section class="mb-8">
+<div class="mb-6">
+<p class="text-on-surface-variant font-label text-sm mb-1">Thursday, Oct 24</p>
+<h2 class="text-3xl font-headline font-extrabold tracking-tight">How are you feeling today?</h2>
+</div>
+<div class="grid grid-cols-5 gap-3">
+<button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-high border border-white/5 transition-all active:scale-90 hover:bg-primary/20 group">
+<span class="material-symbols-outlined text-4xl mb-2 group-hover:text-primary">sentiment_very_dissatisfied</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant group-hover:text-primary">Awful</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-high border border-white/5 transition-all active:scale-90 hover:bg-primary/20 group">
+<span class="material-symbols-outlined text-4xl mb-2 group-hover:text-primary">sentiment_dissatisfied</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant group-hover:text-primary">Poor</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-primary/20 border border-primary/30 transition-all active:scale-90 shadow-[0_0_20px_rgba(190,230,84,0.15)]">
+<span class="material-symbols-outlined text-4xl mb-2 text-primary" style="font-variation-settings: 'FILL' 1;">sentiment_neutral</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-primary">Fair</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-high border border-white/5 transition-all active:scale-90 hover:bg-primary/20 group">
+<span class="material-symbols-outlined text-4xl mb-2 group-hover:text-primary">sentiment_satisfied</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant group-hover:text-primary">Good</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-high border border-white/5 transition-all active:scale-90 hover:bg-primary/20 group">
+<span class="material-symbols-outlined text-4xl mb-2 group-hover:text-primary">sentiment_very_satisfied</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant group-hover:text-primary">Great</span>
+</button>
+</div>
+</section>
+<!-- Pain Intensity & Sleep Quality (Bento Mix) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+<!-- Pain Intensity Slider -->
+<div class="p-6 rounded-3xl bg-surface-container border border-white/5 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-lg">Pain Intensity</h3>
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">4/10</span>
+</div>
+<input class="w-full h-1.5 bg-surface-variant rounded-full appearance-none cursor-pointer accent-primary" max="10" min="0" type="range" value="4"/>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">
+<span>None</span>
+<span>Moderate</span>
+<span>Severe</span>
+</div>
+</div>
+</div>
+<!-- Sleep Quality -->
+<div class="p-6 rounded-3xl bg-surface-container border border-white/5">
+<h3 class="font-headline font-bold text-lg mb-4">Sleep Quality</h3>
+<div class="flex gap-2 mb-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-on-surface-variant/30">star</span>
+</div>
+<p class="text-xs text-on-surface-variant">7h 24m • Deep sleep improved</p>
+</div>
+</div>
+<!-- Side Effects Chips -->
+<section class="mb-8">
+<h3 class="font-headline font-bold text-lg mb-4">Side Effects Observed</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full border border-primary text-primary bg-primary/10 text-xs font-semibold">Dry Mouth</button>
+<button class="px-4 py-2 rounded-full border border-white/10 text-on-surface-variant bg-surface-container text-xs font-medium">Dizziness</button>
+<button class="px-4 py-2 rounded-full border border-white/10 text-on-surface-variant bg-surface-container text-xs font-medium">Nausea</button>
+<button class="px-4 py-2 rounded-full border border-primary text-primary bg-primary/10 text-xs font-semibold">Fatigue</button>
+<button class="px-4 py-2 rounded-full border border-white/10 text-on-surface-variant bg-surface-container text-xs font-medium">Appetite Loss</button>
+<button class="px-4 py-2 rounded-full border border-white/10 text-on-surface-variant bg-surface-container text-xs font-medium">Headache</button>
+<button class="flex items-center gap-1 px-4 py-2 rounded-full border border-white/5 bg-surface-container-highest text-xs font-medium text-primary">
+<span class="material-symbols-outlined text-sm">add</span> Add Other
+                </button>
+</div>
+</section>
+<!-- Insights Preview Card (Botanical Themed) -->
+<div class="relative overflow-hidden p-6 rounded-[2.5rem] bg-surface-container-high border border-white/5">
+<div class="absolute top-0 right-0 w-32 h-32 opacity-20 -mr-8 -mt-8">
+<div class="w-full h-full bg-primary blur-3xl rounded-full"></div>
+</div>
+<div class="relative z-10">
+<h4 class="text-primary font-manrope font-bold uppercase tracking-tighter text-sm mb-2">Botanical Insight</h4>
+<p class="text-on-surface leading-relaxed text-sm">Your diary shows a 15% reduction in pain levels when Sleep Quality is above 3 stars. Consistency is key.</p>
+<button class="mt-4 text-xs font-bold flex items-center gap-2 group">
+                    VIEW DETAILED TRENDS
+                    <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-stone-950/90 backdrop-blur-xl rounded-t-[40px] border-t border-white/5 shadow-2xl shadow-black">
+<!-- Journal (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full p-3 transition-all scale-110 ease-out duration-200" href="/p/diario">
+<span class="material-symbols-outlined">event_note</span>
+<span class="text-[10px] font-manrope font-semibold tracking-tighter mt-1">Journal</span>
+</a>
+<!-- Analytics -->
+<a class="flex flex-col items-center justify-center text-stone-500 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-manrope font-semibold tracking-tighter mt-1">Analytics</span>
+</a>
+<!-- Dosing -->
+<a class="flex flex-col items-center justify-center text-stone-500 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="text-[10px] font-manrope font-semibold tracking-tighter mt-1">Dosing</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-stone-500 p-3 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px] font-manrope font-semibold tracking-tighter mt-1">Profile</span>
+</a>
+</nav>
+<!-- FAB (Suppressed per logic as this is a focused diary entry page, but for context of a "Journal" home, adding a Save action) -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center transition-all active:scale-90 z-40">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check</span>
+</button>
+</body></html>

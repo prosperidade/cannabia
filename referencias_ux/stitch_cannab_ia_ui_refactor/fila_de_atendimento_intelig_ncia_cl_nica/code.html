@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#1a2211",
+                        "on-surface": "#dce6cb",
+                        "on-error": "#690005",
+                        "on-primary-container": "#3e5200",
+                        "surface-tint": "#aed445",
+                        "surface-container-low": "#161e0d",
+                        "inverse-surface": "#dce6cb",
+                        "surface": "#0e1606",
+                        "primary": "#bee654",
+                        "background": "#0e1606",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "inverse-primary": "#4f6700",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-background": "#dce6cb",
+                        "on-secondary": "#0e3817",
+                        "secondary-fixed": "#bfefbe",
+                        "on-secondary-container": "#96c496",
+                        "tertiary": "#ffc4fe",
+                        "on-primary": "#273500",
+                        "error": "#ffb4ab",
+                        "on-tertiary-container": "#792484",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "surface-container-high": "#242d1a",
+                        "primary-fixed": "#c9f15e",
+                        "surface-container-highest": "#2f3824",
+                        "outline": "#8f937d",
+                        "on-surface-variant": "#c5c9b1",
+                        "surface-variant": "#2f3824",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-lowest": "#091003",
+                        "tertiary-container": "#f998ff",
+                        "surface-dim": "#0e1606",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed": "#36003e",
+                        "tertiary-fixed": "#ffd6fc",
+                        "primary-fixed-dim": "#aed445",
+                        "secondary": "#a4d2a4",
+                        "secondary-container": "#29522e",
+                        "outline-variant": "#444937",
+                        "on-primary-fixed": "#151f00",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-bright": "#333c29",
+                        "on-tertiary": "#580064",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002107",
+                        "primary-container": "#a3c93a",
+                        "on-secondary-fixed-variant": "#274f2c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(47, 56, 36, 0.4) 0%, rgba(22, 30, 13, 0.6) 100%);
+            backdrop-filter: blur(12px);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #444937; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex overflow-hidden">
+<!-- NavigationDrawer -->
+<nav class="flex flex-col h-screen sticky left-0 top-0 py-8 bg-stone-950 h-full w-72 border-r border-stone-800 font-manrope font-medium text-sm z-50">
+<div class="text-lime-500 font-black px-4 py-8 text-xl tracking-widest">
+            Cannab'IA
+        </div>
+<div class="flex flex-col gap-2 flex-grow px-2">
+<a class="flex items-center gap-3 text-lime-400 border-l-4 border-lime-400 bg-lime-400/5 pl-4 py-3 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Fila de Espera</span>
+</a>
+<a class="flex items-center gap-3 text-stone-400 hover:text-stone-200 hover:bg-stone-900/50 pl-4 py-3 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">stethoscope</span>
+<span>Atendimento</span>
+</a>
+<a class="flex items-center gap-3 text-stone-400 hover:text-stone-200 hover:bg-stone-900/50 pl-4 py-3 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Pacientes</span>
+</a>
+<a class="flex items-center gap-3 text-stone-400 hover:text-stone-200 hover:bg-stone-900/50 pl-4 py-3 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Agenda</span>
+</a>
+</div>
+<div class="mt-auto px-4 border-t border-stone-800 pt-6">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-lime-400/30">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional neurologist in a modern medical clinic with soft botanical background lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8Avs9rXJ2WqD7Tk3mBu6hs8xt6o_fyOhYmXufZPT_9tb5vKe5NkWU9TKwZfrEX2dI7uIah7SvmMJZSgXCxM5Zua7NqPNK_svdP7U5Pc_q8uTsOG7iH5HN2Kwyu96pEKdf-R_--O47GCW0pI4fo9aQbYt5onYOtB0Mdy8dK9NlOsfNmtqr1TTZJcXSyZCb_Chf26n0NvhCSCNu9az53TA6Ylf0qaknOBWj5L4edVHe-bt_rfU4hCp1tTJLcvlo20e0Tay0_lcmgdjw"/>
+</div>
+<div>
+<p class="text-white font-bold leading-none">Dr. Botanical</p>
+<p class="text-stone-500 text-xs mt-1">Neurologista • CRM 123456</p>
+</div>
+</div>
+<a class="flex items-center gap-3 text-stone-400 hover:text-stone-200 hover:bg-stone-900/50 pl-4 py-3 transition-all duration-300 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Configurações</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-72 z-40 h-16 flex justify-between items-center px-8 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/50">
+<div class="flex items-center gap-4">
+<h1 class="text-lg font-bold text-lime-500 uppercase tracking-widest font-manrope">Fila de Atendimento</h1>
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">4 Pacientes</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined text-stone-400 hover:text-white transition-colors cursor-pointer">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-lime-500 rounded-full"></span>
+</div>
+<div class="flex items-center gap-2 text-stone-400">
+<span class="text-xs font-semibold">Status: Disponível</span>
+<div class="w-2 h-2 bg-lime-400 rounded-full animate-pulse"></div>
+</div>
+</div>
+</header>
+<!-- Layout Wrapper -->
+<div class="flex flex-grow pt-16 overflow-hidden">
+<!-- Patient List Section (Bento Inspired) -->
+<section class="flex-grow p-8 overflow-y-auto custom-scrollbar">
+<div class="grid grid-cols-1 gap-6">
+<!-- Dashboard Summary Cards (Subtle Header) -->
+<div class="grid grid-cols-3 gap-4 mb-2">
+<div class="glass-card p-4 rounded-xl border border-stone-800/40 flex items-center justify-between">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-stone-500 font-bold mb-1">Tempo Médio</p>
+<p class="text-2xl font-bold text-on-surface">14 min</p>
+</div>
+<span class="material-symbols-outlined text-lime-400/40 text-3xl">timer</span>
+</div>
+<div class="glass-card p-4 rounded-xl border border-stone-800/40 flex items-center justify-between">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-stone-500 font-bold mb-1">Urgência Alta</p>
+<p class="text-2xl font-bold text-error">01</p>
+</div>
+<span class="material-symbols-outlined text-error/40 text-3xl">emergency</span>
+</div>
+<div class="glass-card p-4 rounded-xl border border-stone-800/40 flex items-center justify-between">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-stone-500 font-bold mb-1">Triagem IA</p>
+<p class="text-2xl font-bold text-primary">100%</p>
+</div>
+<span class="material-symbols-outlined text-primary/40 text-3xl">bolt</span>
+</div>
+</div>
+<!-- Main Patient Table/List -->
+<div class="glass-card rounded-2xl border border-stone-800/50 overflow-hidden">
+<div class="grid grid-cols-12 gap-4 px-6 py-4 bg-stone-900/30 text-[10px] font-black uppercase tracking-widest text-stone-500 border-b border-stone-800/50">
+<div class="col-span-4">Nome do Paciente</div>
+<div class="col-span-2 text-center">Risco IA</div>
+<div class="col-span-3">Principal Sintoma</div>
+<div class="col-span-2 text-right">Espera</div>
+<div class="col-span-1"></div>
+</div>
+<!-- Patient Row: Active/Selected -->
+<div class="grid grid-cols-12 gap-4 px-6 py-5 items-center bg-lime-400/5 border-l-4 border-lime-400 transition-all cursor-pointer group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-lime-400 font-bold border border-lime-400/20">JS</div>
+<div>
+<h3 class="font-bold text-on-surface">João Silva</h3>
+<p class="text-[10px] text-stone-500">Triagem completa há 12 min</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="w-1 h-1 bg-on-error-container rounded-full"></span> ALTO
+                                </span>
+</div>
+<div class="col-span-3">
+<p class="text-sm text-stone-300">Crise de Ansiedade Aguda</p>
+</div>
+<div class="col-span-2 text-right">
+<span class="text-sm font-mono text-lime-400">14:22 min</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-stone-600 group-hover:text-lime-400 transition-colors">chevron_right</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-stone-800/30 border-l-4 border-transparent transition-all cursor-pointer group border-b border-stone-800/30">
+<div class="col-span-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-stone-500 font-bold">MP</div>
+<div>
+<h3 class="font-bold text-on-surface">Maria Oliveira</h3>
+<p class="text-[10px] text-stone-500">Triagem completa há 18 min</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">MÉDIO</span>
+</div>
+<div class="col-span-3">
+<p class="text-sm text-stone-300">Dor Crônica Lombar</p>
+</div>
+<div class="col-span-2 text-right">
+<span class="text-sm font-mono text-stone-400">22:05 min</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-stone-600 group-hover:text-lime-400 transition-colors">chevron_right</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-stone-800/30 border-l-4 border-transparent transition-all cursor-pointer group border-b border-stone-800/30">
+<div class="col-span-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-stone-500 font-bold">RC</div>
+<div>
+<h3 class="font-bold text-on-surface">Ricardo Costa</h3>
+<p class="text-[10px] text-stone-500">Triagem completa há 35 min</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary-container text-[10px] font-bold uppercase tracking-wider">BAIXO</span>
+</div>
+<div class="col-span-3">
+<p class="text-sm text-stone-300">Insônia e Fadiga</p>
+</div>
+<div class="col-span-2 text-right">
+<span class="text-sm font-mono text-stone-400">38:12 min</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-stone-600 group-hover:text-lime-400 transition-colors">chevron_right</span>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-stone-800/30 border-l-4 border-transparent transition-all cursor-pointer group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-stone-500 font-bold">AL</div>
+<div>
+<h3 class="font-bold text-on-surface">Ana Luiza</h3>
+<p class="text-[10px] text-stone-500">Triagem completa há 42 min</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">MÉDIO</span>
+</div>
+<div class="col-span-3">
+<p class="text-sm text-stone-300">Dificuldade de Concentração</p>
+</div>
+<div class="col-span-2 text-right">
+<span class="text-sm font-mono text-stone-400">45:44 min</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-stone-600 group-hover:text-lime-400 transition-colors">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Patient Preview Sidebar (The Insight Panel) -->
+<aside class="w-[420px] h-full bg-surface-container-low border-l border-stone-800/60 p-8 overflow-y-auto custom-scrollbar">
+<div class="flex flex-col gap-8">
+<!-- Patient Identity Card -->
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-3xl bg-surface-container-highest border border-lime-400/20 mb-4 p-1">
+<img class="w-full h-full object-cover rounded-2xl" data-alt="Close-up emotional portrait of an adult male patient looking thoughtful, soft moody lighting, deep green aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI5fsUL_Kf-CPmJXaXZyFP0EAzggY2oaOSvgYQN4PKKJkMHc7nF1GY6bJltTgldn2mpLqEHz07dTiu4XEv1CxzUXr5S6PKDyVh5rRigL5ytDaY3faFEw12vyPYBCZqKbKXZxQWUDqKiTjgNQ7vJk-YlGsHrW5hGhcC0Kqto-IiMGRa0LHBYTrBPHAOQrQ7KHyMjJOfUV45VXvD1ZM05E9vI31qZ2xnEDm5YRLJjdxKuaNwxxYHmSInSSenvPbQOdS_45HApNZ43dfr"/>
+</div>
+<h2 class="text-2xl font-bold text-white tracking-tight">João Silva</h2>
+<div class="flex gap-2 mt-2">
+<span class="text-[10px] font-bold text-stone-500 uppercase">34 Anos</span>
+<span class="text-stone-700">•</span>
+<span class="text-[10px] font-bold text-stone-500 uppercase">Brasília, DF</span>
+</div>
+</div>
+<!-- AI Insight Section -->
+<div class="glass-card rounded-2xl border border-lime-400/20 p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">psychology</span>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<div class="w-2 h-2 bg-lime-400 rounded-full"></div>
+<h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">Insight da IA</h3>
+</div>
+<p class="text-on-surface leading-relaxed italic text-sm mb-6">
+                            "Paciente apresenta quadro de ansiedade generalizada com picos agudos reportados. Histórico indica baixa tolerância a medicamentos convencionais. Sugere-se protocolo inicial com <span class="text-lime-400 font-bold">CBD Full Spectrum</span>, foco em microdosagem diurna e dose moderada noturna para higiene do sono."
+                        </p>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-xs">
+<span class="text-stone-400">Match Terapêutico</span>
+<span class="text-lime-400 font-mono">94%</span>
+</div>
+<div class="w-full bg-stone-900 h-1 rounded-full overflow-hidden">
+<div class="bg-lime-400 h-full w-[94%]"></div>
+</div>
+</div>
+</div>
+<!-- Symptoms Tags -->
+<div>
+<h4 class="text-[10px] font-black uppercase tracking-widest text-stone-500 mb-4">Sintomas Reportados</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-highest border border-stone-800 text-xs text-on-surface">Insônia</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-highest border border-stone-800 text-xs text-on-surface">Taquicardia</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-highest border border-stone-800 text-xs text-on-surface">Tensão Muscular</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-highest border border-stone-800 text-xs text-on-surface">Inapetência</span>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="mt-4 pt-6 border-t border-stone-800/50">
+<button class="w-full py-4 bg-primary text-on-primary font-black uppercase tracking-[0.15em] text-sm rounded-xl shadow-lg shadow-primary/10 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                            Iniciar Consulta
+                        </button>
+<button class="w-full py-3 mt-3 text-stone-500 font-bold text-xs uppercase tracking-widest hover:text-white transition-colors">
+                            Visualizar Prontuário Completo
+                        </button>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

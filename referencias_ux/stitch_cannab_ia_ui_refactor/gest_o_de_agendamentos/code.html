@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#091003",
+                    "on-secondary": "#0e3817",
+                    "on-background": "#dce6cb",
+                    "on-primary-fixed": "#151f00",
+                    "on-error": "#690005",
+                    "primary": "#bee654",
+                    "secondary-container": "#29522e",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-container-low": "#161e0d",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "surface-bright": "#333c29",
+                    "on-secondary-fixed": "#002107",
+                    "tertiary-fixed": "#ffd6fc",
+                    "surface": "#0e1606",
+                    "tertiary": "#ffc4fe",
+                    "surface-container-high": "#242d1a",
+                    "primary-fixed": "#c9f15e",
+                    "surface-tint": "#aed445",
+                    "surface-dim": "#0e1606",
+                    "outline-variant": "#444937",
+                    "background": "#0e1606",
+                    "error": "#ffb4ab",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#2f3824",
+                    "inverse-on-surface": "#2a3320",
+                    "on-tertiary-container": "#792484",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "surface-variant": "#2f3824",
+                    "inverse-primary": "#4f6700",
+                    "on-surface-variant": "#c5c9b1",
+                    "on-primary-container": "#3e5200",
+                    "surface-container": "#1a2211",
+                    "on-tertiary-fixed": "#36003e",
+                    "primary-fixed-dim": "#aed445",
+                    "on-surface": "#dce6cb",
+                    "on-secondary-container": "#96c496",
+                    "on-primary": "#273500",
+                    "primary-container": "#a3c93a",
+                    "on-tertiary": "#580064",
+                    "tertiary-container": "#f998ff",
+                    "secondary": "#a4d2a4",
+                    "inverse-surface": "#dce6cb",
+                    "on-error-container": "#ffdad6",
+                    "outline": "#8f937d",
+                    "secondary-fixed": "#bfefbe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col h-screen w-64 border-r border-stone-800 bg-stone-950/80 backdrop-blur-md shadow-2xl z-50">
+<div class="p-8">
+<div class="text-[#A3C93A] font-bold text-xl tracking-tighter uppercase font-manrope">BioLab Clinical</div>
+<div class="text-stone-500 text-xs mt-1 font-manrope tracking-tight">AI Auditor Active</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer active:scale-95 text-stone-400 hover:text-stone-200 hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-manrope tracking-tight">Dashboard</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer active:scale-95 text-stone-400 hover:text-stone-200 hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope tracking-tight">Patients</span>
+</div>
+<!-- Active Tab: Appointments -->
+<div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer active:scale-95 text-[#A3C93A] bg-[#A3C93A]/10 font-semibold border-r-2 border-[#A3C93A]">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-manrope tracking-tight">Appointments</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer active:scale-95 text-stone-400 hover:text-stone-200 hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-manrope tracking-tight">Messages</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer active:scale-95 text-stone-400 hover:text-stone-200 hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+<span class="font-manrope tracking-tight">AI Audit</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer active:scale-95 text-stone-400 hover:text-stone-200 hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope tracking-tight">Admin</span>
+</div>
+</nav>
+<div class="p-6 border-t border-white/5 mt-auto">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Professional clinical director with glasses and white coat in a bright modern medical office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgJRjwwVwmBZn-k9Oi9qNg-8vbS9NzcUZaNt5qLByiyNCLjylKwjtlXsdoCtoVae3f0Pqv42xDGGHrjwW5MXJ993OMgFmxBmqQGVSt6TpwrixA_bzDjVZOQmJH21rHlec60YBYkdowertxbbq5x2gR5A6V_ef8-GG3_7v2K5oScG9fX6HnMR0l6BHXIv2AXt80CRotJ3pTZhak5ChIwyXJh5vw1hPXaJKZNT7p_XU9L7WXxXilABfiWLEO9zZi8OvOzNGZqPdsC8ph"/>
+<div>
+<div class="text-sm font-bold text-white">Dr. Aris Thorne</div>
+<div class="text-[10px] text-stone-500 uppercase tracking-widest">Clinical Director</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 h-16 flex justify-between items-center px-8 z-40 bg-stone-950/50 backdrop-blur-lg border-b border-white/5">
+<div class="flex items-center gap-6">
+<div class="text-lg font-black text-white font-manrope">BioLab AI</div>
+<div class="relative group">
+<span class="absolute inset-y-0 left-3 flex items-center text-stone-500">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</span>
+<input class="bg-stone-900/50 border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-1 focus:ring-[#A3C93A] transition-all" placeholder="Search patients or schedules..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-stone-400 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-[1px] bg-white/10 mx-2"></div>
+<span class="text-stone-400 text-sm font-manrope cursor-pointer hover:text-white transition-all">Profile Settings</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-24 pb-12 px-8 min-h-screen bg-gradient-to-br from-surface-container-lowest to-surface">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+<div>
+<h1 class="text-4xl font-extrabold font-headline tracking-tighter text-white mb-2">Gestão de Agendamentos</h1>
+<p class="text-on-surface-variant max-w-xl">Visualize e organize o fluxo clínico com precisão assistida por IA. Identifique conflitos e otimize a ocupação das salas.</p>
+</div>
+<button class="bg-[#A3C93A] text-on-primary-fixed font-bold py-3 px-8 rounded-full shadow-lg shadow-[#A3C93A]/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                Novo Agendamento
+            </button>
+</div>
+<!-- Filters & Tools -->
+<div class="flex flex-wrap gap-4 mb-8">
+<div class="glass-card px-4 py-2 rounded-full flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="medication">medication</span>
+<select class="bg-transparent border-none text-sm text-on-surface focus:ring-0 cursor-pointer">
+<option>Todos os Médicos</option>
+<option>Dr. Aris Thorne</option>
+<option>Dra. Elena Vance</option>
+</select>
+</div>
+<div class="glass-card px-4 py-2 rounded-full flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="meeting_room">meeting_room</span>
+<select class="bg-transparent border-none text-sm text-on-surface focus:ring-0 cursor-pointer">
+<option>Todas as Salas</option>
+<option>Consultório A (Botânico)</option>
+<option>Consultório B (Laboratorial)</option>
+<option>Sala de Triagem</option>
+</select>
+</div>
+<div class="ml-auto flex gap-2">
+<button class="glass-card p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</button>
+<button class="bg-surface-container-highest p-2 rounded-lg text-stone-400">
+<span class="material-symbols-outlined" data-icon="view_agenda">view_agenda</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Calendar Section (Left) -->
+<div class="col-span-12 lg:col-span-8">
+<div class="glass-card rounded-3xl p-8 overflow-hidden relative">
+<div class="flex justify-between items-center mb-8">
+<div class="flex items-center gap-4">
+<h2 class="text-2xl font-bold font-headline">Outubro 2023</h2>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-white/5 rounded-md transition-colors"><span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></button>
+<button class="p-1 hover:bg-white/5 rounded-md transition-colors"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+<div class="flex gap-4 text-xs font-medium uppercase tracking-widest text-stone-500">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span> Consultas</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-error"></span> Conflito</span>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="grid grid-cols-7 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5">
+<!-- Days Header -->
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Dom</div>
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Seg</div>
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Ter</div>
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Qua</div>
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Qui</div>
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Sex</div>
+<div class="bg-surface-container-high/40 p-4 text-center text-[10px] font-bold text-stone-500 uppercase">Sáb</div>
+<!-- Row 1 -->
+<div class="bg-transparent p-4 min-h-[100px] text-stone-700 opacity-30">26</div>
+<div class="bg-transparent p-4 min-h-[100px] text-stone-700 opacity-30">27</div>
+<div class="bg-transparent p-4 min-h-[100px] text-stone-700 opacity-30">28</div>
+<div class="bg-transparent p-4 min-h-[100px] text-stone-700 opacity-30">29</div>
+<div class="bg-transparent p-4 min-h-[100px] text-stone-700 opacity-30">30</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">1</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">2</div>
+<!-- Row 2 -->
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">3</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface flex flex-col justify-between">
+<span>4</span>
+<div class="bg-primary/20 text-primary text-[10px] p-1 rounded-md border border-primary/20">8 Consultas</div>
+</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">5</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">6</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface flex flex-col justify-between">
+<span>7</span>
+<div class="bg-error/10 text-error text-[10px] p-1 rounded-md border border-error/20 font-bold">1 Conflito</div>
+</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">8</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">9</div>
+<!-- Row 3 - Selected Day -->
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">10</div>
+<div class="bg-primary/10 border-2 border-primary/30 p-4 min-h-[100px] text-on-surface relative shadow-inner">
+<span class="font-bold text-primary">11</span>
+<div class="mt-2 space-y-1">
+<div class="w-full h-1 bg-primary rounded-full"></div>
+<div class="w-2/3 h-1 bg-primary/40 rounded-full"></div>
+</div>
+</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">12</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">13</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">14</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">15</div>
+<div class="bg-transparent p-4 min-h-[100px] text-on-surface">16</div>
+</div>
+</div>
+<!-- Conflict Alert Card -->
+<div class="mt-6 border border-error/30 bg-error-container/10 p-6 rounded-2xl flex items-center gap-6">
+<div class="w-12 h-12 rounded-xl bg-error/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h4 class="font-bold text-error">Conflito de Horário Detectado</h4>
+<p class="text-sm text-error/80">Quinta-feira, 07 de Outubro: Dr. Aris Thorne possui dois agendamentos simultâneos na Sala A (14:30 - 15:30).</p>
+</div>
+<button class="ml-auto bg-error text-on-error font-bold text-xs py-2 px-4 rounded-lg uppercase tracking-wider transition-transform active:scale-95">Resolver Agora</button>
+</div>
+</div>
+<!-- Sidebar Appointments (Right) -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="glass-card rounded-3xl p-6 h-full border border-white/5">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-xl font-headline tracking-tight">Próximas Consultas</h3>
+<span class="text-[10px] font-bold bg-white/5 text-stone-400 px-2 py-1 rounded-full uppercase">Hoje</span>
+</div>
+<div class="space-y-4">
+<!-- Appointment Item 1 -->
+<div class="group p-4 rounded-2xl hover:bg-white/5 transition-all cursor-pointer border border-transparent hover:border-white/5">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Close up portrait of a middle aged man with a beard smiling warmly in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLQSsPvCIIP-7EV6r9wObJtdGzcNiHMTKRyINS_G6Vsj_1Cv2eKp0lIPWfOQJ86L87UHpMw2xXfIbKq51YnCaNCmVXnjoEqesf7KFf7uSQa_W9COPGX8dG7_L5VaY5EO0l-C6J_FeF3pS8MJFP7tvr3Q8BBPNh6UjMIs01E56ByDavODJvrTsaMvRO_JnvLsUyVBvA-IJ-fTT50AXUCaxA0JdUU75Ew7orwBfDzQq_SxtzZJ_2Dbvyh8zr6h4QOD2dkXtLsv1tNG9D"/>
+<div>
+<div class="font-bold text-sm text-white">Mateus Oliveira</div>
+<div class="text-[10px] text-stone-500 uppercase tracking-widest">Renovação</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-bold text-sm">14:00</div>
+<div class="text-[10px] text-stone-500">Confirmado</div>
+</div>
+</div>
+<div class="flex items-center gap-4 mt-3 pt-3 border-t border-white/5">
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-xs" data-icon="medical_services">medical_services</span>
+                                    Dra. Elena Vance
+                                </div>
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span>
+                                    Sala B
+                                </div>
+</div>
+</div>
+<!-- Appointment Item 2 - Conflict Highlighting -->
+<div class="group p-4 rounded-2xl bg-error/5 border border-error/20 transition-all cursor-pointer">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Headshot of a focused professional woman with light makeup and brown hair in a bright office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0VvaXYmRWyC5WpHye7TpENAURYRr8M6Tvr1HW40Im4_xnnyYRDY2fgJi0Xom_SXeURcFbyjlkvG3LJbdWJVMbpjWsfMV4_ClY4nAD35d39qmp9tjHfnwzY6qAVY3s67mbALMJLg2Mi_gz-rXhsfI_2Kp2E9v4pzIIPLME7YbLd-wtR-SMsxbXL-J5dN8ReiDNUtCfIWDQK61C8dbP5ggVWNinfTQIodP1svva4b-Nv4mlRZiWGj-a_Mlw5Tpt3JsDUOOup1R1VMgo"/>
+<div>
+<div class="font-bold text-sm text-white">Juliana Rosa</div>
+<div class="text-[10px] text-error font-bold uppercase tracking-widest">Primeira Vez</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-error font-bold text-sm">14:30</div>
+<div class="text-[10px] text-error/60">Pendente</div>
+</div>
+</div>
+<div class="flex items-center gap-4 mt-3 pt-3 border-t border-error/10">
+<div class="flex items-center gap-1 text-[10px] text-error/80 font-medium">
+<span class="material-symbols-outlined text-xs" data-icon="medication">medication</span>
+                                    Dr. Aris Thorne
+                                </div>
+<div class="flex items-center gap-1 text-[10px] text-error/80 font-medium">
+<span class="material-symbols-outlined text-xs" data-icon="priority_high">priority_high</span>
+                                    Conflito de Sala
+                                </div>
+</div>
+</div>
+<!-- Appointment Item 3 -->
+<div class="group p-4 rounded-2xl hover:bg-white/5 transition-all cursor-pointer border border-transparent hover:border-white/5">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Young man with stylish hair and neutral expression, studio lighting with dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9jY_0klHR0qhqTaxt961-oZSmQ0QnZpNLmXXnRD-cjozfcebCO-60UpaAEIx3E3KEIJLYWYGkdc3YVMtHO6BH_i0NGfxwQ9RvYTRQ9iSadkKk0CZe1b_UqvuXYYdfl0NW8o6NIa9ZghsyeqcPUOYFEgazSvEIZy3bhzuIuveqWEfSzU2JPayh5mr9K4Oka_aktmJwSiM7k8LeRmCj1leuidlewagSuM19jAzP1-zPsuo9iVMFdWv0NcMDAD6E2SlaUIa3D9maBCcf"/>
+<div>
+<div class="font-bold text-sm text-white">Ricardo Mendes</div>
+<div class="text-[10px] text-stone-500 uppercase tracking-widest">Retorno</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-bold text-sm">15:45</div>
+<div class="text-[10px] text-stone-500">Confirmado</div>
+</div>
+</div>
+<div class="flex items-center gap-4 mt-3 pt-3 border-t border-white/5">
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-xs" data-icon="medical_services">medical_services</span>
+                                    Dra. Elena Vance
+                                </div>
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span>
+                                    Sala B
+                                </div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 border border-white/10 rounded-xl text-stone-400 font-bold text-sm hover:bg-white/5 hover:text-white transition-all">
+                        Ver Agenda Completa
+                    </button>
+</div>
+<!-- Stats / AI Insight -->
+<div class="glass-card rounded-3xl p-6 bg-gradient-to-tr from-primary/5 to-transparent">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+<h4 class="font-bold text-sm uppercase tracking-widest text-primary">IA Insight</h4>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                        A taxa de ocupação da Sala A está em <span class="text-primary font-bold">92%</span> para as próximas 48h. Recomendamos realocar consultas de renovação para a Sala de Triagem para liberar espaço para novos pacientes.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Notification (Contextual FAB Suppression) -->
+<!-- Suppression logic applied: FAB is relevant on dashboard/home but suppressed on detailed management views to prioritize canvas focus. Only Novo Agendamento is visible. -->
+</body></html>

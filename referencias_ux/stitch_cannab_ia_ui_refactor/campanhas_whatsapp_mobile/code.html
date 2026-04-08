@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Outreach - WhatsApp Campaigns</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0e1606",
+                        "on-secondary-container": "#96c496",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-variant": "#2f3824",
+                        "surface-bright": "#333c29",
+                        "on-background": "#dce6cb",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-primary-container": "#3e5200",
+                        "surface-container-highest": "#2f3824",
+                        "outline-variant": "#444937",
+                        "on-tertiary-container": "#792484",
+                        "primary-container": "#a3c93a",
+                        "tertiary": "#ffc4fe",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "secondary-container": "#29522e",
+                        "surface-container-high": "#242d1a",
+                        "secondary-fixed": "#bfefbe",
+                        "primary": "#bee654",
+                        "outline": "#8f937d",
+                        "on-primary-fixed": "#151f00",
+                        "surface-container": "#1a2211",
+                        "primary-fixed": "#c9f15e",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffd6fc",
+                        "secondary": "#a4d2a4",
+                        "surface": "#0e1606",
+                        "on-surface": "#dce6cb",
+                        "on-surface-variant": "#c5c9b1",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0e1606",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-tint": "#aed445",
+                        "surface-container-lowest": "#091003",
+                        "inverse-surface": "#dce6cb",
+                        "inverse-primary": "#4f6700",
+                        "tertiary-container": "#f998ff",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-primary": "#273500",
+                        "on-tertiary": "#580064",
+                        "primary-fixed-dim": "#aed445",
+                        "on-secondary": "#0e3817",
+                        "inverse-on-surface": "#2a3320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md z-50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#A3C93A]/30">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a clinician in a modern medical setting with soft green lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXBSSyHIOkyLXn-y4NuHsZLOx9SBiDIBwtfpLo5FwtSMS_OuEpRh3dkS8s-OIgbV3Uu2vSFN1WxFEQ3D9Cx956RqInlT5sU7_Bp44CW2uqhuleKJ8hNJJgV8EUl70S6ud1QKNtZGRK-rNXbaMR2KjTR1JZ02c_VKmVVYwsUDtqBTEUH0RV_wdhAkyyeWlTjBAHSypFMeNz551gt2RDBs7ngvXTBJxeMLAnaMpUa8R7nJt_1SAC7re-e2O78UEIcpa0D7ca3-p_aB0-"/>
+</div>
+<span class="text-xl font-bold tracking-tighter text-[#A3C93A] font-manrope">Clinical Outreach</span>
+</div>
+<button class="text-stone-400 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<main class="mt-20 px-4 space-y-8">
+<!-- Critical Metrics Section -->
+<section class="space-y-4">
+<h2 class="font-headline font-bold text-lg px-2 text-on-surface">System Health</h2>
+<div class="grid grid-cols-1 gap-4">
+<!-- Metric 1 -->
+<div class="glass-card rounded-lg p-5 flex items-center justify-between overflow-hidden relative group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-[#A3C93A]/5 rounded-full blur-2xl"></div>
+<div>
+<p class="text-xs font-label uppercase tracking-widest text-stone-500 mb-1">Total Messages</p>
+<p class="text-3xl font-headline font-extrabold text-[#A3C93A]">42.8k</p>
+<p class="text-[10px] text-on-secondary-container mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +12% vs last month
+                        </p>
+</div>
+<div class="h-12 w-20 flex items-end gap-0.5">
+<div class="bg-primary-container/20 w-2 h-4 rounded-t-sm"></div>
+<div class="bg-primary-container/40 w-2 h-6 rounded-t-sm"></div>
+<div class="bg-primary-container/60 w-2 h-10 rounded-t-sm"></div>
+<div class="bg-primary-container/40 w-2 h-5 rounded-t-sm"></div>
+<div class="bg-primary-container w-2 h-8 rounded-t-sm"></div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="glass-card rounded-lg p-5 flex items-center justify-between overflow-hidden relative">
+<div>
+<p class="text-xs font-label uppercase tracking-widest text-stone-500 mb-1">Response Rate</p>
+<p class="text-3xl font-headline font-extrabold text-[#A3C93A]">68.4%</p>
+<p class="text-[10px] text-on-secondary-container mt-1">High engagement detected</p>
+</div>
+<div class="relative w-14 h-14 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-white/10" cx="28" cy="28" fill="transparent" r="24" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-[#A3C93A]" cx="28" cy="28" fill="transparent" r="24" stroke="currentColor" stroke-dasharray="150" stroke-dashoffset="47" stroke-width="4"></circle>
+</svg>
+<span class="material-symbols-outlined absolute text-[#A3C93A] text-lg">forum</span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="glass-card rounded-lg p-5 flex items-center justify-between overflow-hidden relative">
+<div>
+<p class="text-xs font-label uppercase tracking-widest text-stone-500 mb-1">Active Campaigns</p>
+<p class="text-3xl font-headline font-extrabold text-[#A3C93A]">12</p>
+<p class="text-[10px] text-stone-500 mt-1">Across 4 medical segments</p>
+</div>
+<div class="bg-primary-container/10 p-3 rounded-full">
+<span class="material-symbols-outlined text-primary text-3xl">hub</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Active Campaigns List -->
+<section class="space-y-4">
+<div class="flex justify-between items-end px-2">
+<h2 class="font-headline font-bold text-lg text-on-surface">Active Campaigns</h2>
+<button class="text-xs font-bold text-[#A3C93A] uppercase tracking-wider">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Campaign Item 1 -->
+<div class="glass-card rounded-lg p-4 flex flex-col gap-4 border-l-4 border-l-[#A3C93A]">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-tighter">Active</span>
+<h3 class="font-headline font-bold text-on-surface mt-1">Post-Op Recovery Check</h3>
+</div>
+<span class="material-symbols-outlined text-stone-500">more_vert</span>
+</div>
+<div class="flex items-end justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-stone-500">Reach</span>
+<span class="text-sm font-bold">1,240 pts</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xs text-stone-500">Conv.</span>
+<span class="text-sm font-bold text-primary">8.2%</span>
+</div>
+<div class="h-8 w-24">
+<!-- SVG Sparkline placeholder -->
+<svg class="w-full h-full" viewbox="0 0 100 30">
+<path d="M0 25 L10 20 L20 28 L30 15 L40 22 L50 10 L60 18 L70 5 L80 12 L90 8 L100 15" fill="none" stroke="#A3C93A" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Campaign Item 2 -->
+<div class="glass-card rounded-lg p-4 flex flex-col gap-4 border-l-4 border-l-stone-600">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-500/10 text-stone-500 font-bold uppercase tracking-tighter">Paused</span>
+<h3 class="font-headline font-bold text-on-surface mt-1">Flu Vaccination Drive</h3>
+</div>
+<span class="material-symbols-outlined text-stone-500">more_vert</span>
+</div>
+<div class="flex items-end justify-between opacity-60">
+<div class="flex flex-col">
+<span class="text-xs text-stone-500">Reach</span>
+<span class="text-sm font-bold">4,800 pts</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xs text-stone-500">Conv.</span>
+<span class="text-sm font-bold">--</span>
+</div>
+<div class="h-8 w-24">
+<svg class="w-full h-full" viewbox="0 0 100 30">
+<path d="M0 15 L100 15" fill="none" stroke="#555" stroke-dasharray="4" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Campaign Item 3 -->
+<div class="glass-card rounded-lg p-4 flex flex-col gap-4 border-l-4 border-l-blue-400/50">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-400/10 text-blue-400 font-bold uppercase tracking-tighter">Scheduled</span>
+<h3 class="font-headline font-bold text-on-surface mt-1">Diabetes Screening Q4</h3>
+</div>
+<span class="material-symbols-outlined text-stone-500">more_vert</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-stone-500 text-sm">calendar_today</span>
+<span class="text-xs text-stone-400">Oct 24, 09:00 AM</span>
+</div>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border border-background bg-stone-800 flex items-center justify-center text-[8px] font-bold">DM</div>
+<div class="w-6 h-6 rounded-full border border-background bg-stone-700 flex items-center justify-center text-[8px] font-bold">T1</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Message Templates / Quick Actions -->
+<section class="space-y-4">
+<h2 class="font-headline font-bold text-lg px-2 text-on-surface">Precision Templates</h2>
+<div class="grid grid-cols-2 gap-3">
+<button class="bg-primary-container p-4 rounded-lg flex flex-col gap-3 text-left transition-transform active:scale-95">
+<div class="bg-black/20 w-8 h-8 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">add_comment</span>
+</div>
+<span class="text-sm font-bold text-on-primary-container leading-tight">New Outreach Flow</span>
+</button>
+<div class="glass-card p-4 rounded-lg flex flex-col gap-3 text-left">
+<div class="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+</div>
+<span class="text-sm font-bold text-on-surface leading-tight">AI Content Optimizer</span>
+</div>
+</div>
+<!-- Horizontal scroll templates -->
+<div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar">
+<div class="min-w-[200px] glass-card p-4 rounded-lg flex flex-col gap-2 border-t-2 border-primary/20">
+<span class="material-symbols-outlined text-primary-container">medical_services</span>
+<h4 class="font-bold text-sm">Screening Reminder</h4>
+<p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2">"Hi {{name}}, it's time for your annual checkup..."</p>
+</div>
+<div class="min-w-[200px] glass-card p-4 rounded-lg flex flex-col gap-2 border-t-2 border-white/5">
+<span class="material-symbols-outlined text-stone-400">medication</span>
+<h4 class="font-bold text-sm text-stone-300">Prescription Refill</h4>
+<p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2">"Your medication for {{treatment}} is ready..."</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-8 bg-stone-950/90 backdrop-blur-xl rounded-t-[2.5rem] border-t border-white/10 shadow-[0_-8px_30px_rgb(0,0,0,0.5)]">
+<!-- Campaigns (Active) -->
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-2 px-4 transition-all duration-300 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Campaigns</span>
+</a>
+<!-- Segments -->
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 transition-all duration-300 active:scale-90" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Segments</span>
+</a>
+<!-- Templates -->
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 transition-all duration-300 active:scale-90" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Templates</span>
+</a>
+<!-- Logs -->
+<a class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 transition-all duration-300 active:scale-90" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-manrope text-[10px] font-medium uppercase tracking-widest mt-1">Logs</span>
+</a>
+</nav>
+<!-- Floating Action Button (FAB) - Localized to this screen for new campaign -->
+<button class="fixed right-6 bottom-32 bg-[#A3C93A] text-on-primary-container w-14 h-14 rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

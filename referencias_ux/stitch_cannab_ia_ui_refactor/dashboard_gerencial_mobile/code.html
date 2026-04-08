@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cannab'IA - Dashboard Gerencial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-primary": "#273500",
+                "inverse-on-surface": "#2a3320",
+                "surface-container-low": "#161e0d",
+                "surface-container-high": "#242d1a",
+                "secondary-container": "#29522e",
+                "surface-container-lowest": "#091003",
+                "secondary-fixed-dim": "#a4d2a4",
+                "on-primary-fixed": "#151f00",
+                "on-primary-container": "#3e5200",
+                "outline": "#8f937d",
+                "secondary": "#a4d2a4",
+                "on-secondary": "#0e3817",
+                "on-surface-variant": "#c5c9b1",
+                "on-tertiary-fixed": "#36003e",
+                "background": "#0e1606",
+                "surface-container-highest": "#2f3824",
+                "on-primary-fixed-variant": "#3a4d00",
+                "surface-bright": "#333c29",
+                "surface-tint": "#aed445",
+                "primary-container": "#a3c93a",
+                "secondary-fixed": "#bfefbe",
+                "outline-variant": "#444937",
+                "on-tertiary-container": "#792484",
+                "on-secondary-container": "#96c496",
+                "error-container": "#93000a",
+                "on-tertiary": "#580064",
+                "error": "#ffb4ab",
+                "surface-container": "#1a2211",
+                "on-error": "#690005",
+                "on-secondary-fixed-variant": "#274f2c",
+                "inverse-surface": "#dce6cb",
+                "primary": "#bee654",
+                "on-background": "#dce6cb",
+                "surface-dim": "#0e1606",
+                "on-tertiary-fixed-variant": "#741e80",
+                "surface": "#0e1606",
+                "primary-fixed": "#c9f15e",
+                "primary-fixed-dim": "#aed445",
+                "tertiary-container": "#f998ff",
+                "tertiary-fixed": "#ffd6fc",
+                "tertiary": "#ffc4fe",
+                "on-secondary-fixed": "#002107",
+                "inverse-primary": "#4f6700",
+                "surface-variant": "#2f3824",
+                "tertiary-fixed-dim": "#fcaaff",
+                "on-error-container": "#ffdad6",
+                "on-surface": "#dce6cb"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: rgba(47, 56, 36, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(163, 201, 58, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-stone-800/50 bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-primary-container/20 flex items-center justify-center">
+<img alt="Administrator profile picture" class="w-full h-full object-cover" data-alt="Professional portrait of a male medical administrator in a dark studio setting with soft green highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCim0sHQcTsfq4p4mqcSMwHIfL_6wo6-BLnrHhqSDeB_-VVu7K1WRMtooChAS0cfbQShyAT86iUPvheL6jYJjEyBpx8Ua5XzykQJFe5EvoMy7cQ-5X2PLFYTxnJ9VzEhhHgifIJHfmG4tp6Wi2yQcrfRK6XYJw1jnO8NELWRvNOJ7iGd2T88CP045_nvhaTt-Jr6FzmlKtsIXcckYxpRgnNxbrxsC-sQwYZAqas0DvYlE0ouzELyhiP22slMxg5WyYlQee2sHEcrUD"/>
+</div>
+<span class="text-xl font-bold text-[#A3C93A] uppercase tracking-widest">Cannab'IA</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#A3C93A] hover:bg-stone-800/40 transition-colors p-2 rounded-full cursor-pointer">notifications</span>
+</div>
+</header>
+<main class="pt-20 px-4 space-y-8">
+<!-- KPIs Section -->
+<section class="space-y-4">
+<div class="flex items-end justify-between px-2">
+<h2 class="text-xs font-semibold text-primary uppercase tracking-[0.2em]">Visão Geral</h2>
+<span class="text-[10px] text-outline">Últimos 30 dias</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="glass-card p-4 rounded-2xl flex flex-col gap-1">
+<span class="material-symbols-outlined text-primary-fixed-dim text-xl">group</span>
+<span class="text-2xl font-bold mt-2">1,284</span>
+<span class="text-[10px] font-medium text-primary uppercase tracking-wider">Total Pacientes</span>
+<div class="mt-2 flex items-center text-[10px] text-primary">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="ml-1">+12%</span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col gap-1">
+<span class="material-symbols-outlined text-primary-fixed-dim text-xl">payments</span>
+<span class="text-2xl font-bold mt-2">R$ 42k</span>
+<span class="text-[10px] font-medium text-primary uppercase tracking-wider">Receita Mensal</span>
+<div class="mt-2 flex items-center text-[10px] text-primary">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="ml-1">+8.4%</span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col gap-1">
+<span class="material-symbols-outlined text-primary-fixed-dim text-xl">sentiment_satisfied</span>
+<span class="text-2xl font-bold mt-2">4.9</span>
+<span class="text-[10px] font-medium text-primary uppercase tracking-wider">Satisfação</span>
+<div class="mt-2 flex items-center text-[10px] text-primary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="ml-1">Excelente</span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col gap-1">
+<span class="material-symbols-outlined text-primary-fixed-dim text-xl">speed</span>
+<span class="text-2xl font-bold mt-2">92%</span>
+<span class="text-[10px] font-medium text-primary uppercase tracking-wider">Onboarding CR</span>
+<div class="mt-2 flex items-center text-[10px] text-secondary">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+<span class="ml-1">Estável</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Operational Status -->
+<section class="space-y-4">
+<h2 class="text-xs font-semibold text-primary uppercase tracking-[0.2em] px-2">Status Operacional</h2>
+<div class="space-y-2">
+<div class="glass-card p-4 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Agendamentos</p>
+<p class="text-[10px] text-outline">12 consultas para hoje</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="glass-card p-4 rounded-xl flex items-center justify-between border-l-4 border-l-primary/40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">science</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Sincronização de Lab</p>
+<p class="text-[10px] text-primary">Ativo e sincronizado</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">sync</span>
+</div>
+<div class="glass-card p-4 rounded-xl flex items-center justify-between border-l-4 border-l-error/40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-error/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-error">inventory_2</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Alerta de Estoque</p>
+<p class="text-[10px] text-error">CBD Full Spectrum baixo</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+</div>
+</section>
+<!-- Performance Clínica -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<h2 class="text-xs font-semibold text-primary uppercase tracking-[0.2em]">Performance Clínica</h2>
+<button class="text-[10px] font-bold text-primary-container">VER TODOS</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+<div class="min-w-[160px] glass-card p-4 rounded-2xl text-center space-y-3">
+<img alt="Dr. Roberto" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-primary/20" data-alt="Close-up portrait of a professional doctor wearing a white coat against a soft green organic background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHa8HFT1hKSdbVHMRfKRko82CMrUHkEZDKUBK_Dw2Gv67payXqv3HnypgNGAAv51YDRVN94yRjM1CJpgYdXiWxui5lWq6GmQdbVds28ynG6T9iYy3MJSueAtK6FqxMHnsI43BIb5Dv3R7gDj3nYn0qNjFjah-D7LKJyJY2ektlycGWL_bOVJSuWVyZPMq60M1yKmBCFzUKC3HSRi1DkHT5vOEuOR-1CUjVffE91Lp9L8t3BfJgFgSxBQWdyjfDlMCvPddNSlAINU-w"/>
+<div>
+<p class="text-sm font-bold">Dr. Roberto Silva</p>
+<p class="text-[10px] text-outline">Neurologia</p>
+</div>
+<div class="flex justify-center items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold">4.9</span>
+</div>
+</div>
+<div class="min-w-[160px] glass-card p-4 rounded-2xl text-center space-y-3">
+<img alt="Dra. Mariana" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-primary/20" data-alt="Portrait of a female medical professional in a clinical but warm environment with botanical touches" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtwJQF2KcVjYbY3QxBqhWZOosm99lSyUIYLqTm2JpMdkWL-0DSJwNgHtK2dVCu4zn7xvXn4hW7HHGfvzqS7Co8bej-4fFDmDIDLG3HoPPjPxmwOhbpWc1WkxDfLHxhuLNFDe_04tuf6dGsnPyW7_jR7VehWoVtj8FI2KvYTf9SDWWOErVxiYP0dZ_nTEmXSDFOHeC2RN1aZTTkYnjnunBLlq6iNXVPrAuG0ygomFovS4UTDt2b2AqrcTv4zw7fKjFtMCMBPYUfeORC"/>
+<div>
+<p class="text-sm font-bold">Dra. Mariana Costa</p>
+<p class="text-[10px] text-outline">Psiquiatria</p>
+</div>
+<div class="flex justify-center items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold">5.0</span>
+</div>
+</div>
+<div class="min-w-[160px] glass-card p-4 rounded-2xl text-center space-y-3">
+<img alt="Dr. André" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-primary/20" data-alt="Doctor in profile with a confident expression, professional medical attire, soft biophilic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQptP0WWy6jNGh6i6F5lWYP2laiDdIO78P-SyoVspMoAxLVkCmw4g5aNAvlPvdqBFguYgQj9nkuc-dECg5z-X8HAKjPhZxBqdvBsz_W_27-AOXACuSjYnJ2epF7scnYnBYPf1q8wxyFL2KQ5oQAp40XZFE27lHx_cAqSYA05OoOs1fCdMkxdNhI00_DrXhyHW20tdfa9Rs--zZu_ok6zB1oHFp18j1s8OTLBbe2SysoV25kQrCVWEdh-bfsJBQZTTHf49-eaI3dI9i"/>
+<div>
+<p class="text-sm font-bold">Dr. André Luz</p>
+<p class="text-[10px] text-outline">Clínica Geral</p>
+</div>
+<div class="flex justify-center items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold">4.8</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Charts Section -->
+<section class="space-y-4">
+<h2 class="text-xs font-semibold text-primary uppercase tracking-[0.2em] px-2">Aquisição e Retenção</h2>
+<div class="glass-card p-6 rounded-3xl h-64 flex flex-col justify-between">
+<div class="flex items-end gap-2 h-40">
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg h-[40%] relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary h-[60%] opacity-50"></div>
+</div>
+<span class="text-[8px] text-outline">SEG</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg h-[65%] relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary h-[80%] opacity-50"></div>
+</div>
+<span class="text-[8px] text-outline">TER</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg h-[55%] relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary h-[40%] opacity-50"></div>
+</div>
+<span class="text-[8px] text-outline">QUA</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg h-[85%] relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary h-[95%] opacity-50"></div>
+</div>
+<span class="text-[8px] text-outline">QUI</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg h-[75%] relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary h-[70%] opacity-50"></div>
+</div>
+<span class="text-[8px] text-outline">SEX</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg h-[30%] relative overflow-hidden">
+<div class="absolute bottom-0 w-full bg-primary h-[20%] opacity-50"></div>
+</div>
+<span class="text-[8px] text-outline">SAB</span>
+</div>
+</div>
+<div class="flex justify-around items-center pt-4 border-t border-stone-800/50">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-[10px] text-on-surface">Aquisição</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary/40"></div>
+<span class="text-[10px] text-on-surface">Retenção</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-stone-950/90 backdrop-blur-xl z-50 rounded-t-[32px] border-t border-stone-800/30 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
+<div class="flex flex-col items-center justify-center bg-[#A3C93A]/20 text-[#A3C93A] rounded-full px-5 py-1.5 transition-all Active: scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">group</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Pacientes</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Médicos</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 hover:text-stone-300 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-tighter mt-1">Ajustes</span>
+</div>
+</nav>
+</body></html>

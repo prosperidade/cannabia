@@ -1,0 +1,87 @@
+# Documentação Técnica e de Design: Cannab'IA
+
+## 1. Visão Geral
+O **Cannab'IA** é uma plataforma clínica de alta performance focada em medicina canábica, integrando inteligência artificial para triagem, diagnóstico assistido e monitoramento de pacientes.
+
+### Personas
+- **Paciente**: Mobile-first, focado em adesão e diário de sintomas.
+- **Médico**: Desktop-first, focado em produtividade clínica e suporte à decisão via IA.
+- **Gestor (Clínica/Associação)**: Foco em KPIs, faturamento e conformidade ANVISA.
+- **Administrador Global**: Monitoramento de infraestrutura e multi-tenancy.
+
+---
+
+## 2. Design System: Botanical Precision
+
+### Identidade Visual
+- **Creative North Star**: "The Botanical Laboratory" (Clínico, Moderno, Sofisticado).
+- **Esquema de Cores**:
+  - `bg-primary`: #2C3522 (Verde Oliva Escuro)
+  - `accent-primary`: #A3C93A (Verde Limão Vibrante)
+  - `accent-secondary`: #8FBC8F (Verde Sálvia)
+  - `glass-base`: rgba(60, 70, 45, 0.6) com 12px de blur.
+- **Tipografia**: Manrope (Sans-serif moderna).
+- **Componentes**: Bordas arredondadas (24px+), Glassmorphism e sombras profundas.
+
+### Tokens (CSS Variables)
+As variáveis estão definidas no arquivo `design-system.css`, garantindo consistência em toda a aplicação.
+
+---
+
+## 3. Arquitetura Técnica
+- **Stack**: Next.js 15.2.2 (App Router), React 19, TypeScript.
+- **Estilização**: CSS Customizado (Native CSS), Sem Tailwind.
+- **Componentes UI**: Radix UI (Primitivos) + Framer Motion (Animações).
+- **Backend**: Flask (Python) em `127.0.0.1:5000` via Proxy `/api/v1/`.
+
+---
+
+## 4. Mapeamento de Rotas e Telas (MVP)
+
+### Área do Paciente (Mobile-First)
+| Rota | Descrição |
+| :--- | :--- |
+| `/triagem` | Wizard de 4 etapas (Identificação, Sintomas, Hábitos, Revisão). |
+| `/p/dashboard` | Painel principal com adesão e link WhatsApp. |
+| `/p/tratamento` | Detalhes da prescrição e posologia. |
+| `/p/diario` | Registro diário de dor, sono e humor. |
+| `/p/pagamento` | Checkout de consulta (PIX/Cartão). |
+
+### Área do Médico (Desktop & Mobile)
+| Rota | Descrição |
+| :--- | :--- |
+| `/med/fila` | Fila de atendimento com triagem IA e risco clínico. |
+| `/med/consulta/[id]` | Teleconsulta hibrida com assistente IA em tempo real. |
+| `/med/prescricao/[id]` | Emissão de receita digital personalizada. |
+| `/med/prontuario/[id]` | Perfil completo do paciente e histórico. |
+| `/med/retornos` | Painel de ajustes de dosagem e alertas de recidiva. |
+| `/med/triagem-dashboard` | Analytics de inteligência clínica. |
+
+### Área Organizacional (Clínicas/Associações)
+| Rota | Descrição |
+| :--- | :--- |
+| `/org/dashboard` | KPI gerencial, faturamento e performance. |
+| `/org/pacientes` | Gestão de base de pacientes e retenção. |
+| `/org/medicos` | Gestão de corpo clínico e credenciais. |
+| `/org/estoque` | Controle de produtos e rastreabilidade ANVISA. |
+| `/org/financeiro` | Faturamento, inadimplência e repasses médicos. |
+| `/org/campanhas` | Automação de WhatsApp para reengajamento. |
+| `/org/config` | Personalização da clínica (Logo, cores, horários). |
+
+### Área Administrativa (Global)
+| Rota | Descrição |
+| :--- | :--- |
+| `/admin/dashboard` | Saúde do sistema (API, DB, GPU). |
+| `/admin/tenants` | Gestão multi-tenant e monitoramento de carga. |
+| `/auditoria-ia` | Logs de execução, custo de tokens e precisão. |
+
+---
+
+## 5. Guia de Implementação
+1. **CSS Modules**: Modularizar o `design-system.css` para evitar colisões.
+2. **Framer Motion**: Utilizar `AnimatePresence` no Wizard de Triagem para transições horizontais.
+3. **Integração API**: Todas as requisições devem passar pelo hook `useApiSession` para gerenciar tokens CSRF e sessões Flask.
+4. **Mobile Responsiveness**: Seguir os padrões de cartões táteis estabelecidos nas adaptações mobile.
+
+---
+*Gerado por Stitch AI - Design Lead*

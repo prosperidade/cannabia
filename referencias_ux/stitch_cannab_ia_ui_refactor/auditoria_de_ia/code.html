@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#091003",
+                    "on-secondary": "#0e3817",
+                    "on-background": "#dce6cb",
+                    "on-primary-fixed": "#151f00",
+                    "on-error": "#690005",
+                    "primary": "#bee654",
+                    "secondary-container": "#29522e",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface-container-low": "#161e0d",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "surface-bright": "#333c29",
+                    "on-secondary-fixed": "#002107",
+                    "tertiary-fixed": "#ffd6fc",
+                    "surface": "#0e1606",
+                    "tertiary": "#ffc4fe",
+                    "surface-container-high": "#242d1a",
+                    "primary-fixed": "#c9f15e",
+                    "surface-tint": "#aed445",
+                    "surface-dim": "#0e1606",
+                    "outline-variant": "#444937",
+                    "background": "#0e1606",
+                    "error": "#ffb4ab",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#2f3824",
+                    "inverse-on-surface": "#2a3320",
+                    "on-tertiary-container": "#792484",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "surface-variant": "#2f3824",
+                    "inverse-primary": "#4f6700",
+                    "on-surface-variant": "#c5c9b1",
+                    "on-primary-container": "#3e5200",
+                    "surface-container": "#1a2211",
+                    "on-tertiary-fixed": "#36003e",
+                    "primary-fixed-dim": "#aed445",
+                    "on-surface": "#dce6cb",
+                    "on-secondary-container": "#96c496",
+                    "on-primary": "#273500",
+                    "primary-container": "#a3c93a",
+                    "on-tertiary": "#580064",
+                    "tertiary-container": "#f998ff",
+                    "secondary": "#a4d2a4",
+                    "inverse-surface": "#dce6cb",
+                    "on-error-container": "#ffdad6",
+                    "outline": "#8f937d",
+                    "secondary-fixed": "#bfefbe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(14, 22, 6, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+        body {
+            background: radial-gradient(circle at top right, #1a2211, #0e1606);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface antialiased">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col bg-stone-950/80 backdrop-blur-md h-screen w-64 border-r border-white/5 shadow-2xl z-50 font-manrope tracking-tight">
+<div class="p-8">
+<div class="text-[#A3C93A] font-bold text-xl tracking-tighter uppercase mb-2">BioLab Clinical</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-[#A3C93A] animate-pulse"></div>
+<span class="text-stone-400 text-xs uppercase tracking-widest font-semibold">AI Auditor Active</span>
+</div>
+</div>
+<div class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Patients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span>Appointments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span>Messages</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#A3C93A] bg-[#A3C93A]/10 font-semibold border-r-2 border-[#A3C93A] transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+<span>AI Audit</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Admin</span>
+</a>
+</div>
+<div class="p-6 mt-auto">
+<div class="flex items-center gap-3 glass-panel p-3 rounded-xl border border-white/10">
+<img alt="Clinical Director Profile" class="w-10 h-10 rounded-full object-cover grayscale brightness-110" data-alt="Portrait of a professional medical director with a kind expression, wearing a lab coat in a modern clinic setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuART6HqU8XJAm2czGpf2kZqp_0YGwv_8fwCt6yRVoP5dTlN6ne6ac9GO87qe3l59R5pctp6tMUvpV4QEpScc4CeAAmtrS9Pvrs0x6GOljgfA_l8P_die64UprqEZP-BmNGJcNS1uTLrTXkHT0sKfZ-dVdW9CEPVUVAyGqAqhHlYCjUJ-g2X_6qcRSegirNOsB_-Zsp-1M5jXc-_t4VzhYlhwmtWpJc-80bK_WO2UMb6jlcA3Raew3QK56K38pqNoMEpXt3Lf0Ry6OHM"/>
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-white truncate">Dr. Aris Thorne</p>
+<p class="text-[10px] text-stone-500 uppercase tracking-tighter">Clinical Director</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-stone-950/50 backdrop-blur-lg flex justify-between items-center px-8 z-40 border-b border-white/5 font-manrope">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-sm">search</span>
+<input class="bg-white/5 border-none rounded-full py-1.5 pl-10 pr-4 text-sm text-on-surface focus:ring-1 focus:ring-[#A3C93A] w-full transition-all" placeholder="Search audit logs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-stone-400">
+<button class="hover:text-white transition-all ease-in-out duration-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-white transition-all ease-in-out duration-300">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+<div class="h-6 w-px bg-white/10"></div>
+<button class="text-sm font-bold text-white flex items-center gap-2 hover:text-[#A3C93A] transition-all">
+<span>Profile Settings</span>
+<span class="material-symbols-outlined text-xs">arrow_forward_ios</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-8 pb-12">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-4xl font-headline font-black tracking-tight text-white mb-2">AI Auditor Control</h1>
+<p class="text-on-surface-variant font-medium">Monitoring the neural pathways of Cannab'IA system.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel text-white font-bold text-sm hover:bg-white/10 transition-all active:scale-95">
+<span class="material-symbols-outlined text-lg">download</span>
+                    Export Audit PDF
+                </button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all active:scale-95 shadow-[0_0_20px_rgba(190,230,84,0.3)]">
+<span class="material-symbols-outlined text-lg">ios_share</span>
+                    Export CSV
+                </button>
+</div>
+</div>
+<!-- Alert Banner -->
+<div class="mb-8 p-4 glass-panel border-l-4 border-primary rounded-xl flex items-center gap-4 animate-pulse">
+<div class="bg-primary/20 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Anomalia de Custo Detectada</p>
+<p class="text-xs text-stone-400">O módulo de "Análise de Lab" apresentou um aumento de 140% no consumo de tokens nas últimas 2 horas.</p>
+</div>
+<button class="ml-auto text-xs font-bold text-primary uppercase tracking-widest px-4 py-2 hover:bg-primary/10 rounded-lg">Investigar</button>
+</div>
+<!-- Bento Grid Dashboard -->
+<div class="bento-grid mb-8">
+<!-- Metric 1 -->
+<div class="col-span-3 glass-panel p-6 rounded-lg relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-stone-500 text-xs font-bold uppercase tracking-widest mb-4">Tokens Consumidos</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-black text-white">12.4M</span>
+<span class="text-primary text-xs font-bold">+12%</span>
+</div>
+<div class="mt-4 w-full bg-white/5 h-1 rounded-full">
+<div class="bg-primary h-1 rounded-full w-[65%]"></div>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-white/5 group-hover:scale-110 transition-transform duration-500" data-icon="memory">memory</span>
+</div>
+<!-- Metric 2 -->
+<div class="col-span-3 glass-panel p-6 rounded-lg relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-stone-500 text-xs font-bold uppercase tracking-widest mb-4">Custo Total (USD)</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-black text-white">$1,240.82</span>
+<span class="text-primary text-xs font-bold">+4%</span>
+</div>
+<div class="mt-4 w-full bg-white/5 h-1 rounded-full">
+<div class="bg-primary h-1 rounded-full w-[42%]"></div>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-white/5 group-hover:scale-110 transition-transform duration-500" data-icon="payments">payments</span>
+</div>
+<!-- Metric 3 -->
+<div class="col-span-3 glass-panel p-6 rounded-lg relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-stone-500 text-xs font-bold uppercase tracking-widest mb-4">Tempo de Resposta</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-black text-white">1.2s</span>
+<span class="text-secondary text-xs font-bold">-0.3s</span>
+</div>
+<div class="mt-4 w-full bg-white/5 h-1 rounded-full">
+<div class="bg-secondary h-1 rounded-full w-[88%]"></div>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-white/5 group-hover:scale-110 transition-transform duration-500" data-icon="timer">timer</span>
+</div>
+<!-- Graph Area -->
+<div class="col-span-9 glass-panel p-8 rounded-lg min-h-[300px]">
+<div class="flex justify-between items-start mb-12">
+<div>
+<h3 class="text-xl font-bold text-white mb-1">Evolução de Uso</h3>
+<p class="text-stone-500 text-sm">Volume de tokens vs Custo operacional (Últimos 30 dias)</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-xs text-stone-400">Tokens</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<span class="text-xs text-stone-400">Custo</span>
+</div>
+</div>
+</div>
+<div class="relative h-48 w-full flex items-end justify-between gap-1">
+<!-- Fake Graph Visualization -->
+<div class="bg-primary/20 w-full h-[40%] rounded-t-sm hover:bg-primary/40 transition-all relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-stone-900 text-[10px] p-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">4.2k</div>
+</div>
+<div class="bg-primary/20 w-full h-[55%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[45%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[70%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[85%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[60%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[40%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[30%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[55%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[75%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[95%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[80%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[65%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[50%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[45%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[55%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[70%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[85%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[90%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+<div class="bg-primary/20 w-full h-[100%] rounded-t-sm hover:bg-primary/40 transition-all"></div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] text-stone-600 font-bold uppercase tracking-widest">
+<span>01 Out</span>
+<span>10 Out</span>
+<span>20 Out</span>
+<span>30 Out</span>
+</div>
+</div>
+<!-- Anomalies Side Card -->
+<div class="col-span-3 glass-panel p-6 rounded-lg border-primary/20">
+<h4 class="text-white font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">analytics</span>
+                    Contexto AI
+                </h4>
+<div class="space-y-4">
+<div class="p-3 bg-white/5 rounded-lg border border-white/5">
+<p class="text-[10px] text-stone-500 uppercase font-bold mb-1">Modelo Dominante</p>
+<p class="text-sm font-bold text-white">Claude 3.5 Sonnet</p>
+<p class="text-xs text-stone-400">82% do tráfego total</p>
+</div>
+<div class="p-3 bg-white/5 rounded-lg border border-white/5">
+<p class="text-[10px] text-stone-500 uppercase font-bold mb-1">Custo Médio / Req</p>
+<p class="text-sm font-bold text-white">$0.0024</p>
+<p class="text-xs text-secondary">-5% vs mês anterior</p>
+</div>
+<img alt="Abstract digital mesh" class="w-full h-24 object-cover rounded-lg opacity-50 grayscale hover:grayscale-0 transition-all duration-700" data-alt="Abstract glowing neural network mesh in shades of deep green and neon lime with subtle bokeh effects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7mbscs4HZN31k453vYb03x2UYL4lsMSYJoXX01lpBtm_c91fitXZI2cMprGRI9UY37DwrhSdpg5C-Vw4OzypHGzu1Az3anxmtYXimalhdnu5_IL4_DIUyApUtJIKz9zFH33qMxnkKvL-kOqb-O1MbMAjEGUtoE45VW4FR9KrOcnQ1mUf72OspcuFOXWJxcfJx-DJGO1lSBJp7fsXugItx1bWTYYrmOh6rThvoPDvHK2ktQRGklL2dmC9MCM-akmPrpXKPNdZPcgwt"/>
+</div>
+</div>
+</div>
+<!-- Audit Logs Table Section -->
+<div class="glass-panel rounded-lg overflow-hidden border border-white/5">
+<div class="p-6 flex justify-between items-center border-b border-white/5">
+<h3 class="text-xl font-bold text-white">Logs de Auditoria</h3>
+<div class="flex gap-2">
+<button class="px-4 py-2 text-xs font-bold text-stone-400 hover:text-white transition-all bg-white/5 rounded-lg">Filtrar por Modelo</button>
+<button class="px-4 py-2 text-xs font-bold text-stone-400 hover:text-white transition-all bg-white/5 rounded-lg">Filtrar por Status</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-white/5 text-[10px] uppercase tracking-widest text-stone-500 font-bold">
+<tr>
+<th class="px-6 py-4">Timestamp</th>
+<th class="px-6 py-4">Recurso</th>
+<th class="px-6 py-4">Modelo</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Custo</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-white/5">
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 text-stone-400 font-medium">2023-10-31 14:22:05</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-white font-semibold">Análise de Lab</span>
+</div>
+</td>
+<td class="px-6 py-4 text-stone-300">Claude 3.5 Sonnet</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-secondary-container/30 text-secondary uppercase">Sucesso</span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-stone-300">$0.042</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 text-stone-400 font-medium">2023-10-31 14:21:40</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-white font-semibold">Sugestão de Dosagem</span>
+</div>
+</td>
+<td class="px-6 py-4 text-stone-300">GPT-4o</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-error-container/30 text-error uppercase">Falha</span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-stone-300">$0.000</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 text-stone-400 font-medium">2023-10-31 14:20:12</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-container"></div>
+<span class="text-white font-semibold">Triagem</span>
+</div>
+</td>
+<td class="px-6 py-4 text-stone-300">Claude 3.5 Sonnet</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-secondary-container/30 text-secondary uppercase">Sucesso</span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-stone-300">$0.015</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 text-stone-400 font-medium">2023-10-31 14:18:55</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-white font-semibold">Análise de Lab</span>
+</div>
+</td>
+<td class="px-6 py-4 text-stone-300">GPT-4o</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-secondary-container/30 text-secondary uppercase">Sucesso</span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-stone-300">$0.088</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 text-stone-400 font-medium">2023-10-31 14:15:30</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-white font-semibold">Sugestão de Dosagem</span>
+</div>
+</td>
+<td class="px-6 py-4 text-stone-300">GPT-4o</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-secondary-container/30 text-secondary uppercase">Sucesso</span>
+</td>
+<td class="px-6 py-4 text-right font-mono text-stone-300">$0.012</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-white/5 border-t border-white/5 flex justify-center">
+<button class="text-xs font-bold text-stone-400 hover:text-primary transition-all flex items-center gap-2">
+                    Carregar mais registros
+                    <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

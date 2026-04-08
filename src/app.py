@@ -56,6 +56,9 @@ from src.web.routes.campaigns import campaigns_bp
 from src.web.routes.chat_intake import chat_bp, ChatNamespace, ChatMonitorNamespace
 from src.web.routes.telemetry import telemetry_bp
 from src.web.routes.prescriptions import prescriptions_bp
+from src.web.routes.patient_portal import patient_portal_bp
+from src.web.routes.returns import returns_bp
+from src.web.routes.org_management import org_management_bp
 
 from src.ai.service import CannabIAService
 from src.repositories.user_repository import (
@@ -175,6 +178,9 @@ def create_app() -> Flask:
     app.register_blueprint(chat_bp)
     app.register_blueprint(telemetry_bp)
     app.register_blueprint(prescriptions_bp)
+    app.register_blueprint(patient_portal_bp)
+    app.register_blueprint(returns_bp)
+    app.register_blueprint(org_management_bp)
 
     # ==============================
     # CSRF HELPERS

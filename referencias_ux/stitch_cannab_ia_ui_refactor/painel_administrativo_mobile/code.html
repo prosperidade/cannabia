@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "outline": "#8f937d",
+                "on-secondary-fixed-variant": "#274f2c",
+                "on-primary-container": "#3e5200",
+                "on-tertiary-container": "#792484",
+                "on-error-container": "#ffdad6",
+                "secondary": "#a4d2a4",
+                "on-secondary-fixed": "#002107",
+                "surface-dim": "#0e1606",
+                "on-secondary-container": "#96c496",
+                "primary-fixed": "#c9f15e",
+                "on-tertiary-fixed-variant": "#741e80",
+                "on-primary": "#273500",
+                "primary-fixed-dim": "#aed445",
+                "background": "#0e1606",
+                "tertiary-container": "#f998ff",
+                "surface-container": "#1a2211",
+                "tertiary-fixed-dim": "#fcaaff",
+                "secondary-container": "#29522e",
+                "error-container": "#93000a",
+                "surface": "#0e1606",
+                "on-tertiary-fixed": "#36003e",
+                "surface-tint": "#aed445",
+                "surface-container-high": "#242d1a",
+                "secondary-fixed-dim": "#a4d2a4",
+                "primary": "#bee654",
+                "secondary-fixed": "#bfefbe",
+                "on-error": "#690005",
+                "on-surface": "#dce6cb",
+                "surface-container-lowest": "#091003",
+                "inverse-surface": "#dce6cb",
+                "outline-variant": "#444937",
+                "surface-bright": "#333c29",
+                "primary-container": "#a3c93a",
+                "on-secondary": "#0e3817",
+                "on-primary-fixed-variant": "#3a4d00",
+                "inverse-primary": "#4f6700",
+                "error": "#ffb4ab",
+                "surface-container-low": "#161e0d",
+                "surface-variant": "#2f3824",
+                "surface-container-highest": "#2f3824",
+                "on-surface-variant": "#c5c9b1",
+                "on-background": "#dce6cb",
+                "on-tertiary": "#580064",
+                "on-primary-fixed": "#151f00",
+                "tertiary": "#ffc4fe",
+                "tertiary-fixed": "#ffd6fc",
+                "inverse-on-surface": "#2a3320"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .bento-inner {
+            background: linear-gradient(145deg, rgba(174, 212, 69, 0.05) 0%, rgba(14, 22, 6, 0) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md dark:bg-stone-950/80 border-b border-white/10 shadow-2xl shadow-black/50 flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-3">
+<img alt="Cannab'IA Brand Logo" class="h-8 w-8 object-contain" data-alt="minimalist organic lime green leaf logo inside a geometric glass laboratory flask icon on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuJLWXz4hwF3iBGsy01QlZmrLV15OcvyZbd69Ycpd2eL0orwbX81BcpprsC8x8xW9DaxvXvtvKl4WfhuzVBZihXO33O5kCU1Q9SAcUj_48-pdjtAuB3LpVMyIfbMFelAej4qloHyA3UKrWtc_rvPn2rQQqKEKnSdD_E3LSKISULoY0ZRDJCsP4LDpTx0EqHAnFm20PIINpTPYqlmDijAf_kv2pl4NLCypXKTVze--MyYyMzl3Mou75TTVRHIdMP5Z_pszBZCQCdJAs"/>
+<h1 class="font-headline font-bold tracking-tighter text-[#A3C93A] text-xl">Cannab'IA</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:bg-white/5 transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full border border-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional male portrait with clean lighting and neutral background for user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_HgQAMOF3EA9M7LedPeYDhSruGZwZiXXr3GroN5eEIl-JFRk73zsgxh9E-OR3MEJ2m1H5zmg1dKO8P70teJVlHVImbYtPBtlU-bWcR84Gs-FjUqvLo560HkhrxeyPg0sQhNpSFw1k_EG9sx7R1rx7kQ3rDiLXK9Fhov3etom7np457GvoK_Rg9Ux4x7xlbW9rJtf2oE9D2hGiuSfA4JWEWqlT8zaV4p8YxG5XnC8ZdtEZiafaQPlC2Y36hklWwhXVsgh5w5Phxtvv"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-4 max-w-md mx-auto space-y-8">
+<!-- Section: Real-time Core Vitality -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline text-lg font-bold tracking-tight text-on-surface">Real-time Core Vitality</h2>
+<span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                    Live
+                </span>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<!-- API Card -->
+<div class="glass-card rounded-2xl p-4 flex flex-col items-center text-center bento-inner">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="api">api</span>
+<span class="text-[10px] font-medium text-stone-400 uppercase tracking-widest mb-1">API</span>
+<span class="text-lg font-bold text-on-surface">99.9%</span>
+<div class="mt-2 w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[99%]"></div>
+</div>
+</div>
+<!-- Database Card -->
+<div class="glass-card rounded-2xl p-4 flex flex-col items-center text-center bento-inner">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="database">database</span>
+<span class="text-[10px] font-medium text-stone-400 uppercase tracking-widest mb-1">DB</span>
+<span class="text-lg font-bold text-on-surface">12ms</span>
+<div class="mt-2 w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[85%]"></div>
+</div>
+</div>
+<!-- Inference Card -->
+<div class="glass-card rounded-2xl p-4 flex flex-col items-center text-center bento-inner">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="psychology">psychology</span>
+<span class="text-[10px] font-medium text-stone-400 uppercase tracking-widest mb-1">AI</span>
+<span class="text-lg font-bold text-on-surface">0.4s</span>
+<div class="mt-2 w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[92%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Neural Resource Load -->
+<section class="glass-card rounded-3xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-5">
+<span class="material-symbols-outlined text-9xl" data-icon="neurology">neurology</span>
+</div>
+<h2 class="font-headline text-lg font-bold tracking-tight text-on-surface mb-6">Neural Resource Load</h2>
+<div class="space-y-6">
+<!-- Token Consumption -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="generating_tokens">generating_tokens</span>
+<span class="text-sm font-medium text-on-surface-variant">Token Consumption</span>
+</div>
+<span class="text-xs font-bold text-primary">74%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden border border-white/5">
+<div class="h-full bg-gradient-to-r from-primary/40 to-primary w-[74%] rounded-full"></div>
+</div>
+</div>
+<!-- GPU Compute -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="memory">memory</span>
+<span class="text-sm font-medium text-on-surface-variant">GPU Compute</span>
+</div>
+<span class="text-xs font-bold text-primary">42%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden border border-white/5">
+<div class="h-full bg-gradient-to-r from-primary/40 to-primary w-[42%] rounded-full"></div>
+</div>
+</div>
+<!-- Memory -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="storage">storage</span>
+<span class="text-sm font-medium text-on-surface-variant">System Memory</span>
+</div>
+<span class="text-xs font-bold text-primary">88%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden border border-white/5">
+<div class="h-full bg-gradient-to-r from-primary/40 to-primary w-[88%] rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Active Clinic Tenants -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline text-lg font-bold tracking-tight text-on-surface">Active Clinic Tenants</h2>
+<button class="text-primary text-xs font-bold uppercase tracking-widest">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Tenant 1 -->
+<div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="medical_services">medical_services</span>
+</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Veridian Health</h3>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest">Oregon, USA</p>
+</div>
+</div>
+<div class="px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+<span class="text-[10px] font-bold text-primary uppercase">Active</span>
+</div>
+</div>
+<!-- Tenant 2 -->
+<div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="local_pharmacy">local_pharmacy</span>
+</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Lumina Dispensary</h3>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest">Barcelona, ES</p>
+</div>
+</div>
+<div class="px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+<span class="text-[10px] font-bold text-primary uppercase">Active</span>
+</div>
+</div>
+<!-- Tenant 3 -->
+<div class="glass-card rounded-2xl p-4 flex items-center justify-between opacity-70">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-stone-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-stone-500" data-icon="domain">domain</span>
+</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Botanica Labs</h3>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest">Ontario, CA</p>
+</div>
+</div>
+<div class="px-3 py-1 rounded-full bg-stone-800 border border-white/5">
+<span class="text-[10px] font-bold text-stone-500 uppercase">Syncing</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: System Event Log -->
+<section class="glass-card rounded-3xl p-6 bg-stone-950/40">
+<h2 class="font-headline text-lg font-bold tracking-tight text-on-surface mb-4">System Event Log</h2>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-error mt-1.5"></div>
+<div class="w-px h-full bg-white/10 mt-2"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-error uppercase tracking-widest mb-1">Security Alert</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">Unauthorized access attempt detected from IP 192.168.1.104. Firewall mitigated.</p>
+<p class="text-[10px] text-stone-500 mt-1 italic">2 minutes ago</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-primary mt-1.5"></div>
+<div class="w-px h-full bg-white/10 mt-2"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-primary uppercase tracking-widest mb-1">Scaling Event</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">Cluster 'Omega-4' scaled up +2 nodes due to increased inference demand.</p>
+<p class="text-[10px] text-stone-500 mt-1 italic">14 minutes ago</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-stone-500 mt-1.5"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-stone-500 uppercase tracking-widest mb-1">Maintenance</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">Scheduled database re-indexing completed successfully.</p>
+<p class="text-[10px] text-stone-500 mt-1 italic">1 hour ago</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-stone-950/90 backdrop-blur-xl dark:bg-stone-950/90 rounded-t-[32px] z-50 border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+<!-- Dashboard (Active) -->
+<a class="flex flex-col items-center justify-center text-[#A3C93A] bg-[#A3C93A]/10 rounded-full py-2 px-4 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-headline text-[10px] font-medium uppercase tracking-widest">Dashboard</span>
+</a>
+<!-- Infrastructure -->
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 px-4 hover:text-[#A3C93A]/80 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_tree">account_tree</span>
+<span class="font-headline text-[10px] font-medium uppercase tracking-widest">Infrastructure</span>
+</a>
+<!-- Logs -->
+<a class="flex flex-col items-center justify-center text-stone-500 py-2 px-4 hover:text-[#A3C93A]/80 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="terminal">terminal</span>
+<span class="font-headline text-[10px] font-medium uppercase tracking-widest">Logs</span>
+</a>
+</nav>
+</body></html>

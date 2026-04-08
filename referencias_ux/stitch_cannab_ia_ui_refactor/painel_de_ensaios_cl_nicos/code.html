@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cannab'IA - Clinical Trials Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#1a2211",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary": "#0e3817",
+                        "tertiary": "#ffc4fe",
+                        "surface-variant": "#2f3824",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#bee654",
+                        "on-tertiary": "#580064",
+                        "on-surface-variant": "#c5c9b1",
+                        "error-container": "#93000a",
+                        "on-primary-fixed": "#151f00",
+                        "primary-container": "#a3c93a",
+                        "on-secondary-fixed": "#002107",
+                        "surface": "#0e1606",
+                        "surface-dim": "#0e1606",
+                        "inverse-primary": "#4f6700",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "surface-container-lowest": "#091003",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#2a3320",
+                        "surface-container-high": "#242d1a",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "on-primary": "#273500",
+                        "background": "#0e1606",
+                        "outline-variant": "#444937",
+                        "primary-fixed-dim": "#aed445",
+                        "on-background": "#dce6cb",
+                        "surface-tint": "#aed445",
+                        "surface-container-highest": "#2f3824",
+                        "on-tertiary-container": "#792484",
+                        "secondary-container": "#29522e",
+                        "primary-fixed": "#c9f15e",
+                        "on-tertiary-fixed": "#36003e",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "tertiary-fixed": "#ffd6fc",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "secondary": "#a4d2a4",
+                        "secondary-fixed": "#bfefbe",
+                        "on-secondary-container": "#96c496",
+                        "on-primary-container": "#3e5200",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#dce6cb",
+                        "on-surface": "#dce6cb",
+                        "tertiary-container": "#f998ff",
+                        "surface-bright": "#333c29",
+                        "outline": "#8f937d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e1606;
+            color: #dce6cb;
+            font-family: 'Inter', sans-serif;
+        }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: rgba(44, 53, 34, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+<!-- SideNavBar Shell -->
+<aside class="flex flex-col h-full fixed left-0 top-0 z-40 h-screen w-64 border-r border-white/10 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-black/50 font-manrope tracking-tight">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-lg bg-[#A3C93A]/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#A3C93A]" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<h1 class="text-[#A3C93A] font-bold text-xl tracking-tighter">BioPrecision</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Clinical AI Terminal</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">clinical_notes</span>
+<span class="text-sm font-medium">Patient Records</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-[#A3C93A] border-r-2 border-[#A3C93A] bg-[#A3C93A]/5 translate-x-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">science</span>
+<span class="text-sm font-medium">Clinical Trials</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">eco</span>
+<span class="text-sm font-medium">Botany Lab</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 space-y-1">
+<button class="w-full bg-[#A3C93A] text-[#0e1606] font-bold py-3 rounded-xl mb-6 text-sm hover:brightness-110 transition-all">
+                New Trial
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="flex justify-between items-center h-16 px-8 ml-64 w-[calc(100%-16rem)] bg-slate-950/40 backdrop-blur-md border-b border-white/5 fixed top-0 z-30 font-manrope text-sm">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
+<input class="w-full bg-white/5 border-none rounded-full py-2 pl-10 pr-4 text-xs focus:ring-1 ring-[#A3C93A]/50 transition-all" placeholder="Search biological data..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-[#A3C93A] transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-[#A3C93A] rounded-full"></span>
+</button>
+<button class="text-slate-400 hover:text-[#A3C93A] transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+</div>
+<div class="h-8 w-px bg-white/10"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-[11px] font-bold text-white leading-tight uppercase tracking-wider">Botanical Lab</p>
+<p class="text-[10px] text-slate-500">Chief Researcher</p>
+</div>
+<img alt="Chief Researcher Profile" class="w-10 h-10 rounded-full border border-[#A3C93A]/30" data-alt="portrait of a professional female researcher in a modern clinical setting with soft lab lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMkKFTJjjWzP1s0Sf4noQz1Qi3aOsgnEyTRn9Zjr3LJmhC3xKc4x08KbBOU3CsyncWdhohZBGBBn6u5eJhv-M8jEo2vfc-lZXeLsEnUr4qK6nwhSz-qJZaJtWFETJnTLnBerXj8SbyXzRtiP8XuVQXexlVp3EhQChrGEHouRVuYsqhd3oDtNjke8pYT83IL40HUUv97568DgjPM0WYGwtrt1-uaOWhacetlehG1T2duHTasXkwc-tNn8uNzIVgfOyRv4SJbCswpoEV"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 mt-16 p-8 min-h-screen">
+<!-- Header Section -->
+<div class="mb-10">
+<h2 class="text-3xl font-extrabold font-manrope text-white tracking-tight mb-2">Painel de Ensaios Clínicos</h2>
+<p class="text-slate-400 font-medium">Monitoramento em tempo real de protocolos de pesquisa Cannab'IA.</p>
+</div>
+<!-- Stat Cards Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-[#A3C93A]/10 rounded-full blur-2xl group-hover:bg-[#A3C93A]/20 transition-all"></div>
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-[#A3C93A] bg-[#A3C93A]/10 p-2 rounded-lg">science</span>
+<span class="text-[10px] font-bold text-[#A3C93A] tracking-widest uppercase">Live</span>
+</div>
+<p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Ensaios Ativos</p>
+<p class="text-4xl font-black font-manrope text-white">8</p>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-[#A3C93A] bg-[#A3C93A]/10 p-2 rounded-lg">groups</span>
+<div class="flex items-center gap-1 text-emerald-400">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="text-[10px] font-bold">+12%</span>
+</div>
+</div>
+<p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Pacientes Inscritos</p>
+<p class="text-4xl font-black font-manrope text-white">1.240</p>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-[#A3C93A] bg-[#A3C93A]/10 p-2 rounded-lg">vital_signs</span>
+</div>
+<p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Adesão Média</p>
+<div class="flex items-end gap-2">
+<p class="text-4xl font-black font-manrope text-white">92%</p>
+<div class="h-8 w-16 mb-1">
+<svg class="w-full h-full stroke-[#A3C93A] fill-none" viewbox="0 0 40 20">
+<path d="M0 15 Q 10 5, 20 12 T 40 5" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-[#A3C93A] bg-[#A3C93A]/10 p-2 rounded-lg">task_alt</span>
+</div>
+<p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Status da Pesquisa</p>
+<p class="text-3xl font-black font-manrope text-[#A3C93A]">Concluída</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Ongoing Trials Table -->
+<div class="lg:col-span-2 glass-card rounded-3xl overflow-hidden">
+<div class="p-6 border-b border-white/5 flex justify-between items-center">
+<h3 class="font-manrope font-bold text-lg">Protocolos em Andamento</h3>
+<button class="text-[#A3C93A] text-xs font-bold hover:underline">Ver Todos</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-white/5">
+<tr>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Nome do Protocolo</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Fase</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Participantes</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Progresso</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-primary">medication</span>
+</div>
+<span class="text-sm font-semibold text-white">Protocolo THC-G1</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded uppercase">Fase III</span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-300">450/500</td>
+<td class="px-6 py-5">
+<div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+<div class="bg-[#A3C93A] h-full" style="width: 85%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-primary">biotech</span>
+</div>
+<span class="text-sm font-semibold text-white">Estudo Terpeno Limonene</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-bold rounded uppercase">Fase II</span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-300">120/150</td>
+<td class="px-6 py-5">
+<div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+<div class="bg-[#A3C93A] h-full" style="width: 62%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-primary">magnification_small</span>
+</div>
+<span class="text-sm font-semibold text-white">C-Beta-Myrcene 204</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded uppercase">Fase I</span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-300">45/50</td>
+<td class="px-6 py-5">
+<div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+<div class="bg-[#A3C93A] h-full" style="width: 90%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-primary">pill</span>
+</div>
+<span class="text-sm font-semibold text-white">Nano-Emulsion CBD</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded uppercase">Fase III</span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-300">310/400</td>
+<td class="px-6 py-5">
+<div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+<div class="bg-[#A3C93A] h-full" style="width: 77%"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Recruitment Visualization Chart -->
+<div class="glass-card rounded-3xl p-6 flex flex-col h-full">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-manrope font-bold text-lg">Taxa de Sucesso</h3>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Recrutamento Mensal</p>
+</div>
+<span class="material-symbols-outlined text-slate-500">more_vert</span>
+</div>
+<div class="flex-1 flex items-end justify-between gap-2 h-48 mb-8 px-2">
+<div class="flex-1 bg-[#A3C93A]/20 rounded-t-lg relative group h-[40%] hover:bg-[#A3C93A]/40 transition-all">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 group-hover:text-[#A3C93A]">Jan</div>
+</div>
+<div class="flex-1 bg-[#A3C93A]/20 rounded-t-lg relative group h-[60%] hover:bg-[#A3C93A]/40 transition-all">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 group-hover:text-[#A3C93A]">Fev</div>
+</div>
+<div class="flex-1 bg-[#A3C93A]/20 rounded-t-lg relative group h-[55%] hover:bg-[#A3C93A]/40 transition-all">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 group-hover:text-[#A3C93A]">Mar</div>
+</div>
+<div class="flex-1 bg-[#A3C93A]/20 rounded-t-lg relative group h-[85%] hover:bg-[#A3C93A]/40 transition-all">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 group-hover:text-[#A3C93A]">Abr</div>
+</div>
+<div class="flex-1 bg-[#A3C93A] rounded-t-lg relative group h-[95%] shadow-[0_0_20px_rgba(163,201,58,0.3)]">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#A3C93A]">Mai</div>
+</div>
+</div>
+<div class="bg-white/5 rounded-2xl p-4 mt-auto">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs text-slate-400">Meta Trimestral</span>
+<span class="text-xs font-bold text-[#A3C93A]">82%</span>
+</div>
+<div class="w-full bg-white/5 rounded-full h-1 overflow-hidden">
+<div class="bg-[#A3C93A] h-full" style="width: 82%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Botanical Insights Section -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-1 rounded-3xl relative overflow-hidden min-h-[200px] border border-white/5 group">
+<img alt="Medical Cannabis Plant" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700" data-alt="Close up of a vibrant medical cannabis plant with crystalline trichomes under clinical purple and green grow lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYAXJYnjxNEtWJA2eb51HZ6EwytzmeMFfgW2SpdebXn1MtAmsTm5rwnGZKfhc6XHnjcC_9_bu-uVCNP1sEGnsYtZUeYriYmohHtiXcPqVheKsUTwechQwvQE1VUg9-KeYBdU5Fv3Elnj_tW3Etx73u8-oI48D-Y-jiFNNCgfAW2LgMJ94RHT8z5n2eZ7YMbpH2EXGxesFqyBbbYzIMOugsvvZAZEDoZa6OCQpKjS5YwfgeIuy-7xCnYoszujQ63_1zLNmxoD2c8Wpl"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0e1606] via-[#0e1606]/40 to-transparent p-6 flex flex-col justify-end">
+<h4 class="font-manrope font-bold text-lg mb-1">Cepa Experimental #42</h4>
+<p class="text-xs text-slate-300">Nova variante rica em CBG pronta para testes de Fase I.</p>
+</div>
+</div>
+<div class="md:col-span-2 glass-card rounded-3xl p-6 flex items-center gap-8">
+<div class="w-32 h-32 rounded-2xl border-2 border-dashed border-[#A3C93A]/30 flex flex-col items-center justify-center p-4 text-center group cursor-pointer hover:bg-[#A3C93A]/5 transition-colors">
+<span class="material-symbols-outlined text-[#A3C93A] text-3xl mb-2">add_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Gerar Relatório</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-amber-500 text-sm">auto_awesome</span>
+<span class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">AI Insights</span>
+</div>
+<p class="text-sm text-slate-300 leading-relaxed italic">
+                        "Com base nos dados atuais de adesão e recrutamento do Protocolo THC-G1, prevemos uma conclusão 14 dias antes do cronograma original, com eficácia projetada 8.2% acima da média do setor."
+                    </p>
+<div class="mt-4 flex gap-3">
+<button class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[10px] font-bold transition-all">ANALISAR RISCOS</button>
+<button class="px-4 py-2 bg-[#A3C93A]/20 text-[#A3C93A] hover:bg-[#A3C93A]/30 rounded-lg text-[10px] font-bold transition-all">OTIMIZAR DOSAGEM</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

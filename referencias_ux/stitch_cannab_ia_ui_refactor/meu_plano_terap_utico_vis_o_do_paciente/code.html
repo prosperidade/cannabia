@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Therapeutic Plan | Aetheris Medical</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#f998ff",
+                    "on-error": "#690005",
+                    "outline-variant": "#444937",
+                    "on-tertiary-fixed": "#36003e",
+                    "on-background": "#dce6cb",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#2f3824",
+                    "secondary-container": "#29522e",
+                    "on-secondary-container": "#96c496",
+                    "surface-bright": "#333c29",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "surface-dim": "#0e1606",
+                    "on-secondary": "#0e3817",
+                    "secondary-fixed": "#bfefbe",
+                    "inverse-on-surface": "#2a3320",
+                    "on-secondary-fixed": "#002107",
+                    "surface-tint": "#aed445",
+                    "surface-container-low": "#161e0d",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "inverse-surface": "#dce6cb",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "surface": "#0e1606",
+                    "primary-container": "#a3c93a",
+                    "on-surface": "#dce6cb",
+                    "on-tertiary-container": "#792484",
+                    "primary-fixed-dim": "#aed445",
+                    "outline": "#8f937d",
+                    "on-surface-variant": "#c5c9b1",
+                    "on-primary-container": "#3e5200",
+                    "on-primary": "#273500",
+                    "secondary": "#a4d2a4",
+                    "primary-fixed": "#c9f15e",
+                    "on-primary-fixed": "#151f00",
+                    "surface-container-lowest": "#091003",
+                    "surface-variant": "#2f3824",
+                    "tertiary-fixed": "#ffd6fc",
+                    "tertiary": "#ffc4fe",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "on-tertiary": "#580064",
+                    "primary": "#bee654",
+                    "inverse-primary": "#4f6700",
+                    "surface-container": "#1a2211",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "surface-container-high": "#242d1a",
+                    "on-error-container": "#ffdad6",
+                    "error": "#ffb4ab",
+                    "background": "#0e1606"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass { background: rgba(14, 22, 6, 0.7); backdrop-filter: blur(20px); }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopNavBar (Mobile Shell Adaptation) -->
+<header class="bg-stone-950/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-stone-800/50 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary-container/10 border border-primary-container/20">
+<img alt="Aetheris Medical Logo" class="w-5 h-5 object-contain" data-alt="Minimalist botanical laboratory logo with a geometric leaf pattern in lime green on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcgqAxObMOIlUy5gLv-EN91-kwK6xyil-8uTVLg6Sge6S5YAJtGsLLS7um7qIQYvqILIOtTKn5y4heqsluRzEh4SlT2I1zyJi4qtcG5I4mFK8wiG1i2wdWvF3CUCqruu1PGSG9v8zJFaBuZz7zLT-SLVHDdmTjUlKLVSwOpESY-DFcpwH5xdTnGG_Pez3JFHjRxwIlOF9jHSa1MrdkvNNPW3PuZhoWUN6k7SaIln1O2RLNRkJhtWgOlZKTZCs9UT4WSrIGhKfbbPA_"/>
+</div>
+<span class="text-xl font-bold tracking-tighter text-white">Aetheris Medical</span>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-stone-400 hover:text-stone-200 transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-stone-400 hover:text-stone-200 transition-colors" data-icon="history">history</span>
+</div>
+</header>
+<main class="pt-24 px-5 max-w-md mx-auto space-y-6">
+<!-- Next Dose Countdown -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-high p-6 border border-outline-variant/30">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-primary/20 blur-3xl rounded-full"></div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Próxima Dose</span>
+<h2 class="text-4xl font-extrabold tracking-tight text-primary mt-1">02:14:55</h2>
+</div>
+<div class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold border border-primary/20">
+                    EM DIA
+                </div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%] rounded-full"></div>
+</div>
+</section>
+<!-- Current Treatment Protocol -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline font-bold text-lg">Protocolo Ativo</h3>
+<span class="text-[#A3C93A] text-xs font-medium uppercase tracking-wider">Protocolo Relaxamento Profundo</span>
+</div>
+<div class="glass border border-white/5 rounded-xl p-5 space-y-6">
+<!-- Dosage Tracker -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container/40 p-4 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="water_drop">water_drop</span>
+<span class="text-xs font-medium text-on-surface-variant">Dosagem</span>
+</div>
+<p class="text-xl font-bold">12 <span class="text-xs font-normal text-on-surface-variant">gotas</span></p>
+</div>
+<div class="bg-surface-container/40 p-4 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="schedule">schedule</span>
+<span class="text-xs font-medium text-on-surface-variant">Frequência</span>
+</div>
+<p class="text-xl font-bold">8/8 <span class="text-xs font-normal text-on-surface-variant">horas</span></p>
+</div>
+</div>
+<!-- Bottle Status -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="vaccines">vaccines</span>
+<span class="text-sm font-medium">Status do Frasco</span>
+</div>
+<span class="text-xs font-bold text-primary">65% Restante</span>
+</div>
+<div class="flex gap-1 h-2">
+<div class="flex-1 bg-primary rounded-l-full"></div>
+<div class="flex-1 bg-primary"></div>
+<div class="flex-1 bg-primary"></div>
+<div class="flex-1 bg-primary/20"></div>
+<div class="flex-1 bg-primary/20 rounded-r-full"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant leading-relaxed">Estimativa de término em 12 dias (14/10). <span class="text-primary underline cursor-pointer">Solicitar refill</span>.</p>
+</div>
+</div>
+</section>
+<!-- Doctor Instructions -->
+<section class="bg-secondary-container/10 border border-secondary/20 rounded-xl p-5 flex gap-4">
+<div class="shrink-0">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary/40">
+<img alt="Dr. Aris Avatar" class="w-full h-full object-cover" data-alt="Professional physician avatar with a kind expression, wearing a lab coat against a clean medical office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH-4CbuqWIUeBv-yAZ6SrWRqpsdWqd_otnYZ3uJFwvS6sNhP1g-7XPpQJR7HaJvElruc3A9qoyVb7UQLLN9HtXGvBveL_8Xoca7pCAhW2N-eyz3F4wNxKPVwlZNNA21q3mJJ9_vXtDjVD78r0PYQAWNltiETR6-9qxS38sOPuLYK3j78xtaICq2IwJLKCodFK89Nty-VcFaRxweqo2IcZ4YQ4BB-O-KFT-OR6vMoea3uGxIjf-lYdkPCLSlRnkczQG0qI4kWG0MKXu"/>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] font-bold uppercase tracking-tighter text-secondary">Instruções do Dr. Aris</p>
+<p class="text-sm italic text-on-surface leading-snug">"Take before sleeping to maximize neuro-regenerative effects. Avoid blue light 30 mins after dose."</p>
+</div>
+</section>
+<!-- Interactive Actions -->
+<div class="grid grid-cols-1 gap-3">
+<button class="bg-primary text-on-primary py-4 rounded-full font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined font-variation-settings-'FILL'-1" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                Confirmar Dose Agora
+            </button>
+<button class="bg-surface-container-highest text-on-surface py-4 rounded-full font-bold flex items-center justify-center gap-2 border border-outline-variant/30 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="sentiment_satisfied">sentiment_satisfied</span>
+                Report Feeling
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-stone-950/90 backdrop-blur-2xl border-t border-stone-800/30 px-6 py-3 md:hidden z-50 flex justify-between items-center">
+<a class="flex flex-col items-center gap-1 text-stone-500" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-manrope text-[10px] font-medium">Consultas</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-stone-500" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-manrope text-[10px] font-medium">Receitas</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#A3C93A]" href="#">
+<span class="material-symbols-outlined font-variation-settings-'FILL'-1" data-icon="eco" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="font-manrope text-[10px] font-medium">Therapy</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-stone-500" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-medium">Suporte</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-stone-500" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope text-[10px] font-medium">Ajustes</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Campanhas de WhatsApp | Chlorophyll CRM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary": "#273500",
+                    "on-background": "#dce6cb",
+                    "surface": "#0e1606",
+                    "surface-dim": "#0e1606",
+                    "on-primary-fixed": "#151f00",
+                    "background": "#0e1606",
+                    "tertiary-container": "#f998ff",
+                    "outline": "#8f937d",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "inverse-on-surface": "#2a3320",
+                    "on-primary-container": "#3e5200",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#bee654",
+                    "on-tertiary-container": "#792484",
+                    "on-secondary-container": "#96c496",
+                    "surface-container-low": "#161e0d",
+                    "surface-container-highest": "#2f3824",
+                    "secondary": "#a4d2a4",
+                    "tertiary-fixed": "#ffd6fc",
+                    "on-secondary-fixed": "#002107",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "surface-tint": "#aed445",
+                    "primary-container": "#a3c93a",
+                    "outline-variant": "#444937",
+                    "error": "#ffb4ab",
+                    "surface-container": "#1a2211",
+                    "primary-fixed-dim": "#aed445",
+                    "on-tertiary": "#580064",
+                    "surface-variant": "#2f3824",
+                    "inverse-primary": "#4f6700",
+                    "surface-container-lowest": "#091003",
+                    "on-secondary": "#0e3817",
+                    "surface-bright": "#333c29",
+                    "on-surface-variant": "#c5c9b1",
+                    "secondary-container": "#29522e",
+                    "on-surface": "#dce6cb",
+                    "primary-fixed": "#c9f15e",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed": "#36003e",
+                    "tertiary": "#ffc4fe",
+                    "inverse-surface": "#dce6cb",
+                    "secondary-fixed": "#bfefbe",
+                    "surface-container-high": "#242d1a",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "on-error": "#690005"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0e1606; font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(47, 56, 36, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(143, 147, 125, 0.1); }
+        .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+    </style>
+</head>
+<body class="text-on-background selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-stone-800/50 bg-stone-950 flex flex-col h-full py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-lime-500/20 rounded-lg flex items-center justify-center border border-lime-500/30">
+<img class="w-8 h-8 object-contain" data-alt="Stylized leaf logo in vibrant lime green representing botanical technology and precise medical growth" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEsxDV9hKCA1aSb-Ob1Qohs7d0-EnUultCRZB_7J3_MmP8InWeZypROFpFRaFcczbR-cktvYKMUZSFS1XQP9xUQCDCT3Uz8EMwsR9yL12FiXLa0Tqeu1O3PSTp-cch5UVxhBhYfaYIYxX3MlnKikM-4cVEE356ANHT3A2_4BsnXfkyCpXmnvVzIOPmcE96FVH_jsplY2gIl0Pf9HnHrQGRdiiBAsc-P9Xn9JMyziIQkyOerLL8_UuwSawqtrzM2_i9gRA8CbR-VmA4"/>
+</div>
+<div>
+<h2 class="text-lg font-black text-white leading-none">Main Clinic</h2>
+<p class="text-[10px] uppercase tracking-widest text-lime-400 font-bold">Precision Health</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-stone-500 px-6 py-4 hover:bg-stone-900 hover:text-stone-200 duration-300 ease-in-out font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-stone-500 px-6 py-4 hover:bg-stone-900 hover:text-stone-200 duration-300 ease-in-out font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Patients</span>
+</a>
+<a class="flex items-center gap-3 text-stone-500 px-6 py-4 hover:bg-stone-900 hover:text-stone-200 duration-300 ease-in-out font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span>Automations</span>
+</a>
+<a class="flex items-center gap-3 bg-lime-500/10 text-lime-400 border-r-4 border-lime-500 px-6 py-4 font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="send_and_archive">send_and_archive</span>
+<span>Campaigns</span>
+</a>
+<a class="flex items-center gap-3 text-stone-500 px-6 py-4 hover:bg-stone-900 hover:text-stone-200 duration-300 ease-in-out font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span>Reports</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-lime-500 text-stone-950 font-bold rounded-xl text-xs hover:bg-lime-400 transition-colors shadow-lg shadow-lime-500/20">
+                Upgrade Plan
+            </button>
+<div class="mt-6 pt-6 border-t border-stone-800/30 space-y-1">
+<a class="flex items-center gap-3 text-stone-500 px-0 py-2 hover:text-stone-200 transition-colors font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 text-stone-500 px-0 py-2 hover:text-stone-200 transition-colors font-manrope font-medium text-xs" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Logs</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-40 flex justify-between items-center px-8 py-3 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/50 shadow-xl pl-[288px]">
+<div class="flex items-center gap-8">
+<h1 class="text-xl font-bold tracking-tighter text-lime-500 font-headline">Chlorophyll CRM</h1>
+<nav class="flex gap-6">
+<a class="font-manrope tracking-tight text-sm text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors px-2" href="#">Analytics</a>
+<a class="font-manrope tracking-tight text-sm text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors px-2" href="#">Segments</a>
+<a class="font-manrope tracking-tight text-sm text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors px-2" href="#">Templates</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-on-primary px-5 py-2 rounded-full font-manrope font-bold text-sm cursor-pointer active:scale-95 transition-transform">
+                New Campaign
+            </button>
+<div class="flex gap-2">
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-white/5 transition-colors rounded-lg">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-stone-400 hover:text-lime-400 hover:bg-white/5 transition-colors rounded-lg">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-8 rounded-full bg-stone-800 overflow-hidden border border-stone-700">
+<img class="w-full h-full object-cover" data-alt="Professional clinical headshot of a medical professional in a high-tech lab setting with soft laboratory lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDetugkp4wI4iVaPx_HHI24lVGrOiAVZKjE1tSv5FjGtpRlrqGEAdNHgMynPpPf9lS6LsP5sKHRPjXU57Uc5rIj625AzISNPd3U77_EM9re666SVIJoQ3uL7M2tzpkKar97CNlBR2qQf7NozDF5X9pqo_K1i4FdEiH3WQqQ2t2vqXbOk4wKkwoQTz0g8pMsVH0bYz6cacEAQL_OvBvX87DjuVGbQQWyqzyIys16BcHovL-YOZha9ZLsv9I-QYo3SVNxJ2Xl3d62HI9"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pl-64 pt-20 min-h-screen bg-surface-container-lowest">
+<div class="p-8 max-w-[1600px] mx-auto space-y-8">
+<!-- Dashboard Overview -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="glass-card p-6 rounded-2xl">
+<div class="flex items-center justify-between mb-4">
+<p class="text-xs font-medium text-stone-400 uppercase tracking-widest">Total Messages Sent</p>
+<span class="material-symbols-outlined text-lime-500" data-icon="chat_bubble">chat_bubble</span>
+</div>
+<h3 class="text-3xl font-black font-headline text-on-background">42,890</h3>
+<p class="text-xs text-lime-400 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                        +12.5% vs last month
+                    </p>
+</div>
+<div class="glass-card p-6 rounded-2xl border-l-4 border-lime-500">
+<div class="flex items-center justify-between mb-4">
+<p class="text-xs font-medium text-stone-400 uppercase tracking-widest">Response Rate</p>
+<span class="material-symbols-outlined text-lime-500" data-icon="reply_all">reply_all</span>
+</div>
+<h3 class="text-3xl font-black font-headline text-lime-400">24.8%</h3>
+<div class="w-full bg-stone-800 h-1.5 rounded-full mt-4 overflow-hidden">
+<div class="bg-lime-500 h-full w-[24.8%]"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl">
+<div class="flex items-center justify-between mb-4">
+<p class="text-xs font-medium text-stone-400 uppercase tracking-widest">Active Campaigns</p>
+<span class="material-symbols-outlined text-lime-500" data-icon="campaign">campaign</span>
+</div>
+<h3 class="text-3xl font-black font-headline text-on-background">12</h3>
+<p class="text-xs text-stone-500 mt-2">Across 3 medical units</p>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute inset-0 bg-lime-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center justify-between mb-4">
+<p class="text-xs font-medium text-stone-400 uppercase tracking-widest">Patient Re-engagement</p>
+<span class="material-symbols-outlined text-lime-500" data-icon="vital_signs">vital_signs</span>
+</div>
+<h3 class="text-3xl font-black font-headline text-on-background">88/100</h3>
+<p class="text-xs text-lime-400/80 mt-2">Critical threshold: 75</p>
+</div>
+</section>
+<!-- Main Content Area: Campaigns & Filters -->
+<div class="bento-grid">
+<!-- Audience Segmentation -->
+<aside class="col-span-12 lg:col-span-3 space-y-6">
+<div class="glass-card p-6 rounded-2xl h-full">
+<div class="flex items-center gap-2 mb-6 text-lime-400">
+<span class="material-symbols-outlined" data-icon="filter_alt">filter_alt</span>
+<h4 class="font-bold font-headline uppercase tracking-tighter text-sm">Audience Segmentation</h4>
+</div>
+<div class="space-y-6">
+<div>
+<label class="text-[10px] font-bold text-stone-500 uppercase block mb-3">Days since last visit</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="bg-white/5 border border-stone-800 text-[11px] py-2 rounded-lg hover:border-lime-500/50 transition-colors">7 Days</button>
+<button class="bg-lime-500/10 border border-lime-500/30 text-lime-400 text-[11px] py-2 rounded-lg">30 Days</button>
+<button class="bg-white/5 border border-stone-800 text-[11px] py-2 rounded-lg hover:border-lime-500/50 transition-colors">90 Days</button>
+<button class="bg-white/5 border border-stone-800 text-[11px] py-2 rounded-lg hover:border-lime-500/50 transition-colors">180+ Days</button>
+</div>
+</div>
+<div>
+<label class="text-[10px] font-bold text-stone-500 uppercase block mb-3">Condition</label>
+<select class="w-full bg-stone-900 border-stone-800 rounded-lg text-xs text-stone-300 focus:ring-lime-500 focus:border-lime-500">
+<option>All Conditions</option>
+<option>Chronic Pain</option>
+<option>Insomnia</option>
+<option>Anxiety</option>
+</select>
+</div>
+<div>
+<label class="text-[10px] font-bold text-stone-500 uppercase block mb-3">Product used</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-stone-800 bg-stone-900 text-lime-500 focus:ring-offset-stone-950" type="checkbox"/>
+<span class="text-xs text-stone-400 group-hover:text-stone-200">Full Spectrum Oil</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-stone-800 bg-stone-900 text-lime-500 focus:ring-offset-stone-950" type="checkbox"/>
+<span class="text-xs text-stone-400 group-hover:text-stone-200">CBD Isolate</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-stone-800 bg-stone-900 text-lime-500 focus:ring-offset-stone-950" type="checkbox"/>
+<span class="text-xs text-stone-400 group-hover:text-stone-200">THC-Dominant</span>
+</label>
+</div>
+</div>
+<div class="pt-4 border-t border-stone-800/50">
+<button class="w-full py-2.5 bg-stone-800 text-stone-300 text-xs font-bold rounded-lg hover:bg-stone-700 transition-colors">
+                                    Clear All Filters
+                                </button>
+</div>
+</div>
+</div>
+</aside>
+<!-- Active Campaigns List -->
+<section class="col-span-12 lg:col-span-9 space-y-6">
+<div class="glass-card rounded-2xl overflow-hidden">
+<div class="px-6 py-4 border-b border-stone-800/50 flex justify-between items-center">
+<h4 class="font-bold font-headline text-stone-200">Active Campaigns</h4>
+<div class="flex gap-2">
+<span class="bg-lime-500/10 text-lime-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">3 Ongoing</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-stone-950/50">
+<th class="px-6 py-4 text-[10px] font-bold text-stone-500 uppercase tracking-widest">Campaign Name</th>
+<th class="px-6 py-4 text-[10px] font-bold text-stone-500 uppercase tracking-widest">Status</th>
+<th class="px-6 py-4 text-[10px] font-bold text-stone-500 uppercase tracking-widest">Audience</th>
+<th class="px-6 py-4 text-[10px] font-bold text-stone-500 uppercase tracking-widest">Performance</th>
+<th class="px-6 py-4 text-[10px] font-bold text-stone-500 uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-stone-800/30">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-stone-900 rounded-lg">
+<span class="material-symbols-outlined text-lime-500" data-icon="prescriptions">prescriptions</span>
+</div>
+<div>
+<p class="text-sm font-bold text-stone-200">Lembrete de Renovação de Receita</p>
+<p class="text-[10px] text-stone-500">Trigger: 15 days before expiry</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1.5 text-lime-400 text-xs">
+<span class="w-2 h-2 bg-lime-500 rounded-full animate-pulse"></span>
+                                                Ativa
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-stone-300">1,240 <span class="text-stone-500 text-[10px]">pacientes</span></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-end gap-1 h-6">
+<div class="w-1 bg-lime-500/20 h-2 rounded-t-sm"></div>
+<div class="w-1 bg-lime-500/40 h-4 rounded-t-sm"></div>
+<div class="w-1 bg-lime-500/60 h-3 rounded-t-sm"></div>
+<div class="w-1 bg-lime-500/80 h-5 rounded-t-sm"></div>
+<div class="w-1 bg-lime-500 h-6 rounded-t-sm"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-stone-500 hover:text-lime-400 transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-stone-900 rounded-lg">
+<span class="material-symbols-outlined text-stone-400" data-icon="rate_review">rate_review</span>
+</div>
+<div>
+<p class="text-sm font-bold text-stone-200">Pesquisa de Satisfação Pós-Consulta</p>
+<p class="text-[10px] text-stone-500">Trigger: 2 days after visit</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1.5 text-stone-400 text-xs">
+<span class="w-2 h-2 bg-stone-500 rounded-full"></span>
+                                                Pausada
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-stone-300">450 <span class="text-stone-500 text-[10px]">pacientes</span></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-end gap-1 h-6 opacity-30">
+<div class="w-1 bg-stone-500 h-3 rounded-t-sm"></div>
+<div class="w-1 bg-stone-500 h-2 rounded-t-sm"></div>
+<div class="w-1 bg-stone-500 h-4 rounded-t-sm"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-stone-500 hover:text-lime-400 transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-stone-900 rounded-lg">
+<span class="material-symbols-outlined text-primary" data-icon="loyalty">loyalty</span>
+</div>
+<div>
+<p class="text-sm font-bold text-stone-200">Boas-vindas Novos Pacientes</p>
+<p class="text-[10px] text-stone-500">Trigger: Immediately after registration</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1.5 text-secondary text-xs">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+                                                Agendada
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-stone-300">Auto <span class="text-stone-500 text-[10px]">dinâmico</span></div>
+</td>
+<td class="px-6 py-4">
+<span class="text-[10px] text-stone-500 font-mono tracking-tighter">WAITING_TRIGGER</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-stone-500 hover:text-lime-400 transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Message Templates & Automation -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="glass-card p-6 rounded-2xl border-t-2 border-lime-500/30">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-bold font-headline text-stone-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-lime-400" data-icon="description">description</span>
+                                    Template: Renovação
+                                </h4>
+<button class="p-1.5 hover:bg-white/5 rounded-md text-stone-500 hover:text-stone-200">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+</div>
+<div class="bg-stone-950/50 p-4 rounded-xl border border-stone-800/50 mb-4 font-body text-xs leading-relaxed text-stone-300">
+                                Olá, <span class="bg-lime-500/20 text-lime-400 px-1.5 py-0.5 rounded">{{paciente_nome}}</span>!<br/><br/>
+                                Passando para lembrar que sua receita médica expira em <span class="text-lime-400 font-bold">15 dias</span>. <br/><br/>
+                                Deseja agendar uma consulta de retorno com o <span class="bg-lime-500/20 text-lime-400 px-1.5 py-0.5 rounded">{{medico_nome}}</span> agora mesmo?
+                            </div>
+<div class="flex items-center justify-between">
+<span class="text-[10px] text-stone-500">Variables used: 2/5</span>
+<button class="text-xs text-lime-400 font-bold hover:underline">Preview message</button>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl relative">
+<h4 class="font-bold font-headline text-stone-200 flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-lime-400" data-icon="smart_toy">smart_toy</span>
+                                Trigger Logic
+                            </h4>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded-full bg-lime-500/10 flex items-center justify-center">
+<span class="text-[10px] font-bold text-lime-400">1</span>
+</div>
+<p class="text-xs text-stone-400"><strong class="text-stone-200 block">Event Detected</strong> Prescription expiring in &lt; 15 days.</p>
+</div>
+<div class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded-full bg-lime-500/10 flex items-center justify-center">
+<span class="text-[10px] font-bold text-lime-400">2</span>
+</div>
+<p class="text-xs text-stone-400"><strong class="text-stone-200 block">Check Schedule</strong> Send during office hours (09:00 - 18:00).</p>
+</div>
+<div class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded-full bg-lime-500/10 flex items-center justify-center">
+<span class="text-[10px] font-bold text-lime-400">3</span>
+</div>
+<p class="text-xs text-stone-400"><strong class="text-stone-200 block">Dispatch</strong> Send via WhatsApp Business API.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Decorative Element -->
+<section class="mt-12">
+<div class="glass-card p-8 rounded-3xl overflow-hidden relative flex items-center justify-between">
+<div class="absolute top-0 right-0 w-64 h-64 bg-lime-500/5 blur-[100px] rounded-full"></div>
+<div class="relative z-10">
+<h2 class="text-2xl font-black font-headline text-on-background mb-2">Automate your clinical outreach.</h2>
+<p class="text-stone-400 max-w-md text-sm">Use our AI-powered segmentation to reach the right patients with perfectly timed medical reminders.</p>
+</div>
+<button class="relative z-10 bg-primary text-on-primary px-8 py-4 rounded-xl font-bold font-headline shadow-2xl shadow-lime-500/20 hover:scale-105 transition-transform">
+                        Start New Campaign Now
+                    </button>
+<img class="absolute right-0 top-0 h-full w-1/3 object-cover opacity-20 pointer-events-none" data-alt="Close up of a microscope lens with a green leaf sample being examined in a dark, high-tech biophilic laboratory" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxiOb9FQr7qwHiGakASdg0JI0vfXk8uJqBaI79Mblr6F4WPmeHoShPT7myGR3ClgbVTPXvuN-xMMsaurjuAQx_zpfizLYePpQyhtu_w0yvOtIF646OgHk3_88mJuS4RxG5HtNZkGL9cIzHfXZXhRscyKrey2F8baCfxGiVAaMyFAaGeINu0hVSxapQvvj3Du20yPzeWsZFWLuLQwW4dwmhlc9_Z48tc_zMWeP1b0NJnSfGky--HEwDtgXyBQ0ZlA8Zf1fIkgN54a5_"/>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</body></html>

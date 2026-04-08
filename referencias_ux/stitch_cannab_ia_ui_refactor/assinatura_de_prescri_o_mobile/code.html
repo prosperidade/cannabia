@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BioSign - Prescription Signing Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffd6fc",
+                        "secondary": "#a4d2a4",
+                        "surface": "#0e1606",
+                        "surface-container-high": "#242d1a",
+                        "secondary-fixed": "#bfefbe",
+                        "primary": "#bee654",
+                        "tertiary": "#ffc4fe",
+                        "secondary-fixed-dim": "#a4d2a4",
+                        "secondary-container": "#29522e",
+                        "surface-container": "#1a2211",
+                        "primary-fixed": "#c9f15e",
+                        "outline": "#8f937d",
+                        "on-primary-fixed": "#151f00",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#3a4d00",
+                        "on-primary-container": "#3e5200",
+                        "on-tertiary-fixed-variant": "#741e80",
+                        "error": "#ffb4ab",
+                        "primary-container": "#a3c93a",
+                        "surface-container-highest": "#2f3824",
+                        "outline-variant": "#444937",
+                        "on-tertiary-container": "#792484",
+                        "tertiary-fixed-dim": "#fcaaff",
+                        "surface-variant": "#2f3824",
+                        "surface-bright": "#333c29",
+                        "on-background": "#dce6cb",
+                        "background": "#0e1606",
+                        "on-secondary-container": "#96c496",
+                        "on-tertiary": "#580064",
+                        "inverse-on-surface": "#2a3320",
+                        "primary-fixed-dim": "#aed445",
+                        "on-secondary": "#0e3817",
+                        "tertiary-container": "#f998ff",
+                        "surface-container-lowest": "#091003",
+                        "inverse-surface": "#dce6cb",
+                        "inverse-primary": "#4f6700",
+                        "on-primary": "#273500",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-secondary-fixed-variant": "#274f2c",
+                        "surface-tint": "#aed445",
+                        "on-surface-variant": "#c5c9b1",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0e1606",
+                        "on-surface": "#dce6cb",
+                        "surface-container-low": "#161e0d",
+                        "on-secondary-fixed": "#002107"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(14, 22, 6, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-40">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 rounded-b-[2rem] bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/50 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary/20 bg-surface-container">
+<img alt="Clinician profile photo" class="w-full h-full object-cover" data-alt="Professional portrait of a clinician in a modern medical setting with clinical lighting and neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA24tXa2A26q6J7rMfJjeW2Z7_ivDJx-JmaWsLwNXIX17LfYP4AGXvpfdBm2jFmPcty4PSgSAoiPayxzDOAuvBMNLZ1rDpWSdjEaT47Y-iR1sMO8OiLsPe8-lsn9uvcrmlAF4NC3xAvJ18PSQGurK4HkeOr1ji_isqb_EekPYZVnEHOYd3Psf2yjaJcwQPnwyZu_Mk7mIWdiwM0zEXGVnSn5dC2qJa5OfDLGKn70eCqwK49yA8SFAr5o0p-lvnWTyxsusqWiWaolVbH"/>
+</div>
+<div class="flex flex-col">
+<span class="text-2xl font-black tracking-tighter text-[#A3C93A] font-headline">BioSign</span>
+<span class="text-[10px] text-primary tracking-[0.2em] uppercase font-bold">Cannab'IA Portal</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-[#A3C93A] hover:bg-zinc-900/50 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">history</span>
+</button>
+</header>
+<main class="pt-28 px-4 max-w-md mx-auto space-y-6">
+<!-- Prescription Header Section -->
+<div class="flex justify-between items-end mb-2">
+<div>
+<h1 class="font-headline text-3xl font-extrabold tracking-tight text-white">Prescription</h1>
+<p class="text-outline text-sm">Case #ESP-992-2024</p>
+</div>
+<div class="text-right">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest">Pending Sign</span>
+</div>
+</div>
+</div>
+<!-- Scrollable Document Canvas -->
+<div class="glass-panel rounded-lg overflow-hidden flex flex-col shadow-inner">
+<div class="bg-white/5 p-4 border-b border-white/5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">description</span>
+<span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Clinical Orientation</span>
+</div>
+<span class="text-[10px] text-outline">v2.4.1</span>
+</div>
+<div class="p-6 space-y-8 max-h-[530px] overflow-y-auto scrollbar-hide">
+<!-- Patient Details -->
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">person</span>
+</div>
+<div>
+<h2 class="text-xl font-headline font-bold text-white">Elena Sterling</h2>
+<p class="text-sm text-on-surface-variant">DOB: 14 May 1982 • Weight: 64kg</p>
+</div>
+</div>
+</div>
+<!-- Medication Detail Card -->
+<div class="bg-surface-container-low rounded-lg p-5 border border-white/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="text-[10px] text-primary font-bold uppercase tracking-widest">Selected Therapy</span>
+<h3 class="text-lg font-headline font-bold text-white">PharmaLeaf Spectrum</h3>
+</div>
+<span class="text-xs bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded">Full Spectrum</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<span class="text-[10px] text-outline uppercase">Formulation</span>
+<p class="text-sm font-medium text-on-surface">Oral Oil Extract</p>
+</div>
+<div class="space-y-1">
+<span class="text-[10px] text-outline uppercase">Ratio</span>
+<p class="text-sm font-medium text-on-surface">20:1 CBD/THC</p>
+</div>
+<div class="col-span-2 pt-2 mt-2 border-t border-white/5">
+<span class="text-[10px] text-outline uppercase">Dosage Regimen</span>
+<p class="text-sm italic text-on-surface-variant mt-1 leading-relaxed">
+                                    "Titrate 0.25ml sublingually every 8 hours. Max 1.5ml/day. Clinical monitoring required for first 7 days."
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Clinical Notes Asymmetry -->
+<div class="grid grid-cols-12 gap-4">
+<div class="col-span-1 flex flex-col items-center gap-1">
+<div class="w-px h-full bg-gradient-to-b from-primary/40 to-transparent"></div>
+</div>
+<div class="col-span-11 py-1">
+<h4 class="text-xs font-bold text-white uppercase tracking-tighter mb-2">Diagnosis &amp; Rationale</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-4">
+                            Patient presents with refractory chronic neuropathic pain. Previous frontline interventions yielded sub-optimal results. AI-driven spectrum mapping suggests high responsiveness to 20:1 terpene-rich formulations.
+                        </p>
+<div class="flex gap-2">
+<div class="px-2 py-1 bg-surface-container-highest rounded text-[10px] text-secondary">Neuropathic Pain</div>
+<div class="px-2 py-1 bg-surface-container-highest rounded text-[10px] text-secondary">Refractory Case</div>
+</div>
+</div>
+</div>
+<!-- Legal/Safety Disclaimer -->
+<div class="p-4 bg-error-container/10 border border-error/10 rounded-lg">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-error text-sm">warning</span>
+<p class="text-[11px] text-error/80 leading-snug">
+                            This electronic prescription is valid for 30 days. Unauthorized distribution or modification is a federal clinical violation under BioSign Protocol 7.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Authentication & Security Section -->
+<div class="space-y-4">
+<!-- Digital Certificate Status -->
+<div class="glass-panel p-4 rounded-lg flex items-center justify-between border-l-4 border-primary">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div>
+<p class="text-[10px] text-outline uppercase tracking-widest font-bold">Security Engine</p>
+<p class="text-sm font-semibold text-white">CloudSign A1 Active</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-primary/60 font-mono">ID: 88-X92-Q</p>
+</div>
+</div>
+<!-- PIN Interaction -->
+<div class="glass-panel p-5 rounded-lg space-y-4">
+<div class="flex flex-col gap-2">
+<label class="text-[10px] text-outline uppercase tracking-widest font-bold">Authorization PIN</label>
+<div class="flex justify-between gap-2">
+<input class="w-12 h-14 bg-surface-container-highest border-none rounded-lg text-center text-xl font-bold text-primary focus:ring-2 focus:ring-primary/40" maxlength="1" placeholder="•" type="password" value="1"/>
+<input class="w-12 h-14 bg-surface-container-highest border-none rounded-lg text-center text-xl font-bold text-primary focus:ring-2 focus:ring-primary/40" maxlength="1" placeholder="•" type="password" value="2"/>
+<input class="w-12 h-14 bg-surface-container-highest border-none rounded-lg text-center text-xl font-bold text-primary focus:ring-2 focus:ring-primary/40" maxlength="1" placeholder="•" type="password"/>
+<input class="w-12 h-14 bg-surface-container-highest border-none rounded-lg text-center text-xl font-bold text-primary focus:ring-2 focus:ring-primary/40" maxlength="1" placeholder="•" type="password"/>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Action Section & BottomNavBar -->
+<div class="fixed bottom-0 w-full z-50">
+<!-- Floating Sign Action -->
+<div class="px-6 pb-6 pt-2 bg-gradient-to-t from-background to-transparent">
+<button class="w-full h-16 bg-[#A3C93A] hover:bg-[#BEE654] text-[#0e3817] rounded-full font-headline font-extrabold text-lg tracking-tight flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 active:scale-95 duration-150 transition-transform">
+<span class="material-symbols-outlined font-bold">draw</span>
+                SIGN AND SEND
+            </button>
+</div>
+<!-- Bottom Navigation Shell -->
+<nav class="bg-zinc-950/90 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center px-4 pt-3 pb-8 w-full rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.6)]">
+<div class="flex flex-col items-center justify-center bg-[#A3C93A]/10 text-[#A3C93A] rounded-full px-6 py-2 transition-all duration-300 ease-out">
+<span class="material-symbols-outlined" data-icon="edit_note" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="font-['Manrope'] text-[11px] font-medium uppercase tracking-widest mt-1">Pending</span>
+</div>
+<div class="flex flex-col items-center justify-center text-zinc-500 py-2 hover:text-zinc-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+<span class="font-['Manrope'] text-[11px] font-medium uppercase tracking-widest mt-1">Verified</span>
+</div>
+<div class="flex flex-col items-center justify-center text-zinc-500 py-2 hover:text-zinc-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[11px] font-medium uppercase tracking-widest mt-1">Settings</span>
+</div>
+</nav>
+</div>
+<!-- Decorative background elements -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none">
+<div class="absolute top-[20%] -left-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[10%] -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px]"></div>
+</div>
+</body></html>

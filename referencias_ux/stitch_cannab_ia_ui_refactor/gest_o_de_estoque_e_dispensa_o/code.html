@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botanical Intel | Gestão de Estoque</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#bee654",
+                    "on-background": "#dce6cb",
+                    "inverse-surface": "#dce6cb",
+                    "surface-dim": "#0e1606",
+                    "on-tertiary-fixed-variant": "#741e80",
+                    "secondary-fixed": "#bfefbe",
+                    "outline-variant": "#444937",
+                    "surface-container": "#1a2211",
+                    "on-error": "#690005",
+                    "on-secondary-fixed-variant": "#274f2c",
+                    "on-tertiary-container": "#792484",
+                    "on-secondary-container": "#96c496",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#580064",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed-dim": "#fcaaff",
+                    "on-surface": "#dce6cb",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-container": "#f998ff",
+                    "tertiary-fixed": "#ffd6fc",
+                    "surface": "#0e1606",
+                    "primary-fixed": "#c9f15e",
+                    "primary-fixed-dim": "#aed445",
+                    "surface-variant": "#2f3824",
+                    "tertiary": "#ffc4fe",
+                    "on-secondary-fixed": "#002107",
+                    "inverse-primary": "#4f6700",
+                    "secondary-container": "#29522e",
+                    "surface-container-lowest": "#091003",
+                    "on-primary": "#273500",
+                    "inverse-on-surface": "#2a3320",
+                    "surface-container-high": "#242d1a",
+                    "surface-container-low": "#161e0d",
+                    "surface-tint": "#aed445",
+                    "primary-container": "#a3c93a",
+                    "surface-bright": "#333c29",
+                    "secondary": "#a4d2a4",
+                    "on-secondary": "#0e3817",
+                    "on-surface-variant": "#c5c9b1",
+                    "secondary-fixed-dim": "#a4d2a4",
+                    "on-primary-fixed": "#151f00",
+                    "on-primary-container": "#3e5200",
+                    "outline": "#8f937d",
+                    "surface-container-highest": "#2f3824",
+                    "on-primary-fixed-variant": "#3a4d00",
+                    "on-tertiary-fixed": "#36003e",
+                    "background": "#0e1606"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(26, 34, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(143, 147, 125, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 z-50 bg-stone-950 border-r border-stone-800/50 shadow-2xl shadow-black/50 flex flex-col h-full py-8">
+<div class="px-6 mb-10">
+<h1 class="text-lg font-black uppercase text-lime-500 tracking-widest">Medical Cannabis</h1>
+<p class="text-[10px] text-stone-500 font-headline tracking-widest mt-1">Clinical Lab v2.1</p>
+</div>
+<nav class="flex-1 flex flex-col">
+<!-- Visão Geral -->
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+                Visão Geral
+            </a>
+<!-- Estoque (Active) -->
+<a class="text-lime-400 bg-lime-500/10 border-r-2 border-lime-500 flex items-center px-6 py-4 transition-all hover:translate-x-1 duration-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="inventory_2">inventory_2</span>
+                Estoque
+            </a>
+<!-- Dispensação -->
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="medical_services">medical_services</span>
+                Dispensação
+            </a>
+<!-- Auditoria IA -->
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="query_stats">query_stats</span>
+                Auditoria IA
+            </a>
+<!-- Relatórios -->
+<a class="text-stone-500 flex items-center px-6 py-4 hover:text-stone-200 hover:bg-stone-900 transition-all hover:translate-x-1 duration-200 font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="description">description</span>
+                Relatórios
+            </a>
+</nav>
+<div class="mt-auto px-6 space-y-2 pt-6 border-t border-stone-800/50">
+<a class="text-stone-500 flex items-center py-2 hover:text-stone-200 transition-colors font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="help_outline">help_outline</span>
+                Suporte
+            </a>
+<a class="text-stone-500 flex items-center py-2 hover:text-stone-200 transition-colors font-manrope text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="logout">logout</span>
+                Sair
+            </a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-0 z-40 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/50 flex justify-between items-center h-16 px-6 w-full ml-64">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tighter text-lime-500 font-manrope">Botanical Intel</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<input class="bg-stone-900/50 border border-stone-800 text-stone-300 text-sm rounded-full px-4 py-1.5 focus:outline-none focus:border-lime-500/50 w-64 transition-all" placeholder="Buscar no estoque..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1.5 text-stone-500 text-sm" data-icon="search">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-400 hover:text-lime-500 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-stone-400 hover:text-lime-500 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 overflow-hidden">
+<img alt="Médico Responsável" class="w-full h-full object-cover" data-alt="professional portrait of a medical doctor with a stethoscope in a bright clinical office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEmBORP8AymE0mNFMbpoQ77CvjAJ1uDgDr6yH311eC-JrXMDAC65h4bVBjIs8_ARskCNqYMAPpRPQzPbPsRmYfKEpi64x0PJ_B-__76IhHyUjDqp80Ap4Tk-qBo2dF-uYvgvJSmNE3F-7uHQZL2qWg7BXFtTc2WPinyGwsq_n4_ZvsSfqdCdoyQPdj0SqpCVfZorBKFBrZyje0vDBdIAaGnOppPEKDGZdgQYbvG247S3dqy0RwPDVHZWOLiHpgo7C7M4Tp7UtpqtNV"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-24 px-8 pb-12">
+<!-- Welcome Header -->
+<div class="mb-10 flex justify-between items-end">
+<div>
+<h2 class="text-4xl font-headline font-extrabold tracking-tight text-on-surface">Gestão de Estoque</h2>
+<p class="text-on-surface-variant mt-2 max-w-md">Monitoramento analítico de insumos e dispensação farmacêutica via inteligência biológica.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 bg-stone-900 text-on-surface font-semibold rounded-full border border-stone-800 hover:bg-stone-800 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="file_download">file_download</span>
+                    Exportar Relatório
+                </button>
+<button class="px-6 py-3 bg-primary text-on-primary font-bold rounded-full hover:shadow-[0_0_20px_rgba(190,230,84,0.3)] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Novo Lote
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Key Metrics -->
+<div class="col-span-12 lg:col-span-3 glass-panel p-6 rounded-lg flex flex-col justify-between">
+<div>
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Total em Estoque</span>
+<h3 class="text-5xl font-headline font-extrabold mt-4 text-primary">2.484<span class="text-lg font-normal text-on-surface-variant ml-2">unid.</span></h3>
+</div>
+<div class="mt-8 pt-4 border-t border-stone-800/50">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Variação Mensal</span>
+<span class="text-primary flex items-center gap-1">+12.4% <span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span></span>
+</div>
+</div>
+</div>
+<!-- Stock Status Rings -->
+<div class="col-span-12 lg:col-span-5 glass-panel p-6 rounded-lg">
+<div class="flex justify-between items-start mb-6">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Status de Inventário</span>
+<span class="bg-primary/10 text-primary text-[10px] px-2 py-1 rounded-full border border-primary/20">Live Sync</span>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div class="flex items-center gap-4">
+<div class="relative w-20 h-20">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-stone-800" cx="40" cy="40" fill="transparent" r="36" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-error" cx="40" cy="40" fill="transparent" r="36" stroke="currentColor" stroke-dasharray="226" stroke-dashoffset="180" stroke-width="6"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center text-error font-bold">20%</div>
+</div>
+<div>
+<p class="text-error font-bold">Crítico</p>
+<p class="text-xs text-on-surface-variant">4 Cepas abaixo do limite</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-20 h-20">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-stone-800" cx="40" cy="40" fill="transparent" r="36" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-primary" cx="40" cy="40" fill="transparent" r="36" stroke="currentColor" stroke-dasharray="226" stroke-dashoffset="40" stroke-width="6"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center text-primary font-bold">82%</div>
+</div>
+<div>
+<p class="text-primary font-bold">Normal</p>
+<p class="text-xs text-on-surface-variant">Disponibilidade otimizada</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Visualization Card (Graph Mockup) -->
+<div class="col-span-12 lg:col-span-4 glass-panel p-6 rounded-lg bg-stone-950/40">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4 block">Consumo por Período</span>
+<div class="h-40 flex items-end justify-between gap-2 mt-4">
+<div class="w-full bg-stone-800/50 h-[30%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary/20 h-full"></div>
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-primary">SEG</div>
+</div>
+<div class="w-full bg-stone-800/50 h-[55%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary/40 h-full"></div>
+</div>
+<div class="w-full bg-stone-800/50 h-[40%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary/30 h-full"></div>
+</div>
+<div class="w-full bg-stone-800/50 h-[85%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary/70 h-full"></div>
+</div>
+<div class="w-full bg-stone-800/50 h-[60%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary/50 h-full"></div>
+</div>
+<div class="w-full bg-stone-800/50 h-[95%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary h-full"></div>
+</div>
+<div class="w-full bg-stone-800/50 h-[75%] rounded-t-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary/60 h-full"></div>
+</div>
+</div>
+</div>
+<!-- Main Inventory Table -->
+<div class="col-span-12 glass-panel rounded-lg overflow-hidden border border-stone-800/50">
+<div class="p-6 border-b border-stone-800/50 flex justify-between items-center">
+<h3 class="font-headline font-bold text-xl">Inventário Ativo</h3>
+<div class="flex gap-2">
+<select class="bg-stone-900 border-none text-xs rounded-full px-4 py-1.5 focus:ring-1 focus:ring-primary">
+<option>Todos os Filtros</option>
+<option>Críticos</option>
+<option>Vencimento Próximo</option>
+</select>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-stone-900/30 text-on-surface-variant text-[10px] uppercase tracking-widest font-bold">
+<th class="px-6 py-4">Produto / Cepa</th>
+<th class="px-6 py-4">Lote</th>
+<th class="px-6 py-4">Validade</th>
+<th class="px-6 py-4">Quantidade</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-stone-800/30">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-stone-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-500" data-icon="potted_plant">potted_plant</span>
+</div>
+<div>
+<p class="font-bold text-sm">Northern Lights CBD</p>
+<p class="text-[10px] text-stone-500">Inflorescência Seca</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-stone-400">#NL2023-004</td>
+<td class="px-6 py-5 text-sm">12 Dez 2024</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="font-bold">420g</span>
+<div class="w-16 h-1 bg-stone-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[80%]"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">Normal</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+<button class="p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-stone-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-error" data-icon="medication">medication</span>
+</div>
+<div>
+<p class="font-bold text-sm">Full Spectrum Oil 10%</p>
+<p class="text-[10px] text-stone-500">Óleo Terapêutico</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-stone-400">#FSO-X99</td>
+<td class="px-6 py-5 text-sm text-error">15 Out 2023</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="font-bold">12 unid.</span>
+<div class="w-16 h-1 bg-stone-800 rounded-full overflow-hidden">
+<div class="bg-error h-full w-[15%]"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full bg-error/10 text-error text-[10px] font-bold uppercase tracking-tight">Crítico</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+<button class="p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-stone-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-500" data-icon="psychology">psychology</span>
+</div>
+<div>
+<p class="font-bold text-sm">Blue Dream Hybrid</p>
+<p class="text-[10px] text-stone-500">Extracto CO2</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-stone-400">#BD-CO2-01</td>
+<td class="px-6 py-5 text-sm">30 Abr 2025</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="font-bold">1,250g</span>
+<div class="w-16 h-1 bg-stone-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[95%]"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">Normal</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+<button class="p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Last Dispensations / Validation -->
+<div class="col-span-12 glass-panel p-6 rounded-lg">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline font-bold text-xl">Últimas Dispensações</h3>
+<div class="flex items-center gap-2 text-xs text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        Monitoramento em Tempo Real
+                    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Dispensation Card -->
+<div class="bg-stone-900/50 p-4 rounded-lg border border-stone-800 relative group overflow-hidden">
+<div class="absolute top-0 right-0 p-2">
+<span class="material-symbols-outlined text-primary text-sm fill-icon" data-icon="verified">verified</span>
+</div>
+<p class="text-xs text-stone-500 font-mono">REC #88219</p>
+<h4 class="font-bold text-sm mt-1">Ana Beatriz S.</h4>
+<div class="mt-4 flex items-center justify-between">
+<div>
+<p class="text-[10px] text-stone-500 uppercase">Produto</p>
+<p class="text-xs font-semibold">Óleo CBD 20ml</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-stone-500 uppercase">Data</p>
+<p class="text-xs font-semibold">14:20</p>
+</div>
+</div>
+</div>
+<!-- Dispensation Card -->
+<div class="bg-stone-900/50 p-4 rounded-lg border border-stone-800 relative group overflow-hidden">
+<div class="absolute top-0 right-0 p-2">
+<span class="material-symbols-outlined text-primary text-sm fill-icon" data-icon="verified">verified</span>
+</div>
+<p class="text-xs text-stone-500 font-mono">REC #88215</p>
+<h4 class="font-bold text-sm mt-1">Marcos Oliver</h4>
+<div class="mt-4 flex items-center justify-between">
+<div>
+<p class="text-[10px] text-stone-500 uppercase">Produto</p>
+<p class="text-xs font-semibold">Inflorescência 10g</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-stone-500 uppercase">Data</p>
+<p class="text-xs font-semibold">12:05</p>
+</div>
+</div>
+</div>
+<!-- Dispensation Card -->
+<div class="bg-stone-900/50 p-4 rounded-lg border border-stone-800 relative group overflow-hidden">
+<div class="absolute top-0 right-0 p-2">
+<span class="material-symbols-outlined text-primary text-sm fill-icon" data-icon="verified">verified</span>
+</div>
+<p class="text-xs text-stone-500 font-mono">REC #88214</p>
+<h4 class="font-bold text-sm mt-1">Clara Mendonça</h4>
+<div class="mt-4 flex items-center justify-between">
+<div>
+<p class="text-[10px] text-stone-500 uppercase">Produto</p>
+<p class="text-xs font-semibold">Cápsulas THC</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-stone-500 uppercase">Data</p>
+<p class="text-xs font-semibold">Ontem</p>
+</div>
+</div>
+</div>
+<!-- Validation Action Card -->
+<div class="border-2 border-dashed border-stone-800 p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary/50 cursor-pointer transition-all">
+<span class="material-symbols-outlined text-stone-600 group-hover:text-primary" data-icon="qr_code_scanner">qr_code_scanner</span>
+<p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Validar Nova Receita</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for Quick Stock Update (Only for this dashboard) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+</button>
+</body></html>
