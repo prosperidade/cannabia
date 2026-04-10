@@ -1,0 +1,36 @@
+wing: cannabia_clinical
+
+rooms:
+  # --- Pipeline Clinico ---
+  - name: pipeline_anamnese
+    description: Padroes de anamnese, sintomas recorrentes, perfis de paciente
+
+  - name: pipeline_prescricao
+    description: Dosagens, ratios CBD/THC, titulacoes, outcomes acumulados
+
+  - name: pipeline_cientifico
+    description: Evidencias consultadas, artigos mais citados, lacunas identificadas
+
+  # --- Conhecimento Regulatorio ---
+  - name: regulatorio_anvisa
+    description: RDCs, resolucoes, atualizacoes normativas aplicadas
+
+  - name: regulatorio_cfm
+    description: Normas do CFM sobre prescricao de canabinoides
+
+  # --- Operacional ---
+  - name: whatsapp_flow
+    description: Padroes de conversa, taxa de conclusao de anamnese, abandono
+
+  - name: crm_telemetria
+    description: Follow-up patterns, IoT readings, diary correlations
+
+  - name: multi_tenant
+    description: Padroes anonimizados entre clinicas (dosagem media, condicoes top)
+
+  # --- Desenvolvimento ---
+  - name: backend
+    description: Flask routes, migrations, infra decisions
+
+  - name: frontend
+    description: Next.js pages, components, design system

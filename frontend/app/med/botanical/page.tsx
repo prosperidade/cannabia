@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
+import { getBotanicalAnalysis } from "@/lib/api";
 import {
   Card,
   Badge,
@@ -12,97 +13,61 @@ import {
 
 /* ────────────────────────────────────────────
    Botanical Precision - Strain/Cultivar Analysis
-   TODO: replace all mock data with real API calls.
    ──────────────────────────────────────────── */
 
-// TODO: fetch from API
-const MOCK_CULTIVAR = {
-  name: "Aura-7 Hybrid",
-  type: "Hibrido dominante Sativa",
-  origin: "Cultivo Controlado Indoor - Lote #BT-4421",
-  thc: 24.2,
-  cbd: 2.1,
-  cbg: 1.8,
-  cbn: 0.4,
-};
+type Cultivar = { name: string; type: string; origin: string; thc: number; cbd: number; cbg: number; cbn: number };
+type Terpene = { name: string; pct: number; color: string; effect: string };
+type Compatibility = { score: number; patient: string; condition: string; factors: { label: string; score: number; status: string }[] };
+type Effect = { icon: string; label: string; pct: number; desc: string };
+type Recommendation = { name: string; type: string; match: number; thc: number; cbd: number; terpene: string; reason: string };
 
-// TODO: fetch from API
-const MOCK_TERPENES = [
-  { name: "Myrcene", pct: 0.8, color: "bg-primary", effect: "Sedativo, Analgesico" },
-  { name: "Limonene", pct: 0.5, color: "bg-amber-500", effect: "Ansiolítico, Melhora do humor" },
-  { name: "Linalool", pct: 0.3, color: "bg-purple-400", effect: "Relaxante, Anti-convulsivo" },
-  { name: "Caryophyllene", pct: 0.25, color: "bg-orange-400", effect: "Anti-inflamatorio, Analgesico" },
-  { name: "Pinene", pct: 0.15, color: "bg-emerald-400", effect: "Broncodilatador, Estimulante" },
-  { name: "Humulene", pct: 0.1, color: "bg-blue-400", effect: "Anti-inflamatorio, Redutor de apetite" },
-];
-
-const maxTerpenePct = Math.max(...MOCK_TERPENES.map((t) => t.pct));
-
-// TODO: fetch from API
-const MOCK_COMPATIBILITY = {
-  score: 91,
-  patient: "Elena Sterling",
-  condition: "Neuralgia Cronica",
-  factors: [
-    { label: "Perfil cannabinoide", score: 95, status: "Otimo" },
-    { label: "Perfil terpenico", score: 88, status: "Bom" },
-    { label: "Historico de resposta", score: 92, status: "Otimo" },
-    { label: "Interacoes medicamentosas", score: 85, status: "Aceitavel" },
-  ],
-};
-
-// TODO: fetch from API
-const MOCK_EFFECTS = [
-  { icon: "self_improvement", label: "Relaxamento", pct: 85, desc: "Efeito primario dominante" },
-  { icon: "health_and_safety", label: "Analgesia", pct: 78, desc: "Reducao significativa da percepcao de dor" },
-  { icon: "healing", label: "Anti-inflamatorio", pct: 72, desc: "Modulacao de citocinas pro-inflamatorias" },
-  { icon: "bedtime", label: "Inducao de Sono", pct: 65, desc: "Melhora do tempo para adormecer e qualidade do sono" },
-  { icon: "psychology", label: "Ansiolise", pct: 60, desc: "Reducao de sintomas ansiosos (GAD-7)" },
-  { icon: "restaurant", label: "Apetite", pct: 45, desc: "Estimulacao moderada do apetite" },
-];
-
-// TODO: fetch from API
-const MOCK_RECOMMENDATIONS = [
-  {
-    name: "Blue Dream",
-    type: "Hibrido Sativa",
-    match: 94,
-    thc: 21.0,
-    cbd: 2.3,
-    terpene: "Myrcene + Limonene",
-    reason: "Perfil terpenico complementar com boa eficacia analgesica",
-  },
-  {
-    name: "ACDC",
-    type: "Dominante CBD",
-    match: 89,
-    thc: 1.2,
-    cbd: 20.1,
-    terpene: "Myrcene + Caryophyllene",
-    reason: "Alternativa de baixo THC para sessoes diurnas",
-  },
-  {
-    name: "Harlequin",
-    type: "Sativa",
-    match: 86,
-    thc: 5.0,
-    cbd: 12.0,
-    terpene: "Myrcene + Pinene",
-    reason: "Equilibrio CBD:THC para manutenção funcional",
-  },
-  {
-    name: "Cannatonic",
-    type: "Hibrido",
-    match: 82,
-    thc: 3.5,
-    cbd: 15.0,
-    terpene: "Linalool + Myrcene",
-    reason: "Indicado para protocolo noturno com inducao de sono",
-  },
-];
+const FALLBACK_CULTIVAR: Cultivar = { name: "—", type: "—", origin: "—", thc: 0, cbd: 0, cbg: 0, cbn: 0 };
+const FALLBACK_TERPENES: Terpene[] = [];
+const FALLBACK_COMPATIBILITY: Compatibility = { score: 0, patient: "—", condition: "—", factors: [] };
+const FALLBACK_EFFECTS: Effect[] = [];
+const FALLBACK_RECOMMENDATIONS: Recommendation[] = [];
 
 export default function BotanicalPage() {
   const [selectedStrain, setSelectedStrain] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [cultivar, setCultivar] = useState<Cultivar>(FALLBACK_CULTIVAR);
+  const [terpenes, setTerpenes] = useState<Terpene[]>(FALLBACK_TERPENES);
+  const [compatibility, setCompatibility] = useState<Compatibility>(FALLBACK_COMPATIBILITY);
+  const [effects, setEffects] = useState<Effect[]>(FALLBACK_EFFECTS);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>(FALLBACK_RECOMMENDATIONS);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getBotanicalAnalysis();
+      const d = res.data as Record<string, unknown>;
+
+      if (d.cultivar) setCultivar(d.cultivar as Cultivar);
+      if (Array.isArray(d.terpenes)) setTerpenes(d.terpenes as Terpene[]);
+      if (d.compatibility) setCompatibility(d.compatibility as Compatibility);
+      if (Array.isArray(d.effects)) setEffects(d.effects as Effect[]);
+      if (Array.isArray(d.recommendations)) setRecommendations(d.recommendations as Recommendation[]);
+    } catch {
+      // keep fallback data
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const maxTerpenePct = terpenes.length > 0 ? Math.max(...terpenes.map((t) => t.pct)) : 1;
+
+  if (loading) {
+    return (
+      <section className="p-4 md:p-8 flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <MaterialIcon icon="hourglass_empty" size="xl" className="text-primary animate-spin" />
+          <p className="text-stone-400 text-sm">Carregando analise botanica...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="p-4 md:p-8 space-y-8 overflow-y-auto pb-28 md:pb-8">
@@ -148,11 +113,11 @@ export default function BotanicalPage() {
                     Perfil de Cultivar
                   </p>
                   <h3 className="text-2xl font-black text-primary font-headline">
-                    {MOCK_CULTIVAR.name}
+                    {cultivar.name}
                   </h3>
-                  <p className="text-xs text-stone-500 mt-1">{MOCK_CULTIVAR.origin}</p>
+                  <p className="text-xs text-stone-500 mt-1">{cultivar.origin}</p>
                 </div>
-                <Badge tone="primary">{MOCK_CULTIVAR.type}</Badge>
+                <Badge tone="primary">{cultivar.type}</Badge>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -163,10 +128,10 @@ export default function BotanicalPage() {
                   </span>
                   <div className="space-y-3">
                     {[
-                      { name: "THC", value: MOCK_CULTIVAR.thc, pct: 84 },
-                      { name: "CBD", value: MOCK_CULTIVAR.cbd, pct: 15 },
-                      { name: "CBG", value: MOCK_CULTIVAR.cbg, pct: 12 },
-                      { name: "CBN", value: MOCK_CULTIVAR.cbn, pct: 5 },
+                      { name: "THC", value: cultivar.thc, pct: Math.min(Math.round((cultivar.thc / 30) * 100), 100) },
+                      { name: "CBD", value: cultivar.cbd, pct: Math.min(Math.round((cultivar.cbd / 30) * 100), 100) },
+                      { name: "CBG", value: cultivar.cbg, pct: Math.min(Math.round((cultivar.cbg / 30) * 100), 100) },
+                      { name: "CBN", value: cultivar.cbn, pct: Math.min(Math.round((cultivar.cbn / 30) * 100), 100) },
                     ].map((c) => (
                       <div key={c.name} className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold">
@@ -185,7 +150,7 @@ export default function BotanicalPage() {
                     Mapa de Terpenos
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {MOCK_TERPENES.map((t) => (
+                    {terpenes.map((t) => (
                       <div
                         key={t.name}
                         className="px-3 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2 hover:border-primary/20 transition-all cursor-default"
@@ -201,7 +166,7 @@ export default function BotanicalPage() {
 
                   {/* Terpene bars */}
                   <div className="space-y-3 mt-4">
-                    {MOCK_TERPENES.map((t) => (
+                    {terpenes.map((t) => (
                       <div key={`bar-${t.name}`} className="space-y-1">
                         <div className="flex justify-between text-[10px]">
                           <span className="text-stone-400">{t.name}</span>
@@ -252,7 +217,7 @@ export default function BotanicalPage() {
                   stroke="currentColor"
                   strokeDasharray={2 * Math.PI * 64}
                   strokeDashoffset={
-                    2 * Math.PI * 64 * (1 - MOCK_COMPATIBILITY.score / 100)
+                    2 * Math.PI * 64 * (1 - compatibility.score / 100)
                   }
                   strokeLinecap="round"
                   strokeWidth="8"
@@ -263,7 +228,7 @@ export default function BotanicalPage() {
               </svg>
               <div className="absolute flex flex-col items-center">
                 <span className="text-4xl font-black text-on-surface tracking-tighter">
-                  {MOCK_COMPATIBILITY.score}%
+                  {compatibility.score}%
                 </span>
                 <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
                   Compatibilidade
@@ -271,9 +236,9 @@ export default function BotanicalPage() {
               </div>
             </div>
             <p className="text-sm font-semibold text-stone-200">
-              {MOCK_COMPATIBILITY.patient}
+              {compatibility.patient}
             </p>
-            <p className="text-xs text-stone-500 mt-1">{MOCK_COMPATIBILITY.condition}</p>
+            <p className="text-xs text-stone-500 mt-1">{compatibility.condition}</p>
           </Card>
 
           {/* Compatibility Factors */}
@@ -282,7 +247,7 @@ export default function BotanicalPage() {
               Fatores de Compatibilidade
             </h4>
             <div className="space-y-3">
-              {MOCK_COMPATIBILITY.factors.map((f) => (
+              {compatibility.factors.map((f) => (
                 <div key={f.label} className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="text-stone-400">{f.label}</span>
@@ -314,7 +279,7 @@ export default function BotanicalPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MOCK_EFFECTS.map((e) => (
+          {effects.map((e) => (
             <div
               key={e.label}
               className="p-4 rounded-xl bg-surface-container/50 border border-white/5 hover:border-primary/20 transition-all space-y-3"
@@ -353,7 +318,7 @@ export default function BotanicalPage() {
               </p>
             </div>
           </div>
-          <Badge tone="primary">{MOCK_RECOMMENDATIONS.length} sugestoes</Badge>
+          <Badge tone="primary">{recommendations.length} sugestoes</Badge>
         </div>
 
         {/* Desktop table */}
@@ -379,7 +344,7 @@ export default function BotanicalPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {MOCK_RECOMMENDATIONS.map((r) => (
+              {recommendations.map((r) => (
                 <tr
                   key={r.name}
                   className={cn(
@@ -431,7 +396,7 @@ export default function BotanicalPage() {
 
         {/* Mobile cards */}
         <div className="md:hidden space-y-3">
-          {MOCK_RECOMMENDATIONS.map((r) => (
+          {recommendations.map((r) => (
             <div
               key={r.name}
               className="p-4 rounded-xl bg-surface-container/50 border border-white/5 hover:border-primary/20 transition-all cursor-pointer"

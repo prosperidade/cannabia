@@ -7,8 +7,6 @@ Prefix: /api/v1
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
-
 from flask import Blueprint, g, request
 
 from src.infra.database import db_cursor
@@ -106,87 +104,6 @@ def list_returns():
             return _success(items, meta=meta)
 
     except Exception:
-        logger.warning("Error fetching returns from DB; returning mock data", exc_info=True)
+        logger.warning("Error fetching returns from DB", exc_info=True)
 
-    # TODO: Replace with real DB query
-    now = datetime.now(timezone.utc)
-    mock_data = [
-        {
-            "treatment_plan_id": 1,
-            "patient_id": 101,
-            "patient_name": "Maria Silva",
-            "patient_phone": "+5511999990001",
-            "plan_name": "Protocolo Dor Cronica",
-            "treatment_status": "ativo",
-            "cbd_thc_ratio": "20:1",
-            "dosage": "CBD 50mg 2x/dia",
-            "next_return_date": (now + timedelta(days=2)).isoformat(),
-            "last_update": (now - timedelta(days=28)).isoformat(),
-            "ai_recommendation": "Considerar aumento para 75mg baseado na reducao de 40% na escala EVA.",
-        },
-        {
-            "treatment_plan_id": 2,
-            "patient_id": 102,
-            "patient_name": "Joao Oliveira",
-            "patient_phone": "+5511999990002",
-            "plan_name": "Protocolo Epilepsia",
-            "treatment_status": "ativo",
-            "cbd_thc_ratio": "50:1",
-            "dosage": "CBD 100mg 3x/dia",
-            "next_return_date": (now + timedelta(days=5)).isoformat(),
-            "last_update": (now - timedelta(days=14)).isoformat(),
-            "ai_recommendation": "Manter dose atual. Frequencia de crises reduzida em 60%.",
-        },
-        {
-            "treatment_plan_id": 3,
-            "patient_id": 103,
-            "patient_name": "Ana Costa",
-            "patient_phone": "+5511999990003",
-            "plan_name": "Protocolo Ansiedade",
-            "treatment_status": "pendente",
-            "cbd_thc_ratio": "10:1",
-            "dosage": "CBD 25mg/dia",
-            "next_return_date": (now - timedelta(days=1)).isoformat(),
-            "last_update": (now - timedelta(days=30)).isoformat(),
-            "ai_recommendation": "Retorno atrasado. Paciente relatou efeitos colaterais leves. Reavaliar tolerancia.",
-        },
-        {
-            "treatment_plan_id": 4,
-            "patient_id": 104,
-            "patient_name": "Pedro Santos",
-            "patient_phone": "+5511999990004",
-            "plan_name": "Protocolo Insonia",
-            "treatment_status": "ativo",
-            "cbd_thc_ratio": "5:1",
-            "dosage": "CBD 30mg + THC 6mg (noite)",
-            "next_return_date": (now + timedelta(days=12)).isoformat(),
-            "last_update": (now - timedelta(days=7)).isoformat(),
-            "ai_recommendation": "Paciente reportou melhora significativa. Manter e reavaliar em 30 dias.",
-        },
-        {
-            "treatment_plan_id": 5,
-            "patient_id": 105,
-            "patient_name": "Lucia Ferreira",
-            "patient_phone": "+5511999990005",
-            "plan_name": "Protocolo Fibromialgia",
-            "treatment_status": "ativo",
-            "cbd_thc_ratio": "15:1",
-            "dosage": "CBD 40mg 2x/dia",
-            "next_return_date": (now + timedelta(days=0)).isoformat(),
-            "last_update": (now - timedelta(days=21)).isoformat(),
-            "ai_recommendation": "Retorno hoje. Sugerir aumento gradual se tolerancia confirmada.",
-        },
-    ]
-
-    if status_filter:
-        mock_data = [d for d in mock_data if d["treatment_status"] == status_filter]
-    if search:
-        mock_data = [d for d in mock_data if search.lower() in d["patient_name"].lower()]
-
-    total = len(mock_data)
-    pending = sum(1 for d in mock_data if d["treatment_status"] in ("ativo", "pendente"))
-    scheduled = sum(1 for d in mock_data if d.get("next_return_date"))
-
-    items, page_meta = _paginate(mock_data, page, page_size)
-    meta = {**page_meta, "total_returns": total, "pending": pending, "scheduled": scheduled}
-    return _success(items, meta=meta)
+    return _success([], meta={"page": page, "page_size": page_size, "total": 0, "total_returns": 0, "pending": 0, "scheduled": 0})

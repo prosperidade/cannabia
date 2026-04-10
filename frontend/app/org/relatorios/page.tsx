@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
+import { getOrgReports } from "@/lib/api";
 import {
   Card,
   StatCard,
@@ -12,11 +13,12 @@ import {
 } from "@/components/ui-tw";
 
 /* ------------------------------------------------------------------ */
-/*  Mock data                                                          */
+/*  Types                                                               */
 /* ------------------------------------------------------------------ */
 
 type TabKey = "atendimentos" | "financeiro" | "pacientes" | "ia";
 type PeriodKey = "7d" | "30d" | "90d" | "12m";
+type ChartPoint = { label: string; a: number; b: number };
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: "atendimentos", label: "Atendimentos", icon: "clinical_notes" },
@@ -32,67 +34,6 @@ const PERIODS: { key: PeriodKey; label: string }[] = [
   { key: "12m", label: "12 meses" },
 ];
 
-const ATENDIMENTOS_CHART = [
-  { label: "Jan", a: 62, b: 44 },
-  { label: "Fev", a: 78, b: 50 },
-  { label: "Mar", a: 85, b: 60 },
-  { label: "Abr", a: 90, b: 55 },
-  { label: "Mai", a: 100, b: 70 },
-  { label: "Jun", a: 88, b: 65 },
-  { label: "Jul", a: 95, b: 72 },
-];
-
-const FINANCEIRO_CHART = [
-  { label: "Jan", a: 45, b: 30 },
-  { label: "Fev", a: 55, b: 35 },
-  { label: "Mar", a: 60, b: 32 },
-  { label: "Abr", a: 70, b: 40 },
-  { label: "Mai", a: 85, b: 45 },
-  { label: "Jun", a: 78, b: 42 },
-  { label: "Jul", a: 92, b: 48 },
-];
-
-const PACIENTES_CHART = [
-  { label: "Jan", a: 40, b: 0 },
-  { label: "Fev", a: 52, b: 0 },
-  { label: "Mar", a: 58, b: 0 },
-  { label: "Abr", a: 65, b: 0 },
-  { label: "Mai", a: 80, b: 0 },
-  { label: "Jun", a: 75, b: 0 },
-  { label: "Jul", a: 90, b: 0 },
-];
-
-const IA_CHART = [
-  { label: "Jan", a: 30, b: 20 },
-  { label: "Fev", a: 50, b: 28 },
-  { label: "Mar", a: 65, b: 35 },
-  { label: "Abr", a: 72, b: 42 },
-  { label: "Mai", a: 88, b: 50 },
-  { label: "Jun", a: 95, b: 55 },
-  { label: "Jul", a: 100, b: 60 },
-];
-
-const DOCTOR_RANKING = [
-  { name: "Dra. Maria Santos", count: 142, pct: 100 },
-  { name: "Dr. Joao Oliveira", count: 118, pct: 83 },
-  { name: "Dra. Ana Costa", count: 96, pct: 68 },
-  { name: "Dr. Pedro Lima", count: 74, pct: 52 },
-];
-
-const STATUS_DIST = [
-  { label: "Concluidas", pct: 72, tone: "primary" as const },
-  { label: "Em andamento", pct: 18, tone: "warning" as const },
-  { label: "Canceladas", pct: 10, tone: "danger" as const },
-];
-
-const CONDITIONS = [
-  { label: "Dor Cronica", pct: 38 },
-  { label: "Ansiedade", pct: 28 },
-  { label: "Epilepsia", pct: 18 },
-  { label: "Insonia", pct: 12 },
-  { label: "Outros", pct: 4 },
-];
-
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -100,6 +41,63 @@ const CONDITIONS = [
 export default function RelatoriosPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("atendimentos");
   const [period, setPeriod] = useState<PeriodKey>("30d");
+  const [loading, setLoading] = useState(true);
+
+  // Chart data per tab
+  const [atendimentosChart, setAtendimentosChart] = useState<ChartPoint[]>([]);
+  const [financeiroChart, setFinanceiroChart] = useState<ChartPoint[]>([]);
+  const [pacientesChart, setPacientesChart] = useState<ChartPoint[]>([]);
+  const [iaChart, setIaChart] = useState<ChartPoint[]>([]);
+
+  // Side-panel data
+  const [doctorRanking, setDoctorRanking] = useState<{ name: string; count: number; pct: number }[]>([]);
+  const [statusDist, setStatusDist] = useState<{ label: string; pct: number; tone: "primary" | "warning" | "danger" }[]>([]);
+  const [conditions, setConditions] = useState<{ label: string; pct: number }[]>([]);
+
+  // KPI rows (stored as generic arrays so backend can define them)
+  const [atendKpis, setAtendKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
+  const [finKpis, setFinKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
+  const [patKpis, setPatKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
+  const [iaKpis, setIaKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
+
+  const fetchData = useCallback(async (p: string) => {
+    try {
+      setLoading(true);
+      const res = await getOrgReports(p);
+      const d = res.data as Record<string, unknown>;
+
+      if (Array.isArray(d.attendance_by_month)) setAtendimentosChart(d.attendance_by_month as ChartPoint[]);
+      if (Array.isArray(d.financial_by_month)) setFinanceiroChart(d.financial_by_month as ChartPoint[]);
+      if (Array.isArray(d.patients_by_month)) setPacientesChart(d.patients_by_month as ChartPoint[]);
+      if (Array.isArray(d.ai_by_month)) setIaChart(d.ai_by_month as ChartPoint[]);
+
+      if (Array.isArray(d.doctor_ranking)) setDoctorRanking(d.doctor_ranking as typeof doctorRanking);
+      if (Array.isArray(d.status_distribution)) setStatusDist(d.status_distribution as typeof statusDist);
+      if (Array.isArray(d.conditions)) setConditions(d.conditions as typeof conditions);
+
+      if (Array.isArray(d.attendance_kpis)) setAtendKpis(d.attendance_kpis as typeof atendKpis);
+      if (Array.isArray(d.financial_kpis)) setFinKpis(d.financial_kpis as typeof finKpis);
+      if (Array.isArray(d.patients_kpis)) setPatKpis(d.patients_kpis as typeof patKpis);
+      if (Array.isArray(d.ai_kpis)) setIaKpis(d.ai_kpis as typeof iaKpis);
+    } catch {
+      // keep empty
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(period); }, [fetchData, period]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <MaterialIcon icon="hourglass_empty" size="xl" className="text-primary animate-spin" />
+          <p className="text-stone-400 text-sm">Carregando relatorios...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -114,10 +112,10 @@ export default function RelatoriosPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <Button variant="secondary" icon="picture_as_pdf" size="sm" onClick={() => alert("Exportar PDF (mock)")}>
+          <Button variant="secondary" icon="picture_as_pdf" size="sm" onClick={() => alert("Exportar PDF")}>
             Exportar PDF
           </Button>
-          <Button variant="secondary" icon="download" size="sm" onClick={() => alert("Exportar CSV (mock)")}>
+          <Button variant="secondary" icon="download" size="sm" onClick={() => alert("Exportar CSV")}>
             Exportar CSV
           </Button>
         </div>
@@ -165,13 +163,18 @@ export default function RelatoriosPage() {
         <div className="space-y-8">
           {/* KPI row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard icon="event_note" label="Total Consultas" value="1.248" delta="+12%" deltaType="up" />
-            <StatCard icon="avg_pace" label="Media/dia" value="18.4" delta="+3.2" deltaType="up" />
-            <StatCard icon="timer" label="Tempo Medio" value="32 min" delta="-5 min" deltaType="up" />
-            <StatCard icon="task_alt" label="Taxa Conclusao" value="92%" delta="+2%" deltaType="up" />
+            {atendKpis.length > 0 ? atendKpis.map((k) => (
+              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+            )) : (
+              <>
+                <StatCard icon="event_note" label="Total Consultas" value="—" delta="—" deltaType="up" />
+                <StatCard icon="avg_pace" label="Media/dia" value="—" delta="—" deltaType="up" />
+                <StatCard icon="timer" label="Tempo Medio" value="—" delta="—" deltaType="up" />
+                <StatCard icon="task_alt" label="Taxa Conclusao" value="—" delta="—" deltaType="up" />
+              </>
+            )}
           </div>
 
-          {/* Chart + insights */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2" padding="lg">
               <div className="flex justify-between items-center mb-6">
@@ -184,13 +187,13 @@ export default function RelatoriosPage() {
                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Retornos</span>
                 </div>
               </div>
-              <BarChart data={ATENDIMENTOS_CHART} />
+              <BarChart data={atendimentosChart} />
             </Card>
 
             <Card padding="lg">
               <h4 className="text-lg font-headline font-bold text-on-surface mb-4">Ranking Medicos</h4>
               <div className="space-y-4">
-                {DOCTOR_RANKING.map((doc) => (
+                {doctorRanking.map((doc) => (
                   <div key={doc.name} className="group">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm text-stone-300 font-medium">{doc.name}</span>
@@ -203,11 +206,10 @@ export default function RelatoriosPage() {
             </Card>
           </div>
 
-          {/* Status distribution */}
           <Card padding="lg">
             <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Distribuicao por Status</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {STATUS_DIST.map((s) => (
+              {statusDist.map((s) => (
                 <div key={s.label} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-stone-300">{s.label}</span>
@@ -225,10 +227,16 @@ export default function RelatoriosPage() {
       {activeTab === "financeiro" && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard icon="payments" label="Receita Total" value="R$ 248.500" delta="+18%" deltaType="up" />
-            <StatCard icon="account_balance" label="Custos" value="R$ 86.200" delta="+4%" deltaType="down" />
-            <StatCard icon="trending_up" label="Margem Liquida" value="65.3%" delta="+2.1%" deltaType="up" />
-            <StatCard icon="receipt_long" label="Ticket Medio" value="R$ 320" delta="+8%" deltaType="up" />
+            {finKpis.length > 0 ? finKpis.map((k) => (
+              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+            )) : (
+              <>
+                <StatCard icon="payments" label="Receita Total" value="—" delta="—" deltaType="up" />
+                <StatCard icon="account_balance" label="Custos" value="—" delta="—" deltaType="down" />
+                <StatCard icon="trending_up" label="Margem Liquida" value="—" delta="—" deltaType="up" />
+                <StatCard icon="receipt_long" label="Ticket Medio" value="—" delta="—" deltaType="up" />
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -243,7 +251,7 @@ export default function RelatoriosPage() {
                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Custo</span>
                 </div>
               </div>
-              <BarChart data={FINANCEIRO_CHART} />
+              <BarChart data={financeiroChart} />
             </Card>
 
             <Card padding="lg">
@@ -268,7 +276,6 @@ export default function RelatoriosPage() {
             </Card>
           </div>
 
-          {/* Summary insight cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { icon: "savings", title: "Economia Projetada", value: "R$ 12.400/mes", desc: "Otimizacao de processos com IA" },
@@ -294,10 +301,16 @@ export default function RelatoriosPage() {
       {activeTab === "pacientes" && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard icon="person_add" label="Novos/Mes" value="86" delta="+22%" deltaType="up" />
-            <StatCard icon="group" label="Ativos Total" value="1.450" delta="+4.2%" deltaType="up" />
-            <StatCard icon="sync" label="Taxa Retencao" value="92.4%" delta="+1.8%" deltaType="up" />
-            <StatCard icon="diversity_3" label="NPS" value="78" delta="+5" deltaType="up" />
+            {patKpis.length > 0 ? patKpis.map((k) => (
+              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+            )) : (
+              <>
+                <StatCard icon="person_add" label="Novos/Mes" value="—" delta="—" deltaType="up" />
+                <StatCard icon="group" label="Ativos Total" value="—" delta="—" deltaType="up" />
+                <StatCard icon="sync" label="Taxa Retencao" value="—" delta="—" deltaType="up" />
+                <StatCard icon="diversity_3" label="NPS" value="—" delta="—" deltaType="up" />
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -308,13 +321,13 @@ export default function RelatoriosPage() {
                   <p className="text-xs text-stone-500">Evolucao de cadastros ({period})</p>
                 </div>
               </div>
-              <BarChart data={PACIENTES_CHART} singleColor />
+              <BarChart data={pacientesChart} singleColor />
             </Card>
 
             <Card padding="lg">
               <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Condicoes Clinicas</h4>
               <div className="space-y-4">
-                {CONDITIONS.map((c) => (
+                {conditions.map((c) => (
                   <div key={c.label} className="group">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm text-stone-300">{c.label}</span>
@@ -327,7 +340,6 @@ export default function RelatoriosPage() {
             </Card>
           </div>
 
-          {/* Retention insight */}
           <Card padding="lg" className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-secondary/10 rounded-2xl">
@@ -335,7 +347,9 @@ export default function RelatoriosPage() {
               </div>
               <div>
                 <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Taxa de Retencao</p>
-                <h5 className="text-2xl font-headline font-extrabold text-on-surface">92.4%</h5>
+                <h5 className="text-2xl font-headline font-extrabold text-on-surface">
+                  {patKpis.find((k) => k.label.includes("Retencao"))?.value ?? "—"}
+                </h5>
                 <p className="text-xs text-stone-500 mt-1">Pacientes que retornam em ate 90 dias</p>
               </div>
             </div>
@@ -359,10 +373,16 @@ export default function RelatoriosPage() {
       {activeTab === "ia" && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard icon="auto_awesome" label="Analises Realizadas" value="3.842" delta="+28%" deltaType="up" />
-            <StatCard icon="verified" label="Precisao" value="96.2%" delta="+1.4%" deltaType="up" />
-            <StatCard icon="paid" label="Custo Total" value="US$ 124.80" delta="-12%" deltaType="up" />
-            <StatCard icon="speed" label="Tempo de Resposta" value="2.4s" delta="-0.8s" deltaType="up" />
+            {iaKpis.length > 0 ? iaKpis.map((k) => (
+              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+            )) : (
+              <>
+                <StatCard icon="auto_awesome" label="Analises Realizadas" value="—" delta="—" deltaType="up" />
+                <StatCard icon="verified" label="Precisao" value="—" delta="—" deltaType="up" />
+                <StatCard icon="paid" label="Custo Total" value="—" delta="—" deltaType="up" />
+                <StatCard icon="speed" label="Tempo de Resposta" value="—" delta="—" deltaType="up" />
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -377,7 +397,7 @@ export default function RelatoriosPage() {
                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Custos</span>
                 </div>
               </div>
-              <BarChart data={IA_CHART} />
+              <BarChart data={iaChart} />
             </Card>
 
             <Card padding="lg">
@@ -401,7 +421,6 @@ export default function RelatoriosPage() {
             </Card>
           </div>
 
-          {/* AI strategic forecast card */}
           <Card padding="lg" className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20 relative overflow-hidden">
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 blur-3xl" />
             <div className="flex items-center gap-2 text-primary mb-4">

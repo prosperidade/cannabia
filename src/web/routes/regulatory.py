@@ -1,0 +1,88 @@
+# src/web/routes/regulatory.py
+"""
+Regulatory/legislation query API.
+Uses Google Files API for full-document analysis.
+"""
+from __future__ import annotations
+
+import logging
+from flask import Blueprint, g, request
+
+from src.infra.database import db_cursor
+from src.web.routes.api_v1 import (
+    _error,
+    _json_payload,
+    _require_json_csrf,
+    _success,
+    api_role_required,
+)
+
+logger = logging.getLogger("cannabia.regulatory")
+
+regulatory_bp = Blueprint("regulatory", __name__, url_prefix="/api/v1/regulatory")
+
+
+@regulatory_bp.get("/files")
+@api_role_required("Admin", "Medico")
+def list_files():
+    """List all uploaded legislation files."""
+    try:
+        from src.knowledge.google_files import list_uploaded_files
+        files = list_uploaded_files()
+        return _success(files)
+    except Exception:
+        logger.error("Error listing legislation files", exc_info=True)
+        return _success([])
+
+
+@regulatory_bp.post("/upload")
+@api_role_required("Admin")
+def upload_files():
+    """Upload all legislation files from the data/legislation directory."""
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
+
+    try:
+        from src.knowledge.google_files import upload_all_legislation
+        results = upload_all_legislation()
+        return _success({
+            "uploaded": len(results),
+            "files": [{"name": r["display_name"], "size": r.get("size_bytes", 0)} for r in results],
+        })
+    except Exception:
+        logger.error("Error uploading legislation files", exc_info=True)
+        return _error("internal_error", "Falha ao enviar arquivos de legislacao.", 500)
+
+
+@regulatory_bp.post("/query")
+@api_role_required("Admin", "Medico")
+def query_legislation():
+    """Query legislation documents with full context."""
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
+
+    payload = _json_payload()
+    question = (payload.get("question") or "").strip()
+
+    if not question:
+        return _error("validation_error", "question e obrigatorio.", 422)
+
+    file_names = payload.get("files")  # Optional: specific files to query
+    structured = payload.get("structured", False)
+
+    try:
+        if structured:
+            from src.knowledge.google_files import query_legislation_structured
+            result, usage = query_legislation_structured(question, file_names)
+            return _success({"result": result, "usage": usage})
+        else:
+            from src.knowledge.google_files import query_legislation
+            answer, usage = query_legislation(question, file_names)
+            return _success({"answer": answer, "usage": usage})
+    except ValueError as e:
+        return _error("no_files", str(e), 422)
+    except Exception:
+        logger.error("Error querying legislation", exc_info=True)
+        return _error("internal_error", "Falha ao consultar legislacao.", 500)

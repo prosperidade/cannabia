@@ -7,8 +7,6 @@ Prefix: /api/v1/org
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
-
 from flask import Blueprint, g, request
 from flask_login import current_user
 
@@ -71,54 +69,49 @@ def org_dashboard():
             )
             consultations_by_month = cursor.fetchall()
 
+            cursor.execute(
+                """
+                SELECT COALESCE(SUM(amount), 0) AS total
+                FROM billing
+                WHERE clinic_id = %s AND status = 'pago'
+                  AND created_at >= date_trunc('month', CURRENT_DATE)
+                """,
+                (clinic_id,),
+            )
+            revenue_month = float(cursor.fetchone()["total"])
+
+            # Revenue by month chart (last 6 months)
+            cursor.execute(
+                """
+                SELECT to_char(created_at, 'YYYY-MM') AS month,
+                       COALESCE(SUM(amount), 0) AS total
+                FROM billing
+                WHERE clinic_id = %s AND status = 'pago'
+                  AND created_at >= CURRENT_DATE - INTERVAL '6 months'
+                GROUP BY 1 ORDER BY 1
+                """,
+                (clinic_id,),
+            )
+            revenue_by_month = cursor.fetchall()
+
             return _success({
                 "metrics": {
                     "patients_active": patients_active,
                     "consultations_month": consultations_month,
-                    "revenue_month": 0,  # TODO: integrate with billing table
+                    "revenue_month": revenue_month,
                     "conversion_rate": 0,
                 },
                 "charts": {
                     "consultations_by_month": consultations_by_month,
-                    "revenue_by_month": [],
+                    "revenue_by_month": revenue_by_month,
                 },
             })
     except Exception:
-        logger.warning("Error fetching org dashboard from DB; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    now = datetime.now(timezone.utc)
-    months = []
-    for i in range(5, -1, -1):
-        d = now - timedelta(days=30 * i)
-        months.append(d.strftime("%Y-%m"))
-
-    return _success({
-        "metrics": {
-            "patients_active": 247,
-            "consultations_month": 89,
-            "revenue_month": 45200.00,
-            "conversion_rate": 73.5,
-        },
-        "charts": {
-            "consultations_by_month": [
-                {"month": months[0], "total": 62},
-                {"month": months[1], "total": 71},
-                {"month": months[2], "total": 68},
-                {"month": months[3], "total": 84},
-                {"month": months[4], "total": 79},
-                {"month": months[5], "total": 89},
-            ],
-            "revenue_by_month": [
-                {"month": months[0], "total": 32100.00},
-                {"month": months[1], "total": 35800.00},
-                {"month": months[2], "total": 34200.00},
-                {"month": months[3], "total": 41500.00},
-                {"month": months[4], "total": 39800.00},
-                {"month": months[5], "total": 45200.00},
-            ],
-        },
-    })
+        logger.warning("Error fetching org dashboard from DB", exc_info=True)
+        return _success({
+            "metrics": {"patients_active": 0, "consultations_month": 0, "revenue_month": 0, "conversion_rate": 0},
+            "charts": {"consultations_by_month": [], "revenue_by_month": []},
+        })
 
 
 # ==================================================================
@@ -162,26 +155,8 @@ def org_patients():
             items, meta = _paginate(rows, page, page_size)
             return _success(items, meta=meta)
     except Exception:
-        logger.warning("Error fetching org patients from DB; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    mock_patients = [
-        {"id": i, "name": name, "phone": f"+5511999{i:05d}", "email": f"paciente{i}@email.com",
-         "status": ["ativo", "ativo", "inativo", "ativo", "em_tratamento"][i % 5],
-         "created_at": (datetime.now(timezone.utc) - timedelta(days=i * 10)).isoformat()}
-        for i, name in enumerate([
-            "Maria Silva", "Joao Oliveira", "Ana Costa", "Pedro Santos", "Lucia Ferreira",
-            "Carlos Mendes", "Patricia Lima", "Roberto Alves", "Fernanda Souza", "Ricardo Gomes",
-        ], start=1)
-    ]
-
-    if search:
-        mock_patients = [p for p in mock_patients if search.lower() in p["name"].lower()]
-    if status_filter:
-        mock_patients = [p for p in mock_patients if p["status"] == status_filter]
-
-    items, meta = _paginate(mock_patients, page, page_size)
-    return _success(items, meta=meta)
+        logger.warning("Error fetching org patients from DB", exc_info=True)
+        return _success([], meta={"page": page, "page_size": page_size, "total": 0})
 
 
 # ==================================================================
@@ -207,54 +182,10 @@ def org_doctors():
                 (g.clinic_id,),
             )
             doctors = cursor.fetchall()
-            if doctors:
-                return _success(doctors)
+            return _success(doctors)
     except Exception:
-        logger.warning("Error fetching doctors from DB; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    return _success([
-        {
-            "id": 1,
-            "name": "Dr. Ricardo Mendes",
-            "crm": "CRM/SP 123456",
-            "specialty": "Neurologia / Medicina Canabinoide",
-            "patients_active": 85,
-            "consultations_month": 32,
-            "rating": 4.8,
-            "status": "ativo",
-        },
-        {
-            "id": 2,
-            "name": "Dra. Camila Souza",
-            "crm": "CRM/SP 789012",
-            "specialty": "Psiquiatria / Medicina Canabinoide",
-            "patients_active": 62,
-            "consultations_month": 28,
-            "rating": 4.9,
-            "status": "ativo",
-        },
-        {
-            "id": 3,
-            "name": "Dr. Felipe Andrade",
-            "crm": "CRM/RJ 345678",
-            "specialty": "Clinica da Dor / Medicina Canabinoide",
-            "patients_active": 71,
-            "consultations_month": 25,
-            "rating": 4.7,
-            "status": "ativo",
-        },
-        {
-            "id": 4,
-            "name": "Dra. Isabela Torres",
-            "crm": "CRM/MG 901234",
-            "specialty": "Reumatologia / Medicina Canabinoide",
-            "patients_active": 29,
-            "consultations_month": 12,
-            "rating": 4.6,
-            "status": "licenca",
-        },
-    ])
+        logger.warning("Error fetching doctors from DB", exc_info=True)
+        return _success([])
 
 
 # ==================================================================
@@ -286,68 +217,8 @@ def org_stock():
             items, meta = _paginate(rows, page, page_size)
             return _success(items, meta=meta)
     except Exception:
-        logger.warning("stock_inventory table may not exist; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    now = datetime.now(timezone.utc)
-    mock_stock = [
-        {
-            "id": 1,
-            "product_name": "Oleo CBD Full Spectrum 3000mg",
-            "batch_number": "LOT-2026-001",
-            "quantity": 45,
-            "unit": "frascos",
-            "expiry_date": (now + timedelta(days=180)).date().isoformat(),
-            "status": "disponivel",
-            "supplier": "PharmaCann Brasil",
-        },
-        {
-            "id": 2,
-            "product_name": "Oleo CBD:THC 20:1 1500mg",
-            "batch_number": "LOT-2026-002",
-            "quantity": 28,
-            "unit": "frascos",
-            "expiry_date": (now + timedelta(days=120)).date().isoformat(),
-            "status": "disponivel",
-            "supplier": "GreenPharma",
-        },
-        {
-            "id": 3,
-            "product_name": "Capsula CBD 25mg (60 caps)",
-            "batch_number": "LOT-2026-003",
-            "quantity": 5,
-            "unit": "caixas",
-            "expiry_date": (now + timedelta(days=60)).date().isoformat(),
-            "status": "estoque_baixo",
-            "supplier": "PharmaCann Brasil",
-        },
-        {
-            "id": 4,
-            "product_name": "Oleo THC Isolado 500mg",
-            "batch_number": "LOT-2025-045",
-            "quantity": 12,
-            "unit": "frascos",
-            "expiry_date": (now + timedelta(days=30)).date().isoformat(),
-            "status": "proximo_vencimento",
-            "supplier": "CannaMed",
-        },
-        {
-            "id": 5,
-            "product_name": "Creme Topico CBD 500mg",
-            "batch_number": "LOT-2026-010",
-            "quantity": 20,
-            "unit": "tubos",
-            "expiry_date": (now + timedelta(days=240)).date().isoformat(),
-            "status": "disponivel",
-            "supplier": "GreenPharma",
-        },
-    ]
-
-    if search:
-        mock_stock = [s for s in mock_stock if search.lower() in s["product_name"].lower()]
-
-    items, meta = _paginate(mock_stock, page, page_size)
-    return _success(items, meta=meta)
+        logger.warning("Error fetching stock from DB", exc_info=True)
+        return _success([], meta={"page": page, "page_size": page_size, "total": 0})
 
 
 # ==================================================================
@@ -403,14 +274,8 @@ def org_stock_entry():
             conn.commit()
             return _success({"id": row["id"], "created_at": row["created_at"]}, status=201)
     except Exception:
-        logger.warning("stock_inventory table may not exist; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    return _success({
-        "id": 0,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "message": "Entrada de estoque registrada (mock).",
-    }, status=201)
+        logger.error("Failed to insert stock entry", exc_info=True)
+        return _error("internal_error", "Falha ao registrar entrada de estoque.", 500)
 
 
 # ==================================================================
@@ -483,15 +348,8 @@ def org_stock_dispensation():
                 "created_at": disp["created_at"],
             }, status=201)
     except Exception:
-        logger.warning("stock tables may not exist; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    return _success({
-        "dispensation_id": 0,
-        "remaining_quantity": 0,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "message": "Dispensacao registrada (mock).",
-    }, status=201)
+        logger.error("Failed to register dispensation", exc_info=True)
+        return _error("internal_error", "Falha ao registrar dispensacao.", 500)
 
 
 # ==================================================================
@@ -537,78 +395,8 @@ def org_billing():
             meta = {**page_meta, "total_revenue": total_revenue, "pending": pending, "overdue": overdue}
             return _success(items, meta=meta)
     except Exception:
-        logger.warning("billing table may not exist; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    now = datetime.now(timezone.utc)
-    mock_billing = [
-        {
-            "id": 1,
-            "patient_id": 101,
-            "patient_name": "Maria Silva",
-            "description": "Consulta + Oleo CBD 3000mg",
-            "amount": 580.00,
-            "status": "pago",
-            "due_date": (now - timedelta(days=5)).date().isoformat(),
-            "paid_at": (now - timedelta(days=3)).isoformat(),
-            "created_at": (now - timedelta(days=10)).isoformat(),
-        },
-        {
-            "id": 2,
-            "patient_id": 102,
-            "patient_name": "Joao Oliveira",
-            "description": "Retorno + Ajuste de dosagem",
-            "amount": 350.00,
-            "status": "pendente",
-            "due_date": (now + timedelta(days=5)).date().isoformat(),
-            "paid_at": None,
-            "created_at": (now - timedelta(days=2)).isoformat(),
-        },
-        {
-            "id": 3,
-            "patient_id": 103,
-            "patient_name": "Ana Costa",
-            "description": "Primeira consulta + Anamnese completa",
-            "amount": 450.00,
-            "status": "vencido",
-            "due_date": (now - timedelta(days=15)).date().isoformat(),
-            "paid_at": None,
-            "created_at": (now - timedelta(days=20)).isoformat(),
-        },
-        {
-            "id": 4,
-            "patient_id": 104,
-            "patient_name": "Pedro Santos",
-            "description": "Consulta de acompanhamento",
-            "amount": 300.00,
-            "status": "pago",
-            "due_date": (now - timedelta(days=8)).date().isoformat(),
-            "paid_at": (now - timedelta(days=7)).isoformat(),
-            "created_at": (now - timedelta(days=12)).isoformat(),
-        },
-        {
-            "id": 5,
-            "patient_id": 105,
-            "patient_name": "Lucia Ferreira",
-            "description": "Oleo CBD:THC 20:1 + Capsulas",
-            "amount": 420.00,
-            "status": "pendente",
-            "due_date": (now + timedelta(days=10)).date().isoformat(),
-            "paid_at": None,
-            "created_at": (now - timedelta(days=1)).isoformat(),
-        },
-    ]
-
-    if status_filter:
-        mock_billing = [b for b in mock_billing if b["status"] == status_filter]
-
-    total_revenue = sum(b["amount"] for b in mock_billing if b["status"] == "pago")
-    pending = sum(b["amount"] for b in mock_billing if b["status"] == "pendente")
-    overdue = sum(b["amount"] for b in mock_billing if b["status"] == "vencido")
-
-    items, page_meta = _paginate(mock_billing, page, page_size)
-    meta = {**page_meta, "total_revenue": total_revenue, "pending": pending, "overdue": overdue}
-    return _success(items, meta=meta)
+        logger.warning("Error fetching billing from DB", exc_info=True)
+        return _success([], meta={"page": page, "page_size": page_size, "total": 0, "total_revenue": 0, "pending": 0, "overdue": 0})
 
 
 # ==================================================================
@@ -649,38 +437,8 @@ def org_financial():
                 "transfers": [],
             })
     except Exception:
-        logger.warning("Error fetching financial data from DB; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    now = datetime.now(timezone.utc)
-    return _success({
-        "revenue": 45200.00,
-        "costs": 15820.00,
-        "profit": 29380.00,
-        "margin": 65.0,
-        "pending": 3150.00,
-        "overdue": 1200.00,
-        "transfers": [
-            {
-                "id": 1,
-                "date": (now - timedelta(days=2)).date().isoformat(),
-                "amount": 12500.00,
-                "destination": "Conta Principal",
-                "status": "concluido",
-            },
-            {
-                "id": 2,
-                "date": (now - timedelta(days=9)).date().isoformat(),
-                "amount": 8700.00,
-                "destination": "Conta Principal",
-                "status": "concluido",
-            },
-            {
-                "id": 3,
-                "date": now.date().isoformat(),
-                "amount": 5200.00,
-                "destination": "Conta Principal",
-                "status": "agendado",
-            },
-        ],
-    })
+        logger.warning("Error fetching financial data from DB", exc_info=True)
+        return _success({
+            "revenue": 0, "costs": 0, "profit": 0, "margin": 0,
+            "pending": 0, "overdue": 0, "transfers": [],
+        })

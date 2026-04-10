@@ -87,6 +87,6 @@ CREATE INDEX IF NOT EXISTS idx_b2b_orders_created ON b2b_orders(clinic_id, creat
 
 -- ── Registro da migration ────────────────────────────────────────────────────
 
-INSERT INTO migration_log (migration_name, description)
-VALUES ('012_prescriptions_orders', 'Prescriptions + B2B Orders tables for Frontier 3')
+INSERT INTO schema_migrations (version, filename, applied_at, checksum)
+VALUES ('012', '012_prescriptions_orders.sql', NOW(), '')
 ON CONFLICT DO NOTHING;

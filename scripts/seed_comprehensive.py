@@ -98,7 +98,7 @@ def seed_extra_users():
 # ---------------------------------------------------------------------------
 
 PATIENTS = [
-    {"name": "Maria Oliveira Silva", "phone": "5562991001001", "email": "maria.oliveira@email.com", "user_id": 4, "status": "ativo"},
+    {"name": "Maria Oliveira Silva", "phone": "5562991001001", "email": "maria.oliveira@email.com", "user_id": 8, "status": "ativo"},
     {"name": "João Santos Costa", "phone": "5562991002002", "email": "joao.santos@email.com", "user_id": None, "status": "ativo"},
     {"name": "Ana Clara Menezes", "phone": "5562991003003", "email": "ana.menezes@email.com", "user_id": None, "status": "em_tratamento"},
     {"name": "Pedro Henrique Lima", "phone": "5562991004004", "email": "pedro.lima@email.com", "user_id": None, "status": "ativo"},
@@ -918,7 +918,7 @@ def seed_prescriptions():
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'active')
                 """,
                 (
-                    CLINIC_ID, pid, 2, rx["doctor_name"], rx["doctor_crm"],
+                    CLINIC_ID, pid, 6, rx["doctor_name"], rx["doctor_crm"],  # medico user_id=6
                     rx["cannabinoid_ratio"], rx["spectrum"], rx["administration_route"],
                     rx["concentration_mg_ml"], rx["max_daily_mg"],
                     json.dumps(rx["titration_protocol"]), rx["clinical_rationale"],
@@ -999,7 +999,7 @@ def seed_campaign_templates():
                     TENANT_ID, CLINIC_ID, t["name"], t["description"],
                     t["channel"], t["template_body"],
                     json.dumps(t["variables"]),
-                    t["status"], 2,
+                    t["status"], 1,  # admin user
                 ),
             )
             print(f"  Template '{t['name']}' criado ({t['channel']}, {t['status']})")
@@ -1053,6 +1053,69 @@ def seed_stock_inventory():
 
 
 # ---------------------------------------------------------------------------
+# 9b. Stock Dispensations (5)
+# ---------------------------------------------------------------------------
+
+def seed_stock_dispensations():
+    print("\n=== 9b. Dispensações de Estoque (5) ===")
+
+    dispensations = [
+        {"product_name": "Óleo CBD Full Spectrum 3000mg", "patient": "Maria Oliveira Silva", "quantity": 2, "notes": "Dispensação inicial - protocolo dor crônica lombar."},
+        {"product_name": "Óleo CBD:THC 20:1 1500mg", "patient": "João Santos Costa", "quantity": 1, "notes": "Dispensação para dor neuropática pós-herpética."},
+        {"product_name": "Cápsula CBD 25mg", "patient": "Ana Clara Menezes", "quantity": 60, "notes": "Cápsulas para 20 dias de tratamento ansiolítico (3x/dia)."},
+        {"product_name": "Creme Tópico CBD 500mg", "patient": "João Santos Costa", "quantity": 1, "notes": "Creme tópico para aplicação na região torácica."},
+        {"product_name": "Óleo CBD Full Spectrum 3000mg", "patient": "Roberto Carlos Araujo", "quantity": 1, "notes": "Dispensação para protocolo fibromialgia."},
+    ]
+
+    with db_cursor(dictionary=True) as (conn, cursor):
+        if not _table_exists(cursor, "stock_dispensations"):
+            print("  SKIP: tabela stock_dispensations nao existe")
+            return
+
+        if not _table_exists(cursor, "stock_inventory"):
+            print("  SKIP: tabela stock_inventory nao existe (dependencia)")
+            return
+
+        for d in dispensations:
+            pid = _pid(d["patient"])
+            if not pid:
+                print(f"  SKIP: paciente '{d['patient']}' nao encontrado")
+                continue
+
+            # Resolve stock_item_id
+            cursor.execute(
+                "SELECT id FROM stock_inventory WHERE clinic_id = %s AND product_name = %s LIMIT 1",
+                (CLINIC_ID, d["product_name"]),
+            )
+            item_row = cursor.fetchone()
+            if not item_row:
+                print(f"  SKIP: produto '{d['product_name']}' nao encontrado no estoque")
+                continue
+
+            stock_item_id = item_row["id"]
+
+            # Check for existing dispensation (idempotent)
+            cursor.execute(
+                "SELECT id FROM stock_dispensations WHERE clinic_id = %s AND stock_item_id = %s AND patient_id = %s AND notes = %s LIMIT 1",
+                (CLINIC_ID, stock_item_id, pid, d["notes"]),
+            )
+            if cursor.fetchone():
+                print(f"  Dispensacao '{d['product_name']}' -> '{d['patient']}' ja existe")
+                continue
+
+            cursor.execute(
+                """
+                INSERT INTO stock_dispensations
+                    (clinic_id, stock_item_id, patient_id, quantity, dispensed_by, notes)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (CLINIC_ID, stock_item_id, pid, d["quantity"], 7, d["notes"]),  # atendente user_id=7
+            )
+            print(f"  Dispensacao: {d['product_name']} -> {d['patient']} (qty={d['quantity']})")
+        conn.commit()
+
+
+# ---------------------------------------------------------------------------
 # 10. Billing Records (7)
 # ---------------------------------------------------------------------------
 
@@ -1060,13 +1123,13 @@ def seed_billing():
     print("\n=== 10. Faturamento (7 registros) ===")
 
     records = [
-        {"patient": "Maria Oliveira Silva", "description": "Consulta inicial - Anamnese completa", "amount": 350.00, "status": "pago", "due_days": -45, "paid": True},
-        {"patient": "Ana Clara Menezes", "description": "Consulta de retorno", "amount": 180.00, "status": "pago", "due_days": -30, "paid": True},
-        {"patient": "João Santos Costa", "description": "Consulta inicial - Avaliação clínica", "amount": 350.00, "status": "pago", "due_days": -20, "paid": True},
-        {"patient": "Pedro Henrique Lima", "description": "Consulta de retorno + ajuste de dosagem", "amount": 200.00, "status": "pendente", "due_days": -5, "paid": False},
-        {"patient": "Lucas Gabriel Ferreira", "description": "Consulta especializada - Epilepsia", "amount": 350.00, "status": "pendente", "due_days": 10, "paid": False},
-        {"patient": "Roberto Carlos Araujo", "description": "Consulta de retorno", "amount": 180.00, "status": "vencido", "due_days": -55, "paid": False},
-        {"patient": "Beatriz Souza Martins", "description": "Primeira consulta - Enxaqueca crônica", "amount": 89.00, "status": "pendente", "due_days": 15, "paid": False},
+        {"patient": "Maria Oliveira Silva", "description": "Consulta inicial - Anamnese completa", "amount": 450.00, "status": "pago", "due_days": -45, "paid": True},
+        {"patient": "Ana Clara Menezes", "description": "Consulta de retorno", "amount": 350.00, "status": "pago", "due_days": -30, "paid": True},
+        {"patient": "João Santos Costa", "description": "Consulta inicial - Avaliação clínica", "amount": 450.00, "status": "pago", "due_days": -20, "paid": True},
+        {"patient": "Pedro Henrique Lima", "description": "Consulta de retorno + ajuste de dosagem", "amount": 380.00, "status": "pendente", "due_days": -5, "paid": False},
+        {"patient": "Lucas Gabriel Ferreira", "description": "Consulta especializada - Epilepsia", "amount": 550.00, "status": "pendente", "due_days": 10, "paid": False},
+        {"patient": "Roberto Carlos Araujo", "description": "Consulta de retorno", "amount": 350.00, "status": "vencido", "due_days": -55, "paid": False},
+        {"patient": "Beatriz Souza Martins", "description": "Primeira consulta - Enxaqueca crônica", "amount": 450.00, "status": "pendente", "due_days": 15, "paid": False},
     ]
 
     with db_cursor(dictionary=True) as (conn, cursor):
@@ -1103,91 +1166,97 @@ def seed_billing():
 
 
 # ---------------------------------------------------------------------------
-# 11. Symptom Diary (28 entries)
+# 11. Symptom Diary (30 entries over 30 days)
 # ---------------------------------------------------------------------------
 
 def seed_symptom_diary():
-    print("\n=== 11. Diário de Sintomas (28 entradas) ===")
+    print("\n=== 11. Diário de Sintomas (30 entradas, 30 dias) ===")
 
     with db_cursor(dictionary=True) as (conn, cursor):
         if not _table_exists(cursor, "symptom_diary"):
             print("  SKIP: tabela symptom_diary nao existe")
             return
 
-        # Maria Oliveira - 14 days (showing improvement)
+        # Maria Oliveira - 14+ entries spread over 30 days (showing improvement)
         maria_id = _pid("Maria Oliveira Silva")
         ana_id = _pid("Ana Clara Menezes")
 
         entries = []
 
         if maria_id:
-            # Maria: dor crônica lombar - improving over 14 days
-            maria_moods = ["ruim", "ruim", "regular", "regular", "regular", "bom", "bom", "regular", "bom", "bom", "bom", "otimo", "bom", "otimo"]
-            maria_pain = [7, 7, 6, 6, 5, 5, 5, 6, 4, 4, 4, 3, 4, 3]
-            maria_sleep = [4, 4, 5, 5, 5, 6, 6, 5, 6, 7, 7, 7, 7, 8]
-            maria_overall = [4, 4, 5, 5, 5, 6, 6, 5, 6, 7, 7, 7, 7, 8]
+            # Maria: dor crônica lombar - 16 entries over 30 days (scores: overall 5-9, pain 2-6, sleep 5-8, mood bom/regular/otimo)
+            # Days ago: spread across 30 days (not every day — realistic journaling)
+            maria_days_ago =  [30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10,  8,  6,  4,  2,  1]
+            maria_moods =     ["regular", "regular", "regular", "bom", "bom", "regular", "bom", "bom", "bom", "otimo", "bom", "otimo", "otimo", "otimo", "otimo", "otimo"]
+            maria_pain =      [6, 6, 5, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 3, 2]
+            maria_sleep =     [5, 5, 5, 6, 6, 5, 6, 7, 7, 7, 7, 8, 7, 8, 7, 8]
+            maria_overall =   [5, 5, 6, 6, 6, 5, 7, 7, 7, 8, 8, 8, 8, 9, 8, 9]
 
-            for day in range(14):
+            maria_notes_map = {
+                0: ("sonolencia", "Primeiro dia com óleo CBD. Senti sonolência leve."),
+                2: ("boca_seca", "Boca seca leve durante a tarde."),
+                4: ("sonolencia", "Sonolência após a dose da manhã, mas passou rápido."),
+                5: ("", "Dia difícil, dor aumentou após esforço físico."),
+                7: ("", "Adaptando bem ao tratamento. Menos dor ao sentar."),
+                9: ("", "Melhor dia desde o início do tratamento!"),
+                11: ("", "Dormindo muito melhor. Acordo descansada."),
+                13: ("", "Consegui fazer caminhada de 30 min sem dor."),
+                15: ("", "Manutenção excelente. Me sinto muito bem."),
+            }
+
+            for i in range(len(maria_days_ago)):
                 se = []
                 notes = ""
-                if day in (1, 5):
-                    se = ["sonolencia"]
-                    notes = "Senti um pouco de sonolência após a dose da manhã."
-                elif day == 3:
-                    se = ["boca_seca"]
-                    notes = "Boca seca leve durante a tarde."
-                elif day == 7:
-                    notes = "Dia ruim, dor aumentou após carregar peso."
-                elif day == 10:
-                    notes = "Melhor dia desde o início do tratamento!"
-                elif day == 13:
-                    notes = "Consegui fazer caminhada de 30 min sem dor."
+                if i in maria_notes_map:
+                    se_name, notes = maria_notes_map[i]
+                    if se_name:
+                        se = [se_name]
 
                 entries.append({
                     "patient_id": maria_id,
-                    "user_id": 4,  # Maria has user_id=4
-                    "overall_score": maria_overall[day],
-                    "pain_level": maria_pain[day],
-                    "sleep_quality": maria_sleep[day],
-                    "mood": maria_moods[day],
+                    "user_id": 8,  # Maria has user_id=8 (paciente)
+                    "overall_score": maria_overall[i],
+                    "pain_level": maria_pain[i],
+                    "sleep_quality": maria_sleep[i],
+                    "mood": maria_moods[i],
                     "side_effects": se,
                     "notes": notes,
-                    "days_ago": 14 - day,
+                    "days_ago": maria_days_ago[i],
                 })
 
         if ana_id:
-            # Ana: ansiedade - improving over 14 days
-            ana_moods = ["ruim", "ruim", "ruim", "regular", "regular", "regular", "bom", "regular", "bom", "bom", "regular", "bom", "bom", "otimo"]
-            ana_pain = [3, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1]
-            ana_sleep = [3, 4, 4, 4, 5, 5, 5, 4, 6, 6, 5, 6, 7, 7]
-            ana_overall = [3, 4, 4, 5, 5, 5, 6, 5, 6, 7, 6, 7, 7, 8]
+            # Ana: ansiedade - 14 entries over 30 days
+            ana_days_ago =  [29, 27, 25, 22, 20, 17, 15, 12, 10,  8,  6,  4,  2,  1]
+            ana_moods =     ["ruim", "ruim", "ruim", "regular", "regular", "regular", "bom", "regular", "bom", "bom", "regular", "bom", "bom", "otimo"]
+            ana_pain =      [3, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1]
+            ana_sleep =     [3, 4, 4, 4, 5, 5, 5, 4, 6, 6, 5, 6, 7, 7]
+            ana_overall =   [3, 4, 4, 5, 5, 5, 6, 5, 6, 7, 6, 7, 7, 8]
 
-            for day in range(14):
+            ana_notes_map = {
+                0: (["sonolencia"], "Sonolência após dose noturna. Ansiedade forte durante o dia."),
+                2: (["sonolencia"], "Ainda com sonolência noturna. Ansiedade diminuiu um pouco."),
+                4: (["boca_seca", "tontura_leve"], "Tontura leve pela manhã, passou após 30 minutos."),
+                6: ([], "Primeiro dia sem crise de ansiedade!"),
+                9: ([], "Dormindo melhor, acordei apenas 1 vez durante a noite."),
+                13: ([], "Semana incrível! Ansiedade muito mais controlada."),
+            }
+
+            for i in range(len(ana_days_ago)):
                 se = []
                 notes = ""
-                if day in (0, 2):
-                    se = ["sonolencia"]
-                    notes = "Sonolência após dose noturna. Ansiedade forte durante o dia."
-                elif day == 4:
-                    se = ["boca_seca", "tontura_leve"]
-                    notes = "Tontura leve pela manhã, passou após 30 minutos."
-                elif day == 6:
-                    notes = "Primeiro dia sem crise de ansiedade!"
-                elif day == 9:
-                    notes = "Dormindo melhor, acordei apenas 1 vez durante a noite."
-                elif day == 13:
-                    notes = "Semana incrível! Ansiedade muito mais controlada."
+                if i in ana_notes_map:
+                    se, notes = ana_notes_map[i]
 
                 entries.append({
                     "patient_id": ana_id,
                     "user_id": None,
-                    "overall_score": ana_overall[day],
-                    "pain_level": ana_pain[day],
-                    "sleep_quality": ana_sleep[day],
-                    "mood": ana_moods[day],
+                    "overall_score": ana_overall[i],
+                    "pain_level": ana_pain[i],
+                    "sleep_quality": ana_sleep[i],
+                    "mood": ana_moods[i],
                     "side_effects": se,
                     "notes": notes,
-                    "days_ago": 14 - day,
+                    "days_ago": ana_days_ago[i],
                 })
 
         count = 0
@@ -1634,6 +1703,7 @@ def main():
         # Phase 4: Operational data
         seed_campaign_templates()
         seed_stock_inventory()
+        seed_stock_dispensations()
         seed_billing()
         seed_symptom_diary()
 

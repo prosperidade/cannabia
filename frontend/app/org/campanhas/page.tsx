@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -14,6 +14,13 @@ import {
 } from "@/components/ui-tw";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
+import {
+  listCampaignTemplates,
+  listCampaignExecutions,
+  createCampaignTemplate,
+  activateCampaignTemplate,
+  sendCampaign,
+} from "@/lib/api";
 import type {
   CampaignTemplate,
   CampaignTemplateStatus,
@@ -21,134 +28,6 @@ import type {
   CampaignExecution,
   CampaignExecutionStatus,
 } from "@/lib/types-campaign";
-
-/* ── TODO: replace mock data with real API calls when backend is ready ── */
-
-const MOCK_TEMPLATES: CampaignTemplate[] = [
-  {
-    id: 1,
-    clinic_id: 1,
-    name: "Lembrete de Renovacao de Receita",
-    template_body:
-      "Ola, {{patient_name}}! Passando para lembrar que sua receita medica expira em 15 dias. Deseja agendar uma consulta de retorno com o {{doctor_name}} agora mesmo?",
-    channel: "whatsapp",
-    description: "Trigger: 15 dias antes do vencimento",
-    status: "active",
-    created_by: 1,
-    created_at: "2024-10-01T10:00:00Z",
-  },
-  {
-    id: 2,
-    clinic_id: 1,
-    name: "Pesquisa de Satisfacao Pos-Consulta",
-    template_body:
-      "Ola {{patient_name}}, como foi sua consulta? Responda de 1 a 5 para nos ajudar a melhorar.",
-    channel: "whatsapp",
-    description: "Trigger: 2 dias apos consulta",
-    status: "draft",
-    created_by: 1,
-    created_at: "2024-09-20T14:00:00Z",
-  },
-  {
-    id: 3,
-    clinic_id: 1,
-    name: "Boas-vindas Novos Pacientes",
-    template_body:
-      "Bem-vindo(a) a Cannab'IA, {{patient_name}}! Estamos felizes em te-lo(a) conosco. Seu primeiro passo e agendar uma consulta inicial.",
-    channel: "whatsapp",
-    description: "Trigger: imediatamente apos cadastro",
-    status: "active",
-    created_by: 1,
-    created_at: "2024-08-15T09:00:00Z",
-  },
-  {
-    id: 4,
-    clinic_id: 1,
-    name: "Reengajamento 90 Dias",
-    template_body:
-      "Ola {{patient_name}}, sentimos sua falta! Ja faz 90 dias desde sua ultima visita. Que tal agendar um retorno?",
-    channel: "email",
-    description: "Pacientes inativos ha 90+ dias",
-    status: "archived",
-    created_by: 1,
-    created_at: "2024-07-10T11:30:00Z",
-  },
-  {
-    id: 5,
-    clinic_id: 1,
-    name: "Alerta de Estoque Disponivel",
-    template_body:
-      "{{patient_name}}, o produto {{product_name}} que voce utiliza esta novamente disponivel em estoque.",
-    channel: "sms",
-    description: "Quando produto volta ao estoque",
-    status: "draft",
-    created_by: 1,
-    created_at: "2024-10-05T16:00:00Z",
-  },
-];
-
-const MOCK_EXECUTIONS: CampaignExecution[] = [
-  {
-    id: 1,
-    template_id: 1,
-    clinic_id: 1,
-    status: "completed",
-    total_patients: 1240,
-    sent_count: 1218,
-    failed_count: 22,
-    triggered_by: 1,
-    started_at: "2024-10-10T09:00:00Z",
-    completed_at: "2024-10-10T09:15:00Z",
-  },
-  {
-    id: 2,
-    template_id: 3,
-    clinic_id: 1,
-    status: "in_progress",
-    total_patients: 450,
-    sent_count: 312,
-    failed_count: 5,
-    triggered_by: 1,
-    started_at: "2024-10-12T14:30:00Z",
-    completed_at: null,
-  },
-  {
-    id: 3,
-    template_id: 1,
-    clinic_id: 1,
-    status: "completed",
-    total_patients: 890,
-    sent_count: 870,
-    failed_count: 20,
-    triggered_by: 1,
-    started_at: "2024-09-25T10:00:00Z",
-    completed_at: "2024-09-25T10:12:00Z",
-  },
-  {
-    id: 4,
-    template_id: 2,
-    clinic_id: 1,
-    status: "failed",
-    total_patients: 200,
-    sent_count: 0,
-    failed_count: 200,
-    triggered_by: 1,
-    started_at: "2024-09-20T15:00:00Z",
-    completed_at: "2024-09-20T15:01:00Z",
-  },
-  {
-    id: 5,
-    template_id: 3,
-    clinic_id: 1,
-    status: "pending",
-    total_patients: 600,
-    sent_count: 0,
-    failed_count: 0,
-    triggered_by: 1,
-    started_at: "2024-10-15T09:00:00Z",
-    completed_at: null,
-  },
-];
 
 /* ── helpers ───────────────────────────────────────────────────────── */
 
@@ -158,6 +37,22 @@ function fmtDate(iso: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+/** Map backend execution record (target_count) to frontend type (total_patients). */
+function mapExecution(raw: Record<string, unknown>): CampaignExecution {
+  return {
+    id: raw.id as number,
+    template_id: raw.template_id as number,
+    clinic_id: (raw.clinic_id as number) ?? 0,
+    status: raw.status as CampaignExecutionStatus,
+    total_patients: (raw.target_count as number) ?? 0,
+    sent_count: (raw.sent_count as number) ?? 0,
+    failed_count: (raw.failed_count as number) ?? 0,
+    triggered_by: (raw.triggered_by as number) ?? 0,
+    started_at: (raw.started_at as string) ?? new Date().toISOString(),
+    completed_at: (raw.completed_at as string | null) ?? null,
+  };
 }
 
 const channelConfig: Record<CampaignChannel, { icon: string; label: string; color: string }> = {
@@ -184,41 +79,46 @@ function NewTemplateModal({
   open,
   onClose,
   onCreated,
+  csrfToken,
 }: {
   open: boolean;
   onClose: () => void;
   onCreated: (t: CampaignTemplate) => void;
+  csrfToken: string;
 }) {
   const [name, setName] = useState("");
   const [channel, setChannel] = useState<CampaignChannel>("whatsapp");
   const [body, setBody] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!open) return null;
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || !body.trim()) {
       setFormError("Nome e corpo da mensagem sao obrigatorios.");
       return;
     }
-    // TODO: call real API
-    const newTemplate: CampaignTemplate = {
-      id: Date.now(),
-      clinic_id: 1,
-      name: name.trim(),
-      template_body: body.trim(),
-      channel,
-      description: null,
-      status: "draft",
-      created_by: 1,
-      created_at: new Date().toISOString(),
-    };
-    onCreated(newTemplate);
-    onClose();
-    setName("");
-    setBody("");
     setFormError(null);
+    setSubmitting(true);
+    try {
+      const res = await createCampaignTemplate(csrfToken, {
+        name: name.trim(),
+        template_body: body.trim(),
+        channel,
+      });
+      const created = res.data as unknown as CampaignTemplate;
+      onCreated(created);
+      onClose();
+      setName("");
+      setBody("");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao criar modelo.";
+      setFormError(msg);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -287,8 +187,8 @@ function NewTemplateModal({
             <Button variant="ghost" type="button" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit" icon="add_circle">
-              Criar Modelo
+            <Button type="submit" icon="add_circle" disabled={submitting}>
+              {submitting ? "Criando..." : "Criar Modelo"}
             </Button>
           </div>
         </form>
@@ -302,16 +202,42 @@ export default function CampanhasPage() {
   const router = useRouter();
   const session = useApiSession();
   const [activeTab, setActiveTab] = useState<"templates" | "executions">("templates");
-  const [templates, setTemplates] = useState(MOCK_TEMPLATES);
+  const [templates, setTemplates] = useState<CampaignTemplate[]>([]);
+  const [executions, setExecutions] = useState<CampaignExecution[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+
+  const csrfToken = session.data?.csrf_token ?? "";
+
+  const fetchData = useCallback(async () => {
+    setDataLoading(true);
+    try {
+      const [tplRaw, execRaw] = await Promise.all([
+        listCampaignTemplates(),
+        listCampaignExecutions(),
+      ]);
+      setTemplates((tplRaw ?? []) as unknown as CampaignTemplate[]);
+      setExecutions((execRaw ?? []).map(mapExecution));
+    } catch {
+      // silently degrade -- empty lists shown
+    } finally {
+      setDataLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!session.loading) {
+      fetchData();
+    }
+  }, [session.loading, fetchData]);
 
   /* stats */
   const activeTemplates = templates.filter((t) => t.status === "active").length;
-  const totalSent = MOCK_EXECUTIONS.filter((e) => e.status === "completed").length;
-  const totalReengaged = MOCK_EXECUTIONS.reduce((acc, e) => acc + e.sent_count, 0);
+  const totalSent = executions.filter((e) => e.status === "completed").length;
+  const totalReengaged = executions.reduce((acc, e) => acc + e.sent_count, 0);
   const avgOpenRate = 68.4;
 
-  if (session.loading) {
+  if (session.loading || dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -321,6 +247,24 @@ export default function CampanhasPage() {
 
   function getTemplateName(templateId: number) {
     return templates.find((t) => t.id === templateId)?.name ?? `Template #${templateId}`;
+  }
+
+  async function handleActivate(id: number) {
+    try {
+      await activateCampaignTemplate(id, csrfToken);
+      await fetchData();
+    } catch {
+      // TODO: toast error
+    }
+  }
+
+  async function handleSend(templateId: number) {
+    try {
+      await sendCampaign(templateId, csrfToken);
+      await fetchData();
+    } catch {
+      // TODO: toast error
+    }
   }
 
   return (
@@ -394,8 +338,15 @@ export default function CampanhasPage() {
       {/* tab content: templates */}
       {activeTab === "templates" && (
         <div className="space-y-4">
+          {templates.length === 0 && (
+            <Card padding="sm" className="text-center text-stone-400 py-12">
+              <MaterialIcon icon="description" className="text-stone-600 mb-2" />
+              <p className="text-sm">Nenhum modelo de campanha encontrado.</p>
+              <p className="text-xs text-stone-500 mt-1">Crie o primeiro modelo clicando em &quot;Novo Modelo&quot;.</p>
+            </Card>
+          )}
           {templates.map((tpl) => {
-            const ch = channelConfig[tpl.channel];
+            const ch = channelConfig[tpl.channel] ?? channelConfig.whatsapp;
             const st = templateStatusConfig[tpl.status];
             return (
               <Card
@@ -449,12 +400,12 @@ export default function CampanhasPage() {
                     <MaterialIcon icon="edit" size="sm" />
                   </button>
                   {tpl.status === "active" && (
-                    <Button size="sm" variant="secondary" icon="send">
+                    <Button size="sm" variant="secondary" icon="send" onClick={() => handleSend(tpl.id)}>
                       Enviar
                     </Button>
                   )}
                   {tpl.status === "draft" && (
-                    <Button size="sm" variant="secondary" icon="check_circle">
+                    <Button size="sm" variant="secondary" icon="check_circle" onClick={() => handleActivate(tpl.id)}>
                       Ativar
                     </Button>
                   )}
@@ -471,143 +422,154 @@ export default function CampanhasPage() {
       {/* tab content: executions */}
       {activeTab === "executions" && (
         <div className="space-y-4">
-          {/* table for desktop */}
-          <Card padding="sm" className="hidden md:block overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-white/5">
-                    <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                      Campanha
-                    </th>
-                    <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                      Status
-                    </th>
-                    <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                      Enviados / Total
-                    </th>
-                    <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                      Progresso
-                    </th>
-                    <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                      Falhas
-                    </th>
-                    <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                      Data
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {MOCK_EXECUTIONS.map((exec) => {
-                    const st = executionStatusConfig[exec.status];
-                    const pct =
-                      exec.total_patients > 0
-                        ? Math.round(
-                            (exec.sent_count / exec.total_patients) * 100,
-                          )
-                        : 0;
-                    const progressVariant =
-                      exec.status === "failed"
-                        ? "danger"
-                        : exec.status === "completed"
-                          ? "success"
-                          : "primary";
-                    return (
-                      <tr
-                        key={exec.id}
-                        className="hover:bg-white/5 transition-colors"
-                      >
-                        <td className="px-5 py-4">
-                          <p className="font-bold text-sm text-stone-200 font-headline">
-                            {getTemplateName(exec.template_id)}
-                          </p>
-                        </td>
-                        <td className="px-5 py-4">
+          {executions.length === 0 && (
+            <Card padding="sm" className="text-center text-stone-400 py-12">
+              <MaterialIcon icon="send" className="text-stone-600 mb-2" />
+              <p className="text-sm">Nenhum envio realizado ainda.</p>
+            </Card>
+          )}
+
+          {executions.length > 0 && (
+            <>
+              {/* table for desktop */}
+              <Card padding="sm" className="hidden md:block overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-white/5">
+                        <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Campanha
+                        </th>
+                        <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Status
+                        </th>
+                        <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Enviados / Total
+                        </th>
+                        <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Progresso
+                        </th>
+                        <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Falhas
+                        </th>
+                        <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Data
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {executions.map((exec) => {
+                        const st = executionStatusConfig[exec.status];
+                        const pct =
+                          exec.total_patients > 0
+                            ? Math.round(
+                                (exec.sent_count / exec.total_patients) * 100,
+                              )
+                            : 0;
+                        const progressVariant =
+                          exec.status === "failed"
+                            ? "danger"
+                            : exec.status === "completed"
+                              ? "success"
+                              : "primary";
+                        return (
+                          <tr
+                            key={exec.id}
+                            className="hover:bg-white/5 transition-colors"
+                          >
+                            <td className="px-5 py-4">
+                              <p className="font-bold text-sm text-stone-200 font-headline">
+                                {getTemplateName(exec.template_id)}
+                              </p>
+                            </td>
+                            <td className="px-5 py-4">
+                              <Badge tone={st.tone} pulse={exec.status === "in_progress"}>
+                                {st.label}
+                              </Badge>
+                            </td>
+                            <td className="px-5 py-4 text-sm text-stone-300">
+                              {exec.sent_count.toLocaleString("pt-BR")} /{" "}
+                              {exec.total_patients.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-5 py-4 w-40">
+                              <ProgressBar
+                                value={pct}
+                                variant={progressVariant}
+                                size="sm"
+                              />
+                            </td>
+                            <td className="px-5 py-4 text-sm">
+                              {exec.failed_count > 0 ? (
+                                <span className="text-error font-bold">
+                                  {exec.failed_count}
+                                </span>
+                              ) : (
+                                <span className="text-stone-500">0</span>
+                              )}
+                            </td>
+                            <td className="px-5 py-4 text-xs text-stone-400">
+                              {fmtDate(exec.started_at)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+
+              {/* cards for mobile */}
+              <div className="md:hidden space-y-3">
+                {executions.map((exec) => {
+                  const st = executionStatusConfig[exec.status];
+                  const pct =
+                    exec.total_patients > 0
+                      ? Math.round(
+                          (exec.sent_count / exec.total_patients) * 100,
+                        )
+                      : 0;
+                  const progressVariant =
+                    exec.status === "failed"
+                      ? "danger"
+                      : exec.status === "completed"
+                        ? "success"
+                        : "primary";
+                  return (
+                    <Card key={exec.id} padding="sm">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
                           <Badge tone={st.tone} pulse={exec.status === "in_progress"}>
                             {st.label}
                           </Badge>
-                        </td>
-                        <td className="px-5 py-4 text-sm text-stone-300">
-                          {exec.sent_count.toLocaleString("pt-BR")} /{" "}
-                          {exec.total_patients.toLocaleString("pt-BR")}
-                        </td>
-                        <td className="px-5 py-4 w-40">
-                          <ProgressBar
-                            value={pct}
-                            variant={progressVariant}
-                            size="sm"
-                          />
-                        </td>
-                        <td className="px-5 py-4 text-sm">
-                          {exec.failed_count > 0 ? (
-                            <span className="text-error font-bold">
-                              {exec.failed_count}
-                            </span>
-                          ) : (
-                            <span className="text-stone-500">0</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-4 text-xs text-stone-400">
+                          <h4 className="font-bold text-sm text-white font-headline mt-1">
+                            {getTemplateName(exec.template_id)}
+                          </h4>
+                        </div>
+                        <span className="text-xs text-stone-400">
                           {fmtDate(exec.started_at)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          {/* cards for mobile */}
-          <div className="md:hidden space-y-3">
-            {MOCK_EXECUTIONS.map((exec) => {
-              const st = executionStatusConfig[exec.status];
-              const pct =
-                exec.total_patients > 0
-                  ? Math.round(
-                      (exec.sent_count / exec.total_patients) * 100,
-                    )
-                  : 0;
-              const progressVariant =
-                exec.status === "failed"
-                  ? "danger"
-                  : exec.status === "completed"
-                    ? "success"
-                    : "primary";
-              return (
-                <Card key={exec.id} padding="sm">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <Badge tone={st.tone} pulse={exec.status === "in_progress"}>
-                        {st.label}
-                      </Badge>
-                      <h4 className="font-bold text-sm text-white font-headline mt-1">
-                        {getTemplateName(exec.template_id)}
-                      </h4>
-                    </div>
-                    <span className="text-xs text-stone-400">
-                      {fmtDate(exec.started_at)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-stone-500">
-                      {exec.sent_count}/{exec.total_patients} enviados
-                    </span>
-                    {exec.failed_count > 0 && (
-                      <span className="text-xs text-error font-bold">
-                        {exec.failed_count} falhas
-                      </span>
-                    )}
-                  </div>
-                  <ProgressBar
-                    value={pct}
-                    variant={progressVariant}
-                    size="sm"
-                  />
-                </Card>
-              );
-            })}
-          </div>
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-stone-500">
+                          {exec.sent_count}/{exec.total_patients} enviados
+                        </span>
+                        {exec.failed_count > 0 && (
+                          <span className="text-xs text-error font-bold">
+                            {exec.failed_count} falhas
+                          </span>
+                        )}
+                      </div>
+                      <ProgressBar
+                        value={pct}
+                        variant={progressVariant}
+                        size="sm"
+                      />
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -721,7 +683,10 @@ export default function CampanhasPage() {
       <NewTemplateModal
         open={showModal}
         onClose={() => setShowModal(false)}
-        onCreated={(t) => setTemplates((prev) => [t, ...prev])}
+        onCreated={(t) => {
+          setTemplates((prev) => [t, ...prev]);
+        }}
+        csrfToken={csrfToken}
       />
     </div>
   );

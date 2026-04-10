@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
+import { listAdminUsers, createAdminUser } from "@/lib/api";
 import {
   Card,
   Badge,
@@ -20,10 +21,10 @@ import {
 /*  TYPES                                                              */
 /* ================================================================== */
 
-type UserRole = "admin" | "medico" | "atendente";
+type UserRole = "admin" | "medico" | "atendente" | "paciente";
 type UserStatus = "ativo" | "inativo" | "pendente";
 
-interface MockUser {
+interface AdminUser {
   id: number;
   name: string;
   email: string;
@@ -35,108 +36,35 @@ interface MockUser {
 }
 
 /* ================================================================== */
-/*  MOCK DATA                                                          */
+/*  BACKEND -> UI MAPPING                                              */
 /* ================================================================== */
 
-const MOCK_USERS: MockUser[] = [
-  {
-    id: 1,
-    name: "Dr. Ricardo Silveira",
-    email: "ricardo.s@cannabia.com",
-    role: "medico",
-    tenant: "Clinica Verde Vida",
-    status: "ativo",
-    last_login: "2026-04-07T12:30:00Z",
-  },
-  {
-    id: 2,
-    name: "Ana Paula Mendes",
-    email: "ana.m@cannabia.com",
-    role: "atendente",
-    tenant: "Clinica Verde Vida",
-    status: "ativo",
-    last_login: "2026-04-06T09:15:00Z",
-  },
-  {
-    id: 3,
-    name: "Marcos Oliveira",
-    email: "marcos.o@cannabia.com",
-    role: "admin",
-    tenant: "Instituto Cannabico SP",
-    status: "ativo",
-    last_login: "2026-04-07T14:02:00Z",
-  },
-  {
-    id: 4,
-    name: "Clara Duarte",
-    email: "clara.d@cannabia.com",
-    role: "medico",
-    tenant: "Instituto Cannabico SP",
-    status: "inativo",
-    last_login: "2026-01-15T08:00:00Z",
-  },
-  {
-    id: 5,
-    name: "Fernando Costa",
-    email: "fernando.c@cannabia.com",
-    role: "medico",
-    tenant: "Dr. Marcos Oliveira",
-    status: "ativo",
-    last_login: "2026-04-05T16:45:00Z",
-  },
-  {
-    id: 6,
-    name: "Juliana Reis",
-    email: "juliana.r@cannabia.com",
-    role: "atendente",
-    tenant: "Rede Cura Natural",
-    status: "pendente",
-    last_login: null,
-  },
-  {
-    id: 7,
-    name: "Bruno Almeida",
-    email: "bruno.a@cannabia.com",
-    role: "admin",
-    tenant: "Rede Cura Natural",
-    status: "ativo",
-    last_login: "2026-04-07T10:00:00Z",
-  },
-  {
-    id: 8,
-    name: "Patricia Lima",
-    email: "patricia.l@cannabia.com",
-    role: "medico",
-    tenant: "Clinica Verde Vida",
-    status: "pendente",
-    last_login: null,
-  },
-  {
-    id: 9,
-    name: "Rodrigo Santos",
-    email: "rodrigo.s@cannabia.com",
-    role: "atendente",
-    tenant: "Instituto Cannabico SP",
-    status: "ativo",
-    last_login: "2026-04-04T11:20:00Z",
-  },
-  {
-    id: 10,
-    name: "Camila Ferreira",
-    email: "camila.f@cannabia.com",
-    role: "medico",
-    tenant: "Dr. Marcos Oliveira",
-    status: "inativo",
-    last_login: "2025-12-20T14:30:00Z",
-  },
-];
+function normalizeRole(raw: string): UserRole {
+  const lower = raw.toLowerCase();
+  if (lower === "admin") return "admin";
+  if (lower === "medico") return "medico";
+  if (lower === "atendente") return "atendente";
+  if (lower === "paciente") return "paciente";
+  return "atendente"; // fallback
+}
 
-const TENANTS = [
-  "Clinica Verde Vida",
-  "Instituto Cannabico SP",
-  "Dr. Marcos Oliveira",
-  "Rede Cura Natural",
-];
+function mapBackendUser(raw: Record<string, unknown>): AdminUser {
+  const fullName = raw.full_name as string | null;
+  const username = raw.username as string | null;
+  const email = raw.email as string | null;
+  const isActive = raw.is_active as boolean;
+  const clinics = (raw.clinics as { clinic_id: number; clinic_name: string; clinic_role: string }[]) ?? [];
+
+  return {
+    id: raw.id as number,
+    name: fullName || username || "Sem nome",
+    email: email || "",
+    role: normalizeRole((raw.role as string) ?? ""),
+    tenant: clinics[0]?.clinic_name ?? "Sem organizacao",
+    status: isActive ? "ativo" : "inativo",
+    last_login: (raw.updated_at as string) ?? null,
+  };
+}
 
 /* ================================================================== */
 /*  PERMISSIONS MATRIX                                                 */
@@ -189,10 +117,19 @@ const ROLE_PERMISSIONS: Record<UserRole, Record<PermissionKey, boolean>> = {
     admin: false,
     auditoria_ia: false,
   },
+  paciente: {
+    dashboard: true,
+    atendimentos: false,
+    prescricoes: false,
+    prontuarios: false,
+    relatorios: false,
+    admin: false,
+    auditoria_ia: false,
+  },
 };
 
 /* ================================================================== */
-/*  RECENT ACTIVITY                                                    */
+/*  RECENT ACTIVITY (static placeholder - no audit trail API yet)      */
 /* ================================================================== */
 
 interface ActivityEvent {
@@ -256,12 +193,14 @@ const ROLE_LABEL: Record<UserRole, string> = {
   admin: "Admin",
   medico: "Medico",
   atendente: "Atendente",
+  paciente: "Paciente",
 };
 
-const ROLE_BADGE_TONE: Record<UserRole, "primary" | "success" | "info"> = {
+const ROLE_BADGE_TONE: Record<UserRole, "primary" | "success" | "info" | "neutral"> = {
   admin: "primary",
   medico: "success",
   atendente: "info",
+  paciente: "neutral",
 };
 
 const STATUS_LABEL: Record<UserStatus, string> = {
@@ -308,16 +247,49 @@ function formatActivityTime(iso: string): string {
 function InviteModal({
   open,
   onClose,
+  csrfToken,
+  onUserCreated,
 }: {
   open: boolean;
   onClose: () => void;
+  csrfToken: string;
+  onUserCreated: () => void;
 }) {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("medico");
-  const [tenant, setTenant] = useState(TENANTS[0]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!open) return null;
+
+  async function handleSubmit() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await createAdminUser(csrfToken, {
+        username: username.trim(),
+        full_name: fullName.trim() || null,
+        email: email.trim() || null,
+        password,
+        role: role.charAt(0).toUpperCase() + role.slice(1), // "medico" -> "Medico"
+      });
+      setUsername("");
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setRole("medico");
+      onUserCreated();
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao criar usuario.";
+      setError(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -336,15 +308,34 @@ function InviteModal({
           Envie um convite para um novo membro da equipe.
         </p>
 
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-error/10 text-error text-sm">
+            {error}
+          </div>
+        )}
+
         <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
+              Nome de usuario
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Ex: dr.maria"
+              className="w-full glass-panel rounded-xl px-4 py-3 text-on-surface placeholder:text-stone-600 focus:outline-none focus:border-primary-container transition-colors"
+            />
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
               Nome completo
             </label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               placeholder="Ex: Dr. Maria Silva"
               className="w-full glass-panel rounded-xl px-4 py-3 text-on-surface placeholder:text-stone-600 focus:outline-none focus:border-primary-container transition-colors"
             />
@@ -363,37 +354,33 @@ function InviteModal({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
-                Papel
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className="w-full glass-panel rounded-xl px-4 py-3 text-on-surface bg-transparent focus:outline-none focus:border-primary-container transition-colors cursor-pointer"
-              >
-                <option value="admin">Admin</option>
-                <option value="medico">Medico</option>
-                <option value="atendente">Atendente</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
-                Organizacao
-              </label>
-              <select
-                value={tenant}
-                onChange={(e) => setTenant(e.target.value)}
-                className="w-full glass-panel rounded-xl px-4 py-3 text-on-surface bg-transparent focus:outline-none focus:border-primary-container transition-colors cursor-pointer"
-              >
-                {TENANTS.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
+              Senha
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Senha do novo usuario"
+              className="w-full glass-panel rounded-xl px-4 py-3 text-on-surface placeholder:text-stone-600 focus:outline-none focus:border-primary-container transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
+              Papel
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value as UserRole)}
+              className="w-full glass-panel rounded-xl px-4 py-3 text-on-surface bg-transparent focus:outline-none focus:border-primary-container transition-colors cursor-pointer"
+            >
+              <option value="admin">Admin</option>
+              <option value="medico">Medico</option>
+              <option value="atendente">Atendente</option>
+              <option value="paciente">Paciente</option>
+            </select>
           </div>
         </div>
 
@@ -405,11 +392,10 @@ function InviteModal({
             variant="primary"
             size="sm"
             icon="send"
-            onClick={() => {
-              onClose();
-            }}
+            onClick={handleSubmit}
+            disabled={submitting || !username.trim() || !password}
           >
-            Enviar Convite
+            {submitting ? "Criando..." : "Enviar Convite"}
           </Button>
         </div>
       </Card>
@@ -422,15 +408,47 @@ function InviteModal({
 /* ================================================================== */
 
 export default function UsuariosPage() {
-  useApiSession();
+  const session = useApiSession();
+  const csrfToken = session.data?.csrf_token ?? "";
+
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"todos" | UserRole>("todos");
   const [tenantFilter, setTenantFilter] = useState<string>("todos");
   const [inviteOpen, setInviteOpen] = useState(false);
 
+  /* ── Fetch users from API ── */
+  const fetchUsers = useCallback(async () => {
+    setLoadingUsers(true);
+    setFetchError(null);
+    try {
+      const result = await listAdminUsers();
+      const mapped = (result.data ?? []).map(mapBackendUser);
+      setUsers(mapped);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao carregar usuarios.";
+      setFetchError(msg);
+    } finally {
+      setLoadingUsers(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  /* ── Derive unique tenants from real data ── */
+  const tenants = useMemo(() => {
+    const set = new Set(users.map((u) => u.tenant));
+    return Array.from(set).sort();
+  }, [users]);
+
   /* ── Filtering ── */
   const filtered = useMemo(() => {
-    return MOCK_USERS.filter((u) => {
+    return users.filter((u) => {
       const matchSearch =
         !search ||
         u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -439,17 +457,17 @@ export default function UsuariosPage() {
       const matchTenant = tenantFilter === "todos" || u.tenant === tenantFilter;
       return matchSearch && matchRole && matchTenant;
     });
-  }, [search, roleFilter, tenantFilter]);
+  }, [users, search, roleFilter, tenantFilter]);
 
   /* ── Stats ── */
   const stats = useMemo(
     () => ({
-      total: MOCK_USERS.length,
-      ativos: MOCK_USERS.filter((u) => u.status === "ativo").length,
-      inativos: MOCK_USERS.filter((u) => u.status === "inativo").length,
-      pendentes: MOCK_USERS.filter((u) => u.status === "pendente").length,
+      total: users.length,
+      ativos: users.filter((u) => u.status === "ativo").length,
+      inativos: users.filter((u) => u.status === "inativo").length,
+      pendentes: users.filter((u) => u.status === "pendente").length,
     }),
-    [],
+    [users],
   );
 
   /* ── Table columns ── */
@@ -460,7 +478,7 @@ export default function UsuariosPage() {
         label: "Usuario",
         sortable: true,
         render: (_val, row) => {
-          const user = row as unknown as MockUser;
+          const user = row as unknown as AdminUser;
           return (
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -482,7 +500,7 @@ export default function UsuariosPage() {
         label: "Papel",
         sortable: true,
         render: (_val, row) => {
-          const user = row as unknown as MockUser;
+          const user = row as unknown as AdminUser;
           return (
             <Badge tone={ROLE_BADGE_TONE[user.role]}>
               {ROLE_LABEL[user.role]}
@@ -505,7 +523,7 @@ export default function UsuariosPage() {
         label: "Status",
         sortable: true,
         render: (_val, row) => {
-          const user = row as unknown as MockUser;
+          const user = row as unknown as AdminUser;
           return (
             <div className="flex items-center gap-1.5">
               <span
@@ -530,7 +548,7 @@ export default function UsuariosPage() {
         label: "Ultimo Acesso",
         sortable: true,
         render: (_val, row) => {
-          const user = row as unknown as MockUser;
+          const user = row as unknown as AdminUser;
           return (
             <span className="text-sm text-stone-400">
               {formatRelativeDate(user.last_login)}
@@ -570,6 +588,7 @@ export default function UsuariosPage() {
     { value: "admin", label: "Admin" },
     { value: "medico", label: "Medico" },
     { value: "atendente", label: "Atendente" },
+    { value: "paciente", label: "Paciente" },
   ];
 
   return (
@@ -603,7 +622,7 @@ export default function UsuariosPage() {
           icon="check_circle"
           label="Ativos"
           value={stats.ativos}
-          delta={`${Math.round((stats.ativos / stats.total) * 100)}%`}
+          delta={stats.total > 0 ? `${Math.round((stats.ativos / stats.total) * 100)}%` : "0%"}
           deltaType="up"
         />
         <StatCard icon="person_off" label="Inativos" value={stats.inativos} />
@@ -652,7 +671,7 @@ export default function UsuariosPage() {
             className="bg-transparent border-none focus:ring-0 text-on-surface cursor-pointer font-medium text-sm"
           >
             <option value="todos">Todas as Organizacoes</option>
-            {TENANTS.map((t) => (
+            {tenants.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
@@ -668,15 +687,35 @@ export default function UsuariosPage() {
           <div className="glass-panel rounded-2xl overflow-hidden">
             <div className="p-4 border-b border-white/5 bg-white/5 flex items-center justify-between">
               <span className="text-sm text-stone-500">
-                Mostrando {filtered.length} de {MOCK_USERS.length} usuarios
+                {loadingUsers
+                  ? "Carregando usuarios..."
+                  : `Mostrando ${filtered.length} de ${users.length} usuarios`}
               </span>
             </div>
-            <DataTable
-              columns={columns}
-              data={tableData}
-              emptyMessage="Nenhum usuario encontrado."
-              className="rounded-none border-none"
-            />
+
+            {loadingUsers ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-stone-500">Carregando usuarios...</p>
+                </div>
+              </div>
+            ) : fetchError ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <MaterialIcon icon="error" size="lg" className="text-error" />
+                <p className="text-sm text-error">{fetchError}</p>
+                <Button variant="ghost" size="sm" icon="refresh" onClick={fetchUsers}>
+                  Tentar novamente
+                </Button>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={tableData}
+                emptyMessage="Nenhum usuario encontrado."
+                className="rounded-none border-none"
+              />
+            )}
           </div>
         </section>
 
@@ -803,7 +842,12 @@ export default function UsuariosPage() {
       </div>
 
       {/* ── Invite Modal ── */}
-      <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      <InviteModal
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        csrfToken={csrfToken}
+        onUserCreated={fetchUsers}
+      />
     </div>
   );
 }

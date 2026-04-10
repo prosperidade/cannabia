@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
+import { getLabAnalysis } from "@/lib/api";
 import {
   Card,
   Badge,
@@ -11,100 +13,72 @@ import {
 
 /* ────────────────────────────────────────────
    AI Lab Analysis Report
-   TODO: replace all mock data with real API calls.
    ──────────────────────────────────────────── */
 
-// TODO: fetch from API
-const MOCK_PATIENT = {
-  name: "Elena Sterling",
-  id: "#CB-7721",
-  condition: "Neuralgia Cronica",
-  protocol: "CBD Full Spectrum 20:1",
-  batchId: "Lote #B-9902",
-};
+type Patient = { name: string; id: string; condition: string; protocol: string; batchId: string };
+type Cannabinoid = { name: string; value: number; pct: number; color: "primary" };
+type Terpene = { name: string; value: string; pct: number };
+type Interaction = { drug: string; severity: "danger" | "warning" | "info" | "neutral"; description: string; mechanism: string };
+type Formulation = Record<string, string>;
+type Reference = { title: string; source: string; doi: string };
+type EffectItem = { icon: string; label: string; desc: string };
 
-// TODO: fetch from API
-const MOCK_CANNABINOIDS = [
-  { name: "CBD", value: 18.2, pct: 65, color: "primary" as const },
-  { name: "THC", value: 9.1, pct: 35, color: "primary" as const },
-  { name: "CBN", value: 0.8, pct: 8, color: "primary" as const },
-  { name: "CBG", value: 1.1, pct: 12, color: "primary" as const },
-];
-
-// TODO: fetch from API
-const MOCK_TERPENES = [
-  { name: "Myrcene", value: "3.2 mg/g", pct: 78 },
-  { name: "Limonene", value: "1.8 mg/g", pct: 55 },
-  { name: "Linalool", value: "0.9 mg/g", pct: 32 },
-  { name: "Caryophyllene", value: "0.6 mg/g", pct: 22 },
-];
-
-// TODO: fetch from API
-const MOCK_INTERACTIONS = [
-  {
-    drug: "Warfarina",
-    severity: "danger" as const,
-    description: "CBD pode inibir CYP2C9, aumentando niveis sericos de warfarina. Monitorar INR.",
-    mechanism: "Inibicao enzimatica CYP2C9",
-  },
-  {
-    drug: "Clobazam",
-    severity: "warning" as const,
-    description: "CBD aumenta niveis de N-desmetilclobazam. Ajustar dose se necessario.",
-    mechanism: "Inibicao CYP2C19",
-  },
-  {
-    drug: "Omeprazol",
-    severity: "info" as const,
-    description: "Interacao menor - pode alterar absorcao. Sem ajuste de dose requerido.",
-    mechanism: "Competicao de absorcao GI",
-  },
-  {
-    drug: "Metformina",
-    severity: "neutral" as const,
-    description: "Sem interacao clinicamente significativa identificada nos modelos preditivos.",
-    mechanism: "N/A",
-  },
-];
-
-// TODO: fetch from API
-const MOCK_FORMULATION = {
-  product: "Oleo CBD Full Spectrum 3000",
-  ratio: "CBD:THC 20:1",
-  concentration: "100mg/ml",
-  volume: "30ml",
-  dosage: "0.5ml sublingual 3x/dia",
-  terpeneProfile: "Predominante Myrcene (analgesico/sedativo)",
-};
-
-// TODO: fetch from API
-const MOCK_REFERENCES = [
-  {
-    title: "Cannabidiol (CBD) as an adjunctive therapy in schizophrenia",
-    source: "PubMed - Am J Psychiatry, 2018",
-    doi: "10.1176/appi.ajp.2017.17030325",
-  },
-  {
-    title: "A systematic review of cannabidiol dosing in clinical populations",
-    source: "British J of Clinical Pharmacology, 2020",
-    doi: "10.1111/bcp.14038",
-  },
-  {
-    title: "Cannabis-based medicines and the endocannabinoid system",
-    source: "Cochrane Database, 2019",
-    doi: "10.1002/14651858.CD012182",
-  },
-];
-
-const MOCK_CONFIDENCE = 94;
-
-const MOCK_EFFECTS = [
-  { icon: "health_and_safety", label: "Alivio de Dor", desc: "Eficacia analgesica sistemica" },
-  { icon: "bedtime", label: "Inducao de Sono", desc: "Reducao do tempo para adormecer" },
-  { icon: "health_metrics", label: "Anti-inflamatorio", desc: "Resposta inflamatoria controlada" },
-];
+const FALLBACK_PATIENT: Patient = { name: "—", id: "—", condition: "—", protocol: "—", batchId: "—" };
+const FALLBACK_CANNABINOIDS: Cannabinoid[] = [];
+const FALLBACK_TERPENES: Terpene[] = [];
+const FALLBACK_INTERACTIONS: Interaction[] = [];
+const FALLBACK_FORMULATION: Formulation = {};
+const FALLBACK_REFERENCES: Reference[] = [];
+const FALLBACK_CONFIDENCE = 0;
+const FALLBACK_EFFECTS: EffectItem[] = [];
 
 export default function LabAiPage() {
+  const [loading, setLoading] = useState(true);
+  const [patient, setPatient] = useState<Patient>(FALLBACK_PATIENT);
+  const [cannabinoids, setCannabinoids] = useState<Cannabinoid[]>(FALLBACK_CANNABINOIDS);
+  const [terpenes, setTerpenes] = useState<Terpene[]>(FALLBACK_TERPENES);
+  const [interactions, setInteractions] = useState<Interaction[]>(FALLBACK_INTERACTIONS);
+  const [formulation, setFormulation] = useState<Formulation>(FALLBACK_FORMULATION);
+  const [references, setReferences] = useState<Reference[]>(FALLBACK_REFERENCES);
+  const [confidence, setConfidence] = useState(FALLBACK_CONFIDENCE);
+  const [effects, setEffects] = useState<EffectItem[]>(FALLBACK_EFFECTS);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getLabAnalysis();
+      const d = res.data as Record<string, unknown>;
+
+      if (d.patient) setPatient(d.patient as Patient);
+      if (Array.isArray(d.cannabinoids)) setCannabinoids(d.cannabinoids as Cannabinoid[]);
+      if (Array.isArray(d.terpenes)) setTerpenes(d.terpenes as Terpene[]);
+      if (Array.isArray(d.interactions)) setInteractions(d.interactions as Interaction[]);
+      if (d.formulation) setFormulation(d.formulation as Formulation);
+      if (Array.isArray(d.references)) setReferences(d.references as Reference[]);
+      if (typeof d.confidence === "number") setConfidence(d.confidence);
+      if (Array.isArray(d.effects)) setEffects(d.effects as EffectItem[]);
+    } catch {
+      // keep fallback data
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  if (loading) {
+    return (
+      <section className="p-4 md:p-8 flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <MaterialIcon icon="hourglass_empty" size="xl" className="text-primary animate-spin" />
+          <p className="text-stone-400 text-sm">Carregando analise laboratorial...</p>
+        </div>
+      </section>
+    );
+  }
+
+  const totalCannabinoids = cannabinoids.reduce((acc, c) => acc + c.value, 0).toFixed(1);
+
   return (
     <section className="p-4 md:p-8 space-y-8 overflow-y-auto pb-28 md:pb-8">
       {/* ── Page Header ── */}
@@ -119,7 +93,7 @@ export default function LabAiPage() {
             Relatorio de Analise Laboratorial IA
           </h2>
           <p className="text-stone-500 font-medium text-sm">
-            {MOCK_PATIENT.batchId} - Analise molecular e compatibilidade
+            {patient.batchId} - Analise molecular e compatibilidade
           </p>
         </div>
         <div className="flex gap-2">
@@ -142,14 +116,14 @@ export default function LabAiPage() {
               <MaterialIcon icon="person" className="text-primary" size="lg" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-on-surface">{MOCK_PATIENT.name}</h3>
+              <h3 className="text-lg font-bold text-on-surface">{patient.name}</h3>
               <p className="text-xs text-stone-500">
-                {MOCK_PATIENT.id} - {MOCK_PATIENT.condition}
+                {patient.id} - {patient.condition}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge tone="primary">{MOCK_PATIENT.protocol}</Badge>
+            <Badge tone="primary">{patient.protocol}</Badge>
             <Badge tone="success">ATIVO</Badge>
           </div>
         </div>
@@ -188,10 +162,10 @@ export default function LabAiPage() {
                     <span className="text-[10px] uppercase tracking-widest text-stone-500">
                       Canabinoides (%)
                     </span>
-                    <span className="text-2xl font-black text-on-surface">28.4%</span>
+                    <span className="text-2xl font-black text-on-surface">{totalCannabinoids}%</span>
                   </div>
                   <div className="space-y-3">
-                    {MOCK_CANNABINOIDS.map((c) => (
+                    {cannabinoids.map((c) => (
                       <div key={c.name} className="space-y-1">
                         <div className="flex justify-between text-xs text-stone-300">
                           <span className="font-semibold">{c.name}</span>
@@ -209,7 +183,7 @@ export default function LabAiPage() {
                     Dominancia de Terpenos
                   </span>
                   <div className="grid grid-cols-2 gap-3">
-                    {MOCK_TERPENES.map((t) => (
+                    {terpenes.map((t) => (
                       <div
                         key={t.name}
                         className="p-4 rounded-xl bg-white/5 border border-white/5 text-center"
@@ -257,7 +231,7 @@ export default function LabAiPage() {
                   fill="transparent"
                   stroke="currentColor"
                   strokeDasharray={2 * Math.PI * 70}
-                  strokeDashoffset={2 * Math.PI * 70 * (1 - MOCK_CONFIDENCE / 100)}
+                  strokeDashoffset={2 * Math.PI * 70 * (1 - confidence / 100)}
                   strokeLinecap="round"
                   strokeWidth="8"
                   style={{
@@ -267,7 +241,7 @@ export default function LabAiPage() {
               </svg>
               <div className="absolute flex flex-col items-center">
                 <span className="text-4xl font-black text-on-surface tracking-tighter">
-                  {MOCK_CONFIDENCE}%
+                  {confidence}%
                 </span>
                 <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
                   Confianca
@@ -275,9 +249,9 @@ export default function LabAiPage() {
               </div>
             </div>
             <div>
-              <p className="text-sm font-semibold text-stone-200">{MOCK_PATIENT.name}</p>
+              <p className="text-sm font-semibold text-stone-200">{patient.name}</p>
               <p className="text-xs text-stone-500 mt-1 max-w-[200px]">
-                Proporcao otima de canabinoides para o protocolo de {MOCK_PATIENT.condition}.
+                Proporcao otima de canabinoides para o protocolo de {patient.condition}.
               </p>
             </div>
           </Card>
@@ -298,7 +272,7 @@ export default function LabAiPage() {
             </div>
           </div>
           <div className="space-y-3">
-            {MOCK_INTERACTIONS.map((interaction) => (
+            {interactions.map((interaction) => (
               <div
                 key={interaction.drug}
                 className={cn(
@@ -341,7 +315,7 @@ export default function LabAiPage() {
               </h3>
             </div>
             <div className="space-y-3">
-              {Object.entries(MOCK_FORMULATION).map(([key, val]) => (
+              {Object.entries(formulation).map(([key, val]) => (
                 <div key={key} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <span className="text-xs text-stone-500 uppercase tracking-wider">
                     {key === "product"
@@ -370,7 +344,7 @@ export default function LabAiPage() {
               Efeitos Esperados
             </h4>
             <div className="space-y-3">
-              {MOCK_EFFECTS.map((e) => (
+              {effects.map((e) => (
                 <div
                   key={e.label}
                   className="flex items-center gap-4 p-3 rounded-xl bg-surface-container-low border border-outline-variant/30"
@@ -403,7 +377,7 @@ export default function LabAiPage() {
           </div>
         </div>
         <div className="space-y-3">
-          {MOCK_REFERENCES.map((ref, i) => (
+          {references.map((ref, i) => (
             <div
               key={ref.doi}
               className="p-4 rounded-xl bg-surface-container/50 border border-white/5 hover:border-primary/20 transition-all cursor-pointer flex items-start gap-4"

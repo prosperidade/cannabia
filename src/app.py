@@ -59,6 +59,14 @@ from src.web.routes.prescriptions import prescriptions_bp
 from src.web.routes.patient_portal import patient_portal_bp
 from src.web.routes.returns import returns_bp
 from src.web.routes.org_management import org_management_bp
+from src.web.routes.admin_users import admin_users_bp
+from src.web.routes.clinic_config import clinic_config_bp
+from src.web.routes.reports import reports_bp
+from src.web.routes.compliance import compliance_bp
+from src.web.routes.clinical_intelligence import clinical_intel_bp
+from src.web.routes.regulatory import regulatory_bp
+from src.web.routes.knowledge import knowledge_bp
+from src.web.routes.admin_agents import admin_agents_bp
 
 from src.ai.service import CannabIAService
 from src.repositories.user_repository import (
@@ -181,6 +189,14 @@ def create_app() -> Flask:
     app.register_blueprint(patient_portal_bp)
     app.register_blueprint(returns_bp)
     app.register_blueprint(org_management_bp)
+    app.register_blueprint(admin_users_bp)
+    app.register_blueprint(clinic_config_bp)
+    app.register_blueprint(reports_bp)
+    app.register_blueprint(compliance_bp)
+    app.register_blueprint(clinical_intel_bp)
+    app.register_blueprint(regulatory_bp)
+    app.register_blueprint(knowledge_bp)
+    app.register_blueprint(admin_agents_bp)
 
     # ==============================
     # CSRF HELPERS

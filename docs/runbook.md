@@ -563,7 +563,7 @@ curl http://localhost:5000/api/v1/chat/metrics -H "Cookie: session=<cookie>"
 | Sessões não expirando | Cleanup lazy a cada `CHAT_CLEANUP_INTERVAL_S` | Aguardar próximo ciclo ou restart |
 | `error: "Sessão inválida."` no WS | Socket operando em sessão de outro sid | Reconectar e re-emitir `join_session` |
 
-### Setup Local Completo (Novo — 2026-04-07)
+### Setup Local Completo (Atualizado — 2026-04-09)
 
 **Script**: `scripts/setup_local.py`
 
@@ -577,9 +577,9 @@ python scripts/setup_local.py
 ```
 
 **O que faz**:
-1. Roda todas as migrations (000-013) via `src/infra/run_migrations.py`
+1. Roda todas as migrations (000-015) via `src/infra/run_migrations.py`
 2. Cria usuarios base via `scripts/seed_users.py` (admin, medico, atendente, paciente)
-3. Popula dados demo via `scripts/seed_comprehensive.py` (~200 registros)
+3. Popula dados demo via `scripts/seed_comprehensive.py` (~200 registros em 39 tabelas)
 
 **Usuarios de teste**:
 
@@ -672,6 +672,91 @@ cd frontend && npm run dev
 | POST | `/org/stock/dispensation` | Dispensacao |
 | GET | `/org/billing` | Faturamento |
 | GET | `/org/financial` | Financeiro |
+
+---
+
+### Novos Endpoints Backend (2026-04-09)
+
+**`src/web/routes/admin_users.py`** — Blueprint `/api/v1/admin/users`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/admin/users/` | Lista usuarios com clinicas (search, role filter) |
+| POST | `/admin/users/` | Criar usuario com bcrypt + vinculo clinica |
+| PATCH | `/admin/users/<id>` | Atualizar role, is_active, full_name, email |
+
+**`src/web/routes/clinic_config.py`** — Blueprint `/api/v1/org`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/org/config` | Dados da clinica + branding |
+| PATCH | `/org/config` | Atualizar nome da clinica |
+
+**`src/web/routes/reports.py`** — Blueprint `/api/v1/org`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/org/reports?period=6m` | BI agregado (attendance, financial, patients, AI por mes) |
+
+**`src/web/routes/compliance.py`** — Blueprint `/api/v1/org`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/org/compliance` | Checklist ANVISA dinamico (5 checks com score) |
+
+**`src/web/routes/clinical_intelligence.py`** — Blueprint `/api/v1/clinical`:
+
+| Método | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/clinical/intelligence` | Dashboard IA (stats, modelos, execucoes, condicoes) |
+| GET | `/clinical/botanical` | Padroes de prescricao, ratios CBD/THC, evidencias |
+| GET | `/clinical/lab?patient_id=N` | Analise laboratorial por paciente |
+| GET | `/clinical/trials` | Outcomes de tratamento agregados |
+
+### Migrations (Atualizado — 2026-04-09)
+
+**Sequencia completa (16 arquivos)**:
+```
+000_migration_tracking.sql      — tabela schema_migrations
+001_initial_schema.sql          — clinics, users, patients, appointments, messages
+002_whatsapp_sessions.sql       — sessoes WhatsApp
+003_anamnesis_reports.sql        — relatorios de anamnese
+004_tenants_foundation.sql       — multi-tenancy
+005_patient_timeline_foundation.sql — timeline de eventos
+006_medical_records_foundation.sql — prontuarios
+007_add_foreign_keys.sql         — 23 FKs
+008_audit_trail.sql              — trilha de auditoria
+009_knowledge_versions.sql       — versionamento de prompts
+010_billing_foundation.sql       — planos e assinaturas
+011_campaign_templates.sql       — campanhas
+012_prescriptions_orders.sql     — prescricoes e pedidos B2B
+013_telemetry_timeseries.sql     — followups e IoT
+014_missing_tables_and_columns.sql — symptom_diary, stock, billing clinico
+015_users_enhancement.sql        — email, full_name, updated_at em users
+```
+
+### Arquitetura de Agentes IA (Planejado — 2026-04-09)
+
+**Status atual**: Pipeline monolitico de 3 estagios em `src/ai/pipeline.py`
+**Alvo**: Arquitetura de agentes com BaseAgent, inspirada no Amigao do Meio Ambiente
+
+**Agentes planejados**:
+
+| Agente | Room MemPalace | Skills |
+|--------|---------------|--------|
+| AgenteTriagem | pipeline_anamnese | extract_conditions, detect_red_flags, select_widget |
+| AgenteAnamnese | pipeline_anamnese | analyze_symptoms, assess_risk, recommend_exams |
+| AgentePrescritor | pipeline_prescricao | calculate_dosage, check_interactions, generate_titration |
+| AgenteCientifico | pipeline_cientifico | search_pubmed, cite_evidence, summarize_study |
+| AgenteRegulatorio | regulatorio_anvisa | check_anvisa, verify_prescription, check_cfm |
+| AgenteFollowUp | crm_telemetria | schedule_return, analyze_diary, adjust_dosage |
+
+**Componentes de suporte**:
+- `src/ai/agents/base.py` — BaseAgent com palace_room, recall_memory(), remember()
+- `src/ai/agents/orchestrator.py` — Chain manager com logging
+- `src/ai/memory.py` — Helper MemPalace fire-and-forget
+- `src/knowledge/google_files.py` — Google Files API para legislacao ANVISA/CFM
+- `mempalace.yaml` — Wing cannabia_clinical com 10 rooms
 
 ---
 

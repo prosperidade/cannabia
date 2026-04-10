@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
+import { getOrgCompliance } from "@/lib/api";
 import {
   Card,
   StatCard,
@@ -12,10 +13,8 @@ import {
 } from "@/components/ui-tw";
 
 /* ------------------------------------------------------------------ */
-/*  Mock data                                                          */
+/*  Types                                                               */
 /* ------------------------------------------------------------------ */
-
-const OVERALL_SCORE = 87;
 
 type CheckStatus = "conforme" | "pendente" | "vencido";
 
@@ -23,36 +22,8 @@ type CheckItem = {
   label: string;
   status: CheckStatus;
   detail: string;
+  category?: string;
 };
-
-const DOC_CHECKS: CheckItem[] = [
-  { label: "CNPJ Ativo", status: "conforme", detail: "Valido ate 2027" },
-  { label: "Alvara Sanitario", status: "conforme", detail: "Valido ate 12/2026" },
-  { label: "Cadastro CNES", status: "conforme", detail: "Atualizado em 03/2026" },
-  { label: "Licenca ANVISA (AFE)", status: "pendente", detail: "Renovacao ate 06/2026" },
-  { label: "CRF do Farmaceutico", status: "vencido", detail: "Venceu em 01/2026" },
-];
-
-const PRESC_CHECKS: CheckItem[] = [
-  { label: "Assinatura Digital ICP-Brasil", status: "conforme", detail: "98.5% das prescricoes" },
-  { label: "Formato ANVISA (SNGPC)", status: "conforme", detail: "100% conforme" },
-  { label: "Notificacao de Receita B", status: "pendente", detail: "3 pendentes de envio" },
-  { label: "Registro de Controle Especial", status: "conforme", detail: "Atualizado" },
-];
-
-const RASTREAB_CHECKS: CheckItem[] = [
-  { label: "Rastreamento de Lotes", status: "conforme", detail: "Cobertura 96.8%" },
-  { label: "Log de Dispensacao", status: "conforme", detail: "Taxa 99.2%" },
-  { label: "Controle de Validade", status: "pendente", detail: "12 lotes proximos do vencimento" },
-  { label: "Certificado de Analise (COA)", status: "conforme", detail: "Todos os lotes verificados" },
-];
-
-const DADOS_CHECKS: CheckItem[] = [
-  { label: "Conformidade LGPD", status: "conforme", detail: "DPO nomeado, politicas ativas" },
-  { label: "Criptografia de Dados", status: "conforme", detail: "AES-256 em repouso, TLS 1.3" },
-  { label: "Backup Automatico", status: "conforme", detail: "Ultimo: ha 2 horas" },
-  { label: "Termo de Consentimento", status: "pendente", detail: "4 pacientes sem assinatura" },
-];
 
 type AuditEvent = {
   date: string;
@@ -60,17 +31,6 @@ type AuditEvent = {
   status: "success" | "warning" | "error";
   detail: string;
 };
-
-const AUDIT_EVENTS: AuditEvent[] = [
-  { date: "07/04/2026 14:22", event: "Verificacao de lote CBD-BR-9921", status: "success", detail: "Lote aprovado no controle de qualidade" },
-  { date: "07/04/2026 11:05", event: "Upload SNGPC mensal", status: "success", detail: "Relatorio enviado com sucesso" },
-  { date: "06/04/2026 16:45", event: "Alerta de vencimento CRF", status: "error", detail: "Certificado do farmaceutico vencido" },
-  { date: "06/04/2026 09:12", event: "Renovacao de licenca", status: "warning", detail: "Licenca AFE proxima do vencimento" },
-  { date: "05/04/2026 18:30", event: "Backup automatico concluido", status: "success", detail: "Banco de dados replicado com sucesso" },
-  { date: "05/04/2026 10:00", event: "Auditoria interna trimestral", status: "success", detail: "Nenhuma nao-conformidade encontrada" },
-  { date: "04/04/2026 14:15", event: "Atualizacao politica LGPD", status: "success", detail: "Novos termos publicados" },
-  { date: "03/04/2026 09:45", event: "Evento adverso reportado", status: "warning", detail: "Tontura moderada - Paciente #P-882" },
-];
 
 const STATUS_BADGE: Record<CheckStatus, { tone: "primary" | "warning" | "danger"; label: string }> = {
   conforme: { tone: "primary", label: "Conforme" },
@@ -84,27 +44,70 @@ const EVENT_STATUS_MAP = {
   error: { tone: "danger" as const, icon: "error" },
 };
 
+const SECTION_META: Record<string, { title: string; icon: string }> = {
+  documentacao: { title: "Documentacao", icon: "description" },
+  prescricoes: { title: "Prescricoes", icon: "medication" },
+  rastreabilidade: { title: "Rastreabilidade", icon: "local_shipping" },
+  dados: { title: "Dados e LGPD", icon: "shield" },
+};
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export default function CompliancePage() {
   const [expandedSection, setExpandedSection] = useState<string | null>("documentacao");
+  const [loading, setLoading] = useState(true);
+
+  const [overallScore, setOverallScore] = useState(0);
+  const [checks, setChecks] = useState<CheckItem[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
 
   const toggleSection = (section: string) => {
     setExpandedSection((prev) => (prev === section ? null : section));
   };
 
-  const totalItems = DOC_CHECKS.length + PRESC_CHECKS.length + RASTREAB_CHECKS.length + DADOS_CHECKS.length;
-  const conformeItems = [...DOC_CHECKS, ...PRESC_CHECKS, ...RASTREAB_CHECKS, ...DADOS_CHECKS].filter(
-    (c) => c.status === "conforme",
-  ).length;
-  const pendenteItems = [...DOC_CHECKS, ...PRESC_CHECKS, ...RASTREAB_CHECKS, ...DADOS_CHECKS].filter(
-    (c) => c.status === "pendente",
-  ).length;
-  const vencidoItems = [...DOC_CHECKS, ...PRESC_CHECKS, ...RASTREAB_CHECKS, ...DADOS_CHECKS].filter(
-    (c) => c.status === "vencido",
-  ).length;
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getOrgCompliance();
+      const d = res.data as Record<string, unknown>;
+
+      if (typeof d.score === "number") setOverallScore(d.score);
+      if (Array.isArray(d.checks)) setChecks(d.checks as CheckItem[]);
+      if (Array.isArray(d.audit_events)) setAuditEvents(d.audit_events as AuditEvent[]);
+    } catch {
+      // keep defaults
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Group checks by category
+  const grouped = checks.reduce<Record<string, CheckItem[]>>((acc, item) => {
+    const cat = item.category ?? "documentacao";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(item);
+    return acc;
+  }, {});
+
+  const totalItems = checks.length;
+  const conformeItems = checks.filter((c) => c.status === "conforme").length;
+  const pendenteItems = checks.filter((c) => c.status === "pendente").length;
+  const vencidoItems = checks.filter((c) => c.status === "vencido").length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <MaterialIcon icon="hourglass_empty" size="xl" className="text-primary animate-spin" />
+          <p className="text-stone-400 text-sm">Carregando compliance...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -119,10 +122,10 @@ export default function CompliancePage() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <Button variant="secondary" icon="history" size="sm" onClick={() => alert("Arquivo de periodo (mock)")}>
+          <Button variant="secondary" icon="history" size="sm" onClick={() => alert("Arquivo de periodo")}>
             Arquivo Periodo
           </Button>
-          <Button variant="primary" icon="upload_file" size="sm" onClick={() => alert("Gerar Relatorio ANVISA (mock)")}>
+          <Button variant="primary" icon="upload_file" size="sm" onClick={() => alert("Gerar Relatorio ANVISA")}>
             Gerar Relatorio ANVISA
           </Button>
         </div>
@@ -140,8 +143,8 @@ export default function CompliancePage() {
             <p className="text-xs font-bold text-primary tracking-wider uppercase">Score Compliance</p>
             <MaterialIcon icon="verified" filled className="text-primary" />
           </div>
-          <h3 className="text-3xl font-headline font-extrabold text-on-surface">{OVERALL_SCORE}%</h3>
-          <ProgressBar value={OVERALL_SCORE} glow className="mt-3" />
+          <h3 className="text-3xl font-headline font-extrabold text-on-surface">{overallScore}%</h3>
+          <ProgressBar value={overallScore} glow className="mt-3" />
           <p className="text-[11px] text-stone-400 mt-2">
             {conformeItems}/{totalItems} itens conformes
           </p>
@@ -168,38 +171,20 @@ export default function CompliancePage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Checklist Sections */}
         <div className="xl:col-span-2 space-y-4">
-          <ChecklistSection
-            title="Documentacao"
-            icon="description"
-            sectionKey="documentacao"
-            items={DOC_CHECKS}
-            expanded={expandedSection === "documentacao"}
-            onToggle={toggleSection}
-          />
-          <ChecklistSection
-            title="Prescricoes"
-            icon="medication"
-            sectionKey="prescricoes"
-            items={PRESC_CHECKS}
-            expanded={expandedSection === "prescricoes"}
-            onToggle={toggleSection}
-          />
-          <ChecklistSection
-            title="Rastreabilidade"
-            icon="local_shipping"
-            sectionKey="rastreabilidade"
-            items={RASTREAB_CHECKS}
-            expanded={expandedSection === "rastreabilidade"}
-            onToggle={toggleSection}
-          />
-          <ChecklistSection
-            title="Dados e LGPD"
-            icon="shield"
-            sectionKey="dados"
-            items={DADOS_CHECKS}
-            expanded={expandedSection === "dados"}
-            onToggle={toggleSection}
-          />
+          {Object.entries(grouped).map(([sectionKey, items]) => {
+            const meta = SECTION_META[sectionKey] ?? { title: sectionKey, icon: "checklist" };
+            return (
+              <ChecklistSection
+                key={sectionKey}
+                title={meta.title}
+                icon={meta.icon}
+                sectionKey={sectionKey}
+                items={items}
+                expanded={expandedSection === sectionKey}
+                onToggle={toggleSection}
+              />
+            );
+          })}
         </div>
 
         {/* Audit Event Log */}
@@ -210,7 +195,7 @@ export default function CompliancePage() {
               Eventos de Auditoria
             </h4>
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-              {AUDIT_EVENTS.map((evt, idx) => {
+              {auditEvents.map((evt, idx) => {
                 const cfg = EVENT_STATUS_MAP[evt.status];
                 return (
                   <div

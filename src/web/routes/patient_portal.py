@@ -7,7 +7,6 @@ Prefix: /api/v1/patient
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from flask import Blueprint, g, jsonify, request
@@ -75,31 +74,47 @@ def patient_profile():
                 )
                 patient = cursor.fetchone()
                 if patient:
+                    # Also get treatment info
+                    cursor.execute(
+                        """
+                        SELECT status, dosage, cbd_thc_ratio, plan_name,
+                               CASE WHEN next_return_date IS NULL THEN 'manutencao'
+                                    WHEN next_return_date > NOW() THEN 'titulacao'
+                                    ELSE 'retorno_pendente'
+                               END AS treatment_phase
+                        FROM treatment_plans
+                        WHERE patient_id = %s AND clinic_id = %s
+                        ORDER BY created_at DESC LIMIT 1
+                        """,
+                        (patient_id, g.clinic_id),
+                    )
+                    plan = cursor.fetchone()
+
                     return _success({
                         "id": patient["id"],
                         "name": patient["name"],
                         "phone": patient.get("phone"),
                         "email": patient.get("email"),
                         "status": patient.get("status", "ativo"),
-                        "treatment_phase": "manutencao",
+                        "treatment_phase": plan["treatment_phase"] if plan else None,
                         "next_appointment": None,
-                        "treatment_progress_pct": 65,
-                        "current_dosage": "CBD 50mg / THC 5mg",
+                        "treatment_progress_pct": 65 if plan else 0,
+                        "current_dosage": plan["dosage"] if plan else None,
                     })
         except Exception:
             logger.warning("Error fetching patient profile from DB", exc_info=True)
 
-    # TODO: Replace with real DB query
+    # No patient linked to this user — return minimal profile
     return _success({
         "id": 0,
         "name": getattr(current_user, "username", "Paciente"),
         "phone": None,
         "email": None,
         "status": "ativo",
-        "treatment_phase": "titulacao",
-        "next_appointment": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
-        "treatment_progress_pct": 42,
-        "current_dosage": "CBD 25mg 2x/dia",
+        "treatment_phase": None,
+        "next_appointment": None,
+        "treatment_progress_pct": 0,
+        "current_dosage": None,
     })
 
 
@@ -145,30 +160,19 @@ def patient_treatment():
         except Exception:
             logger.warning("Error fetching treatment plan from DB", exc_info=True)
 
-    # TODO: Replace with real DB query
+    # No treatment plan found
     return _success({
         "id": 0,
-        "plan_name": "Protocolo Ansiedade - Fase de Titulacao",
-        "status": "ativo",
-        "cbd_thc_ratio": "20:1",
-        "dosage": "CBD 25mg / THC 1.25mg",
-        "frequency": "2x ao dia",
-        "route": "sublingual",
-        "schedule": [
-            {"period": "manha", "dose": "12.5mg CBD", "taken": True},
-            {"period": "noite", "dose": "12.5mg CBD", "taken": False},
-        ],
-        "precautions": [
-            "Evitar dirigir nas primeiras 2h apos administracao",
-            "Nao consumir alcool durante o tratamento",
-            "Manter o oleo em local fresco e escuro",
-        ],
-        "adjustment_history": [
-            {"date": "2026-03-01", "change": "Inicio: CBD 10mg/dia", "reason": "Dose inicial conservadora"},
-            {"date": "2026-03-15", "change": "Aumento: CBD 20mg/dia", "reason": "Boa tolerancia, resposta parcial"},
-            {"date": "2026-04-01", "change": "Aumento: CBD 25mg 2x/dia", "reason": "Melhora consistente do sono"},
-        ],
-        "bottle_remaining_pct": 45,
+        "plan_name": None,
+        "status": None,
+        "cbd_thc_ratio": None,
+        "dosage": None,
+        "frequency": None,
+        "route": None,
+        "schedule": [],
+        "precautions": [],
+        "adjustment_history": [],
+        "bottle_remaining_pct": 0,
     })
 
 
@@ -223,13 +227,8 @@ def patient_diary_create():
             conn.commit()
             return _success({"id": row["id"], "created_at": row["created_at"]}, status=201)
     except Exception:
-        logger.warning("symptom_diary table may not exist; returning mock", exc_info=True)
-
-    # TODO: Replace with real DB query
-    return _success({
-        "id": 0,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    }, status=201)
+        logger.error("Failed to insert diary entry", exc_info=True)
+        return _error("internal_error", "Falha ao salvar registro no diario.", 500)
 
 
 # ==================================================================
@@ -278,26 +277,8 @@ def patient_diary_list():
         except Exception:
             logger.warning("Error fetching diary entries from DB", exc_info=True)
 
-    # TODO: Replace with real DB query
-    now = datetime.now(timezone.utc)
-    mock_entries = []
-    for i in range(min(days, 14)):
-        d = now - timedelta(days=i)
-        mock_entries.append({
-            "id": i + 1,
-            "overall_score": 7 + (i % 3) - 1,
-            "pain_level": 4 - (i % 2),
-            "sleep_quality": 6 + (i % 3),
-            "mood": ["bom", "regular", "otimo"][i % 3],
-            "side_effects": [],
-            "notes": "",
-            "created_at": d.isoformat(),
-        })
-
-    return _success({
-        "entries": mock_entries,
-        "weekly_avg": {"overall": 7.2, "pain": 3.5, "sleep": 7.0},
-    })
+    # No patient linked or no entries
+    return _success({"entries": [], "weekly_avg": {"overall": 0, "pain": 0, "sleep": 0}})
 
 
 # ==================================================================
@@ -356,9 +337,9 @@ def patient_evolution():
         except Exception:
             logger.warning("Error fetching evolution metrics from DB", exc_info=True)
 
-    # TODO: Replace with real DB query
+    # No data available
     return _success({
-        "pain": {"current": 3.2, "previous": 5.1, "delta": -1.9},
-        "sleep": {"current": 7.5, "previous": 5.8, "delta": 1.7},
-        "mood": {"current": 7.8, "previous": 6.2, "delta": 1.6},
+        "pain": {"current": 0, "previous": 0, "delta": 0},
+        "sleep": {"current": 0, "previous": 0, "delta": 0},
+        "mood": {"current": 0, "previous": 0, "delta": 0},
     })

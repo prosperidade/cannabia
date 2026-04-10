@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
+import { getClinicConfig, updateClinicConfig } from "@/lib/api";
 import {
   Card,
   Badge,
@@ -42,26 +43,26 @@ type ClinicConfig = {
   notifyWhatsappBilling: boolean;
 };
 
-/* ── Mock Initial Data ─────────────────────────────────────────────── */
+/* ── Defaults ─────────────────────────────────────────────────────── */
 
-const initialConfig: ClinicConfig = {
-  name: "Cannab'IA Medical Center",
-  cnpj: "12.345.678/0001-99",
-  address: "Av. das Hortensias, 1500 - Edificio Greenhouse, Sala 402 - Sao Paulo, SP",
-  phone: "+55 (11) 4002-8922",
-  email: "contato@cannabia.med.br",
+const defaultConfig: ClinicConfig = {
+  name: "",
+  cnpj: "",
+  address: "",
+  phone: "",
+  email: "",
   weekdayOpen: "08:00",
   weekdayClose: "19:00",
   weekendOpen: "08:00",
   weekendClose: "12:00",
   sundayClosed: true,
-  consultationPrice: "450,00",
+  consultationPrice: "0",
   consultationDuration: "45",
   modalityPresencial: true,
   modalityOnline: true,
-  whatsappNumber: "+55 11 99999-8888",
-  apiKeyMeta: "EAAxxxxxxxxxxxxxxxxxxxxxxxx",
-  apiKeyOpenAI: "sk-xxxxxxxxxxxxxxxxxxxxxxxx",
+  whatsappNumber: "",
+  apiKeyMeta: "",
+  apiKeyOpenAI: "",
   primaryColor: "#A3C93A",
   accentColor: "#29522E",
   notifyEmailNewPatient: true,
@@ -84,8 +85,24 @@ const colorPresets = [
 
 export default function ConfigPage() {
   const { data: session } = useApiSession();
-  const [config, setConfig] = useState<ClinicConfig>(initialConfig);
+  const [config, setConfig] = useState<ClinicConfig>(defaultConfig);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchConfig = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getClinicConfig();
+      const d = res.data as Record<string, unknown>;
+      setConfig((prev) => ({ ...prev, ...d } as ClinicConfig));
+    } catch {
+      // keep defaults
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchConfig(); }, [fetchConfig]);
 
   const update = <K extends keyof ClinicConfig>(key: K, value: ClinicConfig[K]) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
@@ -93,15 +110,31 @@ export default function ConfigPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    // Simulate save
-    await new Promise((r) => setTimeout(r, 1200));
-    setSaving(false);
+    try {
+      const csrfToken = (session as Record<string, unknown>)?.csrf_token as string | undefined;
+      await updateClinicConfig(csrfToken ?? "", config as unknown as Record<string, unknown>);
+    } catch {
+      // handle error silently for now
+    } finally {
+      setSaving(false);
+    }
   };
 
   const maskApiKey = (key: string) => {
     if (key.length <= 8) return key;
     return key.slice(0, 4) + "****" + key.slice(-4);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <MaterialIcon icon="hourglass_empty" size="xl" className="text-primary animate-spin" />
+          <p className="text-stone-400 text-sm">Carregando configuracoes...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

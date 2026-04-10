@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSystemStatus } from "@/lib/use-system-status";
+import { getAdminStats } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import {
   StatCard,
@@ -53,13 +55,6 @@ const componentLabels: Record<string, string> = {
 
 /* ── Mock data for items not yet from API ── */
 
-const MOCK_KPIS = {
-  total_tenants: 48,
-  total_users: 312,
-  ai_executions: 12847,
-  platform_uptime: "99.97%",
-};
-
 const MOCK_FLAGS = [
   { name: "Onboarding de Tenants (5.2)", status: "Em desenvolvimento" },
   { name: "Billing / Planos (5.3)", status: "Em desenvolvimento" },
@@ -106,8 +101,32 @@ const eventDotColor: Record<string, string> = {
   deploy: "bg-secondary",
 };
 
+interface AdminStats {
+  total_tenants: number;
+  total_users: number;
+  ai_data: { summary: { total_requests: number; total_tokens: number; total_cost_usd: number; avg_latency_ms: number }; recent_logs: unknown[] };
+}
+
 export default function AdminOverviewPage() {
   const status = useSystemStatus();
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStatsLoading(true);
+    getAdminStats()
+      .then((data) => {
+        if (!cancelled) setAdminStats(data as AdminStats);
+      })
+      .catch(() => {
+        if (!cancelled) setAdminStats(null);
+      })
+      .finally(() => {
+        if (!cancelled) setStatsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-10">
@@ -232,18 +251,33 @@ export default function AdminOverviewPage() {
           <MaterialIcon icon="query_stats" className="text-primary" />
           Indicadores da Plataforma
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon="apartment" label="Total Organizacoes" value={MOCK_KPIS.total_tenants} />
-          <StatCard icon="group" label="Total Usuarios" value={MOCK_KPIS.total_users} />
-          <StatCard
-            icon="psychology"
-            label="Analises Realizadas"
-            value={MOCK_KPIS.ai_executions.toLocaleString("pt-BR")}
-            delta="+12%"
-            deltaType="up"
-          />
-          <StatCard icon="timer" label="Uptime Plataforma" value={MOCK_KPIS.platform_uptime} />
-        </div>
+        {statsLoading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} variant="glass" padding="md" className="animate-pulse">
+                <div className="h-4 w-24 bg-white/10 rounded mb-3" />
+                <div className="h-8 w-16 bg-white/10 rounded" />
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard icon="apartment" label="Total Organizacoes" value={adminStats?.total_tenants ?? "--"} />
+            <StatCard icon="group" label="Total Usuarios" value={adminStats?.total_users ?? "--"} />
+            <StatCard
+              icon="psychology"
+              label="Analises Realizadas"
+              value={
+                adminStats?.ai_data?.summary?.total_requests != null
+                  ? adminStats.ai_data.summary.total_requests.toLocaleString("pt-BR")
+                  : "--"
+              }
+              delta="+12%"
+              deltaType="up"
+            />
+            <StatCard icon="timer" label="Uptime Plataforma" value="99.97%" />
+          </div>
+        )}
       </section>
 
       {/* ── Neural Resource Load ── */}
