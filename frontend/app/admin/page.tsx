@@ -53,53 +53,14 @@ const componentLabels: Record<string, string> = {
   ai_pipeline: "Analise Inteligente",
 };
 
-/* ── Mock data for items not yet from API ── */
-
-const MOCK_FLAGS = [
-  { name: "Onboarding de Tenants (5.2)", status: "Em desenvolvimento" },
-  { name: "Billing / Planos (5.3)", status: "Em desenvolvimento" },
-  { name: "Templates de Campanhas (5.4)", status: "Planejado" },
-  { name: "Modo Degradacao Graceful (5.5)", status: "Frontend pronto" },
-  { name: "RAG Multi-tenant (5.6)", status: "Planejado" },
+const SYSTEM_FEATURES = [
+  { name: "Triagem Segura com Links", status: "Operavel" },
+  { name: "Inbox de Conversas", status: "Operavel" },
+  { name: "Cockpit Medico", status: "Operavel" },
+  { name: "Knowledge e Regulatory", status: "Operavel" },
+  { name: "Multi-tenancy", status: "Em desenvolvimento" },
+  { name: "Billing / Planos", status: "Em desenvolvimento" },
 ];
-
-const MOCK_EVENTS = [
-  {
-    id: 1,
-    type: "security" as const,
-    title: "Alerta de Seguranca",
-    description: "Tentativa de acesso nao autorizado bloqueada pelo firewall.",
-    time: "2 min atras",
-  },
-  {
-    id: 2,
-    type: "scaling" as const,
-    title: "Auto-scaling Ativado",
-    description: "Cluster de inferencia adicionou 2 nos por demanda elevada.",
-    time: "14 min atras",
-  },
-  {
-    id: 3,
-    type: "maintenance" as const,
-    title: "Manutencao Concluida",
-    description: "Re-indexacao do banco de dados PostgreSQL finalizada com sucesso.",
-    time: "1 hora atras",
-  },
-  {
-    id: 4,
-    type: "deploy" as const,
-    title: "Deploy Realizado",
-    description: "Nova versao v3.4.2 publicada no ambiente de producao.",
-    time: "3 horas atras",
-  },
-];
-
-const eventDotColor: Record<string, string> = {
-  security: "bg-error",
-  scaling: "bg-primary",
-  maintenance: "bg-stone-500",
-  deploy: "bg-secondary",
-};
 
 interface AdminStats {
   total_tenants: number;
@@ -280,106 +241,28 @@ export default function AdminOverviewPage() {
         )}
       </section>
 
-      {/* ── Neural Resource Load ── */}
+      {/* ── System Features ── */}
       <section>
-        <Card variant="glass" padding="lg">
-          <h2 className="text-lg font-bold font-headline flex items-center gap-2 text-on-surface mb-6">
-            <MaterialIcon icon="memory" className="text-secondary" />
-            Carga de Recursos
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-on-surface-variant">Uso de IA</span>
-                <span className="text-primary font-bold">72%</span>
-              </div>
-              <ProgressBar value={72} variant="primary" glow />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-on-surface-variant">Processamento</span>
-                <span className="text-secondary font-bold">45%</span>
-              </div>
-              <ProgressBar value={45} variant="success" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-on-surface-variant">Memoria do Cluster</span>
-                <span className="text-primary font-bold">89%</span>
-              </div>
-              <ProgressBar value={89} variant="warning" glow />
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      {/* ── Bottom Grid: Feature Flags + Events ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Feature Flags */}
         <Card variant="glass" padding="md">
           <h3 className="text-lg font-bold font-headline flex items-center gap-2 text-on-surface mb-6">
             <MaterialIcon icon="flag" className="text-primary" />
             Funcionalidades do Sistema
           </h3>
           <div className="space-y-3">
-            {MOCK_FLAGS.map((flag) => (
+            {SYSTEM_FEATURES.map((feat) => (
               <div
-                key={flag.name}
+                key={feat.name}
                 className="flex items-center justify-between py-2 px-3 rounded-xl bg-white/[0.02] border border-white/5"
               >
-                <span className="text-sm font-medium text-on-surface">{flag.name}</span>
-                <Badge
-                  tone={
-                    flag.status === "Frontend pronto"
-                      ? "success"
-                      : flag.status === "Em desenvolvimento"
-                        ? "info"
-                        : "neutral"
-                  }
-                >
-                  {flag.status}
+                <span className="text-sm font-medium text-on-surface">{feat.name}</span>
+                <Badge tone={feat.status === "Operavel" ? "success" : "warning"}>
+                  {feat.status}
                 </Badge>
               </div>
             ))}
           </div>
         </Card>
-
-        {/* System Event Log */}
-        <Card variant="glass" padding="md">
-          <h3 className="text-lg font-bold font-headline flex items-center gap-2 text-on-surface mb-6">
-            <MaterialIcon icon="history" className="text-primary" />
-            Log de Eventos do Sistema
-          </h3>
-          <div className="space-y-4">
-            {MOCK_EVENTS.map((event, idx) => (
-              <div key={event.id} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={cn(
-                      "w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0",
-                      eventDotColor[event.type] ?? "bg-stone-500",
-                    )}
-                  />
-                  {idx < MOCK_EVENTS.length - 1 && (
-                    <div className="w-px flex-1 bg-white/10 mt-2" />
-                  )}
-                </div>
-                <div className="pb-4">
-                  <p className="text-xs font-bold uppercase tracking-widest mb-1 text-on-surface">
-                    {event.title}
-                  </p>
-                  <p className="text-sm text-on-surface-variant leading-relaxed">
-                    {event.description}
-                  </p>
-                  <p className="text-[10px] text-stone-500 mt-1 italic uppercase">
-                    {event.time}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+      </section>
     </div>
   );
 }

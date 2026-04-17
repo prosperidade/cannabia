@@ -154,100 +154,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── KPI Cards (2x2 mobile, 4 cols desktop) ── */}
+      {/* ── KPI Cards — dados reais da API ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <div className="glass-panel p-4 md:p-6 rounded-2xl border-l-4 border-l-primary flex flex-col gap-3">
-          <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined p-2 bg-primary/10 text-primary rounded-lg">
-              health_and_safety
-            </span>
-            <span className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/5 rounded-full hidden sm:inline">
-              +12% vs ultima triagem
-            </span>
-          </div>
-          <div>
-            <p className="text-stone-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">
-              Estado Geral
-            </p>
-            <h3 className="text-lg md:text-2xl font-black text-on-surface">Estavel</h3>
-          </div>
-        </div>
-
-        <div className="glass-panel p-4 md:p-6 rounded-2xl border-l-4 border-l-error flex flex-col gap-3">
-          <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined p-2 bg-error/10 text-error rounded-lg">
-              mood_bad
-            </span>
-            <span className="text-xs font-medium text-stone-400 hidden sm:inline">
-              Escala Visual Analogica
-            </span>
-          </div>
-          <div>
-            <p className="text-stone-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">
-              Nivel de Dor
-            </p>
-            <h3 className="text-lg md:text-2xl font-black text-on-surface">4 / 10</h3>
-          </div>
-        </div>
-
-        <div className="glass-panel p-4 md:p-6 rounded-2xl border-l-4 border-l-secondary flex flex-col gap-3">
-          <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined p-2 bg-secondary/10 text-secondary rounded-lg">
-              bedtime
-            </span>
-            <span className="text-xs font-medium text-stone-400 hidden sm:inline">7.2h media</span>
-          </div>
-          <div>
-            <p className="text-stone-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">
-              Qualidade de Sono
-            </p>
-            <h3 className="text-lg md:text-2xl font-black text-on-surface">Melhorando</h3>
-          </div>
-        </div>
-
-        <div className="glass-panel p-4 md:p-6 rounded-2xl border-l-4 border-l-primary-container flex flex-col gap-3">
-          <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined p-2 bg-primary-container/10 text-primary-container rounded-lg">
-              bolt
-            </span>
-            <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse mt-3" />
-          </div>
-          <div>
-            <p className="text-stone-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">
-              Status da Analise
-            </p>
-            <h3 className="text-lg md:text-2xl font-black text-on-surface">Concluida</h3>
-          </div>
-        </div>
+        <StatCard
+          icon="group"
+          label="Pacientes"
+          value={metrics?.total_patients ?? 0}
+        />
+        <StatCard
+          icon="event"
+          label="Agendamentos"
+          value={metrics?.total_appointments ?? 0}
+        />
+        <StatCard
+          icon="psychology"
+          label="Analises IA"
+          value={metrics?.total_ai ?? 0}
+        />
+        <StatCard
+          icon="chat"
+          label="Mensagens"
+          value={metrics?.total_messages ?? 0}
+        />
       </div>
-
-      {/* ── Real API Metrics (if available) ── */}
-      {metrics && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <StatCard
-            icon="chat"
-            label="Mensagens"
-            value={metrics.total_messages}
-            delta={`${metrics.total_messages}`}
-            deltaType="neutral"
-          />
-          <StatCard
-            icon="group"
-            label="Pacientes"
-            value={metrics.total_patients}
-          />
-          <StatCard
-            icon="event"
-            label="Agendamentos"
-            value={metrics.total_appointments}
-          />
-          <StatCard
-            icon="psychology"
-            label="Analises IA"
-            value={metrics.total_ai}
-          />
-        </div>
-      )}
 
       {/* ── Main Grid: 2 columns desktop, 1 mobile ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

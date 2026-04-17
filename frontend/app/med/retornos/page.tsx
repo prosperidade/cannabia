@@ -217,52 +217,27 @@ export default function RetornosPage() {
 
       {/* ── Stats Row ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {/* TODO: Replace static values with API data */}
         <StatCard
           icon="diversity_3"
           label="Pacientes em Retorno"
           value={stats.patientsInReturn}
-          delta="+3 esta semana"
-          deltaType="up"
         />
         <StatCard
           icon="pending_actions"
           label="Ajustes Pendentes"
           value={stats.pendingAdjustments}
-          delta="Revisao em 24h"
-          deltaType="down"
           className="border-l-2 border-l-amber-500/50"
         />
         <StatCard
           icon="event"
           label="Retornos Agendados"
           value={stats.scheduledReturns}
-          delta="Proximos 30 dias"
-          deltaType="neutral"
         />
-        <div className="glass-panel rounded-2xl p-5 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <MaterialIcon icon="query_stats" size="lg" className="text-primary" />
-            </div>
-            <span className="text-xs font-bold text-emerald-400">+2.1%</span>
-          </div>
-          <div>
-            <p className="text-2xl font-black text-primary font-headline">
-              {stats.adherenceRate}%
-            </p>
-            <p className="text-[10px] uppercase tracking-widest text-stone-500 font-bold mt-1">
-              Taxa de Adesao
-            </p>
-            <ProgressBar
-              value={stats.adherenceRate}
-              variant="primary"
-              size="sm"
-              glow
-              className="mt-2"
-            />
-          </div>
-        </div>
+        <StatCard
+          icon="query_stats"
+          label="Taxa de Adesao"
+          value={stats.adherenceRate > 0 ? `${stats.adherenceRate}%` : "--"}
+        />
       </div>
 
       {/* ── Filter Bar ── */}

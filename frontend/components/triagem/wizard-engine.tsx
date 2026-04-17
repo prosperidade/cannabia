@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiError, getSession, submitTriageIntake } from "@/lib/api";
 import {
   createContext,
   useCallback,
@@ -12,6 +13,7 @@ import type {
   TriagemStep,
   TriagemFormData,
   WizardState,
+  TriagemIdentificacao,
   TriagemMotivo,
   TriagemSintoma,
   TriagemDadosFisicos,
@@ -23,6 +25,7 @@ import type {
 /* ─── Constants ────────────────────────────────────────────────────── */
 
 const STEPS: TriagemStep[] = [
+  "identificacao",
   "motivo",
   "sintomas",
   "dados_fisicos",
@@ -33,6 +36,7 @@ const STEPS: TriagemStep[] = [
 ];
 
 const STEP_LABELS: Record<TriagemStep, string> = {
+  identificacao: "Identificacao do Paciente",
   motivo: "Motivo do Atendimento",
   sintomas: "Sintomas e Intensidade",
   dados_fisicos: "Dados Fisicos",
@@ -43,6 +47,11 @@ const STEP_LABELS: Record<TriagemStep, string> = {
 };
 
 /* ─── Default form data ────────────────────────────────────────────── */
+
+const DEFAULT_IDENTIFICACAO: TriagemIdentificacao = {
+  patient_name: "",
+  age: undefined,
+};
 
 const DEFAULT_MOTIVO: TriagemMotivo = {
   objetivo_principal: "",
@@ -91,6 +100,7 @@ const DEFAULT_HISTORICO: TriagemHistorico = {
 };
 
 const DEFAULT_FORM_DATA: TriagemFormData = {
+  identificacao: DEFAULT_IDENTIFICACAO,
   motivo: DEFAULT_MOTIVO,
   sintomas: DEFAULT_SINTOMAS,
   dados_fisicos: DEFAULT_DADOS_FISICOS,
@@ -111,6 +121,7 @@ interface WizardContextValue {
   goNext: () => void;
   goBack: () => void;
   goToStep: (step: TriagemStep) => void;
+  updateIdentificacao: (data: Partial<TriagemIdentificacao>) => void;
   updateMotivo: (data: Partial<TriagemMotivo>) => void;
   updateSintomas: (data: TriagemSintoma[]) => void;
   updateDadosFisicos: (data: Partial<TriagemDadosFisicos>) => void;
@@ -132,12 +143,28 @@ export function useWizard(): WizardContextValue {
 
 /* ─── Provider ─────────────────────────────────────────────────────── */
 
-export function WizardProvider({ children }: { children: ReactNode }) {
-  const [currentStep, setCurrentStep] = useState<TriagemStep>("motivo");
+interface WizardProviderProps {
+  children: ReactNode;
+  initialPatientName?: string;
+}
+
+export function WizardProvider({ children, initialPatientName }: WizardProviderProps) {
+  const [currentStep, setCurrentStep] = useState<TriagemStep>("identificacao");
   const [completedSteps, setCompletedSteps] = useState<TriagemStep[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>();
-  const [formData, setFormData] = useState<TriagemFormData>(DEFAULT_FORM_DATA);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>();
+  const [submittedReportId, setSubmittedReportId] = useState<number | undefined>();
+  const [formData, setFormData] = useState<TriagemFormData>(() => {
+    if (!initialPatientName) return DEFAULT_FORM_DATA;
+    return {
+      ...DEFAULT_FORM_DATA,
+      identificacao: {
+        ...DEFAULT_IDENTIFICACAO,
+        patient_name: initialPatientName,
+      },
+    };
+  });
 
   const currentStepIndex = STEPS.indexOf(currentStep);
   const totalSteps = STEPS.length;
@@ -166,6 +193,13 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /* ── Updaters ───────────────────────────────────────────────────── */
+
+  const updateIdentificacao = useCallback((data: Partial<TriagemIdentificacao>) => {
+    setFormData((prev) => ({
+      ...prev,
+      identificacao: { ...prev.identificacao, ...data },
+    }));
+  }, []);
 
   const updateMotivo = useCallback((data: Partial<TriagemMotivo>) => {
     setFormData((prev) => ({
@@ -217,12 +251,24 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const submitWizard = useCallback(async () => {
     setIsSubmitting(true);
     setError(undefined);
+    setSuccessMessage(undefined);
     try {
-      // TODO: integrate with backend API
-      console.log("[CannabIA] Triagem submitted:", JSON.stringify(formData, null, 2));
-      alert("Triagem finalizada com sucesso! Confira o console para os dados.");
+      const session = await getSession();
+      const intakeToken =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("token")
+          : null;
+      const response = await submitTriageIntake(session.csrf_token, {
+        intake_token: intakeToken || undefined,
+        ...formData,
+      });
+
+      setSubmittedReportId(response.report_id);
+      setSuccessMessage(
+        `Triagem enviada com sucesso. Atendimento #${response.report_id} gerado para o time clinico.`,
+      );
     } catch (err) {
-      setError("Erro ao enviar triagem. Tente novamente.");
+      setError(err instanceof ApiError ? err.message : "Erro ao enviar triagem. Tente novamente.");
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -233,10 +279,22 @@ export function WizardProvider({ children }: { children: ReactNode }) {
 
   const canAdvance = useMemo(() => {
     switch (currentStep) {
+      case "identificacao":
+        return (
+          formData.identificacao.patient_name.trim() !== "" &&
+          typeof formData.identificacao.age === "number" &&
+          formData.identificacao.age > 0
+        );
       case "motivo":
         return formData.motivo.objetivo_principal !== "";
       case "dados_fisicos":
-        return formData.dados_fisicos.sexo_biologico !== undefined;
+        return (
+          typeof formData.dados_fisicos.peso_kg === "number" &&
+          formData.dados_fisicos.peso_kg > 0 &&
+          typeof formData.dados_fisicos.altura_cm === "number" &&
+          formData.dados_fisicos.altura_cm > 0 &&
+          formData.dados_fisicos.sexo_biologico !== undefined
+        );
       default:
         return true;
     }
@@ -250,6 +308,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     formData,
     isSubmitting,
     error,
+    successMessage,
+    submittedReportId,
   };
 
   const value: WizardContextValue = {
@@ -262,6 +322,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     goNext,
     goBack,
     goToStep,
+    updateIdentificacao,
     updateMotivo,
     updateSintomas,
     updateDadosFisicos,

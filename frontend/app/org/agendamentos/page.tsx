@@ -13,7 +13,7 @@ import {
 } from "@/components/ui-tw";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
-import { ApiError, listAppointments, createAppointment } from "@/lib/api";
+import { ApiError, listAppointments, createAppointment, createAppointmentTriageLink } from "@/lib/api";
 import type { AppointmentItem } from "@/lib/types";
 
 /* ── helpers ───────────────────────────────────────────────────────── */
@@ -369,6 +369,23 @@ export default function AgendamentosPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [linkLoading, setLinkLoading] = useState<number | null>(null);
+  const [copiedLink, setCopiedLink] = useState<number | null>(null);
+
+  async function handleGenerateLink(appointmentId: number) {
+    const csrf = session.data?.csrf_token ?? "";
+    setLinkLoading(appointmentId);
+    try {
+      const result = await createAppointmentTriageLink(appointmentId, csrf);
+      await navigator.clipboard.writeText(result.url);
+      setCopiedLink(appointmentId);
+      setTimeout(() => setCopiedLink(null), 3000);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Falha ao gerar link de triagem.");
+    } finally {
+      setLinkLoading(null);
+    }
+  }
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
@@ -664,8 +681,31 @@ export default function AgendamentosPage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <Badge tone={sb.tone}>{sb.label}</Badge>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleGenerateLink(appt.id)}
+                            disabled={linkLoading === appt.id}
+                            title="Gerar link de triagem para este paciente"
+                            className={cn(
+                              "p-2 rounded-lg border transition-all text-xs font-medium flex items-center gap-1.5",
+                              copiedLink === appt.id
+                                ? "border-success/30 bg-success/10 text-success"
+                                : "border-outline-variant/30 text-stone-400 hover:bg-primary/10 hover:text-primary hover:border-primary/30",
+                            )}
+                          >
+                            {linkLoading === appt.id ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                            ) : (
+                              <MaterialIcon
+                                icon={copiedLink === appt.id ? "check" : "link"}
+                                size="sm"
+                              />
+                            )}
+                            {copiedLink === appt.id ? "Copiado" : "Triagem"}
+                          </button>
+                          <div className="flex flex-col items-end gap-1">
+                            <Badge tone={sb.tone}>{sb.label}</Badge>
+                          </div>
                         </div>
                       </Card>
                     );

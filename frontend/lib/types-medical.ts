@@ -45,7 +45,7 @@ export type ExtractedCondition = {
   condition_name: string;
   icd10_hint: string | null;
   confidence: ConfidenceLevel;
-  evidence_snippet: string;
+  evidence_snippet: string | null;
 };
 
 // ── Biometry / Vital Signs ──────────────────────────────────────────

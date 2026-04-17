@@ -140,50 +140,8 @@ interface ActivityEvent {
   type: "login" | "role_change" | "invite" | "deactivation";
 }
 
-const MOCK_ACTIVITY: ActivityEvent[] = [
-  {
-    id: 1,
-    icon: "login",
-    description: "Dr. Ricardo Silveira fez login",
-    timestamp: "2026-04-07T12:30:00Z",
-    type: "login",
-  },
-  {
-    id: 2,
-    icon: "person_add",
-    description: "Juliana Reis foi convidada como Atendente",
-    timestamp: "2026-04-07T11:00:00Z",
-    type: "invite",
-  },
-  {
-    id: 3,
-    icon: "swap_horiz",
-    description: "Bruno Almeida alterado de Medico para Admin",
-    timestamp: "2026-04-06T15:30:00Z",
-    type: "role_change",
-  },
-  {
-    id: 4,
-    icon: "login",
-    description: "Marcos Oliveira fez login",
-    timestamp: "2026-04-07T14:02:00Z",
-    type: "login",
-  },
-  {
-    id: 5,
-    icon: "person_off",
-    description: "Camila Ferreira foi desativada",
-    timestamp: "2026-04-01T09:00:00Z",
-    type: "deactivation",
-  },
-  {
-    id: 6,
-    icon: "person_add",
-    description: "Patricia Lima foi convidada como Medico",
-    timestamp: "2026-04-05T14:00:00Z",
-    type: "invite",
-  },
-];
+// Activity events will come from audit_log API in future sprints
+const MOCK_ACTIVITY: ActivityEvent[] = [];
 
 /* ================================================================== */
 /*  HELPERS                                                            */

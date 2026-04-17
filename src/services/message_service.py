@@ -54,6 +54,21 @@ def handle_message_event(data: dict, clinic_id: int) -> None:
         clinic_id, sender, contact_name, message_text, timestamp
     )
 
+    # Registrar na conversa (threading)
+    try:
+        from src.services.conversation_service import receive_inbound_message
+
+        receive_inbound_message(
+            clinic_id,
+            sender,
+            message_text,
+            contact_name=contact_name,
+            channel="whatsapp",
+            external_id=msg.get("id"),
+        )
+    except Exception:
+        logger.debug("Conversation threading indisponivel (tabela ainda nao aplicada?)")
+
     text_lower = (message_text or "").lower()
 
     # Alerta crítico ao médico (mantido, executa antes do fluxo)

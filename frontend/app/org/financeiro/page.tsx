@@ -390,9 +390,7 @@ export default function FinanceiroPage() {
           <span className="text-[10px] font-black uppercase tracking-widest">Analise Inteligente</span>
         </div>
         <p className="text-sm text-on-surface leading-relaxed">
-          Com base nas tendencias historicas, projetamos um{" "}
-          <span className="font-bold text-primary">aumento de 12%</span> na receita de Cardiologia
-          no proximo mes. Considere expandir a disponibilidade de horarios do Dr. Arthur Silva.
+          Analises preditivas serao geradas automaticamente quando houver dados financeiros suficientes para identificar tendencias.
         </p>
       </Card>
     </div>

@@ -142,6 +142,22 @@ def _json_payload() -> dict:
     return payload if isinstance(payload, dict) else {}
 
 
+def _resolve_triage_submission_clinic_id(payload: Optional[dict] = None) -> int:
+    clinic_id = getattr(g, "clinic_id", None)
+    if clinic_id:
+        return int(clinic_id)
+
+    payload = payload or {}
+    token = (payload.get("intake_token") or payload.get("token") or "").strip()
+    if not token:
+        raise ValueError("Link de triagem ausente. Solicite um link seguro da clinica.")
+
+    from src.services.triage_link_service import resolve_triage_link_token
+
+    context = resolve_triage_link_token(token)
+    return int(context["clinic_id"])
+
+
 def _require_json_csrf():
     payload = _json_payload()
     sent = request.headers.get("X-CSRF-Token") or payload.get("csrf_token") or ""
@@ -192,6 +208,8 @@ def _parse_requested_exams(raw_value) -> list[str]:
 
 
 def _build_attendance_detail(report: dict) -> dict:
+    from src.services.prescription_contract import build_prescription_contract
+
     timeline = []
     medical_record_entries = []
     consultation_entry = None
@@ -206,6 +224,7 @@ def _build_attendance_detail(report: dict) -> dict:
         "timeline": timeline,
         "medical_record_entries": medical_record_entries,
         "consultation_entry": consultation_entry,
+        "prescription_contract": build_prescription_contract(report=report),
     }
 
 
@@ -408,6 +427,84 @@ def attendances():
     reports = list_reports(g.clinic_id, status=status)
     items, meta = _paginate(reports, page, page_size)
     return _success(items, meta=meta)
+
+
+@api_v1_bp.get("/intake/triage-link")
+def intake_triage_link_context():
+    token = (request.args.get("token") or "").strip()
+    if not token:
+        return _error("validation_error", "token e obrigatorio.", 422)
+
+    try:
+        from src.services.triage_link_service import resolve_triage_link_token
+
+        return _success(resolve_triage_link_token(token))
+    except ValueError as exc:
+        return _error("invalid_token", str(exc), 422)
+
+
+@api_v1_bp.post("/intake/triage-link")
+@api_role_required("Admin", "Medico", "Atendente")
+def intake_triage_link_create():
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
+
+    try:
+        from src.services.triage_link_service import issue_triage_link
+
+        return _success(issue_triage_link(g.clinic_id), status=201)
+    except ValueError as exc:
+        return _error("validation_error", str(exc), 422)
+    except RuntimeError as exc:
+        return _error("internal_error", str(exc), 500)
+
+
+@api_v1_bp.post("/intake/triage")
+def intake_triage_submit():
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
+
+    payload = _json_payload()
+    if not payload:
+        return _error("validation_error", "JSON body e obrigatorio.", 422)
+
+    try:
+        from src.services.triage_intake_service import submit_triage_intake
+        from src.services.triage_link_service import resolve_triage_link_token
+
+        raw_token = (payload.get("intake_token") or payload.get("token") or "").strip()
+        token_context: dict = {}
+
+        clinic_id = getattr(g, "clinic_id", None)
+        if clinic_id:
+            clinic_id = int(clinic_id)
+            if raw_token:
+                try:
+                    token_context = resolve_triage_link_token(raw_token)
+                except ValueError:
+                    pass
+        else:
+            if not raw_token:
+                raise ValueError("Link de triagem ausente. Solicite um link seguro da clinica.")
+            token_context = resolve_triage_link_token(raw_token)
+            clinic_id = int(token_context["clinic_id"])
+
+        result = submit_triage_intake(
+            payload,
+            clinic_id=clinic_id,
+            token_context=token_context,
+            raw_token=raw_token or None,
+            remote_ip=request.remote_addr,
+        )
+        return _success(result, status=201)
+    except ValueError as exc:
+        return _error("validation_error", str(exc), 422)
+    except RuntimeError as exc:
+        return _error("internal_error", str(exc), 500)
+    except Exception:
+        return _error("internal_error", "Erro ao processar triagem.", 500)
 
 
 @api_v1_bp.get("/attendances/<int:report_id>")
@@ -613,6 +710,71 @@ def appointments_create():
         return _error("validation_error", str(exc), 422)
 
     return _success({"created": True, "appointment_id": appointment_id}, status=201)
+
+
+@api_v1_bp.get("/appointments/<int:appointment_id>")
+@api_role_required("Admin", "Medico", "Atendente")
+def appointment_detail(appointment_id: int):
+    from src.repositories.appointment_repository import get_appointment
+
+    appointment = get_appointment(appointment_id)
+    if not appointment:
+        return _error("not_found", "Agendamento nao encontrado.", 404)
+    return _success(appointment)
+
+
+@api_v1_bp.post("/appointments/<int:appointment_id>/triage-link")
+@api_role_required("Admin", "Medico", "Atendente")
+def appointment_triage_link(appointment_id: int):
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
+
+    from src.repositories.appointment_repository import (
+        get_appointment,
+        update_appointment_triage_link,
+    )
+    from src.services.triage_link_service import issue_triage_link
+
+    appointment = get_appointment(appointment_id)
+    if not appointment:
+        return _error("not_found", "Agendamento nao encontrado.", 404)
+
+    payload = _json_payload()
+    patient_phone = (payload.get("patient_phone") or "").strip() or None
+
+    try:
+        link = issue_triage_link(
+            g.clinic_id,
+            appointment_id=appointment_id,
+            patient_id=appointment.get("patient_id"),
+            patient_name=appointment.get("patient_name"),
+            patient_phone=patient_phone,
+            issued_by=int(current_user.id),
+        )
+    except (ValueError, RuntimeError) as exc:
+        return _error("internal_error", str(exc), 500)
+
+    if link.get("link_id"):
+        try:
+            update_appointment_triage_link(appointment_id, link["link_id"])
+        except Exception:
+            pass
+
+    from src.infra.audit import log_audit_event
+
+    log_audit_event(
+        action="triage_link_issued_for_appointment",
+        resource_type="appointment",
+        resource_id=str(appointment_id),
+        details={
+            "patient_id": appointment.get("patient_id"),
+            "patient_name": appointment.get("patient_name"),
+            "link_id": link.get("link_id"),
+        },
+    )
+
+    return _success(link, status=201)
 
 
 @api_v1_bp.get("/admin/metrics")

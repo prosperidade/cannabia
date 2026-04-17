@@ -350,36 +350,38 @@ export default function OrgDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {[
-                { name: "Dr. Roberto Silva", spec: "Neurologia Botanica", load: 142, rating: 4.98, outcome: 94, status: "Ativo" },
-                { name: "Dra. Mariana Costa", spec: "Dor Cronica IA", load: 128, rating: 4.85, outcome: 88, status: "Ativo" },
-                { name: "Dr. Andre Luz", spec: "Oncologia Adjuvante", load: 96, rating: 4.92, outcome: 91, status: "Licenca" },
-              ].map((doc) => (
-                <tr key={doc.name} className="hover:bg-white/5 transition-colors">
-                  <td className="px-5 md:px-8 py-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar name={doc.name} size="sm" />
-                      <span className="font-bold">{doc.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 md:px-8 py-4 text-on-surface-variant">{doc.spec}</td>
-                  <td className="px-5 md:px-8 py-4">{doc.load}</td>
-                  <td className="px-5 md:px-8 py-4">
-                    <div className="flex items-center gap-1 text-primary">
-                      <MaterialIcon icon="star" filled size="sm" />
-                      <span className="font-bold">{doc.rating}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 md:px-8 py-4">
-                    <ProgressBar value={doc.outcome} size="sm" glow />
-                  </td>
-                  <td className="px-5 md:px-8 py-4">
-                    <Badge tone={doc.status === "Ativo" ? "primary" : "warning"}>
-                      {doc.status}
-                    </Badge>
+              {(data?.topMedicos ?? []).length > 0 ? (
+                (data?.topMedicos ?? []).map((doc) => (
+                  <tr key={doc.name} className="hover:bg-white/5 transition-colors">
+                    <td className="px-5 md:px-8 py-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={doc.name} size="sm" />
+                        <span className="font-bold">{doc.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 md:px-8 py-4 text-on-surface-variant">{doc.specialty}</td>
+                    <td className="px-5 md:px-8 py-4">{doc.count}</td>
+                    <td className="px-5 md:px-8 py-4">
+                      <div className="flex items-center gap-1 text-primary">
+                        <MaterialIcon icon="star" filled size="sm" />
+                        <span className="font-bold">{doc.rating}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 md:px-8 py-4">
+                      <ProgressBar value={Math.round(doc.rating * 20)} size="sm" glow />
+                    </td>
+                    <td className="px-5 md:px-8 py-4">
+                      <Badge tone="primary">Ativo</Badge>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-stone-500 text-sm">
+                    Dados de desempenho serao exibidos quando houver atendimentos suficientes.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

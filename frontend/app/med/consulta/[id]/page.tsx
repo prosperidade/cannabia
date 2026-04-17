@@ -80,11 +80,10 @@ function formatTimer(seconds: number): string {
 /** Parse risk level from report data. */
 function parseRiskLevel(report: AttendanceReport): RiskLevel {
   const ca = report.clinical_analysis as Partial<ClinicalAnalysis> | null;
-  if (ca?.risk_level && ca.risk_level in RISK_CONFIG) return ca.risk_level as RiskLevel;
-  // fallback based on RAG chunks
-  if (report.rag_chunks_used >= 8) return "critico";
-  if (report.rag_chunks_used >= 5) return "alto";
-  if (report.rag_chunks_used >= 2) return "moderado";
+  const raw = (ca?.risk_level ?? "").toLowerCase().trim();
+  if (raw === "critical" || raw === "critico") return "critico";
+  if (raw === "high" || raw === "alto") return "alto";
+  if (raw === "moderate" || raw === "moderado") return "moderado";
   return "baixo";
 }
 
@@ -131,16 +130,13 @@ function parsePatientContext(report: AttendanceReport): PatientContext {
   };
 }
 
-/** Parse extracted conditions from clinical_analysis or build mock from probable_conditions. */
+/** Parse extracted conditions from clinical_analysis. */
 function parseExtractedConditions(ca: ClinicalAnalysis): ExtractedCondition[] {
-  // If probable_conditions is a string array, convert to ExtractedCondition with mock data
   return ca.probable_conditions.map((cond, i) => ({
     condition_name: cond,
-    // TODO: Replace with real ICD-10 codes from the backend
-    icd10_hint: `G${62 + i}.9`,
+    icd10_hint: null,
     confidence: i === 0 ? "alto" as ConfidenceLevel : i === 1 ? "medio" as ConfidenceLevel : "baixo" as ConfidenceLevel,
-    // TODO: Replace with real evidence snippets from the backend
-    evidence_snippet: `Evidencia clinica observada na anamnese para ${cond}.`,
+    evidence_snippet: null,
   }));
 }
 
@@ -779,7 +775,9 @@ export default function ConsultaAoVivoPage() {
                     </span>
                   </div>
                   <ProgressBar value={conf.percent} variant={conf.variant} size="sm" glow />
-                  <p className="text-[10px] text-stone-500 mt-2 italic leading-relaxed">{cond.evidence_snippet}</p>
+                  {cond.evidence_snippet && (
+                    <p className="text-[10px] text-stone-500 mt-2 italic leading-relaxed">{cond.evidence_snippet}</p>
+                  )}
                   {isHighlighted && (
                     <div className="mt-2 flex items-center gap-2">
                       <Badge tone="neutral">Confianca: {conf.label}</Badge>

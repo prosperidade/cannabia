@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
-import { listAttendances, ApiError } from "@/lib/api";
+import { listAttendances, createTriageLink, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 import type { AttendanceListItem } from "@/lib/types";
 import {
@@ -24,16 +24,14 @@ type SortMode = "newest" | "oldest" | "risk";
 type PriorityFilter = "all" | "critico" | "alto" | "moderado" | "baixo";
 type StatusFilter = "all" | "pendente" | "em_revisao" | "revisado";
 
-/**
- * Derive a mock risk level from the attendance data.
- * Since the API does not expose an explicit risk field, we infer a level
- * from the number of RAG chunks used: more chunks = higher complexity.
- * TODO: Replace with real risk level once the backend exposes it.
- */
+/** Map the real risk_level from backend to our UI keys. */
 function deriveRiskLevel(item: AttendanceListItem): "critico" | "alto" | "moderado" | "baixo" {
-  if (item.rag_chunks_used >= 8) return "critico";
-  if (item.rag_chunks_used >= 5) return "alto";
-  if (item.rag_chunks_used >= 2) return "moderado";
+  const raw = (item.risk_level ?? "").toLowerCase().trim();
+  if (raw === "critical" || raw === "critico") return "critico";
+  if (raw === "high" || raw === "alto") return "alto";
+  if (raw === "moderate" || raw === "moderado") return "moderado";
+  if (raw === "low" || raw === "baixo") return "baixo";
+  // Fallback: sem dados de risco = baixo
   return "baixo";
 }
 
@@ -122,6 +120,8 @@ export default function FilaDeAtendimentoPage() {
   const [attendances, setAttendances] = useState<AttendanceListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [linkFeedback, setLinkFeedback] = useState<string | null>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -156,6 +156,23 @@ export default function FilaDeAtendimentoPage() {
       void fetchAttendances();
     }
   }, [session.data?.authenticated, fetchAttendances]);
+
+  const handleGenerateTriageLink = useCallback(async () => {
+    if (!session.data?.csrf_token) return;
+
+    setGeneratingLink(true);
+    setLinkFeedback(null);
+    try {
+      const link = await createTriageLink(session.data.csrf_token);
+      await navigator.clipboard.writeText(link.url);
+      setLinkFeedback(`Link de triagem copiado para ${link.clinic_label}.`);
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Falha ao gerar link de triagem.";
+      setLinkFeedback(msg);
+    } finally {
+      setGeneratingLink(false);
+    }
+  }, [session.data?.csrf_token]);
 
   // Derived data
   const filtered = useMemo(() => {
@@ -216,13 +233,30 @@ export default function FilaDeAtendimentoPage() {
       {/* Header */}
       {/* ------------------------------------------------------------------ */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl lg:text-3xl font-headline font-bold text-on-surface leading-tight">
-          Fila de Atendimento
-        </h1>
-        <p className="text-stone-500 text-sm flex items-center gap-2">
-          <MaterialIcon icon="psychology" size="sm" className="text-primary" />
-          Inteligencia Clinica
-        </p>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-headline font-bold text-on-surface leading-tight">
+              Fila de Atendimento
+            </h1>
+            <p className="text-stone-500 text-sm flex items-center gap-2">
+              <MaterialIcon icon="psychology" size="sm" className="text-primary" />
+              Inteligencia Clinica
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon="link"
+            loading={generatingLink}
+            onClick={() => void handleGenerateTriageLink()}
+            className="w-full lg:w-auto"
+          >
+            Gerar Link de Triagem
+          </Button>
+        </div>
+        {linkFeedback ? (
+          <p className="text-xs text-stone-400">{linkFeedback}</p>
+        ) : null}
       </div>
 
       {/* ------------------------------------------------------------------ */}
@@ -411,6 +445,13 @@ function PatientQueueCard({ item }: { item: AttendanceListItem }) {
                 <MaterialIcon icon="schedule" size="sm" className="text-[10px]" />
                 {waitTime}
               </span>
+
+              {/* Queixa principal */}
+              {item.main_complaint ? (
+                <span className="text-[10px] text-stone-400 italic truncate max-w-[200px]">
+                  {item.main_complaint}
+                </span>
+              ) : null}
 
               {/* Fontes consultadas */}
               <span className="text-[10px] text-stone-500 font-mono">

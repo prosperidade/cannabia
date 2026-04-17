@@ -228,9 +228,9 @@ export default function CompliancePage() {
             <h4 className="text-lg font-headline font-bold text-on-surface mb-4">Eficacia Clinica</h4>
             <div className="space-y-4">
               {[
-                { label: "Reducao Media de Dor", value: "64.2%", color: "text-primary" },
-                { label: "Duracao Media Tratamento", value: "112 dias", color: "text-on-surface" },
-                { label: "Retencao de Pacientes", value: "89%", color: "text-secondary" },
+                { label: "Reducao Media de Dor", value: "--", color: "text-primary" },
+                { label: "Duracao Media Tratamento", value: "--", color: "text-on-surface" },
+                { label: "Retencao de Pacientes", value: "--", color: "text-secondary" },
               ].map((stat) => (
                 <div key={stat.label} className="flex items-center justify-between">
                   <span className="text-xs text-stone-500 uppercase tracking-widest font-bold">{stat.label}</span>

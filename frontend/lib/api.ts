@@ -12,6 +12,9 @@ import type {
   MessageItem,
   MedicalRecordPayload,
   PaginatedResult,
+  TriageSubmissionResult,
+  TriageLinkContext,
+  TriageLinkIssueResult,
 } from "@/lib/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
@@ -224,6 +227,50 @@ export async function createAppointment(csrfToken: string, payload: AppointmentP
     },
     body: JSON.stringify(payload),
   });
+  return response.data;
+}
+
+export async function submitTriageIntake(csrfToken: string, payload: Record<string, unknown>) {
+  const response = await request<TriageSubmissionResult>("/intake/triage", {
+    method: "POST",
+    headers: {
+      "X-CSRF-Token": csrfToken,
+    },
+    body: JSON.stringify(payload),
+  });
+  return response.data;
+}
+
+export async function createAppointmentTriageLink(
+  appointmentId: number,
+  csrfToken: string,
+  payload?: { patient_phone?: string },
+) {
+  const response = await request<TriageLinkIssueResult>(
+    `/appointments/${appointmentId}/triage-link`,
+    {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify(payload ?? {}),
+    },
+  );
+  return response.data;
+}
+
+export async function createTriageLink(csrfToken: string) {
+  const response = await request<TriageLinkIssueResult>("/intake/triage-link", {
+    method: "POST",
+    headers: {
+      "X-CSRF-Token": csrfToken,
+    },
+    body: JSON.stringify({}),
+  });
+  return response.data;
+}
+
+export async function resolveTriageLink(token: string) {
+  const params = new URLSearchParams({ token });
+  const response = await request<TriageLinkContext>(`/intake/triage-link?${params.toString()}`);
   return response.data;
 }
 
@@ -519,6 +566,44 @@ export async function runKnowledgeMonitors(csrfToken: string) {
     headers: { "X-CSRF-Token": csrfToken },
     body: JSON.stringify({}),
   });
+}
+
+// ── Conversations (Inbox) ──
+export async function listConversations(params?: { status?: string; search?: string; limit?: number }) {
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.search) qs.set("search", params.search);
+  if (params?.limit) qs.set("limit", String(params.limit));
+  const q = qs.toString();
+  const response = await request<import("@/lib/types").Conversation[]>(`/conversations${q ? `?${q}` : ""}`);
+  return response.data;
+}
+export async function getConversation(id: number, limit?: number) {
+  const qs = limit ? `?limit=${limit}` : "";
+  const response = await request<import("@/lib/types").ConversationDetail>(`/conversations/${id}${qs}`);
+  return response.data;
+}
+export async function sendConversationMessage(id: number, csrfToken: string, message: string) {
+  const response = await request<{ message_id: number; sent_via_whatsapp: boolean }>(
+    `/conversations/${id}/messages`,
+    {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify({ message }),
+    },
+  );
+  return response.data;
+}
+export async function markConversationRead(id: number, csrfToken: string) {
+  return request<{ marked: boolean }>(`/conversations/${id}/read`, {
+    method: "PATCH",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify({}),
+  });
+}
+export async function getUnreadCount() {
+  const response = await request<{ unread_count: number }>("/conversations/unread");
+  return response.data;
 }
 
 // ── Agent Management ──

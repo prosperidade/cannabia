@@ -7,6 +7,10 @@ import { useApiSession } from "@/lib/use-api-session";
 import {
   getKnowledgeCatalog,
   getKnowledgeStats,
+  getKnowledgeMonitors,
+  createKnowledgeMonitor,
+  toggleKnowledgeMonitor,
+  runKnowledgeMonitors,
   triggerAutoSearch,
   searchPubMed,
   ApiError,
@@ -104,6 +108,14 @@ export default function KnowledgePage() {
   const [pubmedLoading, setPubmedLoading] = useState(false);
   const [pubmedResults, setPubmedResults] = useState<Record<string, unknown> | null>(null);
 
+  // Monitors
+  const [monitors, setMonitors] = useState<Record<string, unknown>[]>([]);
+  const [monitorsLoading, setMonitorsLoading] = useState(false);
+  const [runningMonitors, setRunningMonitors] = useState(false);
+  const [newMonitorName, setNewMonitorName] = useState("");
+  const [newMonitorUrl, setNewMonitorUrl] = useState("");
+  const [creatingMonitor, setCreatingMonitor] = useState(false);
+
   /* ── Fetch catalog ── */
   const fetchCatalog = useCallback(async () => {
     setLoading(true);
@@ -133,10 +145,64 @@ export default function KnowledgePage() {
     }
   }, []);
 
+  const fetchMonitors = useCallback(async () => {
+    setMonitorsLoading(true);
+    try {
+      const data = await getKnowledgeMonitors();
+      setMonitors(Array.isArray(data) ? data : []);
+    } catch {
+      // non-critical
+    } finally {
+      setMonitorsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void fetchCatalog();
     void fetchStats();
-  }, [fetchCatalog, fetchStats]);
+    void fetchMonitors();
+  }, [fetchCatalog, fetchStats, fetchMonitors]);
+
+  async function handleRunMonitors() {
+    setRunningMonitors(true);
+    try {
+      await runKnowledgeMonitors(csrfToken);
+      void fetchMonitors();
+      void fetchCatalog();
+    } catch {
+      // ignore
+    } finally {
+      setRunningMonitors(false);
+    }
+  }
+
+  async function handleCreateMonitor() {
+    if (!newMonitorName.trim() || !newMonitorUrl.trim()) return;
+    setCreatingMonitor(true);
+    try {
+      await createKnowledgeMonitor(csrfToken, {
+        name: newMonitorName.trim(),
+        url: newMonitorUrl.trim(),
+        source_type: "web",
+      });
+      setNewMonitorName("");
+      setNewMonitorUrl("");
+      void fetchMonitors();
+    } catch {
+      // ignore
+    } finally {
+      setCreatingMonitor(false);
+    }
+  }
+
+  async function handleToggleMonitor(id: number, isActive: boolean) {
+    try {
+      await toggleKnowledgeMonitor(id, csrfToken, !isActive);
+      void fetchMonitors();
+    } catch {
+      // ignore
+    }
+  }
 
   /* ── Auto search ── */
   async function handleAutoSearch() {
@@ -568,6 +634,133 @@ export default function KnowledgePage() {
             </Card>
           ))}
         </div>
+      </section>
+
+      {/* ================================================================ */}
+      {/*  MONITORS                                                        */}
+      {/* ================================================================ */}
+      <section className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h3 className="text-xl font-bold font-headline text-on-surface">
+              Monitores de Fontes
+            </h3>
+            <p className="text-xs text-stone-500 mt-1">
+              URLs monitoradas automaticamente para novas publicacoes.
+            </p>
+          </div>
+          <Button
+            icon="play_arrow"
+            variant="secondary"
+            size="sm"
+            loading={runningMonitors}
+            onClick={() => void handleRunMonitors()}
+          >
+            Executar Monitores
+          </Button>
+        </div>
+
+        {/* Create monitor form */}
+        <Card padding="md">
+          <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-end">
+            <div className="flex-1">
+              <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">
+                Nome
+              </label>
+              <input
+                type="text"
+                value={newMonitorName}
+                onChange={(e) => setNewMonitorName(e.target.value)}
+                placeholder="Ex: PubMed Cannabis Pain"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-sm text-on-surface placeholder:text-stone-500 focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">
+                URL
+              </label>
+              <input
+                type="text"
+                value={newMonitorUrl}
+                onChange={(e) => setNewMonitorUrl(e.target.value)}
+                placeholder="https://pubmed.ncbi.nlm.nih.gov/..."
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-sm text-on-surface placeholder:text-stone-500 focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
+            <Button
+              icon="add"
+              size="sm"
+              loading={creatingMonitor}
+              disabled={!newMonitorName.trim() || !newMonitorUrl.trim()}
+              onClick={() => void handleCreateMonitor()}
+            >
+              Criar
+            </Button>
+          </div>
+        </Card>
+
+        {/* Monitors list */}
+        {monitorsLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : monitors.length === 0 ? (
+          <Card padding="lg" className="text-center">
+            <MaterialIcon icon="monitor_heart" size="xl" className="text-stone-600 mb-3" />
+            <p className="text-sm text-stone-400">Nenhum monitor configurado.</p>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {monitors.map((mon) => {
+              const isActive = mon.is_active === true;
+              return (
+                <Card
+                  key={Number(mon.id)}
+                  padding="md"
+                  className={cn(
+                    "hover:bg-white/5 transition-colors",
+                    !isActive && "opacity-60",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-on-surface truncate">
+                        {String(mon.name || "--")}
+                      </p>
+                      <p className="text-[10px] text-stone-500 truncate mt-0.5">
+                        {String(mon.url || "--")}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge tone={isActive ? "success" : "neutral"}>
+                          {isActive ? "Ativo" : "Inativo"}
+                        </Badge>
+                        <span className="text-[10px] text-stone-500">
+                          {String(mon.source_type || "web")}
+                        </span>
+                        {typeof mon.last_checked_at === "string" ? (
+                          <span className="text-[10px] text-stone-500">
+                            Ultima: {fmtDate(mon.last_checked_at)}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => void handleToggleMonitor(Number(mon.id), isActive)}
+                      className={cn(
+                        "p-2 rounded-lg border transition-colors text-xs",
+                        isActive
+                          ? "border-error/30 text-error hover:bg-error/10"
+                          : "border-primary/30 text-primary hover:bg-primary/10",
+                      )}
+                    >
+                      <MaterialIcon icon={isActive ? "pause" : "play_arrow"} size="sm" />
+                    </button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </section>
     </div>
   );

@@ -77,6 +77,11 @@ export type AttendanceListItem = {
   rag_chunks_used: number;
   report_model: string;
   created_at: string;
+  risk_level: string | null;
+  weight_kg: string | null;
+  height_cm: string | null;
+  main_complaint: string | null;
+  appointment_id: number | null;
 };
 
 export type TimelineEvent = {
@@ -125,11 +130,57 @@ export type AttendanceReport = {
   scientific_report: Record<string, unknown>;
 };
 
+export type PrescriptionContractField = {
+  field: string;
+  label: string;
+};
+
+export type PrescriptionContract = {
+  ready: boolean;
+  readiness: "ready" | "missing_required";
+  message: string;
+  required_fields: PrescriptionContractField[];
+  missing_required_fields: PrescriptionContractField[];
+  missing_optional_fields: PrescriptionContractField[];
+  resolved_values: Record<string, unknown>;
+  source_map: Record<string, string>;
+  report_id: number | null;
+  patient_id: number | null;
+};
+
+export type TriageSubmissionResult = {
+  report_id: number;
+  patient_id: number;
+  clinic_id: number;
+  patient_name: string;
+  status: string;
+  prescription_contract: PrescriptionContract;
+};
+
+export type TriageLinkContext = {
+  clinic_id: number;
+  clinic_label: string;
+  appointment_id?: number;
+  patient_id?: number;
+  patient_name?: string;
+  patient_phone?: string;
+  link_id?: number;
+};
+
+export type TriageLinkIssueResult = TriageLinkContext & {
+  token: string;
+  url: string;
+  issued_at: string;
+  expires_at: string;
+  link_id?: number;
+};
+
 export type AttendanceDetail = {
   report: AttendanceReport;
   timeline: TimelineEvent[];
   medical_record_entries: MedicalRecordEntry[];
   consultation_entry: MedicalRecordEntry | null;
+  prescription_contract: PrescriptionContract;
 };
 
 export type MedicalRecordPayload = {
@@ -185,4 +236,40 @@ export type AiAuditData = {
     days: number | null;
     limit: number;
   };
+};
+
+// ── Conversations (Inbox Clinica) ──
+
+export type Conversation = {
+  id: number;
+  clinic_id: number;
+  patient_id: number | null;
+  contact_phone: string;
+  contact_name: string | null;
+  patient_name_resolved: string | null;
+  channel: string;
+  status: string;
+  assigned_to: number | null;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  unread_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ConversationMessage = {
+  id: number;
+  conversation_id: number;
+  direction: "inbound" | "outbound";
+  sender_type: string;
+  sender_name: string | null;
+  message_text: string | null;
+  message_type: string;
+  status: string;
+  created_at: string;
+};
+
+export type ConversationDetail = {
+  conversation: Conversation;
+  messages: ConversationMessage[];
 };

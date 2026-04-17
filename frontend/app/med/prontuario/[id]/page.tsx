@@ -103,8 +103,7 @@ function formatDateShort(iso: string): string {
 }
 
 /* ---------------------------------------------------------------------------
- * Mock data helpers
- * TODO: Replace with real API data once backend provides these fields
+ * Data extraction helpers — dados reais da API, sem fallbacks mock
  * --------------------------------------------------------------------------- */
 
 function derivePatientContext(detail: AttendanceDetail): PatientContext {
@@ -112,25 +111,21 @@ function derivePatientContext(detail: AttendanceDetail): PatientContext {
   return {
     id: detail.report.patient_id ?? 0,
     name: detail.report.patient_name,
-    age: (anamnesis.age as number) ?? 42,
+    age: (anamnesis.age as number | undefined) ?? 0,
     main_complaint:
-      (anamnesis.main_complaint as string) ??
-      (anamnesis.queixa_principal as string) ??
-      "Dor cronica e insonia",
-    symptoms: (anamnesis.symptoms as string[]) ??
-      (anamnesis.sintomas as string[]) ?? [
-        "Dor cronica",
-        "Insonia",
-        "Ansiedade",
-      ],
-    current_medications: (anamnesis.current_medications as string[]) ??
-      (anamnesis.medicamentos_atuais as string[]) ?? ["Paracetamol 500mg"],
-    allergies: (anamnesis.allergies as string[]) ??
-      (anamnesis.alergias as string[]) ?? ["Nenhuma conhecida"],
+      (anamnesis.main_complaint as string | undefined) ??
+      (anamnesis.queixa_principal as string | undefined) ??
+      "",
+    symptoms: (anamnesis.symptoms as string[] | undefined) ??
+      (anamnesis.sintomas as string[] | undefined) ?? [],
+    current_medications: (anamnesis.current_medications as string[] | undefined) ??
+      (anamnesis.medicamentos_atuais as string[] | undefined) ?? [],
+    allergies: (anamnesis.allergies as string[] | undefined) ??
+      (anamnesis.alergias as string[] | undefined) ?? [],
     medical_history:
-      (anamnesis.medical_history as string) ??
-      (anamnesis.historico_medico as string) ??
-      "Fibromialgia diagnosticada ha 3 anos. Historico de enxaqueca.",
+      (anamnesis.medical_history as string | undefined) ??
+      (anamnesis.historico_medico as string | undefined) ??
+      null,
   };
 }
 
@@ -138,22 +133,17 @@ function deriveClinicalAnalysis(
   detail: AttendanceDetail,
 ): ClinicalAnalysis {
   const ca = detail.report.clinical_analysis ?? {};
+  const rawRisk = ((ca.risk_level as string | undefined) ?? "").toLowerCase().trim();
+  let riskLevel: RiskLevel = "baixo";
+  if (rawRisk === "critical" || rawRisk === "critico") riskLevel = "critico";
+  else if (rawRisk === "high" || rawRisk === "alto") riskLevel = "alto";
+  else if (rawRisk === "moderate" || rawRisk === "moderado") riskLevel = "moderado";
+
   return {
-    probable_conditions: (ca.probable_conditions as string[]) ??
-      (ca.condicoes_provaveis as string[]) ?? [
-        "Fibromialgia",
-        "Insonia cronica",
-      ],
-    risk_level:
-      (ca.risk_level as RiskLevel) ??
-      (ca.nivel_risco as RiskLevel) ??
-      "moderado",
-    recommended_exams: (ca.recommended_exams as string[]) ??
-      (ca.exames_recomendados as string[]) ?? [
-        "Hemograma completo",
-        "Dosagem de vitamina D",
-      ],
-    red_flags: (ca.red_flags as string[]) ?? [],
+    probable_conditions: (ca.probable_conditions as string[] | undefined) ?? [],
+    risk_level: riskLevel,
+    recommended_exams: (ca.recommended_exams as string[] | undefined) ?? [],
+    red_flags: (ca.red_flags as string[] | undefined) ?? [],
   };
 }
 
@@ -161,41 +151,41 @@ function deriveTreatmentPlan(detail: AttendanceDetail): TreatmentPlan {
   const tp = detail.report.treatment_plan ?? {};
   return {
     cannabinoid_ratio:
-      (tp.cannabinoid_ratio as string) ??
-      (tp.proporcao_canabinoides as string) ??
-      "20:1 CBD/THC",
+      (tp.cannabinoid_ratio as string | undefined) ??
+      (tp.proporcao_canabinoides as string | undefined) ??
+      "",
     suggested_dosage:
-      (tp.suggested_dosage as string) ??
-      (tp.dosagem_sugerida as string) ??
-      "0.5ml sublingual, 2x ao dia",
+      (tp.suggested_dosage as string | undefined) ??
+      (tp.dosagem_sugerida as string | undefined) ??
+      "",
     administration_route:
-      (tp.administration_route as string) ??
-      (tp.via_administracao as string) ??
-      "Sublingual",
+      (tp.administration_route as string | undefined) ??
+      (tp.via_administracao as string | undefined) ??
+      "",
     monitoring_plan:
-      (tp.monitoring_plan as string) ??
-      (tp.plano_monitoramento as string) ??
-      "Retorno em 30 dias para reavaliacao de sintomas",
-    precautions: (tp.precautions as string[]) ??
-      (tp.precaucoes as string[]) ?? [
-        "Evitar uso concomitante com benzodiazepinicos",
-      ],
+      (tp.monitoring_plan as string | undefined) ??
+      (tp.plano_monitoramento as string | undefined) ??
+      "",
+    precautions: (tp.precautions as string[] | undefined) ??
+      (tp.precaucoes as string[] | undefined) ?? [],
   };
 }
 
-function deriveMockVitals(): VitalSigns {
-  // TODO: Replace with real vitals from API once available
+function deriveVitals(detail: AttendanceDetail): VitalSigns | null {
+  const anamnesis = detail.report.anamnesis_data ?? {};
+  const vitals = (anamnesis.vital_signs ?? anamnesis.sinais_vitais) as Partial<VitalSigns> | undefined;
+  if (!vitals) return null;
   return {
-    bp_systolic: 118,
-    bp_diastolic: 75,
-    heart_rate: 68,
-    temperature: 36.4,
-    spo2: 97,
-    respiratory_rate: 16,
-    weight_kg: 62,
-    height_cm: 165,
-    bmi: 22.8,
-    pain_level: 4,
+    bp_systolic: vitals.bp_systolic ?? null,
+    bp_diastolic: vitals.bp_diastolic ?? null,
+    heart_rate: vitals.heart_rate ?? null,
+    temperature: vitals.temperature ?? null,
+    spo2: vitals.spo2 ?? null,
+    respiratory_rate: vitals.respiratory_rate ?? null,
+    weight_kg: vitals.weight_kg ?? null,
+    height_cm: vitals.height_cm ?? null,
+    bmi: vitals.bmi ?? null,
+    pain_level: vitals.pain_level ?? null,
   };
 }
 
@@ -293,8 +283,8 @@ function QuickStatsRow({
 }: {
   totalConsultations: number;
   lastVisit: string;
-  treatmentDuration: string;
-  complianceScore: number;
+  treatmentDuration: string | null;
+  complianceScore: number | null;
 }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
@@ -311,14 +301,14 @@ function QuickStatsRow({
       <StatCard
         icon="timer"
         label="Em Tratamento"
-        value={treatmentDuration}
+        value={treatmentDuration ?? "--"}
       />
       <StatCard
         icon="verified"
         label="Adesao"
-        value={`${complianceScore}%`}
-        delta={complianceScore >= 80 ? "Boa" : "Atencao"}
-        deltaType={complianceScore >= 80 ? "up" : "down"}
+        value={complianceScore !== null ? `${complianceScore}%` : "--"}
+        delta={complianceScore !== null ? (complianceScore >= 80 ? "Boa" : "Atencao") : undefined}
+        deltaType={complianceScore !== null ? (complianceScore >= 80 ? "up" : "down") : "neutral"}
       />
     </div>
   );
@@ -776,14 +766,6 @@ function TreatmentPlanCard({ plan }: { plan: TreatmentPlan }) {
 }
 
 function SymptomEvolutionCard() {
-  // TODO: Replace with real symptom evolution data from API
-  const symptoms = [
-    { name: "Dor", current: 40, previous: 70, color: "bg-error" },
-    { name: "Insonia", current: 30, previous: 65, color: "bg-amber-500" },
-    { name: "Ansiedade", current: 45, previous: 60, color: "bg-blue-500" },
-    { name: "Fadiga", current: 25, previous: 50, color: "bg-purple-500" },
-  ];
-
   return (
     <Card variant="glass" padding="lg" className="rounded-3xl">
       <div className="flex items-center gap-2 mb-5">
@@ -792,34 +774,10 @@ function SymptomEvolutionCard() {
           Evolucao dos Sintomas
         </h3>
       </div>
-      <div className="space-y-4">
-        {symptoms.map((s) => (
-          <div key={s.name} className="space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-on-surface font-medium">{s.name}</span>
-              <span className="text-primary text-xs font-bold">
-                {s.previous}% → {s.current}%
-              </span>
-            </div>
-            <div className="relative w-full h-2 bg-white/5 rounded-full overflow-hidden">
-              {/* Previous level (faded) */}
-              <div
-                className="absolute top-0 left-0 h-full bg-white/10 rounded-full"
-                style={{ width: `${s.previous}%` }}
-              />
-              {/* Current level */}
-              <div
-                className={cn(
-                  "absolute top-0 left-0 h-full rounded-full transition-all duration-700",
-                  s.color,
-                )}
-                style={{ width: `${s.current}%` }}
-              />
-            </div>
-          </div>
-        ))}
-        <p className="text-[10px] text-stone-500 italic mt-2">
-          Comparacao com inicio do tratamento
+      <div className="flex flex-col items-center justify-center py-6 text-center">
+        <MaterialIcon icon="show_chart" size="xl" className="text-stone-600 mb-3" />
+        <p className="text-sm text-stone-400">
+          Dados de evolucao serao exibidos apos registros longitudinais do paciente.
         </p>
       </div>
     </Card>
@@ -910,7 +868,7 @@ function MedicalNotesCard({
 export default function ProntuarioPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useApiSession();
+  useApiSession();
   const id = params.id as string;
 
   const [detail, setDetail] = useState<AttendanceDetail | null>(null);
@@ -995,7 +953,7 @@ export default function ProntuarioPage() {
   const patient = derivePatientContext(detail);
   const clinicalAnalysis = deriveClinicalAnalysis(detail);
   const treatmentPlan = deriveTreatmentPlan(detail);
-  const vitals = deriveMockVitals();
+  const vitals = deriveVitals(detail);
 
   const totalConsultations =
     detail.timeline.filter((e) => e.event_type === "consultation").length +
@@ -1004,10 +962,22 @@ export default function ProntuarioPage() {
     detail.timeline.length > 0
       ? formatDateShort(detail.timeline[0].event_time)
       : formatDateShort(detail.report.created_at);
-  // TODO: Calculate real treatment duration from first event to now
-  const treatmentDuration = "3 meses";
-  // TODO: Replace with real compliance score from API
-  const complianceScore = 84;
+
+  // Treatment duration: from first timeline event to now
+  const treatmentDuration = (() => {
+    if (detail.timeline.length === 0) return null;
+    const firstEvent = detail.timeline[detail.timeline.length - 1];
+    const diffMs = Date.now() - new Date(firstEvent.event_time).getTime();
+    const diffDays = Math.floor(diffMs / 86_400_000);
+    if (diffDays < 7) return `${diffDays} dias`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} semanas`;
+    return `${Math.floor(diffDays / 30)} meses`;
+  })();
+
+  // Compliance: entries completed / total consultations
+  const complianceScore = totalConsultations > 0
+    ? Math.round((detail.medical_record_entries.length / Math.max(totalConsultations, 1)) * 100)
+    : null;
 
   return (
     <section className="space-y-6 md:space-y-8 pb-8">
@@ -1057,7 +1027,7 @@ export default function ProntuarioPage() {
 
         {/* Right Column */}
         <div className="lg:col-span-4 space-y-6">
-          <VitalSignsCard vitals={vitals} />
+          {vitals && <VitalSignsCard vitals={vitals} />}
           <TreatmentPlanCard plan={treatmentPlan} />
           <SymptomEvolutionCard />
           <MedicalNotesCard

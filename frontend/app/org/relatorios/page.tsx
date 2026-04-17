@@ -355,9 +355,9 @@ export default function RelatoriosPage() {
             </div>
             <div className="flex gap-8">
               {[
-                { label: "Retorno medio", value: "42 dias" },
-                { label: "Satisfacao", value: "4.7/5.0" },
-                { label: "Indicacoes", value: "234" },
+                { label: "Retorno medio", value: "--" },
+                { label: "Satisfacao", value: "--" },
+                { label: "Indicacoes", value: "--" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
                   <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold mb-1">{s.label}</p>

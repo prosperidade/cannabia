@@ -364,28 +364,11 @@ export default function MedicosPage() {
                 <MaterialIcon icon="monitoring" className="text-primary-container" />
                 Benchmarks de Performance
               </h5>
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs uppercase tracking-widest font-bold">
-                    <span className="text-stone-500">Retencao de Pacientes</span>
-                    <span className="text-primary-container">94%</span>
-                  </div>
-                  <ProgressBar value={94} glow />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs uppercase tracking-widest font-bold">
-                    <span className="text-stone-500">Eficiencia de Consulta</span>
-                    <span className="text-on-surface">82%</span>
-                  </div>
-                  <ProgressBar value={82} variant="warning" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs uppercase tracking-widest font-bold">
-                    <span className="text-stone-500">Precisao Clinica</span>
-                    <span className="text-tertiary">99.8%</span>
-                  </div>
-                  <ProgressBar value={99.8} variant="success" glow />
-                </div>
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <MaterialIcon icon="analytics" size="xl" className="text-stone-600 mb-3" />
+                <p className="text-sm text-stone-400">
+                  Benchmarks serao calculados com base nos dados reais de atendimento.
+                </p>
               </div>
             </Card>
 

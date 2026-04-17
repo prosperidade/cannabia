@@ -42,6 +42,12 @@ export default function LabAiPage() {
   const [references, setReferences] = useState<Reference[]>(FALLBACK_REFERENCES);
   const [confidence, setConfidence] = useState(FALLBACK_CONFIDENCE);
   const [effects, setEffects] = useState<EffectItem[]>(FALLBACK_EFFECTS);
+  const [labMeta, setLabMeta] = useState<{
+    harvest_date?: string;
+    curing_time?: string;
+    technician_id?: string;
+    batch_status?: string;
+  } | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -57,6 +63,7 @@ export default function LabAiPage() {
       if (Array.isArray(d.references)) setReferences(d.references as Reference[]);
       if (typeof d.confidence === "number") setConfidence(d.confidence);
       if (Array.isArray(d.effects)) setEffects(d.effects as EffectItem[]);
+      if (d.lab_meta) setLabMeta(d.lab_meta as typeof labMeta);
     } catch {
       // keep fallback data
     } finally {
@@ -400,21 +407,21 @@ export default function LabAiPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card variant="glass" padding="sm" className="rounded-xl p-4">
           <span className="text-[10px] uppercase text-stone-500 tracking-widest">Data Colheita</span>
-          <p className="text-sm font-bold text-on-surface mt-1">12 OUT, 2025</p>
+          <p className="text-sm font-bold text-on-surface mt-1">{labMeta?.harvest_date ?? "--"}</p>
         </Card>
         <Card variant="glass" padding="sm" className="rounded-xl p-4">
           <span className="text-[10px] uppercase text-stone-500 tracking-widest">Tempo Cura</span>
-          <p className="text-sm font-bold text-on-surface mt-1">24 DIAS (FRIO)</p>
+          <p className="text-sm font-bold text-on-surface mt-1">{labMeta?.curing_time ?? "--"}</p>
         </Card>
         <Card variant="glass" padding="sm" className="rounded-xl p-4">
           <span className="text-[10px] uppercase text-stone-500 tracking-widest">Tecnico Lab</span>
-          <p className="text-sm font-bold text-on-surface mt-1">TECH_402_B</p>
+          <p className="text-sm font-bold text-on-surface mt-1">{labMeta?.technician_id ?? "--"}</p>
         </Card>
         <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
           <span className="text-[10px] uppercase text-primary tracking-widest">Status do Lote</span>
           <p className="text-sm font-bold text-on-surface mt-1 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            PRONTO PARA DISPENSACAO
+            {labMeta?.batch_status ?? "--"}
           </p>
         </div>
       </div>

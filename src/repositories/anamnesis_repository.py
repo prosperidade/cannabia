@@ -99,13 +99,23 @@ def list_reports(
         if has_patient_id:
             sql = (
                 "SELECT id, patient_id, patient_name, phone, status, rag_chunks_used, "
-                "report_model, created_at "
+                "report_model, created_at, "
+                "clinical_analysis->>'risk_level' AS risk_level, "
+                "anamnesis_data->'vital_signs'->>'weight_kg' AS weight_kg, "
+                "anamnesis_data->'vital_signs'->>'height_cm' AS height_cm, "
+                "anamnesis_data->>'main_complaint' AS main_complaint, "
+                "appointment_id "
                 "FROM anamnesis_reports WHERE clinic_id = %s"
             )
         else:
             sql = (
                 "SELECT id, NULL::INT AS patient_id, patient_name, phone, status, rag_chunks_used, "
-                "report_model, created_at "
+                "report_model, created_at, "
+                "clinical_analysis->>'risk_level' AS risk_level, "
+                "anamnesis_data->'vital_signs'->>'weight_kg' AS weight_kg, "
+                "anamnesis_data->'vital_signs'->>'height_cm' AS height_cm, "
+                "anamnesis_data->>'main_complaint' AS main_complaint, "
+                "NULL::INT AS appointment_id "
                 "FROM anamnesis_reports WHERE clinic_id = %s"
             )
         args: list = [clinic_id]
@@ -131,6 +141,35 @@ def get_report(clinic_id: int, report_id: int) -> Optional[Dict[str, Any]]:
             if isinstance(row.get(field), str):
                 row[field] = json.loads(row[field])
         return row
+
+
+def link_report_to_appointment(
+    report_id: int,
+    *,
+    appointment_id: Optional[int] = None,
+    triage_link_id: Optional[int] = None,
+) -> None:
+    """Vincula um report a um agendamento e/ou link de triagem."""
+    parts: list[str] = []
+    args: list = []
+    if appointment_id is not None:
+        parts.append("appointment_id = %s")
+        args.append(appointment_id)
+    if triage_link_id is not None:
+        parts.append("triage_link_id = %s")
+        args.append(triage_link_id)
+    if not parts:
+        return
+    args.append(report_id)
+    with db_cursor() as (conn, cursor):
+        try:
+            cursor.execute(
+                f"UPDATE anamnesis_reports SET {', '.join(parts)} WHERE id = %s",
+                args,
+            )
+            conn.commit()
+        except Exception:
+            conn.rollback()
 
 
 def mark_reviewed(clinic_id: int, report_id: int) -> None:
