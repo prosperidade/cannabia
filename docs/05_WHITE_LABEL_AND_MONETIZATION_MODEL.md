@@ -106,7 +106,30 @@ A monetização principal será feita por **assinatura mensal recorrente**, dife
 |------|--------|
 | Pacientes ativos | Ilimitados |
 | Usuários e médicos | Múltiplos |
-| Funcionalidades | Tudo do Pro + subdomínio próprio, automações avançadas, dashboards gerenciais e clínicos, regras de escalonamento customizadas, onboarding dedicado, suporte prioritário |
+| Funcionalidades | Tudo do Pro + subdomínio próprio, automações avançadas, dashboards gerenciais e clínicos, regras de escalonamento customizadas, onboarding dedicado, suporte prioritário, **SOPs & Quality Management (escopo reduzido)** e **Risk & Pharmacovigilance (escopo reduzido)** herdados do SCC |
+
+---
+
+### Plano Sandbox Ready
+
+**Público-alvo:** associações de pacientes que pretendem concorrer ao Edital de Chamamento Público do Sandbox Regulatório da ANVISA (RDC nº 1.014/2026), ou que operam via autorização judicial e precisam migrar para o regime regulado até agosto de 2027.
+
+Este plano é criado como **tier acima do Premium**, dedicado à entrega completa do Sandbox Compliance Core (SCC) definido em `23_SANDBOX_COMPLIANCE_CORE.md`.
+
+| Item | Limite |
+|------|--------|
+| Pacientes ativos | Ilimitados |
+| Usuários e médicos | Múltiplos |
+| Funcionalidades | Tudo do Premium + **todos os sete submódulos do SCC em escopo completo**: Governance Hub, SOPs & Quality Management, Seed-to-Patient Traceability, Member-Patient Registry, Risk & Pharmacovigilance, Evidence & Real-World Data Engine, Regulatory Reporting & Audit Trail |
+| Imutabilidade | **Ancoragem em blockchain pública ativa** (Bitcoin via OpenTimestamps + Polygon), conforme `26_BLOCKCHAIN_ANCHORING_PROTOCOL.md` |
+| Templates regulatórios | Biblioteca completa dos cinco planos obrigatórios do Projeto Experimental + Dossiê de Elegibilidade + Parecer Final de Monitoramento, conforme `27_REGULATORY_TEMPLATES_LIBRARY.md` |
+| Onboarding | Onboarding de compliance assistido por equipe dedicada da CannabIA |
+| Suporte | Suporte prioritário com SLA diferenciado para submissão ao Edital |
+| Dashboards | Dashboards regulatórios dedicados com indicadores ANVISA-ready |
+
+**Precificação sugerida:** combinação de fee recorrente de plataforma + ticket por associado regularmente cadastrado + setup de compliance. O detalhamento de valores fica para documento comercial específico.
+
+**Pontos não-negociáveis (invariantes do Art. 17 da RDC 1.014/2026):** rastreabilidade seed-to-patient, farmacovigilância e proteção de dados pessoais são tratadas como invariantes arquiteturais, não configuráveis por tenant. Ver detalhamento em `10_SECURITY_COMPLIANCE_AND_AUDIT.md` e `23_SANDBOX_COMPLIANCE_CORE.md`, Seção 4.4.
 
 ---
 
@@ -153,6 +176,15 @@ Espaços reservados para banners da indústria farmacêutica ou parceiros do eco
 
 ### 9.4. Futuras comissões de vendas
 Intenção aprovada de explorar comissões no ecossistema (a ser formalizado juridicamente).
+
+### 9.5. SKU de consultoria regulatória parceira
+
+Vinculado ao plano Sandbox Ready, a consultoria jurídica é oferecida como **SKU separável**, em duas modalidades de contratação:
+
+- **CannabIA Sandbox Ready (Plataforma)** — apenas a plataforma, sem camada jurídica.
+- **CannabIA Sandbox Ready + Legal Desk** — plataforma + acesso a rede credenciada de escritórios parceiros especializados em cannabis medicinal e regulação sanitária.
+
+A associação escolhe a modalidade no momento da contratação e pode migrar entre elas a qualquer tempo. A CannabIA pode trabalhar com mais de um escritório parceiro, oferecendo escolha à associação. O modelo jurídico e comercial da rede de escritórios fica detalhado em documento específico a ser produzido como extensão de `23_SANDBOX_COMPLIANCE_CORE.md`.
 
 ---
 

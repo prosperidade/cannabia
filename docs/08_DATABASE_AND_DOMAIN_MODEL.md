@@ -17,22 +17,65 @@ A CannabIA já possui banco relacional implementado com entidades clínicas bás
 ## 3. Estado atual do banco (identificado no repositório)
 
 ```sql
--- Tabelas já existentes
-clinics                 -- tenant atual (clínica)
-users                   -- usuários
-user_clinics            -- vínculo usuário-clínica
-patients                -- pacientes
-appointments            -- agendamentos/consultas
-incoming_messages       -- mensagens recebidas (WhatsApp)
-message_status_updates  -- status de mensagens
-ai_audit_logs           -- auditoria de execução de IA
-alerts                  -- alertas
-medical_history         -- histórico médico
-monitoring              -- monitoramento
-treatment_plans         -- planos de tratamento
-scientific_references   -- referências científicas
-ai_prompt_versions      -- versionamento de prompts
+-- Estrutura atual controlada por migrations 000-017
+schema_migrations         -- controle de versão/checksum das migrations
+clinics                   -- tenant atual (clínica)
+users                     -- usuários
+user_clinics              -- vínculo usuário-clínica
+patients                  -- pacientes
+appointments              -- agendamentos/consultas
+incoming_messages         -- mensagens recebidas (WhatsApp)
+message_status_updates    -- status de mensagens
+whatsapp_sessions         -- sessão/estado conversacional
+anamnesis_reports         -- relatório estruturado de anamnese
+ai_audit_logs             -- auditoria de execução de IA
+audit_trail               -- trilha transversal de auditoria
+alerts                    -- alertas
+medical_history           -- histórico médico
+monitoring                -- monitoramento
+treatment_plans           -- planos de tratamento
+scientific_references     -- referências científicas
+ai_prompt_versions        -- versionamento de prompts
+tenant_types              -- tipos de tenant
+tenants                   -- tenant formal da plataforma
+tenant_branding           -- base de white-label
+tenant_integrations       -- integrações por tenant
+user_tenant_roles         -- vínculo usuário-tenant-perfil
+patient_timeline_events   -- timeline longitudinal mínima
+medical_records           -- prontuário longitudinal
+medical_record_entries    -- entradas clínicas do prontuário
+knowledge_base_versions   -- versionamento da base de conhecimento
+knowledge_documents       -- documentos indexados
+billing_plans             -- catálogo de planos
+billing_subscriptions     -- assinaturas
+billing_usage             -- consumo por tenant
+billing_events            -- eventos de cobrança
+campaign_templates        -- templates de campanha
+campaign_executions       -- execuções de campanha
+campaign_recipients       -- destinatários por execução
+prescriptions             -- prescrições estruturadas
+b2b_orders                -- pedidos B2B
+scheduled_followups       -- follow-ups D+3/D+7/D+15
+iot_telemetry             -- telemetria temporal
+symptom_diary             -- diário de sintomas
+stock_inventory           -- estoque clínico
+stock_dispensations       -- dispensações ao paciente
+billing                   -- faturamento clínico operacional
+knowledge_catalog         -- catálogo unificado de conhecimento
+knowledge_monitors        -- monitores de fontes
+clinic_members            -- view operacional sobre user_clinics
 ```
+
+---
+
+## 3.1. Governança atual de migrations
+
+- O runner canônico é `src/infra/run_migrations.py`
+- A tabela de controle é `schema_migrations(version, filename, applied_at, checksum)`
+- `migrations/000_migration_tracking.sql` garante a existência da trilha antes das migrations normais
+- O runner rejeita prefixos de versão duplicados antes da aplicação
+- Em bases legadas, o runner normaliza registros sem checksum e atualiza filename canônico quando o conteúdo confere
+- `scripts/setup_local.py` foi validado em 2026-04-15 com a sequência real de migrations `000-017` e seeds demo
 
 ---
 
@@ -101,10 +144,13 @@ status, plan_id, created_at, updated_at
 | `leads` | Contatos pré-cadastro |
 | `attendances` | Interações operacionais e acolhimento |
 | `anamneses` | Coleta estruturada pré-consulta |
+| `anamnesis_reports` | Relatório clínico persistido da anamnese *(já existe — preservar)* |
 | `consultations` | Consultas clínicas formais *(adaptar appointments)* |
 | `medical_records` | Prontuário longitudinal (entidade agregadora) |
 | `medical_record_entries` | Entradas individuais do prontuário |
 | `treatment_plans` | Planos terapêuticos *(já existe — preservar)* |
+| `prescriptions` | Prescrição estruturada e protocolo terapêutico *(já existe — preservar/expandir)* |
+| `b2b_orders` | Encaminhamento operacional de pedidos vinculados à prescrição *(já existe — adaptar)* |
 | `exams` | Exames solicitados |
 | `attachments` | Documentos e arquivos vinculados |
 
@@ -122,6 +168,9 @@ status, plan_id, created_at, updated_at
 | `alerts` | Alertas gerados *(já existe — expandir)* |
 | `alert_escalations` | Histórico de escalonamento |
 | `patient_timelines` | Timeline consolidada do paciente |
+| `scheduled_followups` | Follow-ups pós-consulta já agendados *(já existe — preservar)* |
+| `symptom_diary` | Diário de sintomas do paciente *(já existe — preservar)* |
+| `iot_telemetry` | Telemetria longitudinal vinda de dispositivos *(já existe — expandir)* |
 
 ---
 
@@ -129,6 +178,11 @@ status, plan_id, created_at, updated_at
 
 | Tabela | Descrição |
 |--------|-----------|
+| `billing` | Faturamento clínico operacional simples *(já existe — adaptar)* |
+| `billing_plans` | Catálogo de planos da plataforma *(já existe — preservar)* |
+| `billing_subscriptions` | Assinaturas por tenant *(já existe — preservar)* |
+| `billing_usage` | Consumo medido para cobrança *(já existe — preservar)* |
+| `billing_events` | Eventos financeiros rastreáveis *(já existe — preservar)* |
 | `payment_requests` | Requisições de pagamento |
 | `payment_transactions` | Transações processadas |
 | `qr_code_payments` | QR Codes gerados e status |
@@ -162,7 +216,10 @@ status, plan_id, created_at, updated_at
 | `ai_prompt_versions` | Versionamento de prompts *(já existe — preservar)* |
 | `rag_queries` | Consultas ao banco vetorial |
 | `knowledge_sources` | Fontes de conhecimento |
-| `knowledge_documents` | Documentos indexados |
+| `knowledge_documents` | Documentos indexados *(já existe — preservar)* |
+| `knowledge_base_versions` | Versionamento de lotes de ingestão *(já existe — preservar)* |
+| `knowledge_catalog` | Catálogo unificado de artigos, legislação e guidelines *(já existe — preservar/expandir)* |
+| `knowledge_monitors` | Monitores de atualização por fonte *(já existe — preservar)* |
 | `knowledge_chunks` | Fragmentos para embedding |
 | `knowledge_embeddings` | Vetores por chunk |
 | `knowledge_usage_logs` | Rastreio de uso do conhecimento |
@@ -220,8 +277,48 @@ alerts              → expandir com escalonamento e estados
 
 ---
 
-## 9. Conclusão
+## 9. Extensão para o Sandbox Compliance Core (SCC)
 
-A CannabIA já possui base de dados real e aproveitável. O trabalho agora é conduzir uma **evolução disciplinada** do modelo existente para suportar a nova definição da plataforma.
+A partir de 2026-04-19, este modelo passa a ser estendido pela série SCC para atender à RDC nº 1.014/2026 e ao Sandbox Regulatório da ANVISA. As extensões não reescrevem o modelo atual; elas se somam a ele, preservando compatibilidade com `clinic_id` e introduzindo gradualmente a discriminação por `tenant_type` (clínica, associação, médico autônomo).
 
-A estratégia correta é preservar o que foi bem estruturado, adaptar o que precisa amadurecer e introduzir novos domínios onde o sistema atual ainda não cobre toda a necessidade do produto.
+### 9.1. Entidades novas do SCC
+
+- `associations` — evolução tipada de `clinics` para tenants do tipo associação, com campos estatutários.
+- `association_members` — vínculo formal pessoa-associação com status e vigência.
+- `technical_responsibles` — Responsáveis Técnicos com habilitação validada.
+- `sops`, `sop_versions`, `sop_trainings`, `sop_evidences`, `sop_deviations`, `capa_actions` — biblioteca de SOPs e ciclo de qualidade.
+- `seed_lots`, `genetic_matrices`, `plants`, `cultivation_batches`, `harvests`, `extractions`, `api_vegetables`, `preparations`, `dispensations` — cadeia de rastreabilidade seed-to-patient.
+- `traceability_events` — log append-only de todos os eventos de rastreabilidade, com hash encadeado (SHA-256 + `previous_hash`).
+- `lab_analyses` — laudos analíticos com perfil de canabinoides, vinculados a eventos de rastreabilidade.
+- `adverse_events`, `pharmacovigilance_notifications` — farmacovigilância estruturada.
+- `sanitary_risks`, `risk_controls` — matriz de riscos sanitários.
+- `sandbox_projects`, `sandbox_protocols`, `sandbox_indicators`, `sandbox_submissions` — gestão do Projeto Experimental.
+- `blockchain_anchors` — registros de ancoragem em blockchain pública com prova associada.
+- `regulatory_reports` — relatórios gerados e submetidos.
+
+### 9.2. Extensões a entidades existentes
+
+- `clinics` → evolução para `tenants` com discriminador de tipo.
+- `patients` → vínculo opcional com `association_members` quando o tenant é associação.
+- `prescriptions` → campos de conformidade regulatória específicos do sandbox.
+- `audit_trail` → consolidação com hash encadeado cobrindo operação, qualidade, segurança, financeiro e IA.
+- `ai_audit_logs` → extensão para auditar decisões de IA em triagem de farmacovigilância.
+
+### 9.3. Princípios arquiteturais das extensões
+
+- **Append-only** — tabelas de evento de rastreabilidade, farmacovigilância e auditoria sensível usam triggers que impedem `UPDATE`/`DELETE`.
+- **Hash chaining** — cada evento carrega `event_hash`, `previous_hash`, `chain_id` e `chain_sequence` para formar Merkle chains internas.
+- **Separação evento/contexto** — PII vive em tabelas mutáveis apagáveis sob LGPD; eventos imutáveis referenciam contexto por ID, nunca por valor.
+- **Ancoragem externa** — raízes Merkle são periodicamente ancoradas em blockchain pública (Bitcoin via OpenTimestamps + Polygon) conforme `26_BLOCKCHAIN_ANCHORING_PROTOCOL.md`.
+
+### 9.4. Série de migrations do SCC
+
+As migrations físicas detalhadas (DDL, índices, triggers, seeds) ficam em `25_SCC_DATA_MODEL_AND_MIGRATIONS.md`. A numeração prevista começa em **024** e vai até **036**, preservando os slots **022** e **023** já reservados para os ajustes de integridade e padronização `TIMESTAMPTZ` do `docs/progresso17_auditoria_completa_e_melhorias.md`.
+
+---
+
+## 10. Conclusão
+
+A CannabIA já possui base de dados real e aproveitável. O trabalho agora é conduzir uma **evolução disciplinada** do modelo existente para suportar a nova definição da plataforma, **incluindo o Sandbox Compliance Core** como camada de extensão coerente com a base atual.
+
+A estratégia correta é preservar o que foi bem estruturado, adaptar o que precisa amadurecer e introduzir novos domínios onde o sistema atual ainda não cobre toda a necessidade do produto — inclusive quando essa necessidade vem da regulação sanitária.

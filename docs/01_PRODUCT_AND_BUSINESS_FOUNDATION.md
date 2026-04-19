@@ -200,13 +200,14 @@ O RAG e banco vetorial sustentam o diferencial científico da plataforma. Seu pa
 
 ### Receita principal
 
-Assinatura mensal recorrente paga por clínica, associação ou médico, diferenciada por volume de pacientes:
+Assinatura mensal recorrente paga por clínica, associação ou médico, diferenciada por volume de pacientes e por aderência ao Sandbox Compliance Core:
 
 | Plano | Perfil |
 |-------|--------|
 | **Basic** | Até 100 pacientes ativos |
 | **Pro** | 101 a 500 pacientes ativos |
-| **Premium** | Ilimitado |
+| **Premium** | Ilimitado + componentes reduzidos de SOPs e Farmacovigilância |
+| **Sandbox Ready** | Associações com ambição de Sandbox Regulatório ANVISA — SCC completo (ver `05_WHITE_LABEL_AND_MONETIZATION_MODEL.md` e `23_SANDBOX_COMPLIANCE_CORE.md`) |
 
 ### Custos de IA
 

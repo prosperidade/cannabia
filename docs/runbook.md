@@ -95,8 +95,11 @@ O sistema usa migrations SQL sequenciais em `migrations/` com versionamento auto
 **Comportamento**:
 - Na execução, garante a existência de `schema_migrations` via `migrations/000_migration_tracking.sql`
 - Lê todos os arquivos `*.sql` em `migrations/` exceto prefixo `000_`, ordenados por nome
+- Rejeita prefixos de versão duplicados antes de aplicar qualquer SQL
 - Para cada arquivo, extrai a versão do prefixo (ex: `007` de `007_add_foreign_keys.sql`)
-- Se a versão já existe em `schema_migrations`: pula. Se checksum diverge: emite `WARNING`
+- Se a versão já existe em `schema_migrations` sem checksum: normaliza o registro legado com checksum atual
+- Se a versão já existe com filename antigo, mas checksum idêntico: atualiza o filename canônico
+- Se a versão já existe em `schema_migrations` e checksum diverge: emite `WARNING`
 - Se a versão não existe: executa o SQL, registra versão + checksum SHA-256
 
 **Execução local**:
@@ -577,9 +580,13 @@ python scripts/setup_local.py
 ```
 
 **O que faz**:
-1. Roda todas as migrations (000-015) via `src/infra/run_migrations.py`
+1. Roda todas as migrations (`000-017`) via `src/infra/run_migrations.py`
 2. Cria usuarios base via `scripts/seed_users.py` (admin, medico, atendente, paciente)
 3. Popula dados demo via `scripts/seed_comprehensive.py` (~200 registros em 39 tabelas)
+
+**Validação real mais recente**:
+- Em `2026-04-15`, `env\Scripts\python.exe scripts/setup_local.py` executou com sucesso em ambiente local com PostgreSQL e seeds completos
+- A execução normalizou `schema_migrations` para as versions `012`–`017`, eliminando warnings falsos por checksum vazio
 
 **Usuarios de teste**:
 
@@ -624,9 +631,9 @@ cd frontend && npm run dev
 
 **Proxy API**: `/api/v1/[...path]` repassa para Flask backend em `BACKEND_ORIGIN` (default `http://127.0.0.1:5000`)
 
-### Migration 013 — Tabelas e Colunas Faltantes (Novo — 2026-04-07)
+### Migration 014 — Tabelas e Colunas Faltantes (Atualizada)
 
-**Arquivo**: `migrations/013_missing_tables_and_columns.sql`
+**Arquivo**: `migrations/014_missing_tables_and_columns.sql`
 
 **Tabelas criadas**:
 - `symptom_diary` — diario de sintomas do paciente
@@ -713,27 +720,62 @@ cd frontend && npm run dev
 | GET | `/clinical/lab?patient_id=N` | Analise laboratorial por paciente |
 | GET | `/clinical/trials` | Outcomes de tratamento agregados |
 
-### Migrations (Atualizado — 2026-04-09)
+### Migrations (Atualizado — 2026-04-19)
 
-**Sequencia completa (16 arquivos)**:
+**Sequencia completa (22 arquivos aplicados, 000–021)**:
 ```
 000_migration_tracking.sql      — tabela schema_migrations
 001_initial_schema.sql          — clinics, users, patients, appointments, messages
 002_whatsapp_sessions.sql       — sessoes WhatsApp
-003_anamnesis_reports.sql        — relatorios de anamnese
-004_tenants_foundation.sql       — multi-tenancy
+003_anamnesis_reports.sql       — relatorios de anamnese
+004_tenants_foundation.sql      — multi-tenancy
 005_patient_timeline_foundation.sql — timeline de eventos
 006_medical_records_foundation.sql — prontuarios
-007_add_foreign_keys.sql         — 23 FKs
-008_audit_trail.sql              — trilha de auditoria
-009_knowledge_versions.sql       — versionamento de prompts
-010_billing_foundation.sql       — planos e assinaturas
-011_campaign_templates.sql       — campanhas
-012_prescriptions_orders.sql     — prescricoes e pedidos B2B
-013_telemetry_timeseries.sql     — followups e IoT
+007_add_foreign_keys.sql        — 23 FKs
+008_audit_trail.sql             — trilha de auditoria
+009_knowledge_versions.sql      — versionamento de prompts
+010_billing_foundation.sql      — planos e assinaturas
+011_campaign_templates.sql      — campanhas
+012_prescriptions_orders.sql    — prescricoes e pedidos B2B
+013_telemetry_timeseries.sql    — followups e IoT
 014_missing_tables_and_columns.sql — symptom_diary, stock, billing clinico
-015_users_enhancement.sql        — email, full_name, updated_at em users
+015_users_enhancement.sql       — email, full_name, updated_at em users
+016_knowledge_catalog.sql       — catalogo unificado de conhecimento
+017_knowledge_monitors.sql      — monitores de fontes e seeds iniciais
+018_triage_links.sql            — emissao/uso de links de triagem
+019_conversations.sql           — threads de conversas e mensagens
+020_tenant_extensions.sql       — branding, integracoes cifradas, plano e quota
+021_payment_requests_transactions.sql — cobrancas Pix, transacoes, webhook log
 ```
+
+**Integrity Hardening (escritas em 2026-04-19, pendentes de aplicação em banco):**
+
+- `022_integrity_hardening.sql` — ajustes de integridade (UNIQUE em `users.email` e `triage_links.token_hash`, FK em `patients.user_id`, CHECK em `patients.status`/`treatment_plans.status`/`anamnesis_reports.status`, GIN em `ai_audit_logs.input_payload`/`output_payload`), conforme `docs/progresso17_auditoria_completa_e_melhorias.md` e `docs/progresso18_integrity_hardening.md`. Testes estáticos em `tests/test_migrations_integrity_hardening.py` (30 testes verdes).
+- `023_timestamp_standardization.sql` — padronização `TIMESTAMP → TIMESTAMPTZ` nas colunas legadas das tabelas criadas nas migrations `001` e `003`, com `AT TIME ZONE 'UTC'` para preservar o instante.
+
+Aplicar ambas via `env\Scripts\python.exe scripts/setup_local.py` (ou `python -m src.infra.run_migrations`) e confirmar com `SELECT version, filename FROM schema_migrations WHERE version IN ('022','023')`.
+
+**Série do Sandbox Compliance Core (a partir de `024`):**
+
+A partir de `024`, as migrations materializam o SCC conforme `docs/25_SCC_DATA_MODEL_AND_MIGRATIONS.md`:
+
+```
+024_tenants_evolution.sql
+025_governance_schema.sql
+026_members_schema.sql
+027_quality_schema.sql
+028_traceability_schema_base.sql
+029_traceability_hash_chaining.sql
+030_traceability_triggers.sql
+031_pharmacovigilance_schema.sql
+032_regulatory_schema.sql
+033_crypto_schema.sql
+034_indexes_and_performance.sql
+035_views_and_helpers.sql
+036_seed_data_sandbox.sql
+```
+
+Nenhuma migration do SCC deve ser escrita nos slots `022` ou `023`.
 
 ### Arquitetura de Agentes IA (Planejado — 2026-04-09)
 
@@ -757,6 +799,24 @@ cd frontend && npm run dev
 - `src/ai/memory.py` — Helper MemPalace fire-and-forget
 - `src/knowledge/google_files.py` — Google Files API para legislacao ANVISA/CFM
 - `mempalace.yaml` — Wing cannabia_clinical com 10 rooms
+
+---
+
+### Sandbox Compliance Core (SCC) — série regulatória
+
+Desde 2026-04-19, a plataforma passa a contar com a série regulatória `docs/23` a `docs/27`, que materializa o **Sandbox Compliance Core (SCC)** — módulo transversal para tornar associações elegíveis e competitivas para o Sandbox Regulatório da ANVISA (RDC nº 1.014/2026).
+
+**Documentos da série:**
+
+- `docs/23_SANDBOX_COMPLIANCE_CORE.md` — arquitetura do SCC, 7 submódulos, invariantes do Art. 17, estratégia de blockchain em 3 camadas, distribuição entre planos.
+- `docs/24_PILOT_PROGRAM_AND_INSTITUTIONAL_PARTNERSHIPS.md` — programa piloto em 4 fases + aproximação com entidade nacional.
+- `docs/25_SCC_DATA_MODEL_AND_MIGRATIONS.md` — modelagem física em PostgreSQL, schemas, DDL, triggers append-only, estratégia de migrations.
+- `docs/26_BLOCKCHAIN_ANCHORING_PROTOCOL.md` — protocolo técnico de ancoragem em Bitcoin (via OpenTimestamps) + Polygon.
+- `docs/27_REGULATORY_TEMPLATES_LIBRARY.md` — biblioteca de templates parametrizáveis com engine Jinja2 e versionamento formal.
+
+**Invariantes arquiteturais (Art. 17) — não-flexibilizáveis:**
+
+Rastreabilidade seed-to-patient, farmacovigilância e proteção de dados pessoais (LGPD) são tratadas como invariantes: hardcoded no modelo, sem flag de tenant, sem SKU comercial capaz de desativá-las. Ver `docs/10_SECURITY_COMPLIANCE_AND_AUDIT.md`, Seção 22.
 
 ---
 

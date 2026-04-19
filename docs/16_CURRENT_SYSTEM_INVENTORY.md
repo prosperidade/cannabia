@@ -35,14 +35,56 @@ Fontes consideradas:
 | Auth | Flask-Login com usuário/senha |
 | Tenancy | `clinic_id` ativo com foundation inicial de `tenant_id` |
 | Banco | PostgreSQL com schema clínico-operacional inicial e foundation de tenant |
-| IA | Pipeline funcional com auditoria |
-| Vetorial | ChromaDB persistido em disco |
+| IA | Fluxo especialista-first em `src/ai/clinical_flow.py` + pipeline legado para rollback |
+| Vetorial | ChromaDB persistido em disco + catálogo unificado de conhecimento no PostgreSQL |
 | WhatsApp | Webhook Meta e envio de mensagens |
 | E-mail | Integração SMTP simples |
 | Agenda | Agendamento simples |
-| Billing | Não implementado |
+| Billing | Foundation implementada, com maturidade operacional parcial |
 | Pagamentos | Não implementado |
-| PubMed | Não implementado |
+| PubMed | Busca e ingestão parcialmente implementadas via `AgenteExtrator` |
+
+### 3.1. Atualização executiva — 2026-04-15
+
+Pontos que precisam ser lidos como estado real mais recente da base:
+
+- a camada de agentes já existe e está operacional no repositório
+- o fluxo clínico principal deixou de depender do orquestrador como caminho crítico
+- a base de conhecimento é híbrida:
+  - ChromaDB para artigos científicos
+  - Google Files API para legislação e documentos grandes
+  - PostgreSQL para catálogo e monitores
+- as rotas `/api/v1/knowledge`, `/api/v1/regulatory` e `/api/v1/admin/agents` já existem
+- o MemPalace está configurado e em uso como memória fire-and-forget
+- o setup local real (`scripts/setup_local.py`) foi validado com migrations `000-017` e seeds completos
+- a trilha `schema_migrations` está normalizada com checksum canônico inclusive para `012`–`017`
+- a pasta `data/legislation/` ainda não está populada com os documentos reais
+- a suíte local está verde com `38` testes, mas ainda cobre pouco `knowledge` e `regulatory`
+
+### 3.2. Atualização executiva — 2026-04-19
+
+Pontos de atualização consolidando os ciclos de 2026-04-16 e 2026-04-17 (`progresso11`–`progresso17`) e a abertura da série SCC:
+
+- `data/legislation/` passou a conter os documentos regulatórios canônicos (`RDC 327/2019`, `RDC 660/2022`, `Lei 11.343/2006`, `Resolução CFM 2.113/2014`), com upload real para Google Files API e 4 normas indexadas em `knowledge_catalog`
+- contrato clínico mínimo para prescrição segura foi formalizado em `src/services/prescription_contract.py`, com `weight_kg`, `height_cm` e `prior_cannabis_use` como campos obrigatórios
+- intake/triagem ganhou coleta antecipada desses campos no wizard web e endurecimento via link assinado por clínica em `src/services/triage_link_service.py`
+- modelo de conversas e inbox clínica passou a existir em produção, com migration `019_conversations.sql`
+- multi-tenancy evoluiu para operável com branding por tenant, integrações criptografadas (Fernet) e subdomínio via `src/tenancy.py`, suportado por `020_tenant_extensions.sql`
+- domínio financeiro com emissão de Pix EMV (copia-e-cola com CRC16-CCITT), webhook conciliação validado por HMAC e auditoria em `payment_webhook_log`, suportado por `021_payment_requests_transactions.sql`
+- suíte local verde com `90` testes (sprint 8), com cobertura estendida para pix payload, tenant secrets, tenancy subdomain e payment service
+- sequência canônica de migrations hoje no repositório é `000`–`021`; os slots `022` e `023` ficam reservados para os ajustes de integridade (UNIQUE, FK, CHECK, GIN) e padronização `TIMESTAMPTZ` definidos no `docs/progresso17_auditoria_completa_e_melhorias.md`
+- a série de documentos regulatórios `docs/23` a `docs/27` foi introduzida consolidando o **Sandbox Compliance Core (SCC)**, o programa piloto, a modelagem de dados do SCC, o protocolo de ancoragem em blockchain pública e a biblioteca de templates regulatórios
+- rastreabilidade, farmacovigilância e proteção de dados pessoais passam a ser tratadas como **invariantes arquiteturais** (Art. 17 da RDC 1.014/2026), conforme `docs/10_SECURITY_COMPLIANCE_AND_AUDIT.md`, Seção 22
+
+### 3.3. Atualização executiva — 2026-04-19 (sessão tardia)
+
+Pontos entregues no fechamento da Fase 0 do `docs/BACKLOG_SCC.md`:
+
+- `migrations/022_integrity_hardening.sql` escrita e pronta para aplicação: UNIQUE em `users.email` (case-insensitive, parcial), UNIQUE em `triage_links.token_hash` (substituindo o índice não-único de 018), FK `patients.user_id → users(id)` com `ON DELETE SET NULL`, CHECKs com whitelist em `patients.status`/`treatment_plans.status`/`anamnesis_reports.status`, GIN em `ai_audit_logs.input_payload` e `output_payload`
+- `migrations/023_timestamp_standardization.sql` escrita e pronta para aplicação: conversão `TIMESTAMP → TIMESTAMPTZ` em 18 pares (tabela, coluna) das migrations 001 e 003, com loop declarativo e guards em `information_schema`
+- `tests/test_migrations_integrity_hardening.py` com 30 testes estáticos validando estrutura, DDL específico, whitelists e idempotência (sem dependência de banco real)
+- `docs/progresso18_integrity_hardening.md` registrando a sessão
+- ambas as migrations **ainda não aplicadas** em ambiente local; a aplicação via `scripts/setup_local.py` fica como primeira missão da sessão seguinte no terminal
 
 ---
 
@@ -63,7 +105,7 @@ Fontes consideradas:
 | `src/infra/database.py` | Conexão e cursor de banco | Implementado |
 | `src/infra/logging.py` | Configuração de logging | Implementado |
 | `src/infra/security.py` | Redaction e controle simples de acesso | Implementado, precisa revisão |
-| `src/infra/run_migrations.py` | Executor local de migrations | Implementado |
+| `src/infra/run_migrations.py` | Executor local de migrations | Implementado, versionado com checksum e normalização de legado |
 
 ### 4.3. Camada de IA
 
@@ -183,6 +225,7 @@ Fontes consideradas:
 | `treatment_plans` | clínico | modelo simples |
 | `whatsapp_sessions` | conversacional | máquina de estados da anamnese |
 | `anamnesis_reports` | atendimento/anamnese | persistência do relatório completo |
+| `audit_trail` | auditoria transversal | trilha de ações sistêmicas |
 | `tenant_types` | tenancy ampla | base dos tipos de tenant |
 | `tenants` | tenancy ampla | tenant formal da plataforma |
 | `tenant_branding` | white-label base | configuração inicial de marca |
@@ -191,6 +234,26 @@ Fontes consideradas:
 | `patient_timeline_events` | jornada clínica | timeline longitudinal mínima |
 | `medical_records` | prontuário | entidade agregadora inicial |
 | `medical_record_entries` | prontuário | entradas clínicas e snapshots |
+| `knowledge_base_versions` | knowledge | controle de lotes/versionamento |
+| `knowledge_documents` | knowledge | documentos indexados |
+| `billing_plans` | billing | catálogo de planos |
+| `billing_subscriptions` | billing | assinaturas por tenant |
+| `billing_usage` | billing | medição de consumo |
+| `billing_events` | billing | eventos financeiros |
+| `campaign_templates` | campanhas | templates reutilizáveis |
+| `campaign_executions` | campanhas | execuções disparadas |
+| `campaign_recipients` | campanhas | destinatários por execução |
+| `prescriptions` | clínico/prescrição | protocolo estruturado e limites de segurança |
+| `b2b_orders` | comercial/operação | pedidos vinculados à prescrição |
+| `scheduled_followups` | pós-consulta | follow-ups D+3/D+7/D+15 |
+| `iot_telemetry` | monitoramento | série temporal por paciente |
+| `symptom_diary` | acompanhamento | diário de sintomas |
+| `stock_inventory` | operação clínica | estoque canábico |
+| `stock_dispensations` | operação clínica | dispensação ao paciente |
+| `billing` | operação clínica | faturamento simples |
+| `knowledge_catalog` | knowledge/regulatório | catálogo unificado de artigos, normas e uploads |
+| `knowledge_monitors` | knowledge/regulatório | monitores ativos por fonte |
+| `clinic_members` | view operacional | alias de `user_clinics` para compatibilidade |
 
 ### 6.2. Leitura de maturidade do banco atual
 
@@ -201,11 +264,14 @@ Fontes consideradas:
 | Auditoria de IA | Existe |
 | Comunicação WhatsApp | Existe |
 | Prontuário longitudinal | Foundation mínima implementada |
-| Billing | Não existe |
+| Billing | Existe como foundation + camada operacional simples |
 | Pagamentos | Não existe |
-| Branding por tenant | Não existe |
-| Integrações por tenant | Não existe |
+| Branding por tenant | Foundation mínima implementada |
+| Integrações por tenant | Foundation mínima implementada |
 | Timeline do paciente | Foundation mínima implementada |
+| Prescrição estruturada | Existe, ainda não embutida em todo fluxo principal |
+| Knowledge catalog unificado | Existe |
+| Monitores de conhecimento | Existe, com maturidade parcial |
 | Questionários e respostas estruturadas | Não existe |
 
 ---
@@ -334,7 +400,7 @@ Fluxo existente:
 | Item | Problema |
 |------|----------|
 | `user.role` vs `user_clinics.role` | semântica de papéis ambígua |
-| setup de migrations | runner local ainda é simples e deve evoluir com a próxima fase |
+| setup de migrations | trilha canônica está saneada; resta manter disciplina de novas migrations e atualizar documentação operacional |
 | integrações por tenant | WhatsApp, e-mail e IA ainda dependem de configuração global |
 | migração ampla de domínio | `tenant_id` ainda não substitui `clinic_id` nas tabelas transacionais |
 

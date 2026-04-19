@@ -298,7 +298,78 @@ Registrar: tentativas de login inválidas, acessos negados, alteração de crede
 
 ---
 
-## 22. Conclusão
+## 22. Invariantes arquiteturais do Art. 17 da RDC 1.014/2026
+
+A RDC nº 1.014/2026 (Sandbox Regulatório da ANVISA para cannabis medicinal), em seu Art. 17, estabelece três áreas de proteção que **não podem** ser moduladas, flexibilizadas ou desativadas sob nenhuma hipótese durante a operação no sandbox.
+
+A CannabIA trata cada uma delas como **invariante arquitetural**, ou seja, regras hardcoded no modelo de dados, nos fluxos operacionais e nas políticas de acesso — sem flag de tenant, sem parâmetro de configuração white-label e sem SKU comercial capaz de desativá-las.
+
+| Invariante | Tratamento arquitetural na CannabIA |
+|-----------|-------------------------------------|
+| **Rastreabilidade e controle da planta e derivados** | Hardcoded no Seed-to-Patient Traceability do Sandbox Compliance Core. Sem flag de desativação. |
+| **Notificação de eventos adversos** | Hardcoded no módulo de Farmacovigilância do SCC. Sem flag de desativação. |
+| **Proteção de dados pessoais dos pacientes (LGPD)** | Hardcoded no modelo de dados (separação evento/contexto), nas políticas de acesso e nos fluxos de apagamento. Sem flag de desativação. |
+
+**Consequência prática:**
+
+- Nenhum parâmetro de tenant, nenhuma customização white-label, nenhum módulo comercial pode desligar essas três camadas.
+- As três camadas são validadas por testes regressivos obrigatórios na suíte de qualidade.
+- A decisão é registrada como **regra arquitetural imutável** da governança da plataforma.
+
+Para a especificação operacional completa do SCC e das três invariantes, ver `23_SANDBOX_COMPLIANCE_CORE.md`, Seção 4.4.
+
+---
+
+## 23. Estratégia de imutabilidade em três camadas
+
+Esta seção consolida a estratégia oficial de imutabilidade da CannabIA para rastreabilidade, farmacovigilância, SOPs e trilhas de auditoria — pré-requisito para atender os invariantes do Art. 17 e produzir provas independentes de integridade defensáveis diante da ANVISA.
+
+A estratégia é **híbrida, em três camadas**, explicitamente desenhada para entregar os benefícios reais de imutabilidade sem herdar os custos, a complexidade e os conflitos com a LGPD inerentes ao uso amplo de blockchain pública.
+
+### 23.1. Camada 1 — Banco transacional append-only
+
+Todas as operações de rastreabilidade, farmacovigilância, SOPs e auditoria sensível são gravadas em PostgreSQL com as seguintes garantias:
+
+- Tabelas append-only com triggers que impedem `UPDATE` e `DELETE` a nível de banco.
+- Revogação de permissões de `UPDATE` e `DELETE` para todas as roles, exceto a role dedicada de backup/compliance.
+- Separação estrutural entre tabelas de **evento imutável** (sem PII) e tabelas de **contexto** (com PII, apagáveis sob LGPD).
+- Eventos imutáveis referenciam contexto por identificador, nunca por conteúdo — permitindo apagamento de PII sem quebrar a cadeia de eventos.
+
+### 23.2. Camada 2 — Cadeia de hashes interna
+
+Cada evento armazenado carrega:
+
+- `event_hash` — hash SHA-256 do conteúdo canônico do evento.
+- `previous_hash` — hash do evento imediatamente anterior na mesma cadeia lógica.
+- `chain_id` — identificador da cadeia (ex.: lote de cultivo, associação).
+- `chain_sequence` — número sequencial do evento dentro da cadeia.
+
+Isso forma uma **Merkle chain interna** dentro do banco. Qualquer alteração retroativa, mesmo que conseguisse escapar das restrições da camada 1, quebra a cadeia de hashes e é imediatamente detectável em auditoria.
+
+### 23.3. Camada 3 — Ancoragem em blockchain pública
+
+Periodicamente (cadência diária por padrão), o sistema:
+
+- Calcula a **raiz Merkle** de todos os eventos novos desde a última ancoragem.
+- Submete a raiz a uma blockchain pública via **OpenTimestamps (Bitcoin)** como registro canônico de longo prazo.
+- Registra a mesma raiz em um **smart contract simples em Polygon** para verificação rápida.
+- Armazena a prova de ancoragem (transaction ID, bloco, timestamp) junto aos eventos cobertos.
+
+**Garantias:**
+
+- Qualquer pessoa, incluindo a ANVISA, pode verificar independentemente que os registros não foram adulterados após a data da ancoragem.
+- Nenhum dado pessoal, clínico ou operacional é exposto publicamente — apenas a raiz Merkle, que é um hash derivado e não reversível ao dado original.
+- A LGPD permanece respeitada integralmente: PII nunca toca a blockchain pública.
+
+### 23.4. Relação com a trilha de auditoria existente
+
+A ancoragem em blockchain pública é **extensão** (não substituição) da trilha de auditoria descrita nas Seções 12 a 16 deste documento. A auditoria consolidada permanece operando em `audit_trail`, `ai_audit_logs` e nos logs clínicos/operacionais/financeiros/de segurança já existentes. A camada de ancoragem adiciona a prova criptográfica independente — o que a trilha interna sozinha não garante contra ataques internos com privilégio máximo.
+
+Para a especificação técnica detalhada do protocolo (redes escolhidas, cadência, custos, retry, reorgs, interface pública de verificação, fallback), ver `26_BLOCKCHAIN_ANCHORING_PROTOCOL.md`.
+
+---
+
+## 24. Conclusão
 
 A CannabIA já possui base concreta de autenticação, tenancy e auditoria. A nova fase exige consolidar essas capacidades em uma arquitetura de segurança mais formal, abrangente e preparada para escala.
 
