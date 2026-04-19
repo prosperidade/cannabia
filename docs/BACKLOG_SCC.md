@@ -27,9 +27,9 @@ Nenhuma escrita no banco pelo SCC antes de sanear a base conforme `docs/progress
 |----|--------|-----------|----------------------|--------|
 | P0.1 | Migration `022_integrity_hardening.sql` — UNIQUE em `users.email`, UNIQUE em `triage_links.token_hash`, FK em `patients.user_id`, CHECK em `patients.status`/`treatment_plans.status`/`anamnesis_reports.status`, GIN em `ai_audit_logs.input_payload`/`output_payload` | Alta | Backend | **SQL pronto, pendente aplicação** (arquivo escrito em 2026-04-19 + 30 testes estáticos; aplicar via `scripts/setup_local.py`) |
 | P0.2 | Migration `023_timestamp_standardization.sql` — padronizar `TIMESTAMP → TIMESTAMPTZ` nas tabelas criadas pelas migrations `001` e `003` | Alta | Backend | **SQL pronto, pendente aplicação** (arquivo escrito em 2026-04-19; aplicação em loop sobre `TEXT[][]` com guards em `information_schema`) |
-| P0.3 | `.github/workflows/ci.yml` — `pytest -q` + `tsc --noEmit` em todo PR | Alta | Backend | Aberto |
-| P0.4 | `.env.example` completo — `DEFAULT_CLINIC_ID`, `TELEMETRY_*`, `PAYMENT_WEBHOOK_SECRET_*` | Média | Backend | Aberto |
-| P0.5 | Política formal de backup/DR + scripts `migrations/down/` para rollback | Média | Ops | Aberto |
+| P0.3 | `.github/workflows/ci.yml` — `pytest -q` + `tsc --noEmit` em todo PR | Alta | Backend | **Concluído** 2026-04-19 — dois jobs (backend com `postgres:16-alpine` + frontend node 20), concurrency group cancela builds superados |
+| P0.4 | `.env.example` completo — `DEFAULT_CLINIC_ID`, `TELEMETRY_*`, `PAYMENT_WEBHOOK_SECRET_*` | Média | Backend | **Concluído** 2026-04-19 — 17 chaves adicionais documentadas por categoria (DB_POOL_*, FLASK_ENV, OPENAI_TIMEOUT, GEMINI_*, TASK_*, REDIS_URL, PUBMED_EMAIL, frontend Next.js) |
+| P0.5 | Política formal de backup/DR + scripts `migrations/down/` para rollback | Média | Ops | **Concluído** 2026-04-19 — `docs/BACKUP_AND_DISASTER_RECOVERY.md` + `migrations/down/` (README + down scripts 022 e 023). Primeiro teste trimestral de recuperação agendado até 2026-05-19 |
 
 ---
 

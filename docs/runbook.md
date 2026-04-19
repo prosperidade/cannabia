@@ -111,6 +111,8 @@ python -m src.infra.run_migrations
 
 **Migration com FKs (007)**: executar em janela de manutenção se houver volume — faz `DELETE` de órfãos e `ALTER TABLE ADD CONSTRAINT` em transação
 
+**Rollback de migrations**: `migrations/down/` guarda scripts manuais de reversão (política obrigatória a partir da 022). Ver `migrations/down/README.md` para o procedimento; sempre precedido de backup validado (`docs/BACKUP_AND_DISASTER_RECOVERY.md`)
+
 ### Health Check
 
 **Endpoint**: `GET /api/v1/health`
