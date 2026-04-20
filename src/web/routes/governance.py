@@ -21,6 +21,10 @@ from typing import Any, Optional
 from flask import Blueprint, g
 
 from src.repositories import governance_repository as repo
+from src.services.governance_dossier import (
+    build_dossier_data,
+    render_dossier_markdown,
+)
 from src.services.governance_service import (
     EligibilityReport,
     check_sandbox_eligibility,
@@ -492,3 +496,49 @@ def post_refresh_eligibility():
     except ValueError as exc:
         return _error("not_found", str(exc), 404)
     return _success(_report_payload(report))
+
+
+# =====================================================================
+# Dossier de Elegibilidade (F1.5 parte 2)
+# =====================================================================
+
+@governance_bp.get("/eligibility/dossier")
+@api_role_required("Admin", "Medico")
+def get_eligibility_dossier():
+    """Gera o Dossie de Elegibilidade.
+
+    Query params:
+      - format=json (default): dict com todos os dados + markdown renderizado
+      - format=md: Markdown puro (Content-Type: text/markdown)
+    """
+    from flask import request, Response
+
+    tenant_id, err = _require_tenant_context()
+    if err:
+        return err
+
+    fmt = (request.args.get("format") or "json").lower()
+    if fmt not in ("json", "md"):
+        return _error("validation_error", "format deve ser 'json' ou 'md'.", 422)
+
+    try:
+        data = build_dossier_data(tenant_id)
+    except ValueError as exc:
+        return _error("not_found", str(exc), 404)
+
+    markdown = render_dossier_markdown(tenant_id, data=data)
+
+    if fmt == "md":
+        return Response(markdown, mimetype="text/markdown; charset=utf-8")
+
+    # format=json: retorna dados + markdown inline para o frontend
+    return _success({
+        "tenant_id": tenant_id,
+        "template_version": data["template_version"],
+        "generated_at": data["generated_at"],
+        "is_eligible": data["eligibility"]["is_eligible"],
+        "fail_count": data["fail_count"],
+        "warn_count": data["warn_count"],
+        "markdown": markdown,
+        "findings": data["findings"],
+    })

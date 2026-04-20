@@ -499,6 +499,64 @@ class TestEligibilityEndpoints:
 # Tenant context
 # ---------------------------------------------------------------------
 
+class TestDossierEndpoint:
+    def _fake_data(self) -> dict[str, Any]:
+        return {
+            "template_version": "v1",
+            "generated_at": "2026-04-20T00:00:00+00:00",
+            "eligibility": {"is_eligible": True},
+            "fail_count": 0,
+            "warn_count": 1,
+            "findings": [{"code": "legal_nature", "status": "pass", "message": "ok"}],
+        }
+
+    def test_dossier_json_default(self, app_client, monkeypatch):
+        data = self._fake_data()
+        monkeypatch.setattr(
+            "src.web.routes.governance.build_dossier_data", lambda tid: data
+        )
+        monkeypatch.setattr(
+            "src.web.routes.governance.render_dossier_markdown",
+            lambda tid, data=None: "# Dossie\n\nconteudo renderizado",
+        )
+        response = app_client.get("/api/v1/governance/eligibility/dossier")
+        assert response.status_code == 200
+        payload = response.get_json()["data"]
+        assert payload["tenant_id"] == TENANT_ID
+        assert payload["is_eligible"] is True
+        assert payload["markdown"].startswith("# Dossie")
+        assert payload["template_version"] == "v1"
+
+    def test_dossier_format_md(self, app_client, monkeypatch):
+        monkeypatch.setattr(
+            "src.web.routes.governance.build_dossier_data", lambda tid: self._fake_data()
+        )
+        monkeypatch.setattr(
+            "src.web.routes.governance.render_dossier_markdown",
+            lambda tid, data=None: "# MD puro",
+        )
+        response = app_client.get("/api/v1/governance/eligibility/dossier?format=md")
+        assert response.status_code == 200
+        assert "text/markdown" in response.headers["Content-Type"]
+        assert response.get_data(as_text=True) == "# MD puro"
+
+    def test_dossier_invalid_format_returns_422(self, app_client):
+        response = app_client.get("/api/v1/governance/eligibility/dossier?format=pdf")
+        assert response.status_code == 422
+        assert response.get_json()["error"]["code"] == "validation_error"
+
+    def test_dossier_missing_tenant_returns_404(self, app_client, monkeypatch):
+        def raise_missing(_tid):
+            raise ValueError("Tenant 42 nao encontrado.")
+
+        monkeypatch.setattr(
+            "src.web.routes.governance.build_dossier_data", raise_missing
+        )
+        response = app_client.get("/api/v1/governance/eligibility/dossier")
+        assert response.status_code == 404
+        assert response.get_json()["error"]["code"] == "not_found"
+
+
 class TestTenantContext:
     def test_missing_tenant_returns_400(self, no_tenant_client, monkeypatch):
         monkeypatch.setattr(

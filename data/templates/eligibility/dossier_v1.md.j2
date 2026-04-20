@@ -1,0 +1,182 @@
+{#- Dossie de Elegibilidade v1 (doc 27 §5). Renderizado em Markdown por
+    src/services/governance_dossier.py. Lacunas sao declaradas
+    explicitamente com "[pendencia: ...]" para cumprir o requisito de
+    auto-preenchimento com avisos (doc 27 §5.4).
+-#}
+# Dossie de Elegibilidade — Sandbox Regulatorio
+
+**Associacao:** {{ tenant.legal_name }}
+{% if tenant.trade_name and tenant.trade_name != tenant.legal_name -%}
+**Nome fantasia:** {{ tenant.trade_name }}
+{% endif -%}
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ template_version }}
+
+---
+
+## 1. Identificacao institucional
+
+| Campo | Valor |
+|---|---|
+| Razao social | {{ tenant.legal_name or "[pendencia: informar razao social]" }} |
+| CNPJ | {{ tenant.cnpj or "[pendencia: cadastrar CNPJ]" }} |
+| Data de constituicao | {{ tenant.incorporation_date or "[pendencia: informar data de constituicao]" }} |
+| Tipo de pessoa juridica | {{ tenant.tenant_type }} |
+| Numero de associados | {{ association.members_count if association else "[pendencia: cadastro institucional ausente]" }} |
+| Operacao sob autorizacao judicial | {{ "Sim" if association and association.is_judicial_operation else "Nao" }} |
+{% if association and association.is_judicial_operation and association.judicial_authorization -%}
+| Autorizacao judicial | {{ association.judicial_authorization }} |
+{% endif %}
+
+## 2. Natureza juridica
+
+{% set nature = findings_by_code.get("legal_nature") -%}
+{% if nature and nature.status == "pass" -%}
+**Conforme.** Tenant cadastrado como associacao (pessoa juridica sem fins lucrativos), conforme exigido pela RDC 1.014/2026.
+{% else -%}
+**Nao conforme.** {{ nature.message if nature else "Sem dados de natureza juridica." }}
+{% endif %}
+
+## 3. Tempo de constituicao
+
+{% set inc = findings_by_code.get("incorporation_time") -%}
+{% if inc and inc.status == "pass" -%}
+**Conforme.** {{ inc.message }}
+- Data de constituicao: {{ inc.details.incorporation_date }}
+- Anos decorridos: {{ inc.details.years }}
+- Minimo exigido: {{ inc.details.minimum_required }} anos
+{% else -%}
+**Nao conforme.** {{ inc.message if inc else "Sem dados de tempo de constituicao." }}
+{% endif %}
+
+## 4. Responsavel(is) Tecnico(s)
+
+{% if rts -%}
+{% for rt in rts -%}
+### 4.{{ loop.index }}. {{ rt.full_name }}
+
+| Campo | Valor |
+|---|---|
+| Conselho | {{ rt.professional_council }} |
+| Numero | {{ rt.council_number }} |
+| UF | {{ rt.council_state }} |
+| Habilitacao valida ate | {{ rt.habilitation_valid_until or "[pendencia: registrar validade do conselho]" }} |
+| Situacao | {{ "Ativo" if rt.is_active else "Inativo" }} |
+{% endfor -%}
+{% else -%}
+**[pendencia]** Nenhum Responsavel Tecnico ativo cadastrado. Cadastre ao menos um RT com conselho, numero e UF antes de submeter ao Edital.
+{% endif %}
+
+## 5. Capacidade Tecnico-Operacional
+
+{% if capacity -%}
+**Data da avaliacao:** {{ capacity.assessment_date }}
+{% if capacity.overall_readiness is not none -%}
+**Indice de prontidao geral:** {{ capacity.overall_readiness }}/100
+{% endif %}
+
+### 5.1. Infraestrutura
+```json
+{{ capacity.infrastructure_score | tojson(indent=2) }}
+```
+
+### 5.2. Recursos humanos
+```json
+{{ capacity.human_resources_score | tojson(indent=2) }}
+```
+
+### 5.3. Maturidade de processos
+```json
+{{ capacity.process_maturity_score | tojson(indent=2) }}
+```
+
+### 5.4. Escala proposta
+```json
+{{ capacity.proposed_scale | tojson(indent=2) }}
+```
+{% else -%}
+**[pendencia]** Nenhuma avaliacao de Capacidade Tecnico-Operacional registrada. Esse e um requisito obrigatorio para submissao.
+{% endif %}
+
+## 6. Documentos institucionais vigentes
+
+{% if documents_by_type -%}
+{% for doc_type, docs in documents_by_type.items() -%}
+### 6.{{ loop.index }}. {{ doc_type }}
+
+| Titulo | Versao | Vigencia | Hash SHA-256 |
+|---|---|---|---|
+{% for d in docs -%}
+| {{ d.title }} | {{ d.version }} | {{ d.valid_from }}{% if d.valid_until %} a {{ d.valid_until }}{% else %} (sem termo){% endif %} | `{{ d.file_hash[:12] }}...{{ d.file_hash[-8:] }}` |
+{% endfor %}
+
+{% endfor -%}
+{% else -%}
+**[pendencia]** Nenhum documento institucional vigente anexado. Anexe pelo menos o estatuto, ata de eleicao da diretoria e comprovante de endereco.
+{% endif %}
+
+## 7. POPs e cobertura por area
+
+**[pendencia de integracao]** O inventario de POPs sera auto-populado a partir do modulo de Qualidade (migration 027 — `sops`, `sop_versions`, `sop_trainings`) assim que a integracao F2 estiver concluida. Ate la, esta secao deve ser preenchida manualmente pelo RT na revisao.
+
+## 8. Historico de farmacovigilancia
+
+**[pendencia de integracao]** O sumario de eventos adversos e notificacoes Vigimed/NotiVisa sera auto-populado a partir do modulo de Farmacovigilancia (migration 031 — `adverse_events`, `pharmacovigilance_notifications`) assim que a integracao F3 estiver concluida.
+
+Se a associacao nao possui historico operacional previo ao Sandbox, esta secao deve declarar: **"Sem historico de dispensacao ou eventos adversos previos a submissao."**
+
+## 9. Declaracao de conformidade com vedacoes do Sandbox
+
+A associacao declara, sob as penas da lei:
+
+1. **Nao comercializa** qualquer produto derivado de Cannabis com contrapartida financeira direta (RDC 1.014/2026 Art. 17).
+2. **Nao realiza publicidade** de produtos ou servicos no Sandbox fora dos canais autorizados pela ANVISA.
+3. **Fornece exclusivamente** a associados com vinculo ativo formalmente registrado.
+4. **Mantem escala pequena e nao industrial** conforme limites estabelecidos no Protocolo aprovado.
+5. **Inclui a advertencia expressa** de nao-medicamento em todo rotulo, material de comunicacao e contrato de associacao.
+6. **Mantem rastreabilidade integral** da planta ao paciente, sem excecoes nem desativacoes (invariante arquitetural da plataforma).
+7. **Notifica eventos adversos** pelo sistema integrado Vigimed/NotiVisa em prazo compativel com a severidade (invariante arquitetural da plataforma).
+8. **Protege dados pessoais** dos associados conforme LGPD e politicas de acesso da plataforma (invariante arquitetural da plataforma).
+
+## 10. Assinaturas
+
+**Responsavel Tecnico:**
+
+{% if primary_rt -%}
+- Nome: {{ primary_rt.full_name }}
+- Conselho: {{ primary_rt.professional_council }} {{ primary_rt.council_number }}/{{ primary_rt.council_state }}
+- Assinatura eletronica: _[a aplicar no fluxo de aprovacao formal]_
+{% else -%}
+**[pendencia]** Cadastre o Responsavel Tecnico antes de submeter.
+{% endif %}
+
+**Presidencia da associacao:**
+
+{% if presidente -%}
+- Nome: {{ presidente.get("name") }}
+- Cargo: {{ presidente.get("role") or "Presidente" }}
+- Assinatura eletronica: _[a aplicar no fluxo de aprovacao formal]_
+{% else -%}
+**[pendencia]** Cadastre a diretoria em `/api/v1/governance/association` (campo `directive_board`).
+{% endif %}
+
+---
+
+## Resumo de elegibilidade
+
+- **Apto a submissao:** {{ "Sim" if eligibility.is_eligible else "NAO" }}
+- **Pendencias bloqueantes (fail):** {{ fail_count }}
+- **Avisos nao bloqueantes (warn):** {{ warn_count }}
+
+{% if fail_count > 0 -%}
+### Acao necessaria antes da submissao:
+{% for f in findings if f.status == "fail" -%}
+- **{{ f.code }}** — {{ f.message }}
+{% endfor %}
+{% endif %}
+{% if warn_count > 0 -%}
+### Pendencias nao bloqueantes:
+{% for f in findings if f.status == "warn" -%}
+- **{{ f.code }}** — {{ f.message }}
+{% endfor %}
+{% endif %}
