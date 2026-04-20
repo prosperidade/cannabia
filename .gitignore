@@ -40,6 +40,8 @@ chroma_db/
 *.log
 *.err
 cannabia.log
+.pytest_tmp/
+pytest-cache-files-*/
 
 # ──────────────────────────────────────────────
 # IDEs E EDITORES
@@ -62,6 +64,8 @@ desktop.ini
 node_modules/
 .next/
 frontend/.env.local
+frontend/tsconfig.tsbuildinfo
+*.tsbuildinfo
 npm-debug.log
 yarn-error.log
 
