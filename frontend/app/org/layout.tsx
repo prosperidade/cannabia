@@ -18,6 +18,7 @@ const navItems: SidebarNavItem[] = [
   { label: "Configuracoes", icon: "settings", href: "/org/config" },
   { label: "Relatorios", icon: "analytics", href: "/org/relatorios" },
   { label: "Conformidade", icon: "verified_user", href: "/org/compliance" },
+  { label: "Sandbox", icon: "account_balance", href: "/org/sandbox/governance" },
   { label: "Mensagens", icon: "chat", href: "/org/mensagens" },
 ];
 
