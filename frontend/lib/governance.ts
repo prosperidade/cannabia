@@ -296,6 +296,32 @@ export async function refreshEligibility(csrfToken: string) {
   return response.data;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Admin multi-tenant overview                                        */
+/* ------------------------------------------------------------------ */
+
+export type AssociationAdminSummary = {
+  tenant_id: number;
+  legal_name: string;
+  trade_name: string | null;
+  tenant_type: string;
+  incorporation_date: string | null;
+  sandbox_application_status: string | null;
+  eligibility_validated_at: string | null;
+  members_count: number | null;
+  rt_count: number;
+  has_capacity: boolean;
+  has_statute: boolean;
+};
+
+export async function adminListAssociations() {
+  const response = await request<{
+    associations: AssociationAdminSummary[];
+    count: number;
+  }>("/governance/admin/associations");
+  return response.data;
+}
+
 export async function getDossier() {
   const response = await request<DossierPayload>(
     "/governance/eligibility/dossier",

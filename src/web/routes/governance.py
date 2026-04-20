@@ -28,6 +28,7 @@ from src.services.governance_dossier import (
 from src.services.governance_service import (
     EligibilityReport,
     check_sandbox_eligibility,
+    list_all_associations_summary,
     refresh_eligibility,
 )
 from src.web.routes.api_v1 import (
@@ -496,6 +497,25 @@ def post_refresh_eligibility():
     except ValueError as exc:
         return _error("not_found", str(exc), 404)
     return _success(_report_payload(report))
+
+
+# =====================================================================
+# Admin cross-tenant overview (multi-tenant, plataforma)
+# =====================================================================
+
+@governance_bp.get("/admin/associations")
+@api_role_required("Admin")
+def admin_list_associations():
+    """Lista resumida de todas as associacoes do sistema.
+
+    Endpoint de plataforma (Admin global). Nao e escopado por
+    g.tenant_id — retorna tudo. Cada item ja vem com os agregados
+    minimos (rt_count, has_capacity, has_statute) para a UI decidir
+    se chama o check completo via GET /governance/eligibility (com
+    troca de contexto, num proximo passo).
+    """
+    items = list_all_associations_summary()
+    return _success({"associations": items, "count": len(items)})
 
 
 # =====================================================================

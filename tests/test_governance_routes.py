@@ -557,6 +557,37 @@ class TestDossierEndpoint:
         assert response.get_json()["error"]["code"] == "not_found"
 
 
+class TestAdminEndpoints:
+    def test_admin_list_associations_returns_summary(self, app_client, monkeypatch):
+        stub = [
+            {"tenant_id": 1, "legal_name": "A1", "rt_count": 2,
+             "has_capacity": True, "has_statute": False},
+            {"tenant_id": 2, "legal_name": "A2", "rt_count": 0,
+             "has_capacity": False, "has_statute": True},
+        ]
+        monkeypatch.setattr(
+            "src.web.routes.governance.list_all_associations_summary",
+            lambda: stub,
+        )
+        response = app_client.get("/api/v1/governance/admin/associations")
+        assert response.status_code == 200
+        payload = response.get_json()["data"]
+        assert payload["count"] == 2
+        assert payload["associations"][0]["legal_name"] == "A1"
+
+    def test_admin_endpoint_does_not_need_tenant_context(
+        self, no_tenant_client, monkeypatch
+    ):
+        """Endpoint multi-tenant nao depende de g.tenant_id."""
+        monkeypatch.setattr(
+            "src.web.routes.governance.list_all_associations_summary",
+            lambda: [],
+        )
+        response = no_tenant_client.get("/api/v1/governance/admin/associations")
+        assert response.status_code == 200
+        assert response.get_json()["data"]["count"] == 0
+
+
 class TestTenantContext:
     def test_missing_tenant_returns_400(self, no_tenant_client, monkeypatch):
         monkeypatch.setattr(

@@ -14,6 +14,7 @@ const NAV_ITEMS: SidebarNavItem[] = [
   { label: "Auditoria IA", icon: "monitoring", href: "/admin/auditoria" },
   { label: "Agentes IA", icon: "smart_toy", href: "/admin/agentes" },
   { label: "Base Cientifica", icon: "library_books", href: "/admin/knowledge" },
+  { label: "Sandbox", icon: "account_balance", href: "/admin/sandbox" },
   { label: "Sistema", icon: "settings", href: "/admin/sistema" },
 ];
 

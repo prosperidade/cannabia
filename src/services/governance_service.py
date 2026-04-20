@@ -325,6 +325,64 @@ def check_sandbox_eligibility(
     return report
 
 
+def list_all_associations_summary() -> list[dict[str, Any]]:
+    """Resumo multi-tenant de todas as associacoes cadastradas.
+
+    Retorna uma linha por tenant do tipo 'association', com indicadores
+    agregados sem rodar o check completo de elegibilidade (para manter
+    custo baixo em listas grandes). Admins de plataforma usam isso para
+    monitorar o estado do sandbox no sistema inteiro.
+
+    Cada item contem:
+        tenant_id, legal_name, trade_name, tenant_type,
+        incorporation_date, sandbox_application_status,
+        eligibility_validated_at, members_count,
+        rt_count (ativos), has_capacity (bool),
+        has_statute (bool — estatuto ativo anexado).
+    """
+    with db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT
+                t.id                           AS tenant_id,
+                t.legal_name                   AS legal_name,
+                t.trade_name                   AS trade_name,
+                t.tenant_type                  AS tenant_type,
+                t.incorporation_date           AS incorporation_date,
+                a.sandbox_application_status   AS sandbox_application_status,
+                a.eligibility_validated_at     AS eligibility_validated_at,
+                a.members_count                AS members_count,
+                COALESCE(rt.active_count, 0)   AS rt_count,
+                COALESCE(cap.has_capacity, FALSE) AS has_capacity,
+                COALESCE(stat.has_statute, FALSE) AS has_statute
+              FROM tenants t
+              LEFT JOIN associations a
+                ON a.tenant_id = t.id
+              LEFT JOIN (
+                    SELECT tenant_id, COUNT(*)::int AS active_count
+                      FROM technical_responsibles
+                     WHERE is_active = TRUE
+                     GROUP BY tenant_id
+              ) rt ON rt.tenant_id = t.id
+              LEFT JOIN (
+                    SELECT tenant_id, TRUE AS has_capacity
+                      FROM technical_operational_capacity
+                     GROUP BY tenant_id
+              ) cap ON cap.tenant_id = t.id
+              LEFT JOIN (
+                    SELECT tenant_id, TRUE AS has_statute
+                      FROM institutional_documents
+                     WHERE is_active = TRUE AND document_type = %s
+                     GROUP BY tenant_id
+              ) stat ON stat.tenant_id = t.id
+             WHERE t.tenant_type = %s
+             ORDER BY t.id ASC
+            """,
+            (STATUTE_DOCUMENT_TYPE, ELIGIBLE_TENANT_TYPE),
+        )
+        return list(cursor.fetchall())
+
+
 def refresh_eligibility(tenant_id: int) -> EligibilityReport:
     """Reavalia e, se elegivel, marca ``associations.eligibility_validated_at``
     e transiciona ``sandbox_application_status`` de None/not_started para
