@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { WizardLayout } from "@/components/layouts/wizard-layout";
@@ -127,7 +127,7 @@ function TriageAccessState({
   );
 }
 
-export default function TriagemPage() {
+function TriagemPageContent() {
   const searchParams = useSearchParams();
   const session = useApiSession();
   const token = (searchParams.get("token") ?? "").trim();
@@ -224,5 +224,22 @@ export default function TriagemPage() {
     <WizardProvider initialPatientName={linkContext?.patient_name}>
       <TriagemWizardScreen clinicLabel={linkContext?.clinic_label} />
     </WizardProvider>
+  );
+}
+
+export default function TriagemPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background text-on-background flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            <p className="text-sm text-on-surface-variant">Carregando triagem...</p>
+          </div>
+        </div>
+      }
+    >
+      <TriagemPageContent />
+    </Suspense>
   );
 }
