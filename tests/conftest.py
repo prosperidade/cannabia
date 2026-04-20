@@ -13,9 +13,35 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+
+def _load_project_dotenv() -> None:
+    """Carrega .env do projeto antes de qualquer import de src.*.
+
+    Necessario para testes de integracao que hitam DB real: src.config
+    snapshota DATABASE_URL no import, entao precisa estar no ambiente
+    antes do primeiro import indireto. Nao sobrescreve vars ja setadas
+    no shell — TEST_DATABASE_URL continua tendo precedencia.
+    """
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if not env_path.exists():
+        return
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and value and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_project_dotenv()
 
 # Garante que variáveis de teste são carregadas antes do import da app
 os.environ.setdefault("DATABASE_URL", os.getenv("TEST_DATABASE_URL", "postgresql://localhost/cannabia_test"))
