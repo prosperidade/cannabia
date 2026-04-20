@@ -18,7 +18,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16-alpine
+        # Imagem com PostGIS para suportar colunas GEOGRAPHY do schema de
+        # traceability (migration 028+, doc 25 §§7.2 e 7.6). Postgres 16
+        # mantem paridade com a imagem base anterior; a extension postgis
+        # e ativada explicitamente pelo step "Enable PostGIS extension".
+        image: postgis/postgis:16-3.5-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
