@@ -78,6 +78,7 @@ _INJECTION_CATEGORIES: Dict[str, List[str]] = {
     # Tentativas de acesso ao system prompt
     "system_prompt_leak": [
         r"ignore\s+(todas?\s*(as\s+)?|previous|prior|above)\s*instru(ç|c)(ões|oes|tions)",
+        r"ignore\s+all\s+previous\s+instructions?",
         r"(return|show|reveal|print|display|repeat|output)\s+(the\s+)?(system|initial|original)\s+(prompt|message|instruction)",
         r"(qual|what)\s+(é|is)\s+(o\s+)?(seu|your|the)\s+(system\s+)?(prompt|instrução)",
         r"mensagem\s+do\s+desenvolvedor",

@@ -116,7 +116,7 @@ def _execute_ai_pipeline(
     Função executada pelo worker RQ.
     Importa o pipeline sob demanda para evitar dependências circulares.
     """
-    from src.ai.pipeline import CannabIAPipeline
+    from src.ai.clinical_flow import build_clinical_flow
     from src.ai.schemas import AnamnesisInput
     from src.ai.guardrails import validate_input
     from src.ai.validators import normalize_anamnesis_payload
@@ -136,8 +136,8 @@ def _execute_ai_pipeline(
     anamnesis = AnamnesisInput(**normalized)
 
     # Execução do pipeline
-    pipeline = CannabIAPipeline()
-    result = pipeline.run(anamnesis)
+    flow = build_clinical_flow()
+    result = flow.run(anamnesis)
 
     elapsed_ms = int((time.time() - start) * 1000)
     result["total_time_ms"] = elapsed_ms

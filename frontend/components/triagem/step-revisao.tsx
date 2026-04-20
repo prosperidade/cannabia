@@ -65,7 +65,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export function StepRevisao() {
   const { formData, goToStep, submitWizard, state } = useWizard();
-  const { motivo, sintomas, dados_fisicos, estado_emocional, habitos, historico } = formData;
+  const { identificacao, motivo, sintomas, dados_fisicos, estado_emocional, habitos, historico } = formData;
 
   const sintomaInfo = sintomas[0];
 
@@ -90,6 +90,11 @@ export function StepRevisao() {
             Resumo da Triagem
           </h3>
         </div>
+
+        <ReviewSection icon="badge" title="Identificacao" step="identificacao" onEdit={goToStep}>
+          <Row label="Paciente" value={identificacao.patient_name || "Nao informado"} />
+          <Row label="Idade" value={identificacao.age ? `${identificacao.age} anos` : "Nao informada"} />
+        </ReviewSection>
 
         {/* Motivo */}
         <ReviewSection icon="medical_information" title="Motivo" step="motivo" onEdit={goToStep}>
@@ -190,6 +195,12 @@ export function StepRevisao() {
       {/* Error */}
       {state.error && (
         <p className="text-center text-error text-sm">{state.error}</p>
+      )}
+
+      {state.successMessage && (
+        <div className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary text-center">
+          {state.successMessage}
+        </div>
       )}
 
       {/* Privacy */}

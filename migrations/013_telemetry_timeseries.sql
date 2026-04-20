@@ -71,13 +71,4 @@ CREATE INDEX IF NOT EXISTS idx_iot_timeseries
 CREATE INDEX IF NOT EXISTS idx_iot_source
     ON iot_telemetry (source, recorded_at DESC);
 
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- Tracking
--- ═══════════════════════════════════════════════════════════════════════════════
-
-INSERT INTO schema_migrations (version, filename, applied_at, checksum)
-VALUES ('013', '013_telemetry_timeseries.sql', NOW(), '')
-ON CONFLICT DO NOTHING;
-
 COMMIT;

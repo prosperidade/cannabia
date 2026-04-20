@@ -158,7 +158,7 @@ export default function LoginPage() {
             href="/triagem"
             className="text-primary font-bold hover:underline transition-colors"
           >
-            Inicie sua triagem
+            Acesse sua triagem
           </Link>
         </p>
       </form>

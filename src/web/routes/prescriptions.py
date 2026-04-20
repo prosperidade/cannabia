@@ -19,6 +19,7 @@ from typing import Optional
 
 from flask import Blueprint, g, jsonify, request
 
+from src.services.prescription_contract import PrescriptionContractError
 from src.services.prescription_service import PrescriptionService
 from src.web.routes.api_v1 import (
     _error,
@@ -59,6 +60,8 @@ def calculate_dosage():
     try:
         result = _service.calculate_dosage(payload)
         return _success(result)
+    except PrescriptionContractError as e:
+        return _error("prescription_contract_incomplete", str(e), 422, details=e.details)
     except ValueError as e:
         return _error("validation_error", str(e), 422)
     except RuntimeError as e:

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { listTenants } from "@/lib/api";
+import { listTenants, createTenant } from "@/lib/api";
+import { useApiSession } from "@/lib/use-api-session";
 import {
   StatCard,
   Badge,
@@ -71,6 +73,10 @@ type PlanFilter = "all" | TenantPlan;
 /* ── Page ── */
 
 export default function TenantsPage() {
+  const router = useRouter();
+  const session = useApiSession();
+  const csrfToken = session.data?.csrf_token ?? "";
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [planFilter, setPlanFilter] = useState<PlanFilter>("all");
@@ -84,6 +90,34 @@ export default function TenantsPage() {
   const [formSlug, setFormSlug] = useState("");
   const [formType, setFormType] = useState("clinic");
   const [formPlan, setFormPlan] = useState<TenantPlan>("starter");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function handleCreate() {
+    if (!formName.trim() || !csrfToken) return;
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+      const created = await createTenant(csrfToken, {
+        legal_name: formName.trim(),
+        display_name: formName.trim(),
+        tenant_type: formType,
+        slug: formSlug.trim() || undefined,
+      });
+      setShowNewModal(false);
+      setFormName("");
+      setFormSlug("");
+      setFormType("clinic");
+      setFormPlan("starter");
+      const refreshed = await listTenants();
+      setTenants(refreshed);
+      router.push(`/admin/tenants/${created.tenant_id}`);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Falha ao criar organizacao.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -258,14 +292,16 @@ export default function TenantsPage() {
     {
       key: "actions",
       label: "Acoes",
-      render: () => {
+      render: (_val, row) => {
+        const tenant = row as unknown as Tenant;
         return (
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push(`/admin/tenants/${tenant.id}`)}
+            >
               Detalhes
-            </Button>
-            <Button variant="ghost" size="sm">
-              Editar
             </Button>
           </div>
         );
@@ -515,12 +551,18 @@ export default function TenantsPage() {
               </div>
             </div>
 
+            {submitError && (
+              <div className="rounded-lg border border-error/40 bg-error/10 px-3 py-2 text-xs text-error">
+                {submitError}
+              </div>
+            )}
             <div className="flex gap-3 pt-2">
               <Button
                 variant="ghost"
                 size="md"
                 className="flex-1"
                 onClick={() => setShowNewModal(false)}
+                disabled={submitting}
               >
                 Cancelar
               </Button>
@@ -529,12 +571,10 @@ export default function TenantsPage() {
                 size="md"
                 icon="add"
                 className="flex-1"
-                onClick={() => {
-                  // TODO: call createTenant API
-                  setShowNewModal(false);
-                }}
+                onClick={handleCreate}
+                disabled={submitting || !formName.trim() || !csrfToken}
               >
-                Criar Organizacao
+                {submitting ? "Criando..." : "Criar Organizacao"}
               </Button>
             </div>
           </div>

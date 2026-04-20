@@ -1,29 +1,52 @@
+"""
+Envio de e-mail com suporte a configuracao por tenant.
+
+Quando `tenant_id` e fornecido, as credenciais SMTP sao resolvidas por tenant
+com fallback para variaveis de ambiente globais.
+"""
+
+from __future__ import annotations
+
+import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
 
-from src.config import DOCTOR_EMAIL, EMAIL_FROM, EMAIL_PASSWORD, SMTP_PORT, SMTP_SERVER
+from src.services.tenant_secrets import get_email_config
+
+logger = logging.getLogger("cannabia.email")
 
 
-def send_email_notification(subject, message, to_email=None):
-    to_email = to_email or DOCTOR_EMAIL
+def send_email_notification(
+    subject: str,
+    message: str,
+    to_email: Optional[str] = None,
+    *,
+    tenant_id: Optional[int] = None,
+) -> bool:
+    cfg = get_email_config(tenant_id)
 
-    if not (EMAIL_FROM and EMAIL_PASSWORD and to_email):
-        print('Credenciais de e-mail não configuradas completamente.')
-        return
+    to_email = to_email or cfg.get("doctor_email")
+
+    if not (cfg.get("email_from") and cfg.get("email_password") and to_email):
+        logger.warning("Credenciais de e-mail incompletas para tenant_id=%s", tenant_id)
+        return False
 
     msg = MIMEMultipart()
-    msg['From'] = EMAIL_FROM
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(message, 'plain'))
+    msg["From"] = cfg["email_from"]
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(message, "plain"))
 
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
+        server = smtplib.SMTP(cfg["smtp_server"], int(cfg["smtp_port"]), timeout=15)
         server.starttls()
-        server.login(EMAIL_FROM, EMAIL_PASSWORD)
+        server.login(cfg["email_from"], cfg["email_password"])
         server.send_message(msg)
         server.quit()
-        print('Email enviado com sucesso!')
-    except Exception as e:
-        print('Erro ao enviar email:', e)
+        logger.info("Email enviado para %s (tenant_id=%s)", to_email, tenant_id)
+        return True
+    except Exception as exc:
+        logger.error("Erro ao enviar email para %s: %s", to_email, exc)
+        return False

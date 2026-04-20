@@ -102,7 +102,3 @@ CREATE INDEX IF NOT EXISTS idx_billing_status ON billing (status);
 CREATE OR REPLACE VIEW clinic_members AS
 SELECT user_id, clinic_id, role AS clinic_role, is_default, created_at
 FROM user_clinics;
-
-INSERT INTO schema_migrations (version, filename, applied_at, checksum)
-VALUES ('014', '014_missing_tables_and_columns.sql', NOW(), '')
-ON CONFLICT DO NOTHING;

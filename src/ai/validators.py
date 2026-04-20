@@ -1,11 +1,11 @@
 # src/ai/validators.py
 from __future__ import annotations
 
-import re
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from pydantic import ValidationError
 
+from src.ai.guardrails import GuardrailConfig, validate_input
 from src.ai.schemas import AnamnesisInput
 
 
@@ -13,49 +13,18 @@ from src.ai.schemas import AnamnesisInput
 # Anti Prompt Injection
 # =========================
 
-_INJECTION_PATTERNS = [
-    r"ignore (todas|todas as|previous|prior) instru(ç|c)(ões|oes)",
-    r"return (the )?system prompt",
-    r"show (the )?system prompt",
-    r"reveal (the )?system prompt",
-    r"system prompt",
-    r"developer message",
-    r"mensagem do desenvolvedor",
-    r"policy",
-    r"openai policy",
-    r"tools?\b",
-    r"function call",
-    r"role\s*:\s*(system|developer|assistant|tool)",
-    r"```",
-    r"<\s*script\b",
-    r"</\s*script\s*>",
-    r"curl\s+http",
-    r"wget\s+http",
-]
-
-_INJECTION_REGEX = re.compile("|".join(_INJECTION_PATTERNS), re.IGNORECASE)
-
-
-def _flatten_text_fields(payload: Dict[str, Any]) -> str:
-    parts: List[str] = []
-    for k, v in payload.items():
-        if v is None:
-            continue
-        if isinstance(v, str):
-            parts.append(v)
-        elif isinstance(v, list):
-            parts.extend([str(x) for x in v if x is not None])
-        else:
-            parts.append(str(v))
-    return " ".join(parts)
-
 
 def validate_anamnesis_security(payload: Dict[str, Any]) -> None:
     """
     Levanta ValueError se detectar tentativa de prompt injection.
+    Reusa o guardrail principal para evitar divergência entre o fluxo legado
+    de validação e a defesa efetivamente aplicada pelo serviço de IA.
     """
-    blob = _flatten_text_fields(payload)
-    if _INJECTION_REGEX.search(blob):
+    result = validate_input(
+        payload,
+        config=GuardrailConfig(llm_enabled=False),
+    )
+    if not result.passed:
         raise ValueError("Possível tentativa de prompt injection detectada.")
 
 

@@ -439,13 +439,19 @@ def list_tenants(
             SELECT
                 t.id,
                 t.legal_name,
-                t.display_name,
+                t.display_name AS name,
                 t.slug,
                 t.status,
                 t.legacy_clinic_id AS clinic_id,
                 tt.slug AS tenant_type,
                 tb.brand_name,
-                t.created_at
+                t.billing_plan AS plan,
+                t.ai_executions_month,
+                t.ai_limit_month,
+                t.user_limit,
+                t.created_at,
+                (SELECT COUNT(*) FROM clinics c WHERE c.tenant_id = t.id) AS clinic_count,
+                (SELECT COUNT(*) FROM user_tenant_roles utr WHERE utr.tenant_id = t.id) AS user_count
             FROM tenants t
             JOIN tenant_types tt ON tt.id = t.tenant_type_id
             LEFT JOIN tenant_branding tb ON tb.tenant_id = t.id

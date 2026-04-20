@@ -17,14 +17,14 @@ admin_agents_bp = Blueprint("admin_agents", __name__, url_prefix="/api/v1/admin/
 def list_agents():
     """List all registered agents with their skills and status."""
     from src.ai.agents import (
-        AgenteTriagem, AgenteAnamnese, AgentePrescritor,
+        AgenteTriagem, AgenteAnamnese, AgenteTratamento, AgentePrescritor,
         AgenteCientifico, AgenteRegulatorio, AgenteFollowUp,
         AgenteExtrator,
     )
 
     agents_list = []
     agent_classes = [
-        AgenteTriagem, AgenteAnamnese, AgentePrescritor,
+        AgenteTriagem, AgenteAnamnese, AgenteTratamento, AgentePrescritor,
         AgenteCientifico, AgenteRegulatorio, AgenteFollowUp,
         AgenteExtrator,
     ]
@@ -74,7 +74,7 @@ def list_agents():
 def get_agent_diary(agent_name: str):
     """Get recent diary entries for a specific agent."""
     from src.ai.agents import (
-        AgenteTriagem, AgenteAnamnese, AgentePrescritor,
+        AgenteTriagem, AgenteAnamnese, AgenteTratamento, AgentePrescritor,
         AgenteCientifico, AgenteRegulatorio, AgenteFollowUp,
         AgenteExtrator,
     )
@@ -82,6 +82,7 @@ def get_agent_diary(agent_name: str):
     agent_map = {
         "triagem": AgenteTriagem,
         "anamnese": AgenteAnamnese,
+        "tratamento": AgenteTratamento,
         "prescritor": AgentePrescritor,
         "cientifico": AgenteCientifico,
         "regulatorio": AgenteRegulatorio,
@@ -108,7 +109,7 @@ def get_agent_diary(agent_name: str):
 def get_agent_skills(agent_name: str):
     """Get detailed skills for a specific agent."""
     from src.ai.agents import (
-        AgenteTriagem, AgenteAnamnese, AgentePrescritor,
+        AgenteTriagem, AgenteAnamnese, AgenteTratamento, AgentePrescritor,
         AgenteCientifico, AgenteRegulatorio, AgenteFollowUp,
         AgenteExtrator,
     )
@@ -116,6 +117,7 @@ def get_agent_skills(agent_name: str):
     agent_map = {
         "triagem": AgenteTriagem,
         "anamnese": AgenteAnamnese,
+        "tratamento": AgenteTratamento,
         "prescritor": AgentePrescritor,
         "cientifico": AgenteCientifico,
         "regulatorio": AgenteRegulatorio,
@@ -157,7 +159,7 @@ def execute_agent(agent_name: str):
         return csrf_error
 
     from src.ai.agents import (
-        AgenteTriagem, AgenteAnamnese, AgentePrescritor,
+        AgenteTriagem, AgenteAnamnese, AgenteTratamento, AgentePrescritor,
         AgenteCientifico, AgenteRegulatorio, AgenteFollowUp,
         AgenteExtrator,
     )
@@ -165,6 +167,7 @@ def execute_agent(agent_name: str):
     agent_map = {
         "triagem": AgenteTriagem,
         "anamnese": AgenteAnamnese,
+        "tratamento": AgenteTratamento,
         "prescritor": AgentePrescritor,
         "cientifico": AgenteCientifico,
         "regulatorio": AgenteRegulatorio,

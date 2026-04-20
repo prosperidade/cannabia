@@ -86,7 +86,7 @@ export default function HomePage() {
           </Link>
           <Link href="/triagem" className="w-full sm:w-auto">
             <Button variant="secondary" size="lg" icon="assignment" className="w-full sm:w-auto">
-              Iniciar Triagem
+              Acessar Triagem
             </Button>
           </Link>
         </div>

@@ -13,7 +13,7 @@ from src.repositories.anamnesis_repository import save_report
 from src.repositories.patient_timeline_repository import create_event
 from src.integrations.whatsapp import send_whatsapp_text
 from src.integrations.email import send_email_notification
-from src.ai.pipeline import CannabIAPipeline
+from src.ai.clinical_flow import build_clinical_flow
 from src.ai.schemas import AnamnesisInput
 
 logger = logging.getLogger("cannabia.anamnesis")
@@ -227,8 +227,8 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
                 medical_history=data.get("medical_history", ""),
             )
 
-            pipeline = CannabIAPipeline()
-            report   = pipeline.run(anamnesis)
+            flow = build_clinical_flow()
+            report = flow.run(anamnesis)
 
             # Persiste no banco para o dashboard do médico
             report_id = save_report(

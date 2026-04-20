@@ -305,15 +305,110 @@ export async function listTenants() {
 
 export async function createTenant(
   csrfToken: string,
-  payload: { name: string; slug: string; type: string; plan: string },
+  payload: { legal_name: string; display_name: string; tenant_type?: string; slug?: string },
 ) {
-  const response = await request<{ created: boolean; tenant_id: number }>("/admin/tenants", {
+  const response = await request<{
+    tenant_id: number;
+    clinic_id: number;
+    slug: string;
+    legal_name: string;
+    display_name: string;
+    tenant_type: string;
+    status: string;
+  }>("/admin/tenants", {
     method: "POST",
     headers: {
       "X-CSRF-Token": csrfToken,
     },
     body: JSON.stringify(payload),
   });
+  return response.data;
+}
+
+export async function getTenant(id: number) {
+  const response = await request<import("@/lib/types-admin").TenantDetail>(`/admin/tenants/${id}`);
+  return response.data;
+}
+
+export async function updateTenant(
+  csrfToken: string,
+  id: number,
+  payload: { legal_name?: string; display_name?: string; status?: string },
+) {
+  const response = await request(`/admin/tenants/${id}`, {
+    method: "PUT",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+  return response.data;
+}
+
+export async function getTenantBranding(id: number) {
+  const response = await request<import("@/lib/types-admin").TenantBranding>(
+    `/admin/tenants/${id}/branding`,
+  );
+  return response.data;
+}
+
+export async function updateTenantBranding(
+  csrfToken: string,
+  id: number,
+  payload: Partial<import("@/lib/types-admin").TenantBranding>,
+) {
+  const response = await request<import("@/lib/types-admin").TenantBranding>(
+    `/admin/tenants/${id}/branding`,
+    {
+      method: "PUT",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify(payload),
+    },
+  );
+  return response.data;
+}
+
+export async function getTenantIntegrations(id: number) {
+  const response = await request<import("@/lib/types-admin").TenantIntegrations>(
+    `/admin/tenants/${id}/integrations`,
+  );
+  return response.data;
+}
+
+export async function updateTenantIntegrations(
+  csrfToken: string,
+  id: number,
+  payload: Partial<import("@/lib/types-admin").TenantIntegrations>,
+) {
+  const response = await request<import("@/lib/types-admin").TenantIntegrations>(
+    `/admin/tenants/${id}/integrations`,
+    {
+      method: "PUT",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify(payload),
+    },
+  );
+  return response.data;
+}
+
+export async function getTenantPlan(id: number) {
+  const response = await request<import("@/lib/types-admin").TenantPlanData>(
+    `/admin/tenants/${id}/plan`,
+  );
+  return response.data;
+}
+
+export async function updateTenantPlan(
+  csrfToken: string,
+  id: number,
+  payload: { billing_plan?: string; ai_limit_month?: number; user_limit?: number },
+) {
+  const response = await request<import("@/lib/types-admin").TenantPlanData>(
+    `/admin/tenants/${id}/plan`,
+    {
+      method: "PUT",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify(payload),
+    },
+  );
   return response.data;
 }
 
@@ -330,6 +425,76 @@ export async function getAiMetrics(filters: AiMetricsFilters = {}) {
   }
   const query = params.toString() ? `?${params.toString()}` : "";
   const response = await request<AiAuditData>(`/admin/ai-metrics${query}`);
+  return response.data;
+}
+
+// ── Payments ──
+export async function listPayments(params: { status?: string; patient_id?: number; limit?: number; offset?: number } = {}) {
+  const sp = new URLSearchParams();
+  if (params.status) sp.set("status", params.status);
+  if (params.patient_id != null) sp.set("patient_id", String(params.patient_id));
+  if (params.limit != null) sp.set("limit", String(params.limit));
+  if (params.offset != null) sp.set("offset", String(params.offset));
+  const query = sp.toString() ? `?${sp.toString()}` : "";
+  return request<import("@/lib/types").PaymentRequest[]>(`/payments${query}`);
+}
+
+export async function getPaymentSummary() {
+  const response = await request<import("@/lib/types").PaymentSummary>("/payments/summary");
+  return response.data;
+}
+
+export async function getPaymentDetail(id: number) {
+  const response = await request<import("@/lib/types").PaymentDetail>(`/payments/${id}`);
+  return response.data;
+}
+
+export async function issuePixCharge(
+  csrfToken: string,
+  payload: {
+    amount_cents: number;
+    description?: string;
+    patient_id?: number;
+    prescription_id?: number;
+    pix_key?: string;
+    merchant_name?: string;
+    merchant_city?: string;
+    expiration_hours?: number;
+  },
+) {
+  const response = await request<import("@/lib/types").PaymentRequest>("/payments/pix", {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+  return response.data;
+}
+
+export async function confirmPaymentManual(
+  csrfToken: string,
+  id: number,
+  payload: { amount_cents?: number; payer_name?: string; payer_document?: string } = {},
+) {
+  const response = await request<import("@/lib/types").PaymentRequest>(
+    `/payments/${id}/confirm`,
+    {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify(payload),
+    },
+  );
+  return response.data;
+}
+
+export async function cancelPayment(csrfToken: string, id: number) {
+  const response = await request<import("@/lib/types").PaymentRequest>(
+    `/payments/${id}/cancel`,
+    {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: JSON.stringify({}),
+    },
+  );
   return response.data;
 }
 

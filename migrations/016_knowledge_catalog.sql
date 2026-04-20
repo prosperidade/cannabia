@@ -62,8 +62,3 @@ CREATE INDEX IF NOT EXISTS idx_knowledge_catalog_doi ON knowledge_catalog (doi) 
 CREATE INDEX IF NOT EXISTS idx_knowledge_catalog_norm ON knowledge_catalog (norm_number) WHERE norm_number IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_catalog_unique_doi ON knowledge_catalog (doi) WHERE doi IS NOT NULL AND doi != '';
 CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_catalog_unique_url ON knowledge_catalog (source_url) WHERE source_url IS NOT NULL AND source_url != '';
-
--- Tracking
-INSERT INTO schema_migrations (version, filename, applied_at, checksum)
-VALUES ('016', '016_knowledge_catalog.sql', NOW(), '')
-ON CONFLICT DO NOTHING;

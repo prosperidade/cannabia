@@ -4,6 +4,13 @@
 
 Formalizar a jornada clínica inicial da CannabIA com timeline do paciente, estados de caso e base para prontuário longitudinal, aproveitando a foundation já criada em `tenant`.
 
+## Status em 2026-04-15
+
+- Concluídos na prática: `A1`, `A2`, `B1`, `B2`, `C1`, `C2`
+- Parcialmente concluídos ou ainda abertos: `A3`, `B3`, `C3`, `D1`, `D2`, `D3`
+- A base mínima de validação local foi fechada no mesmo dia com `pytest` operacional e suíte verde; os próximos remanescentes desta sprint devem ser puxados pelo backlog executivo consolidado
+- Os remanescentes deixaram de ser backlog isolado de sprint e passaram a integrar o backlog executivo consolidado em `docs/22_EXECUTIVE_BACKLOG.md`
+
 ## Épico A — Jornada do paciente
 
 | ID | Story técnica | Arquivos principais | Resultado esperado | Prioridade |

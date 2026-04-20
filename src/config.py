@@ -67,6 +67,7 @@ LOGIN_RATE_WINDOW_S = int(os.getenv("LOGIN_RATE_WINDOW_S", "60"))
 # ==============================
 CHAT_SESSION_TTL_S = int(os.getenv("CHAT_SESSION_TTL_S", "3600"))        # 1h padrão
 CHAT_CLEANUP_INTERVAL_S = int(os.getenv("CHAT_CLEANUP_INTERVAL_S", "300"))  # 5min
+TRIAGE_LINK_TTL_S = int(os.getenv("TRIAGE_LINK_TTL_S", "259200"))  # 72h
 
 # ==============================
 # TELEMETRIA PÓS-CONSULTA

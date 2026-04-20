@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 from flask import g
 from pydantic import ValidationError
 
-from src.ai.pipeline import CannabIAPipeline
+from src.ai.clinical_flow import build_clinical_flow
 from src.ai.schemas import AnamnesisInput
 from src.ai.guardrails import validate_input
 from src.repositories.ai_audit_repository import save_ai_audit_log
@@ -26,8 +26,9 @@ logger = logging.getLogger("cannabia.ai")
 
 class CannabIAService:
 
-    def __init__(self) -> None:
-        self.pipeline = CannabIAPipeline()
+    def __init__(self, execution_mode: Optional[str] = None) -> None:
+        self.execution_mode = execution_mode
+        self.flow = build_clinical_flow(mode=execution_mode)
 
     def process_patient_case(self, data: Dict[str, Any]) -> Dict[str, Any]:
 
@@ -142,7 +143,7 @@ class CannabIAService:
             raise ValueError("Dados inválidos.")
 
         try:
-            result = self.pipeline.run(anamnesis)
+            result = self.flow.run(anamnesis)
 
             total_time_ms = int((time.time() - start_total) * 1000)
 

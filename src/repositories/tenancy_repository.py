@@ -99,3 +99,22 @@ def resolve_default_clinic_id(user_id: int):
         row = cursor.fetchone()
 
         return row["clinic_id"] if row else None
+
+
+def get_clinic_public_label(clinic_id: int) -> str:
+    with db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT name
+            FROM clinics
+            WHERE id = %s
+            LIMIT 1
+            """,
+            (clinic_id,),
+        )
+        row = cursor.fetchone()
+
+    name = (row or {}).get("name") if isinstance(row, dict) else None
+    if name:
+        return str(name)
+    return f"Clinica #{clinic_id}"

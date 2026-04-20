@@ -1,0 +1,42 @@
+[
+  {
+    "filename": "RDC_327_2019_ANVISA.pdf",
+    "title": "RDC nº 327/2019",
+    "norm_number": "RDC 327/2019",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": "https://bvs.saude.gov.br/bvs/saudelegis/anvisa/2019/rdc0327_09_12_2019.pdf",
+    "download_mode": "binary",
+    "notes": "Inteiro teor em PDF publicado na BVS Saúde com cabeçalho Anvisa."
+  },
+  {
+    "filename": "RDC_660_2022_ANVISA.md",
+    "title": "RDC nº 660/2022",
+    "norm_number": "RDC 660/2022",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": "https://www.in.gov.br/en/web/dou/-/resolucao-rdc-n-660-de-30-de-marco-de-2022-389908959",
+    "download_mode": "html",
+    "notes": "Inteiro teor disponível em HTML no DOU/Imprensa Nacional."
+  },
+  {
+    "filename": "Lei_11_343_2006_Planalto.md",
+    "title": "Lei nº 11.343/2006",
+    "norm_number": "Lei 11.343/2006",
+    "norm_body": "Congresso Nacional",
+    "source": "planalto",
+    "source_url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11343.htm",
+    "download_mode": "html",
+    "notes": "Texto compilado oficial do Planalto."
+  },
+  {
+    "filename": "Resolucao_CFM_2113_2014.md",
+    "title": "Resolução CFM nº 2.113/2014",
+    "norm_number": "Resolução CFM 2.113/2014",
+    "norm_body": "CFM",
+    "source": "cfm",
+    "source_url": "https://portal.cfm.org.br/canabidiol/index.php",
+    "download_mode": "html",
+    "notes": "Página oficial do CFM com a resolução e materiais correlatos."
+  }
+]

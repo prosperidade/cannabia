@@ -2,24 +2,51 @@
 
 ## Visao Geral
 
+## Atualizacao de Direcao — 2026-04-15
+
+- O caminho principal de producao passou a ser `specialist-first`, implementado em `src/ai/clinical_flow.py`
+- O `Orchestrator` continua existindo, mas deixa de ser o caminho critico do sistema
+- O papel do orquestrador passa a ser:
+  - chains opcionais
+  - experimentacao controlada
+  - testes administrativos
+  - fluxos compostos que realmente exigem coordenacao adicional
+- Foi introduzido `AgenteTratamento` para separar o plano terapeutico do `AgentePrescritor`
+- O rollback operacional permanece disponivel via `AI_EXECUTION_MODE=legacy`
+- O validador legado de anamnese passou a reutilizar o guardrail central para evitar divergencia entre fluxo historico e protecao real
+- A arquitetura de conhecimento continua hibrida:
+  - ChromaDB para artigos cientificos chunkados
+  - Google Files API para legislacao e documentos grandes sem chunking
+
+### Fluxo principal em producao
+
+```
+SpecialistClinicalFlow
+  > AgenteAnamnese
+  > AgenteTratamento
+  > AgenteCientifico
+```
+
+**Nota operacional:** as chains descritas neste documento devem ser interpretadas como referencia arquitetural e ferramental, nao como obrigacao de uso no caminho principal de producao.
+
 ```
                            +---------------------+
                            |    Orchestrator      |
                            |  (ChainStep runner)  |
                            +----------+----------+
                                       |
-              +-----------+-----------+-----------+-----------+-----------+
-              |           |           |           |           |           |
-        +-----v----+ +---v------+ +--v-------+ +-v--------+ +v--------+ +v---------+
-        | Triagem  | | Anamnese | | Prescritor| |Cientifico| |Regulat. | | FollowUp |
-        +-----+----+ +---+------+ +--+-------+ +-+--------+ ++--------+ ++---------+
-              |           |           |           |           |           |
-              +-----+-----+-----+-----+-----+----+-----+-----+-----+----+
-                    |                 |                  |                |
-              +-----v-----+    +-----v------+    +------v------+  +-----v-----+
-              | MemPalace  |    | ChromaDB   |    | Google Files|  | PostgreSQL|
-              | (memoria)  |    | (artigos)  |    | (legislacao)|  | (catalogo)|
-              +------------+    +------------+    +-------------+  +-----------+
+          +---------+---------+---------+---------+---------+---------+---------+
+          |         |         |         |         |         |         |         |
+      +---v---+ +---v---+ +---v----+ +--v-------+ +-v--------+ +v--------+ +v---------+
+      |Triagem| |Anamnese| |Tratamento| |Prescritor| |Cientifico| |Regulat. | | FollowUp |
+      +---+---+ +---+---+ +---+----+ +--+-------+ +-+--------+ ++--------+ ++---------+
+          |         |         |         |           |            |            |
+          +----+----+----+----+----+----+-----+-----+-----+------+------------+
+               |              |                |                  |
+          +----v------+ +-----v------+   +-----v------+    +------v------+
+          | MemPalace | | ChromaDB   |   | Google Files|   | PostgreSQL  |
+          | (memoria) | | (artigos)  |   | (legislacao)|   | (catalogo)  |
+          +-----------+ +------------+   +-------------+   +-------------+
 
         +-----------------------------------------------------------------------------+
         |                        AgenteExtrator                                       |
@@ -36,6 +63,8 @@ Todos os agentes herdam de `BaseAgent` e compartilham:
 **Arquivos-chave:**
 - `src/ai/agents/__init__.py` — exports publicos
 - `src/ai/agents/base.py` — classe base, Skill, AgentResult
+- `src/ai/clinical_flow.py` — fachada especialista-first do fluxo clinico
+- `src/ai/agents/tratamento.py` — agente de plano terapeutico inicial
 - `src/ai/agents/orchestrator.py` — encadeamento de agentes
 - `src/ai/memory.py` — integracao MemPalace
 - `src/knowledge/google_files.py` — Google Files API
@@ -121,6 +150,8 @@ Todas as operacoes de memoria sao envolvidas em `try/except`. Se o MemPalace nao
 **Arquivo:** `src/ai/agents/orchestrator.py`
 
 Encadeia multiplos agentes em sequencia, passando dados entre eles.
+
+**Uso recomendado apos 2026-04-15:** opcional. Deve permanecer fino e previsivel, sem absorver regras clinicas, regulatorias ou cientificas que pertencem aos agentes especialistas.
 
 ### ChainStep
 
@@ -247,6 +278,30 @@ result = orch.run_chain(
 5. Confidence: 0.8 (sem high risk) ou 0.9 (com high risk)
 
 **Risk levels:** `alto`, `critico` (high risk), `medio`, `baixo`
+
+---
+
+### AgenteTratamento
+
+**Arquivo:** `src/ai/agents/tratamento.py`
+
+| Propriedade | Valor |
+|---|---|
+| **Room** | `pipeline_prescricao` |
+| **agent_name** | `tratamento` |
+| **Descricao** | Gera o plano terapeutico inicial a partir da analise clinica |
+
+**Skills:**
+
+| Skill | Descricao | Input | Output |
+|---|---|---|---|
+| `generate_treatment_plan` | Gera plano terapeutico estruturado para o caso clinico | `clinical_analysis: dict` | `{"treatment_plan": dict, "tokens": dict}` |
+
+**Papel arquitetural:**
+
+1. Isolar a etapa de plano terapeutico do fluxo legado
+2. Evitar uso prematuro do `AgentePrescritor` quando ainda faltam dados estruturados de dosagem
+3. Permitir evolucao incremental do fluxo especialista-first sem acoplamento artificial
 
 ---
 
@@ -486,7 +541,7 @@ result = orch.run_chain(
 | Room | Descricao | Usada por |
 |---|---|---|
 | `pipeline_anamnese` | Padroes de anamnese, sintomas recorrentes, perfis de paciente | AgenteTriagem, AgenteAnamnese, Orchestrator (chain logs) |
-| `pipeline_prescricao` | Dosagens, ratios CBD/THC, titulacoes, outcomes acumulados | AgentePrescritor |
+| `pipeline_prescricao` | Dosagens, ratios CBD/THC, titulacoes, outcomes acumulados | AgenteTratamento, AgentePrescritor |
 | `pipeline_cientifico` | Evidencias consultadas, artigos mais citados, lacunas identificadas | AgenteCientifico, AgenteExtrator |
 | `regulatorio_anvisa` | RDCs, resolucoes, atualizacoes normativas aplicadas | AgenteRegulatorio |
 | `regulatorio_cfm` | Normas do CFM sobre prescricao de canabinoides | (disponivel, nao atribuida) |
@@ -600,6 +655,20 @@ Triagem -> Anamnese -> Prescritor -> Cientifico -> Regulatorio
 | 5 | AgenteRegulatorio | `recommendation` do prescritor | false |
 
 Pipeline completo: recebe mensagem do paciente, extrai condicoes, analisa clinicamente, calcula dosagem, gera relatorio cientifico e verifica compliance.
+
+### Chain: Fluxo Principal Atual
+
+```
+Anamnese -> Tratamento -> Cientifico
+```
+
+| Step | Agente | input_map | required |
+|---|---|---|---|
+| 1 | AgenteAnamnese | `patient_data` | true |
+| 2 | AgenteTratamento | `clinical_analysis` | true |
+| 3 | AgenteCientifico | `treatment_plan` | true |
+
+Este e o fluxo padrao atualmente ligado ao caminho principal de producao via `src/ai/clinical_flow.py`.
 
 ### Chain: Prescricao Segura
 

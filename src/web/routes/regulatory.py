@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from flask import Blueprint, g, request
 
-from src.infra.database import db_cursor
+from src.knowledge.legislation_catalog import sync_legislation_catalog
 from src.web.routes.api_v1 import (
     _error,
     _json_payload,
@@ -45,9 +45,15 @@ def upload_files():
 
     try:
         from src.knowledge.google_files import upload_all_legislation
+
         results = upload_all_legislation()
+        clinic_id = getattr(g, "clinic_id", None) or 1
+        catalog_summary = sync_legislation_catalog(results, clinic_id=clinic_id, ingested_by="manual_upload")
         return _success({
             "uploaded": len(results),
+            "catalog_created": catalog_summary["created"],
+            "catalog_updated": catalog_summary["updated"],
+            "catalog_total": catalog_summary["total"],
             "files": [{"name": r["display_name"], "size": r.get("size_bytes", 0)} for r in results],
         })
     except Exception:

@@ -83,10 +83,3 @@ CREATE INDEX IF NOT EXISTS idx_b2b_orders_clinic_id ON b2b_orders(clinic_id);
 CREATE INDEX IF NOT EXISTS idx_b2b_orders_prescription ON b2b_orders(prescription_id);
 CREATE INDEX IF NOT EXISTS idx_b2b_orders_status ON b2b_orders(clinic_id, status);
 CREATE INDEX IF NOT EXISTS idx_b2b_orders_created ON b2b_orders(clinic_id, created_at DESC);
-
-
--- ── Registro da migration ────────────────────────────────────────────────────
-
-INSERT INTO schema_migrations (version, filename, applied_at, checksum)
-VALUES ('012', '012_prescriptions_orders.sql', NOW(), '')
-ON CONFLICT DO NOTHING;

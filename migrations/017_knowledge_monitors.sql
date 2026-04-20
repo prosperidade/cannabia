@@ -41,7 +41,3 @@ VALUES
     ('DOU - Resolucoes ANVISA', 'https://www.in.gov.br/consulta', 'html_page', 'anvisa cannabis', 24),
     ('Planalto - Lei de Drogas', 'https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11343.htm', 'html_page', NULL, 168)
 ON CONFLICT DO NOTHING;
-
-INSERT INTO schema_migrations (version, filename, applied_at, checksum)
-VALUES ('017', '017_knowledge_monitors.sql', NOW(), '')
-ON CONFLICT DO NOTHING;

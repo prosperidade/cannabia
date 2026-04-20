@@ -40,12 +40,14 @@ from src.ai.schemas import (
 )
 from src.infra.database import db_cursor
 from src.repositories.ai_audit_repository import save_ai_audit_log
+from src.repositories.anamnesis_repository import get_report
 from src.repositories.patient_repository import get_or_create_patient_by_name
 from src.services.billing_service import (
     BillingLimitExceeded,
     check_ai_allowance,
     record_ai_usage,
 )
+from src.services.prescription_contract import build_dosage_input_or_raise, build_prescription_contract
 
 logger = logging.getLogger("cannabia.prescription")
 
@@ -292,9 +294,22 @@ class PrescriptionService:
         if not guardrail_result.passed:
             raise ValueError("Possível tentativa de prompt injection detectada.")
 
+        report = None
+        attendance_id = data.get("attendance_id")
+        if attendance_id not in (None, ""):
+            try:
+                report = get_report(clinic_id, int(attendance_id))
+            except (TypeError, ValueError):
+                raise ValueError("attendance_id deve ser inteiro.")
+            if not report:
+                raise ValueError("Atendimento informado não foi encontrado.")
+
+        dosage_payload = build_dosage_input_or_raise(report=report, overrides=data)
+        contract = build_prescription_contract(report=report, overrides=data)
+
         # Validação
         try:
-            dosage_input = DosageInput(**data)
+            dosage_input = DosageInput(**dosage_payload)
         except ValidationError as e:
             raise ValueError(f"Dados inválidos: {e}")
 
@@ -332,6 +347,8 @@ class PrescriptionService:
         )
 
         return {
+            "prescription_contract": contract,
+            "dosage_input": dosage_payload,
             "recommendation": recommendation.model_dump(),
             "safety_limits": asdict(limits),
             "token_usage": tokens,

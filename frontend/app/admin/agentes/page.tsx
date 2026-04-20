@@ -48,6 +48,7 @@ interface DiaryEntry {
 const AGENT_ICONS: Record<string, string> = {
   AgenteTriagem: "assignment_turned_in",
   AgenteAnamnese: "clinical_notes",
+  AgenteTratamento: "medication_liquid",
   AgentePrescritor: "medication",
   AgenteCientifico: "science",
   AgenteRegulatorio: "gavel",
@@ -58,6 +59,7 @@ const AGENT_ICONS: Record<string, string> = {
 const AGENT_KEYS: Record<string, string> = {
   AgenteTriagem: "triagem",
   AgenteAnamnese: "anamnese",
+  AgenteTratamento: "tratamento",
   AgentePrescritor: "prescritor",
   AgenteCientifico: "cientifico",
   AgenteRegulatorio: "regulatorio",

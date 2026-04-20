@@ -157,6 +157,60 @@ export type TriageSubmissionResult = {
   prescription_contract: PrescriptionContract;
 };
 
+export type PaymentRequest = {
+  id: number;
+  tenant_id: number;
+  clinic_id: number;
+  patient_id: number | null;
+  prescription_id: number | null;
+  external_id: string;
+  description: string | null;
+  amount_cents: number;
+  currency: string;
+  method: string;
+  status: "pending" | "paid" | "expired" | "cancelled" | "refunded";
+  provider: string;
+  pix_payload: string | null;
+  pix_qr_image_url: string | null;
+  pix_key: string | null;
+  expires_at: string | null;
+  paid_at: string | null;
+  paid_amount_cents: number | null;
+  provider_ref: string | null;
+  provider_metadata: Record<string, unknown>;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PaymentTransaction = {
+  id: number;
+  payment_request_id: number;
+  tenant_id: number;
+  provider: string;
+  provider_event_id: string | null;
+  event_type: string;
+  status: string;
+  amount_cents: number;
+  currency: string;
+  payer_name: string | null;
+  payer_document: string | null;
+  payer_account: string | null;
+  received_at: string;
+};
+
+export type PaymentDetail = PaymentRequest & {
+  transactions: PaymentTransaction[];
+};
+
+export type PaymentSummary = {
+  pending?: { count: number; total_cents: number };
+  paid?: { count: number; total_cents: number; paid_cents: number };
+  expired?: { count: number; total_cents: number };
+  cancelled?: { count: number; total_cents: number };
+  refunded?: { count: number; total_cents: number };
+};
+
 export type TriageLinkContext = {
   clinic_id: number;
   clinic_label: string;

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
 import {
+  ApiError,
   getAttendance,
   calculateDosage,
   emitPrescription,
@@ -19,10 +20,9 @@ import {
 import type {
   PrescriptionType,
   PrescriptionItem,
-  PrescriptionData,
   TreatmentPlan,
 } from "@/lib/types-medical";
-import type { AttendanceDetail } from "@/lib/types";
+import type { AttendanceDetail, PrescriptionContract } from "@/lib/types";
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -59,6 +59,25 @@ function formatDate(d: Date) {
   });
 }
 
+function sourceLabel(source?: string) {
+  if (!source) return "Nao informado";
+  return source
+    .replace(/^payload\./, "Entrada manual > ")
+    .replace(/^report\./, "Relatorio > ")
+    .replace(/^default\./, "Padrao > ")
+    .replace(/\./g, " > ");
+}
+
+type DosagePreview = {
+  prescription_contract?: PrescriptionContract;
+  dosage_input?: Record<string, unknown>;
+  recommendation?: Record<string, unknown>;
+  safety_limits?: Record<string, unknown>;
+  token_usage?: Record<string, unknown>;
+  estimated_cost_usd?: number;
+  processing_time_ms?: number;
+};
+
 /* ── page ────────────────────────────────────────────────────────── */
 
 export default function PrescricaoPage() {
@@ -83,6 +102,12 @@ export default function PrescricaoPage() {
   const [notes, setNotes] = useState("");
   const [cannabinoidRatio, setCannabinoidRatio] = useState("");
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+  const [prescriptionContract, setPrescriptionContract] = useState<PrescriptionContract | null>(null);
+  const [weightKg, setWeightKg] = useState("");
+  const [heightCm, setHeightCm] = useState("");
+  const [priorCannabisUse, setPriorCannabisUse] = useState<"" | "true" | "false">("");
+  const [dosagePreview, setDosagePreview] = useState<DosagePreview | null>(null);
+  const [contractError, setContractError] = useState<string | null>(null);
 
   /* load attendance */
   useEffect(() => {
@@ -91,9 +116,16 @@ export default function PrescricaoPage() {
       try {
         const data = await getAttendance(params.id);
         setAttendance(data);
+        setPrescriptionContract(data.prescription_contract ?? null);
 
         /* pre-fill from attendance */
         setPatientName(data.report.patient_name ?? "");
+        const resolved = data.prescription_contract?.resolved_values ?? {};
+        if (typeof resolved.weight_kg === "number") setWeightKg(String(resolved.weight_kg));
+        if (typeof resolved.height_cm === "number") setHeightCm(String(resolved.height_cm));
+        if (typeof resolved.prior_cannabis_use === "boolean") {
+          setPriorCannabisUse(resolved.prior_cannabis_use ? "true" : "false");
+        }
 
         const tp = data.report.treatment_plan as Partial<TreatmentPlan> | null;
         if (tp) {
@@ -143,35 +175,94 @@ export default function PrescricaoPage() {
   };
 
   /* build prescription data object */
-  const buildPayload = (): PrescriptionData => ({
-    type: prescType,
-    patient_name: patientName,
-    patient_cpf: patientCpf,
-    prescriber_name: prescriberName,
-    prescriber_crm: prescriberCrm,
-    prescriber_uf: prescriberUf,
-    date: new Date().toISOString().split("T")[0],
-    items,
-    notes,
-  });
+  const buildDosagePayload = () => {
+    const payload: Record<string, unknown> = {
+      attendance_id: Number(params.id),
+    };
+
+    if (weightKg.trim()) payload.weight_kg = Number(weightKg.replace(",", "."));
+    if (heightCm.trim()) payload.height_cm = Number(heightCm.replace(",", "."));
+    if (priorCannabisUse !== "") payload.prior_cannabis_use = priorCannabisUse === "true";
+
+    return payload;
+  };
 
   /* calculate dosage */
   const handleCalculate = async () => {
     if (!session) return;
+    setContractError(null);
     setCalculating(true);
     try {
-      const res = await calculateDosage(session.csrf_token, {
-        ...buildPayload(),
-        cannabinoid_ratio: cannabinoidRatio,
-        attendance_id: params.id,
-      });
+      const res = await calculateDosage(session.csrf_token, buildDosagePayload());
+      const preview = (res.data ?? null) as DosagePreview | null;
+      const recommendation = preview?.recommendation ?? null;
+      const nextContract = preview?.prescription_contract ?? null;
+
+      setDosagePreview(preview);
+      setPrescriptionContract(nextContract);
+
+      if (nextContract?.resolved_values) {
+        const resolved = nextContract.resolved_values;
+        if (typeof resolved.weight_kg === "number") setWeightKg(String(resolved.weight_kg));
+        if (typeof resolved.height_cm === "number") setHeightCm(String(resolved.height_cm));
+        if (typeof resolved.prior_cannabis_use === "boolean") {
+          setPriorCannabisUse(resolved.prior_cannabis_use ? "true" : "false");
+        }
+      }
+
+      if (recommendation && typeof recommendation === "object") {
+        const rec = recommendation as Record<string, unknown>;
+        const titration = Array.isArray(rec.titration_protocol)
+          ? (rec.titration_protocol[0] as Record<string, unknown> | undefined)
+          : undefined;
+        const concentration =
+          typeof rec.concentration_mg_ml === "number" ? `${rec.concentration_mg_ml} mg/mL` : "";
+        const route = typeof rec.administration_route === "string" ? rec.administration_route : "";
+        const dosage =
+          titration &&
+          typeof titration.drops_per_dose === "number" &&
+          typeof titration.doses_per_day === "number"
+            ? `${titration.drops_per_dose} gotas ${titration.doses_per_day}x/dia`
+            : "";
+
+        if (typeof rec.cannabinoid_ratio === "string" && rec.cannabinoid_ratio) {
+          setCannabinoidRatio(rec.cannabinoid_ratio);
+        }
+
+        setItems((prev) => {
+          const first = prev[0] ?? { ...EMPTY_ITEM };
+          return [
+            {
+              ...first,
+              concentration: concentration || first.concentration,
+              dosage: dosage || first.dosage,
+              route: route || first.route,
+              instructions:
+                typeof rec.clinical_rationale === "string" && rec.clinical_rationale
+                  ? rec.clinical_rationale
+                  : first.instructions,
+            },
+            ...prev.slice(1),
+          ];
+        });
+      }
+
       const suggestion =
-        typeof res.data === "object" && res.data !== null
-          ? JSON.stringify(res.data, null, 2)
-          : String(res.data ?? "Calculo realizado.");
+        recommendation && typeof recommendation === "object"
+          ? JSON.stringify(recommendation, null, 2)
+          : JSON.stringify(preview ?? {}, null, 2);
       setAiSuggestion(suggestion);
-    } catch {
-      setAiSuggestion("Erro ao calcular dosagem. Tente novamente.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.code === "prescription_contract_incomplete" && error.details) {
+          const details = error.details as unknown as PrescriptionContract;
+          setPrescriptionContract(details);
+          setContractError(error.message);
+        }
+        setAiSuggestion(error.message);
+      } else {
+        setAiSuggestion("Erro ao calcular dosagem. Tente novamente.");
+      }
     } finally {
       setCalculating(false);
     }
@@ -179,17 +270,39 @@ export default function PrescricaoPage() {
 
   /* emit prescription */
   const handleEmit = async () => {
-    if (!session) return;
+    if (!session?.user) return;
+
+    if (!dosagePreview?.recommendation) {
+      setAiSuggestion("Calcule a dosagem pela IA antes de emitir a prescricao.");
+      return;
+    }
+    if (!attendance?.report.patient_id) {
+      setAiSuggestion("Este atendimento ainda nao possui patient_id valido para emissao.");
+      return;
+    }
+    if (!prescriberCrm.trim()) {
+      setAiSuggestion("Informe o CRM do prescritor antes de emitir.");
+      return;
+    }
+
     setEmitting(true);
     try {
       await emitPrescription(session.csrf_token, {
-        ...buildPayload(),
-        cannabinoid_ratio: cannabinoidRatio,
-        attendance_id: params.id,
+        patient_id: attendance.report.patient_id,
+        doctor_user_id: session.user.id,
+        doctor_name: prescriberName || session.user.username,
+        doctor_crm: prescriberCrm.trim(),
+        dosage_recommendation: dosagePreview.recommendation,
+        custom_notes: notes || null,
+        validity_days: 180,
       });
       setEmitSuccess(true);
-    } catch {
-      /* TODO: show error */
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setAiSuggestion(error.message);
+      } else {
+        setAiSuggestion("Erro ao emitir prescricao. Tente novamente.");
+      }
     } finally {
       setEmitting(false);
     }
@@ -328,6 +441,80 @@ export default function PrescricaoPage() {
                 </div>
               </div>
             </div>
+          </Card>
+
+          <Card
+            className={cn(
+              "border-l-4",
+              prescriptionContract?.ready ? "border-l-primary" : "border-l-amber-400",
+            )}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <MaterialIcon
+                icon={prescriptionContract?.ready ? "verified" : "rule"}
+                className={prescriptionContract?.ready ? "text-primary" : "text-amber-400"}
+              />
+              <h3 className="font-headline font-bold text-lg text-white">
+                Contrato Clinico para Prescricao Segura
+              </h3>
+              <Badge tone={prescriptionContract?.ready ? "success" : "warning"}>
+                {prescriptionContract?.ready ? "Pronto" : "Pendente"}
+              </Badge>
+            </div>
+
+            <p className="text-sm text-on-surface-variant">
+              {contractError ?? prescriptionContract?.message ?? "Defina os campos minimos antes do calculo."}
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+              <Input
+                label="Peso (kg)"
+                icon="monitor_weight"
+                type="number"
+                step="0.1"
+                value={weightKg}
+                onChange={(e) => setWeightKg(e.target.value)}
+                hint={sourceLabel(prescriptionContract?.source_map?.weight_kg)}
+                placeholder="Ex: 72.5"
+              />
+              <Input
+                label="Altura (cm)"
+                icon="height"
+                type="number"
+                step="0.1"
+                value={heightCm}
+                onChange={(e) => setHeightCm(e.target.value)}
+                hint={sourceLabel(prescriptionContract?.source_map?.height_cm)}
+                placeholder="Ex: 175"
+              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+                  Uso prévio de cannabis
+                </label>
+                <select
+                  value={priorCannabisUse}
+                  onChange={(e) => setPriorCannabisUse(e.target.value as "" | "true" | "false")}
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT px-4 py-3 text-on-surface focus:border-primary-container focus:outline-none transition-colors"
+                >
+                  <option value="">Selecione</option>
+                  <option value="true">Sim</option>
+                  <option value="false">Nao</option>
+                </select>
+                <span className="text-[11px] text-stone-500">
+                  {sourceLabel(prescriptionContract?.source_map?.prior_cannabis_use)}
+                </span>
+              </div>
+            </div>
+
+            {prescriptionContract?.missing_required_fields?.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {prescriptionContract.missing_required_fields.map((item) => (
+                  <Badge key={item.field} tone="warning">
+                    Falta {item.label}
+                  </Badge>
+                ))}
+              </div>
+            ) : null}
           </Card>
 
           {/* CBD:THC Ratio */}

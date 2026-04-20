@@ -5,6 +5,7 @@
 
 /** Steps sequenciais do wizard de triagem. */
 export type TriagemStep =
+  | "identificacao"
   | "motivo"
   | "sintomas"
   | "dados_fisicos"
@@ -14,6 +15,11 @@ export type TriagemStep =
   | "revisao";
 
 // ── Step payloads ──────────────────────────────────────────────────
+
+export type TriagemIdentificacao = {
+  patient_name: string;
+  age?: number;
+};
 
 export type TriagemMotivo = {
   objetivo_principal: string;
@@ -71,6 +77,7 @@ export type TriagemHistorico = {
 // ── Formulário agregado ────────────────────────────────────────────
 
 export type TriagemFormData = {
+  identificacao: TriagemIdentificacao;
   motivo: TriagemMotivo;
   sintomas: TriagemSintoma[];
   dados_fisicos: TriagemDadosFisicos;
@@ -87,6 +94,8 @@ export type WizardState = {
   formData: Partial<TriagemFormData>;
   isSubmitting: boolean;
   error?: string;
+  successMessage?: string;
+  submittedReportId?: number;
 };
 
 // ── Chat Intake Session (REST responses from chat_intake.py) ──────
