@@ -39,7 +39,7 @@ Entregar o cadastro institucional completo e a discriminação formal de tenant 
 
 | ID | Tarefa | Dependência | Prioridade | Status |
 |----|--------|-------------|-----------|--------|
-| F1.1 | Migration `024_tenants_evolution.sql` — introduzir discriminador `tenant_type` (clinic/association/doctor), adicionar campos estatutários, migrar `clinics` com `clinic_id = tenant_id` | P0.1, P0.2 | Alta | Aberto |
+| F1.1 | Migration `024_tenants_evolution.sql` — introduzir discriminador `tenant_type` (clinic/association/doctor), adicionar campos estatutários, migrar `clinics` com `clinic_id = tenant_id` | P0.1, P0.2 | Alta | **Concluído** 2026-04-19 — 7 colunas adicionadas (`tenant_type` VARCHAR CHECK, `trade_name`, `cnpj` UNIQUE partial, `incorporation_date`, `plan_tier` VARCHAR CHECK com mapeamento starter→basic, `whitelabel_config` JSONB, `is_active` GENERATED). 38 testes estáticos verdes + down script validado em roundtrip. Migração do FK `clinic_id = tenant_id` nos child tables fica para migrations subsequentes (F1.2+) |
 | F1.2 | Migration `025_governance_schema.sql` — `associations`, `technical_responsibles`, `board_members`, `institutional_documents`, `capability_matrix` | F1.1 | Alta | Aberto |
 | F1.3 | Repositório `src/repositories/governance_repository.py` | F1.2 | Alta | Aberto |
 | F1.4 | Serviço `src/services/governance_service.py` — validação de elegibilidade (natureza jurídica, tempo de constituição, RT habilitado) | F1.3 | Alta | Aberto |
