@@ -35,6 +35,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -53,12 +54,14 @@ __all__ = [
     "EVENT_TABLES",
     "ANCHOR_SCOPES",
     "BLOCKCHAIN_NETWORKS",
+    "ANCHOR_PROVIDER_ENV",
     "sha256_hex",
     "build_merkle_root",
     "build_merkle_proof",
     "verify_merkle_proof",
     "collect_anchorable_events",
     "submit_anchor_mock",
+    "submit_anchor",
     "create_anchor",
     "get_anchor",
     "get_mappings_for_event",
@@ -71,6 +74,12 @@ __all__ = [
 
 ANCHOR_SCOPES = frozenset({"global", "tenant", "project"})
 BLOCKCHAIN_NETWORKS = frozenset({"bitcoin_ots", "polygon", "ethereum"})
+
+# Env var que seleciona o provider da submissao on-chain (F5.3).
+# Valores aceitos: 'mock' (default, seguro para dev/CI) ou 'ots'
+# (usa src.integrations.opentimestamps).
+ANCHOR_PROVIDER_ENV = "ANCHORING_PROVIDER"
+_VALID_PROVIDERS = frozenset({"mock", "ots"})
 
 # Tabelas ancoraveis hoje. Cada entrada declara a coluna da chave
 # primaria, a coluna com o hash SHA-256 do evento e o predicado
@@ -313,6 +322,52 @@ class MockAnchorReceipt:
     proof_hash: str
 
 
+def _resolve_provider(explicit: Optional[str]) -> str:
+    """Resolve qual provider usar na submissao on-chain.
+
+    Prioridade: argumento explicito > env var > 'mock'.
+    """
+    candidate = (explicit or os.environ.get(ANCHOR_PROVIDER_ENV) or "mock").lower()
+    if candidate not in _VALID_PROVIDERS:
+        raise AnchoringError(
+            f"Provider '{candidate}' invalido "
+            f"(permitidos: {sorted(_VALID_PROVIDERS)})."
+        )
+    return candidate
+
+
+def submit_anchor(
+    merkle_root: str,
+    network: str,
+    *,
+    provider: Optional[str] = None,
+    now_epoch: Optional[int] = None,
+) -> Any:
+    """Dispatcher de submissao on-chain (F5.3).
+
+    - provider='mock' → :func:`submit_anchor_mock` (default, F5.2).
+    - provider='ots'  → :func:`src.integrations.opentimestamps.submit_to_ots`
+      + assert de que ``network == 'bitcoin_ots'``.
+
+    Retorna um objeto com ``transaction_id``/``proof_uri``/``proof_hash``
+    (MockAnchorReceipt ou OtsReceipt sao estruturalmente compativeis).
+    """
+    resolved = _resolve_provider(provider)
+    if resolved == "mock":
+        return submit_anchor_mock(merkle_root, network, now_epoch=now_epoch)
+
+    # OTS path
+    if network != "bitcoin_ots":
+        raise AnchoringError(
+            "Provider 'ots' so suporta network='bitcoin_ots'. "
+            f"Recebido: {network}. Use Polygon via provider alternativo "
+            "quando disponivel (F5.4)."
+        )
+    # Import lazy para nao forcar dependencia em dev/CI sem uso de OTS.
+    from src.integrations.opentimestamps import submit_to_ots  # noqa: WPS433
+    return submit_to_ots(merkle_root)
+
+
 def submit_anchor_mock(
     merkle_root: str,
     network: str,
@@ -493,6 +548,7 @@ def create_anchor(
     blockchain_network: str = "bitcoin_ots",
     events: Optional[list[AnchorableEvent]] = None,
     now_epoch: Optional[int] = None,
+    provider: Optional[str] = None,
 ) -> dict[str, Any]:
     """Ancora os eventos do periodo em uma rede e persiste.
 
@@ -538,7 +594,10 @@ def create_anchor(
     merkle_root = build_merkle_root(leaf_hashes)
     proofs = [build_merkle_proof(leaf_hashes, idx) for idx in range(len(events))]
 
-    receipt = submit_anchor_mock(merkle_root, blockchain_network, now_epoch=now_epoch)
+    receipt = submit_anchor(
+        merkle_root, blockchain_network,
+        provider=provider, now_epoch=now_epoch,
+    )
 
     with db_cursor(dictionary=True) as (conn, cursor):
         anchor_row = _insert_blockchain_anchor(
