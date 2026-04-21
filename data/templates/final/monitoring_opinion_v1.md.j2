@@ -1,0 +1,234 @@
+{#-
+ Parecer Final de Monitoramento do Experimento — doc 27 §6
+
+ 14 secoes conforme §6.2. Documento construido ao longo do ciclo do
+ Projeto Experimental (trimestral + consolidacao final).
+
+ Contrato de contexto — todas as chaves sao obrigatorias (StrictUndefined).
+ Providers em src/services/regulatory_documents.build_monitoring_opinion_data
+ devem preencher todas, mesmo que com listas vazias ou '' para gracia.
+
+ Chaves esperadas:
+  - project: dict com id, title, objective, start_date, end_date, status
+  - tenant: dict com legal_name, cnpj, trade_name, incorporation_date
+  - technical_responsible: dict com full_name, professional_council,
+    council_number, council_state (ou None)
+  - scope: dict com activities (list), scale (dict)
+  - schedule: dict com planned (list de fase/data), executed (list)
+  - indicators: dict com mandatory (list), complementary (list),
+    cada indicador com code, name, period, value, target, status
+  - operational_evidence: dict com sops_count, sop_deviations, capa_actions
+  - clinical_evidence: dict com consultations, prescriptions, outcomes (list)
+  - pharmacovigilance: dict com adverse_events_count, sanitary_risks_count
+  - anchors: dict com total, networks, verification_status_counts
+  - findings: list de achados/aprendizados
+  - recommendations: list de recomendacoes regulatorias
+  - limitations: list de limitacoes
+  - financial: dict opcional (None quando nao aplicavel)
+  - attachments: list de anexos
+  - generated_at: ISO string UTC
+  - period_label: 'Parcial Q1' | 'Parcial Q2' | ... | 'Consolidacao Final'
+  - document_version: 'v1' (do registry)
+-#}
+# Parecer Final de Monitoramento do Experimento
+
+**Periodo:** {{ period_label }}
+**Projeto:** {{ project.title }}
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Resumo executivo
+
+{% if findings %}
+O Projeto Experimental **{{ project.title }}** produziu {{ indicators.mandatory | length }} indicadores obrigatorios e {{ indicators.complementary | length }} complementares ao longo do periodo. Foram registradas {{ operational_evidence.sops_count }} execucoes de POP, {{ pharmacovigilance.adverse_events_count }} eventos adversos e {{ anchors.total }} ancoragens em blockchain publica.
+{% else %}
+[pendencia: resumo executivo sera consolidado apos agregacao completa dos dados do periodo.]
+{% endif %}
+
+---
+
+## 2. Escopo e objetivos originais do Projeto
+
+**Objetivo declarado:** {{ project.objective or '[pendencia: objetivo do projeto nao cadastrado]' }}
+
+**Atividades previstas:**
+{% if scope.activities %}
+{% for activity in scope.activities %}
+- {{ activity }}
+{% endfor %}
+{% else %}
+- [pendencia: escopo de atividades nao declarado]
+{% endif %}
+
+**Escala proposta:** {{ scope.scale or '[pendencia]' }}
+
+---
+
+## 3. Cumprimento do cronograma
+
+**Inicio:** {{ project.start_date or '[pendencia]' }} &middot; **Fim previsto:** {{ project.end_date or '[pendencia]' }}
+
+{% if schedule.planned %}
+| Fase planejada | Data prevista | Execucao |
+|---|---|---|
+{% for phase in schedule.planned %}
+| {{ phase.name }} | {{ phase.due_date }} | {{ phase.executed_status or '[pendente]' }} |
+{% endfor %}
+{% else %}
+[pendencia: cronograma nao declarado]
+{% endif %}
+
+---
+
+## 4. Desempenho dos indicadores obrigatorios por periodo
+
+{% if indicators.mandatory %}
+| Codigo | Nome | Periodo | Valor | Meta | Status |
+|---|---|---|---|---|---|
+{% for ind in indicators.mandatory %}
+| {{ ind.code }} | {{ ind.name }} | {{ ind.period }} | {{ ind.value }} | {{ ind.target or '-' }} | {{ ind.status }} |
+{% endfor %}
+{% else %}
+[pendencia: indicadores obrigatorios ainda nao reportados]
+{% endif %}
+
+---
+
+## 5. Desempenho dos indicadores complementares
+
+{% if indicators.complementary %}
+{% for ind in indicators.complementary %}
+- **{{ ind.name }}** ({{ ind.code }}) — {{ ind.value }} ({{ ind.period }})
+{% endfor %}
+{% else %}
+Sem indicadores complementares registrados neste periodo.
+{% endif %}
+
+---
+
+## 6. Evidencias operacionais
+
+- POPs executados: **{{ operational_evidence.sops_count }}**
+- Desvios registrados: **{{ operational_evidence.sop_deviations }}**
+- Acoes CAPA: **{{ operational_evidence.capa_actions }}**
+
+---
+
+## 7. Evidencias clinicas e de desfecho
+
+- Consultas: **{{ clinical_evidence.consultations }}**
+- Prescricoes emitidas: **{{ clinical_evidence.prescriptions }}**
+
+{% if clinical_evidence.outcomes %}
+**Desfechos observados:**
+{% for outcome in clinical_evidence.outcomes %}
+- {{ outcome }}
+{% endfor %}
+{% else %}
+[pendencia: desfechos clinicos dependem do Evidence Engine — F4.1 do SCC]
+{% endif %}
+
+---
+
+## 8. Historico de farmacovigilancia
+
+- Eventos adversos notificados: **{{ pharmacovigilance.adverse_events_count }}**
+- Riscos sanitarios identificados: **{{ pharmacovigilance.sanitary_risks_count }}**
+
+---
+
+## 9. Ancoragens em blockchain publica e integridade da rastreabilidade
+
+Total de ancoragens no periodo: **{{ anchors.total }}**.
+
+{% if anchors.networks %}
+Redes utilizadas:
+{% for net, count in anchors.networks.items() %}
+- {{ net }}: {{ count }}
+{% endfor %}
+{% endif %}
+
+{% if anchors.verification_status_counts %}
+Status de verificacao:
+{% for status, count in anchors.verification_status_counts.items() %}
+- {{ status }}: {{ count }}
+{% endfor %}
+{% endif %}
+
+Verificacao publica disponivel em ``GET /api/v1/public/anchors/{{ tenant.id }}/verify`` (F5.5).
+
+---
+
+## 10. Achados relevantes e aprendizados
+
+{% if findings %}
+{% for finding in findings %}
+- {{ finding }}
+{% endfor %}
+{% else %}
+[pendencia: achados serao consolidados ao final do ciclo]
+{% endif %}
+
+---
+
+## 11. Recomendacoes para futura regulacao
+
+{% if recommendations %}
+{% for rec in recommendations %}
+- {{ rec }}
+{% endfor %}
+{% else %}
+[pendencia: a preencher na versao de consolidacao final]
+{% endif %}
+
+---
+
+## 12. Limitacoes do experimento
+
+{% if limitations %}
+{% for lim in limitations %}
+- {{ lim }}
+{% endfor %}
+{% else %}
+- Natureza experimental intrinseca do Sandbox Regulatorio.
+- Amostra limitada ao escopo do Projeto Experimental.
+{% endif %}
+
+---
+
+## 13. Prestacao de contas financeira
+
+{% if financial %}
+{{ financial }}
+{% else %}
+Nao aplicavel neste periodo.
+{% endif %}
+
+---
+
+## 14. Anexos
+
+{% if attachments %}
+{% for att in attachments %}
+- {{ att }}
+{% endfor %}
+{% else %}
+Nenhum anexo neste periodo.
+{% endif %}
+
+---
+
+## Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }} ({{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }})
+{% else %}
+**Responsavel Tecnico:** [pendencia: indicar RT ativo antes da submissao]
+{% endif %}
+
+Data de aprovacao: __________________
+
+_Documento gerado pela plataforma CannabIA — versao de template {{ document_version }}._

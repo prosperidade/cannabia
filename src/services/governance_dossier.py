@@ -19,10 +19,7 @@ import logging
 from collections import OrderedDict
 from dataclasses import asdict
 from datetime import date, datetime, timezone
-from pathlib import Path
 from typing import Any, Optional
-
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from src.infra.database import db_cursor
 from src.repositories import governance_repository as repo
@@ -30,6 +27,7 @@ from src.services.governance_service import (
     EligibilityReport,
     check_sandbox_eligibility,
 )
+from src.services.template_engine import RenderedDocument, render as render_template
 
 logger = logging.getLogger("cannabia.governance_dossier")
 
@@ -38,9 +36,8 @@ logger = logging.getLogger("cannabia.governance_dossier")
 # Constantes
 # ---------------------------------------------------------------------
 
+TEMPLATE_ID = "eligibility/dossier"
 TEMPLATE_VERSION = "v1"
-TEMPLATE_FILE = "dossier_v1.md.j2"
-TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "data" / "templates" / "eligibility"
 
 
 # ---------------------------------------------------------------------
@@ -148,17 +145,31 @@ def build_dossier_data(
 
 
 # ---------------------------------------------------------------------
-# Renderer Jinja2
+# Renderer — delega para template_engine (F4.6 do SCC)
 # ---------------------------------------------------------------------
 
-def _get_env() -> Environment:
-    return Environment(
-        loader=FileSystemLoader(str(TEMPLATE_DIR)),
-        autoescape=select_autoescape(enabled_extensions=(), default_for_string=False),
-        trim_blocks=True,
-        lstrip_blocks=True,
-        undefined=StrictUndefined,
+def render_dossier_document(
+    tenant_id: int,
+    *,
+    data: Optional[dict[str, Any]] = None,
+) -> RenderedDocument:
+    """Renderiza o Dossie via template_engine e devolve o
+    :class:`RenderedDocument` completo (com ``content_hash`` SHA-256).
+
+    Uso tipico: persistir em ``regulatory_reports.content_hash`` ou
+    ancorar em blockchain.
+    """
+    if data is None:
+        data = build_dossier_data(tenant_id)
+    document = render_template(TEMPLATE_ID, data, format="md")
+    logger.info(
+        "dossier_rendered tenant=%s eligible=%s length=%d hash=%s",
+        tenant_id,
+        data["eligibility"]["is_eligible"],
+        len(document.content),
+        document.content_hash[:12],
     )
+    return document
 
 
 def render_dossier_markdown(
@@ -166,17 +177,6 @@ def render_dossier_markdown(
     *,
     data: Optional[dict[str, Any]] = None,
 ) -> str:
-    """Renderiza o Dossie em Markdown. Se ``data`` ja foi construido
-    externamente (ex.: testes), usa; senao busca via ``build_dossier_data``."""
-    if data is None:
-        data = build_dossier_data(tenant_id)
-    env = _get_env()
-    template = env.get_template(TEMPLATE_FILE)
-    rendered = template.render(**data)
-    logger.info(
-        "dossier_rendered tenant=%s eligible=%s length=%d",
-        tenant_id,
-        data["eligibility"]["is_eligible"],
-        len(rendered),
-    )
-    return rendered
+    """Compat: devolve apenas o Markdown. Callers novos devem preferir
+    :func:`render_dossier_document` para ter acesso ao ``content_hash``."""
+    return render_dossier_document(tenant_id, data=data).content

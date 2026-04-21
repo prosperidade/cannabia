@@ -1,0 +1,97 @@
+{#-
+ Termo de Consentimento Informado do Associado — doc 27 §7.1
+
+ Chaves do contexto (todas obrigatorias):
+  - tenant: {legal_name, cnpj, trade_name}
+  - member: {full_name, cpf, rg} — associado
+  - project: {title, sandbox_protocol} — projeto experimental ao qual adere
+  - technical_responsible: {full_name, council} — RT responsavel
+  - consent: {lgpd_basis, data_sharing_with_anvisa (bool), rights (list)}
+  - known_risks: list de strings
+  - known_benefits: list de strings
+  - generated_at: ISO string
+  - document_version: 'v1'
+-#}
+# Termo de Consentimento Informado do Associado
+
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Projeto Experimental:** {{ project.title }}
+**Protocolo Sandbox:** {{ project.sandbox_protocol or '[pendencia]' }}
+**Gerado em:** {{ generated_at }}
+
+---
+
+## 1. Identificacao do associado
+
+**Nome:** {{ member.full_name }}
+**CPF:** {{ member.cpf or '[pendencia]' }}
+**RG:** {{ member.rg or '[pendencia]' }}
+
+---
+
+## 2. Natureza experimental
+
+Declaro estar ciente de que o Projeto Experimental ao qual adiro esta inserido no **Sandbox Regulatorio da ANVISA** (RDC 1.014/2026). Trata-se de um programa experimental de escopo limitado, sem publicidade, sem comercializacao e sem caracterizar aprovacao regulatoria ordinaria.
+
+---
+
+## 3. O preparado nao e medicamento
+
+Declaro compreender que os preparados entregues **nao sao medicamentos** aprovados pela ANVISA e nao foram submetidos ao registro sanitario convencional. Seu uso ocorre no escopo restrito do Projeto Experimental.
+
+---
+
+## 4. Uso e protecao de dados pessoais (LGPD)
+
+**Base legal:** {{ consent.lgpd_basis }}.
+
+{% if consent.data_sharing_with_anvisa %}
+Autorizo o compartilhamento **anonimizado** de dados clinicos e operacionais com a ANVISA para fins de monitoramento regulatorio do Sandbox.
+{% else %}
+NAO autorizo o compartilhamento de dados com a ANVISA neste termo.
+{% endif %}
+
+---
+
+## 5. Direitos do associado
+
+{% for right in consent.rights %}
+- {{ right }}
+{% endfor %}
+
+---
+
+## 6. Riscos conhecidos
+
+{% if known_risks %}
+{% for risk in known_risks %}
+- {{ risk }}
+{% endfor %}
+{% else %}
+[pendencia: elencar riscos sanitarios aplicaveis ao preparado, conforme matriz de riscos do Projeto (doc 27 §4.5).]
+{% endif %}
+
+---
+
+## 7. Beneficios conhecidos
+
+{% if known_benefits %}
+{% for benefit in known_benefits %}
+- {{ benefit }}
+{% endfor %}
+{% else %}
+[pendencia: relacionar beneficios previstos com base na literatura/evidencia.]
+{% endif %}
+
+---
+
+## 8. Assinatura e registro
+
+**Associado:** {{ member.full_name }}
+Data: __________________  Assinatura: __________________
+
+**Responsavel Tecnico:** {{ technical_responsible.full_name }} ({{ technical_responsible.council }})
+Data: __________________  Assinatura: __________________
+
+_Este termo e armazenado com evidencia eletronica (hash SHA-256 + timestamp + user_id)._
+_Versao do template: {{ document_version }}._

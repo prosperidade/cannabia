@@ -1,0 +1,110 @@
+{#-
+ Template-base de POP (Procedimento Operacional Padrao) — doc 27 §7.3
+
+ Este template e utilizado para CRIAR novos POPs na associacao. Ele
+ renderiza a estrutura minima exigida; o conteudo substantivo e
+ preenchido pelo responsavel de processo.
+
+ Chaves do contexto:
+  - sop: {code, title, version, scope, applicability}
+  - tenant: {legal_name}
+  - definitions: list de {term, definition}
+  - responsibilities: list de {role, duty}
+  - procedure_steps: list de {order, step, record}
+  - generated_records: list de strings (registros gerados)
+  - references: list de strings (normas + links)
+  - approver: {name, role}
+  - revision_history: list de {version, date, author, change}
+  - generated_at: ISO
+  - document_version: 'v1' (template-base)
+-#}
+# POP {{ sop.code }} — {{ sop.title }}
+
+**Versao do POP:** {{ sop.version }}  &middot;  **Associacao:** {{ tenant.legal_name }}
+**Gerado em:** {{ generated_at }}  &middot;  **Template v** {{ document_version }}
+
+---
+
+## 1. Objetivo
+
+{{ sop.scope or '[pendencia: descrever o objetivo do POP]' }}
+
+## 2. Escopo e aplicabilidade
+
+{{ sop.applicability or '[pendencia: definir onde/quando este POP se aplica]' }}
+
+## 3. Definicoes
+
+{% if definitions %}
+{% for d in definitions %}
+- **{{ d.term }}:** {{ d.definition }}
+{% endfor %}
+{% else %}
+[pendencia: elencar termos tecnicos utilizados]
+{% endif %}
+
+## 4. Responsabilidades
+
+{% if responsibilities %}
+| Papel | Responsabilidade |
+|---|---|
+{% for r in responsibilities %}
+| {{ r.role }} | {{ r.duty }} |
+{% endfor %}
+{% else %}
+[pendencia: definir papeis e responsabilidades]
+{% endif %}
+
+## 5. Procedimento detalhado
+
+{% if procedure_steps %}
+| # | Passo | Registro gerado |
+|---|---|---|
+{% for step in procedure_steps %}
+| {{ step.order }} | {{ step.step }} | {{ step.record or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: descrever sequencia de passos]
+{% endif %}
+
+## 6. Registros gerados
+
+{% if generated_records %}
+{% for rec in generated_records %}
+- {{ rec }}
+{% endfor %}
+{% else %}
+[pendencia: listar registros/evidencias produzidos pelo POP]
+{% endif %}
+
+## 7. Referencias normativas
+
+{% if references %}
+{% for ref in references %}
+- {{ ref }}
+{% endfor %}
+{% else %}
+[pendencia: citar RDCs, ABNT, outros POPs relacionados]
+{% endif %}
+
+## 8. Historico de revisoes
+
+{% if revision_history %}
+| Versao | Data | Autor | Mudanca |
+|---|---|---|---|
+{% for h in revision_history %}
+| {{ h.version }} | {{ h.date }} | {{ h.author }} | {{ h.change }} |
+{% endfor %}
+{% else %}
+| {{ sop.version }} | {{ generated_at }} | [pendencia] | Versao inicial |
+{% endif %}
+
+## 9. Aprovacao
+
+**Aprovador:** {{ approver.name }} ({{ approver.role }})
+Data de aprovacao: __________________  Assinatura: __________________
+
+---
+
+_Template-base de POP, versao {{ document_version }}. O conteudo substantivo e_
+_responsabilidade do autor do POP; esta estrutura garante aderencia a norma._

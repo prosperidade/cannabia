@@ -13,7 +13,7 @@
 #  -> resolve template_id aqui, busca current_version.file, renderiza.
 
 registry_version: "1.0"
-last_updated: "2026-04-20"
+last_updated: "2026-04-21"
 
 # Engine de renderizacao padronizada pela biblioteca (doc 27 §3.2).
 engine:
@@ -104,6 +104,149 @@ templates:
             notes: >-
               Versao inicial (F1.5 parte 2). 10 secoes conforme doc 27 §5.2.
               Renderer atual em src/services/governance_dossier.py.
+          - date: "2026-04-21"
+            type: refactor
+            notes: >-
+              F4.6 — governance_dossier.render_dossier_markdown passa a
+              delegar para template_engine.render. Output identico,
+              expoe agora content_hash SHA-256 via render_dossier_document.
+
+  - id: final/monitoring_opinion
+    category: final
+    title: Parecer Final de Monitoramento do Experimento
+    description: >-
+      Consolida resultados, indicadores, evidencias e ancoragens do
+      Projeto Experimental (RDC Art. 20). Construido incrementalmente
+      (trimestral + consolidacao final — doc 27 §6.4).
+    current_version: v1
+    versions:
+      v1:
+        file: final/monitoring_opinion_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-21"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_monitoring_opinion_data
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 20]
+            note: parecer final do experimento
+          - source: doc 27
+            sections: [§6]
+        data_sources:
+          - sandbox_projects
+          - sandbox_indicators
+          - sandbox_indicator_values
+          - traceability_events
+          - adverse_events
+          - blockchain_anchors
+        changelog:
+          - date: "2026-04-21"
+            type: initial
+            notes: >-
+              Esqueleto das 14 secoes do §6.2 com placeholders [pendencia]
+              em agregados que dependem do Evidence Engine (F4.1) e do
+              schema financeiro.
+
+  - id: operational/consent_form
+    category: operational
+    title: Termo de Consentimento Informado do Associado
+    description: >-
+      Documento de adesao do associado ao Projeto Experimental, com
+      LGPD, vedacoes do Sandbox e direitos (doc 27 §7.1).
+    current_version: v1
+    versions:
+      v1:
+        file: operational/consent_form_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-21"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_consent_form_data
+        regulatory_refs:
+          - source: doc 27
+            sections: [§7.1]
+          - source: LGPD
+            note: base legal e direitos do titular
+        data_sources:
+          - tenants
+          - association_members
+          - sandbox_projects
+          - technical_responsibles
+        changelog:
+          - date: "2026-04-21"
+            type: initial
+            notes: 8 partes conforme §7.1 com LGPD e compartilhamento ANVISA.
+
+  - id: operational/label_warning
+    category: operational
+    title: Rotulo e Advertencia de Preparados
+    description: >-
+      Rotulo para cada lote de preparado, com perfil canabinoide,
+      advertencias de Sandbox (nao e medicamento, sem publicidade) e
+      QR code de verificacao publica (doc 27 §7.2).
+    current_version: v1
+    versions:
+      v1:
+        file: operational/label_warning_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-21"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_label_warning_data
+        regulatory_refs:
+          - source: doc 27
+            sections: [§7.2]
+        data_sources:
+          - preparations
+          - tenants
+          - technical_responsibles
+          - blockchain_anchors
+        changelog:
+          - date: "2026-04-21"
+            type: initial
+            notes: >-
+              Markdown intermediario — o PDF final agrega QR code visual
+              apontando para GET /api/v1/public/anchors/<t>/verify (F5.5).
+
+  - id: operational/sop_template
+    category: operational
+    title: Template-Base de POP
+    description: >-
+      Estrutura minima para criacao de novos Procedimentos Operacionais
+      Padrao (doc 27 §7.3). O conteudo substantivo e preenchido pelo
+      autor do POP; este template garante aderencia a norma.
+    current_version: v1
+    versions:
+      v1:
+        file: operational/sop_template_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-21"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_sop_template_data
+        regulatory_refs:
+          - source: doc 27
+            sections: [§7.3]
+          - source: ABNT
+            note: estrutura compativel com normas de gestao documental
+        data_sources:
+          - sops
+          - sop_versions
+        changelog:
+          - date: "2026-04-21"
+            type: initial
+            notes: >-
+              9 secoes estruturais para compor novos POPs. NAO e documento
+              de producao — e o molde usado para instanciar POPs concretos.
 
 # --------------------------------------------------------------------
 # Templates planejados
@@ -170,18 +313,7 @@ planned_templates:
       - source: doc 27
         sections: [§4.5]
 
-  # --- F4.6: Parecer Final + complementares (doc 27 §§6-7) ---
-  - id: final/monitoring_opinion
-    category: final
-    title: Parecer Final de Monitoramento do Experimento
-    target_file: final/monitoring_opinion_v1.md.j2
-    scheduled_for: F4.6
-    regulatory_refs:
-      - source: RDC 1.014/2026
-        articles: [Art. 20]
-      - source: doc 27
-        sections: [§6]
-
+  # --- F4.6+: remanescente da fase (os 4 ativos foram promovidos acima) ---
   - id: final/regulatory_report
     category: final
     title: Relatorio Tecnico-Regulatorio Consolidado
@@ -190,30 +322,3 @@ planned_templates:
     regulatory_refs:
       - source: doc 27
         sections: [§3.1]
-
-  - id: operational/consent_form
-    category: operational
-    title: Termo de Consentimento Informado do Associado
-    target_file: operational/consent_form_v1.md.j2
-    scheduled_for: F4.6
-    regulatory_refs:
-      - source: doc 27
-        sections: [§7.1]
-
-  - id: operational/label_warning
-    category: operational
-    title: Rotulo e Advertencia de Preparados
-    target_file: operational/label_warning_v1.md.j2
-    scheduled_for: F4.6
-    regulatory_refs:
-      - source: doc 27
-        sections: [§7.2]
-
-  - id: operational/sop_template
-    category: operational
-    title: Template-Base de POP
-    target_file: operational/sop_template_v1.md.j2
-    scheduled_for: F4.6
-    regulatory_refs:
-      - source: doc 27
-        sections: [§7.3]

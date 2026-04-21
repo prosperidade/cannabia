@@ -1,0 +1,71 @@
+{#-
+ Rotulo e Advertencia de Preparados — doc 27 §7.2
+
+ Chaves do contexto:
+  - preparation: {id, product_name, dosage_form, batch_code,
+                  prepared_at, cannabinoid_profile (dict)}
+  - tenant: {legal_name, trade_name, cnpj}
+  - technical_responsible: {full_name, professional_council, council_number, council_state}
+  - verification_url: URL publica para QR code (F5.5 / anchor verify)
+  - qr_code_data: string opaca a ser codificada em QR no PDF (placeholder textual aqui)
+  - generated_at: ISO
+  - document_version: 'v1'
+
+ Nota: saida Markdown e intermediaria. Em producao o PDF do rotulo adiciona
+ o QR code visual — aqui expomos o link textual.
+-#}
+# {{ preparation.product_name }}
+
+**Lote:** {{ preparation.batch_code }}  &middot;  **Forma farmaceutica:** {{ preparation.dosage_form }}
+**Data de preparo:** {{ preparation.prepared_at or '[pendencia]' }}
+
+---
+
+## Perfil canabinoide
+
+{% set profile = preparation.cannabinoid_profile or {} %}
+{% if profile %}
+{% for key, value in profile.items() %}
+- {{ key | upper }}: {{ value }}
+{% endfor %}
+{% else %}
+[pendencia: perfil nao informado]
+{% endif %}
+
+---
+
+## Advertencias obrigatorias
+
+> **Este preparado NAO e medicamento e NAO foi aprovado pela ANVISA.**
+>
+> Uso restrito ao Projeto Experimental no ambito do Sandbox Regulatorio
+> da ANVISA (RDC 1.014/2026).
+>
+> Nao comercializavel. Nao destinado a publicidade ou distribuicao
+> fora do escopo do Projeto.
+
+---
+
+## Verificacao publica
+
+Verifique a autenticidade e integridade deste lote em:
+
+``{{ verification_url }}``
+
+Conteudo do QR code: ``{{ qr_code_data }}``
+
+---
+
+## Associacao
+
+**Razao social:** {{ tenant.legal_name }}
+**CNPJ:** {{ tenant.cnpj or '[pendencia]' }}
+**Nome fantasia:** {{ tenant.trade_name or '[pendencia]' }}
+
+## Responsavel Tecnico
+
+**{{ technical_responsible.full_name }}** — {{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }}
+
+---
+
+_Gerado em {{ generated_at }} &middot; versao do template {{ document_version }}._
