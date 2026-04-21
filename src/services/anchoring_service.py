@@ -436,14 +436,20 @@ def get_mappings_for_event(
 ) -> list[dict[str, Any]]:
     """Retorna todas as ancoragens que cobrem um evento especifico.
 
-    Util para o endpoint publico de verificacao em F5.5.
+    Usado pelo endpoint publico de verificacao em F5.5. Inclui campos
+    suficientes do blockchain_anchors para reconstruir + verificar a
+    raiz Merkle sem uma segunda query.
     """
     with db_cursor(dictionary=True) as (_, cursor):
         cursor.execute(
             """
-            SELECT m.*, a.merkle_root, a.transaction_id,
+            SELECT m.anchor_id, m.event_table, m.event_id,
+                   m.event_hash, m.merkle_path,
+                   a.tenant_id, a.anchor_scope,
+                   a.merkle_root, a.transaction_id,
                    a.blockchain_network, a.verification_status,
-                   a.anchored_at
+                   a.anchored_at, a.verified_at,
+                   a.covered_from, a.covered_until
               FROM anchor_event_mappings m
               JOIN blockchain_anchors a ON a.id = m.anchor_id
              WHERE m.event_table = %s

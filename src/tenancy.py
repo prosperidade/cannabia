@@ -42,6 +42,7 @@ def init_tenancy(app):
         "/static",
         "/realtime/webhook",
         "/api/v1/payments/webhook",
+        "/api/v1/public/",
     )
     PUBLIC_PATHS    = {"/login", "/logout"}
 
