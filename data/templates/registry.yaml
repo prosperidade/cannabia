@@ -1,0 +1,219 @@
+# Biblioteca de Templates Regulatorios — Registry Central
+# Referencia: docs/27_REGULATORY_TEMPLATES_LIBRARY.md §3.4
+#
+# Este arquivo e o manifesto unico da biblioteca. Define:
+#  - Templates ativos, depreciados ou em revisao.
+#  - Versao corrente de cada template (semver: major.minor.patch via pasta vX).
+#  - Vinculo com normas regulatorias (RDC 1.014/2026 + secoes do doc 27).
+#  - Log de mudancas por versao.
+#  - Roadmap de templates planejados (F4.5/F4.6/F4.7).
+#
+# Consumido por: src/services/template_engine.py (F4.4, proximo).
+# Interface prevista: render(template_id, context, format='md')
+#  -> resolve template_id aqui, busca current_version.file, renderiza.
+
+registry_version: "1.0"
+last_updated: "2026-04-20"
+
+# Engine de renderizacao padronizada pela biblioteca (doc 27 §3.2).
+engine:
+  name: jinja2
+  defaults:
+    undefined: strict           # StrictUndefined — falha em campo ausente
+    trim_blocks: true
+    lstrip_blocks: true
+    autoescape: false           # Markdown, nao HTML
+  template_base_dir: data/templates
+
+# Formatos de saida suportados pela renderizacao (doc 27 §8.1 passo 6).
+# 'md' e sempre intermediario; 'pdf'/'docx' exigem conversores em F4.4+.
+output_formats:
+  - md
+  # - pdf   # TODO F4.4: conversor md -> PDF/A para submissao oficial
+  # - docx  # TODO F4.4: conversor md -> DOCX para edicao
+
+# --------------------------------------------------------------------
+# Categorias conforme estrutura de diretorios (doc 27 §3.1)
+# --------------------------------------------------------------------
+categories:
+  eligibility:
+    path: eligibility
+    description: Dossie de Elegibilidade ao Sandbox.
+  project_plans:
+    path: project_plans
+    description: Cinco planos obrigatorios do Projeto Experimental (RDC Art. 9).
+  operational:
+    path: operational
+    description: Documentos operacionais (consentimento, rotulo, POP).
+  final:
+    path: final
+    description: Parecer Final e Relatorio Tecnico-Regulatorio consolidado.
+  common:
+    path: common
+    description: Partials e estilos reutilizaveis.
+
+# --------------------------------------------------------------------
+# Templates ativos
+# --------------------------------------------------------------------
+# Cada template tem:
+#  - id: chave estavel usada pelo template_engine
+#  - category: um dos valores em `categories`
+#  - current_version: versao atual (chave em `versions`)
+#  - versions: dict de versoes com metadata completa
+#
+# Status admitidos por versao: active | under_review | deprecated
+# (doc 27 §9.3 — depreciadas permanecem no registry; nao geram documento novo).
+
+templates:
+
+  - id: eligibility/dossier
+    category: eligibility
+    title: Dossie de Elegibilidade ao Sandbox Regulatorio
+    description: >-
+      Documento apresentado a ANVISA na submissao ao Edital, atestando que
+      a associacao cumpre os requisitos de elegibilidade do Sandbox.
+      Meta operacional: >=90% dos campos auto-preenchidos (doc 27 §5.4).
+    current_version: v1
+    versions:
+      v1:
+        file: eligibility/dossier_v1.md.j2
+        schema: null               # F4.4: definir schema_v1.yaml formal
+        status: active
+        activated_at: "2026-04-20"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.governance_dossier.build_dossier_data
+          # F4.4 movera a renderizacao para template_engine generico;
+          # build_dossier_data continua como provider de contexto.
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 7]
+            note: requisitos de elegibilidade da associacao
+          - source: doc 27
+            sections: [§5]
+        data_sources:
+          - tenants
+          - associations
+          - institutional_documents
+          - technical_responsibles
+          - technical_operational_capacity
+        changelog:
+          - date: "2026-04-20"
+            type: initial
+            notes: >-
+              Versao inicial (F1.5 parte 2). 10 secoes conforme doc 27 §5.2.
+              Renderer atual em src/services/governance_dossier.py.
+
+# --------------------------------------------------------------------
+# Templates planejados
+# --------------------------------------------------------------------
+# Listados para roadmap/visibilidade. NAO sao resolviveis pelo engine
+# ate migrarem para `templates:` com status=active.
+# Cada entrada referencia a fase SCC que ira implementa-la.
+
+planned_templates:
+
+  # --- F4.5: cinco planos obrigatorios (RDC Art. 9, doc 27 §4) ---
+  - id: project_plans/work_plan
+    category: project_plans
+    title: Plano de Trabalho Geral e Criterios Tecnicos
+    target_file: project_plans/work_plan_v1.md.j2
+    scheduled_for: F4.5
+    regulatory_refs:
+      - source: RDC 1.014/2026
+        articles: [Art. 9]
+      - source: doc 27
+        sections: [§4.1]
+
+  - id: project_plans/communication_plan
+    category: project_plans
+    title: Plano de Comunicacao, Transparencia e Publicidade
+    target_file: project_plans/communication_plan_v1.md.j2
+    scheduled_for: F4.5
+    regulatory_refs:
+      - source: RDC 1.014/2026
+        articles: [Art. 9]
+      - source: doc 27
+        sections: [§4.2]
+
+  - id: project_plans/discontinuity_plan
+    category: project_plans
+    title: Plano de Descontinuidade das Atividades
+    target_file: project_plans/discontinuity_plan_v1.md.j2
+    scheduled_for: F4.5
+    regulatory_refs:
+      - source: RDC 1.014/2026
+        articles: [Art. 9]
+      - source: doc 27
+        sections: [§4.3]
+
+  - id: project_plans/monitoring_plan
+    category: project_plans
+    title: Plano de Monitoramento
+    target_file: project_plans/monitoring_plan_v1.md.j2
+    scheduled_for: F4.5
+    regulatory_refs:
+      - source: RDC 1.014/2026
+        articles: [Art. 9]
+      - source: doc 27
+        sections: [§4.4]
+
+  - id: project_plans/risk_management_plan
+    category: project_plans
+    title: Plano de Gerenciamento e Mitigacao de Riscos Sanitarios
+    target_file: project_plans/risk_management_plan_v1.md.j2
+    scheduled_for: F4.5
+    regulatory_refs:
+      - source: RDC 1.014/2026
+        articles: [Art. 9]
+      - source: doc 27
+        sections: [§4.5]
+
+  # --- F4.6: Parecer Final + complementares (doc 27 §§6-7) ---
+  - id: final/monitoring_opinion
+    category: final
+    title: Parecer Final de Monitoramento do Experimento
+    target_file: final/monitoring_opinion_v1.md.j2
+    scheduled_for: F4.6
+    regulatory_refs:
+      - source: RDC 1.014/2026
+        articles: [Art. 20]
+      - source: doc 27
+        sections: [§6]
+
+  - id: final/regulatory_report
+    category: final
+    title: Relatorio Tecnico-Regulatorio Consolidado
+    target_file: final/regulatory_report_v1.md.j2
+    scheduled_for: F4.6
+    regulatory_refs:
+      - source: doc 27
+        sections: [§3.1]
+
+  - id: operational/consent_form
+    category: operational
+    title: Termo de Consentimento Informado do Associado
+    target_file: operational/consent_form_v1.md.j2
+    scheduled_for: F4.6
+    regulatory_refs:
+      - source: doc 27
+        sections: [§7.1]
+
+  - id: operational/label_warning
+    category: operational
+    title: Rotulo e Advertencia de Preparados
+    target_file: operational/label_warning_v1.md.j2
+    scheduled_for: F4.6
+    regulatory_refs:
+      - source: doc 27
+        sections: [§7.2]
+
+  - id: operational/sop_template
+    category: operational
+    title: Template-Base de POP
+    target_file: operational/sop_template_v1.md.j2
+    scheduled_for: F4.6
+    regulatory_refs:
+      - source: doc 27
+        sections: [§7.3]
