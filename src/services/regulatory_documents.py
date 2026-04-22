@@ -404,7 +404,175 @@ def build_label_warning_data(
 
 
 # ---------------------------------------------------------------------
-# 4. Template-Base de POP  (operational/sop_template)
+# 4. Relatorio Tecnico-Regulatorio Consolidado  (final/regulatory_report)
+# ---------------------------------------------------------------------
+
+def build_regulatory_report_data(
+    project_id: int,
+    tenant_id: int,
+    *,
+    overrides: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Consolida o ciclo SCC do projeto em contexto para o template
+    final/regulatory_report (doc 27 §3.1).
+
+    Puxa dados em 4 queries curtas:
+      - tenant + RT + projeto (via helpers existentes)
+      - regulatory_reports com status='approved' do projeto
+      - contadores de farmacovigilancia
+      - agregado de blockchain_anchors
+
+    overrides permite o caller injetar indicators_summary,
+    operational_summary, recommendations, limitations, next_steps,
+    attachments — campos que dependem de agregados ainda nao
+    disponiveis no schema (Evidence Engine em F4.1).
+    """
+    tenant = _fetch_tenant(tenant_id)
+    rt = _fetch_primary_rt(tenant_id)
+
+    with db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT id, title, status, submitted_at, approved_at,
+                   started_at, concluded_at, anvisa_reference
+              FROM sandbox_projects
+             WHERE id = %s AND tenant_id = %s
+            """,
+            (project_id, tenant_id),
+        )
+        project_row = cursor.fetchone()
+
+    if project_row is None:
+        raise ValueError(
+            f"Projeto {project_id} nao encontrado para tenant {tenant_id}."
+        )
+
+    with db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT r.id, r.report_type, r.version, r.status,
+                   r.content_hash, r.approved_at, r.approved_by,
+                   u.username AS approved_by_name
+              FROM regulatory_reports r
+         LEFT JOIN users u ON u.id = r.approved_by
+             WHERE r.tenant_id = %s
+               AND (r.project_id = %s OR r.project_id IS NULL)
+               AND r.status IN ('approved', 'rejected', 'legal_review',
+                                'rt_review', 'draft')
+             ORDER BY r.approved_at DESC NULLS LAST, r.id ASC
+            """,
+            (tenant_id, project_id),
+        )
+        report_rows = [dict(r) for r in cursor.fetchall()]
+
+    # Contadores de farmacovigilancia + anchors no tenant
+    with db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            "SELECT COUNT(*) AS n FROM adverse_events WHERE tenant_id=%s",
+            (tenant_id,),
+        )
+        adverse_count = int(cursor.fetchone()["n"])
+        cursor.execute(
+            "SELECT COUNT(*) AS n FROM sanitary_risks WHERE tenant_id=%s",
+            (tenant_id,),
+        )
+        risk_count = int(cursor.fetchone()["n"])
+        cursor.execute(
+            """
+            SELECT COUNT(*) AS n, blockchain_network, verification_status
+              FROM blockchain_anchors
+             WHERE tenant_id = %s
+             GROUP BY blockchain_network, verification_status
+            """,
+            (tenant_id,),
+        )
+        anchor_rows = [dict(r) for r in cursor.fetchall()]
+
+    networks: dict[str, int] = {}
+    statuses: dict[str, int] = {}
+    total_anchors = 0
+    for row in anchor_rows:
+        n = int(row["n"])
+        total_anchors += n
+        networks[row["blockchain_network"]] = networks.get(row["blockchain_network"], 0) + n
+        statuses[row["verification_status"]] = statuses.get(row["verification_status"], 0) + n
+
+    linked_documents = [
+        {
+            "type": r["report_type"],
+            "title": r["report_type"].replace("_", " ").title(),
+            "version": r["version"],
+            "status": r["status"],
+            "content_hash": r["content_hash"],
+            "approved_at": r["approved_at"],
+            "approved_by_name": r.get("approved_by_name"),
+        }
+        for r in report_rows
+    ]
+
+    context: dict[str, Any] = {
+        "project": {
+            "id": int(project_row["id"]),
+            "title": project_row["title"],
+            "objective": None,
+            "start_date": project_row["started_at"],
+            "end_date": project_row["concluded_at"],
+            "status": project_row["status"],
+            "anvisa_reference": project_row["anvisa_reference"],
+        },
+        "tenant": {
+            "id": tenant["id"],
+            "legal_name": tenant["legal_name"],
+            "trade_name": tenant["trade_name"],
+            "cnpj": tenant["cnpj"],
+            "incorporation_date": tenant["incorporation_date"],
+        },
+        "technical_responsible": (
+            {
+                "full_name": rt["full_name"],
+                "professional_council": rt["professional_council"],
+                "council_number": rt["council_number"],
+                "council_state": rt["council_state"],
+            }
+            if rt else None
+        ),
+        "linked_documents": linked_documents,
+        "indicators_summary": {
+            "mandatory_count": 0,
+            "complementary_count": 0,
+            "periods_reported": 0,
+        },
+        "operational_summary": {
+            "sops_count": 0,
+            "sop_deviations": 0,
+            "capa_actions": 0,
+            "lab_analyses_count": 0,
+            "dispensations_count": 0,
+        },
+        "pharmacovigilance": {
+            "adverse_events_count": adverse_count,
+            "sanitary_risks_count": risk_count,
+        },
+        "anchors": {
+            "total": total_anchors,
+            "networks": networks,
+            "verification_status_counts": statuses,
+        },
+        "recommendations": [],
+        "limitations": [],
+        "next_steps": [],
+        "attachments": [],
+        "generated_at": _iso_now(),
+        "document_version": DOCUMENT_VERSION,
+    }
+
+    if overrides:
+        context.update(overrides)
+    return context
+
+
+# ---------------------------------------------------------------------
+# 5. Template-Base de POP  (operational/sop_template)
 # ---------------------------------------------------------------------
 
 def build_sop_template_data(

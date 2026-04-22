@@ -1,0 +1,190 @@
+{#-
+ Relatorio Tecnico-Regulatorio Consolidado — doc 27 §3.1
+
+ Documento-master do ciclo SCC. Nao substitui os outros; consolida-os
+ e os referencia por content_hash aprovado para submissao final a
+ ANVISA.
+
+ Contrato de contexto (todas as chaves obrigatorias sob StrictUndefined):
+  - project: {id, title, objective, start_date, end_date, status, anvisa_reference}
+  - tenant:  {id, legal_name, cnpj, trade_name, incorporation_date}
+  - technical_responsible: {full_name, professional_council, council_number, council_state} ou None
+  - linked_documents: list de dicts
+        {type, title, status, version, content_hash, approved_at, approved_by_name}
+    Tipos esperados (preferencialmente nesta ordem):
+      - eligibility_dossier
+      - work_plan, communication_plan, discontinuity_plan,
+        monitoring_plan, risk_management_plan
+      - final_monitoring_opinion
+  - indicators_summary: dict com mandatory_count, complementary_count,
+        periods_reported
+  - operational_summary: dict com sops_count, sop_deviations, capa_actions,
+        lab_analyses_count, dispensations_count
+  - anchors: dict com total, networks (dict), verification_status_counts (dict)
+  - pharmacovigilance: dict com adverse_events_count, sanitary_risks_count
+  - recommendations: list de strings
+  - limitations: list de strings
+  - next_steps: list de strings
+  - attachments: list de strings
+  - generated_at: ISO string UTC
+  - document_version: 'v1' (do registry)
+-#}
+# Relatorio Tecnico-Regulatorio Consolidado
+
+**Projeto:** {{ project.title }} ({{ project.id }})
+**Protocolo ANVISA:** {{ project.anvisa_reference or '[pendencia]' }}
+**Associacao:** {{ tenant.legal_name }} &middot; CNPJ: {{ tenant.cnpj or '[pendencia]' }}
+**Periodo do Projeto:** {{ project.start_date or '[pendencia]' }} → {{ project.end_date or '[pendencia]' }}
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Objetivo deste documento
+
+Este Relatorio consolida, em formato submissivel a ANVISA, o ciclo completo do Projeto Experimental conduzido no ambito do Sandbox Regulatorio (RDC 1.014/2026). Referencia por ``content_hash`` cada documento regulatorio aprovado anteriormente — a integridade de cada um e verificavel independentemente via o endpoint publico de ancoragem (``GET /api/v1/public/anchors/<tenant>/verify``).
+
+---
+
+## 2. Identificacao institucional
+
+- **Associacao:** {{ tenant.legal_name }}
+- **Nome fantasia:** {{ tenant.trade_name or '-' }}
+- **CNPJ:** {{ tenant.cnpj or '[pendencia]' }}
+- **Incorporacao:** {{ tenant.incorporation_date or '[pendencia]' }}
+{% if technical_responsible %}
+- **Responsavel Tecnico:** {{ technical_responsible.full_name }} ({{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }})
+{% else %}
+- **Responsavel Tecnico:** [pendencia: nomear RT ativo antes da submissao]
+{% endif %}
+
+---
+
+## 3. Documentos regulatorios vinculados
+
+Cada linha e um documento aprovado pela cadeia RT → Consultoria Juridica (quando contratada) → Admin, com assinatura eletronica registrada em ``document_review_workflows``. O ``content_hash`` permite verificacao de integridade contra o storage original.
+
+{% if linked_documents %}
+| Tipo | Titulo | Versao | Status | Content hash | Aprovado em | Por |
+|---|---|---|---|---|---|---|
+{% for doc in linked_documents %}
+| {{ doc.type }} | {{ doc.title }} | {{ doc.version }} | {{ doc.status }} | `{{ doc.content_hash[:12] }}…{{ doc.content_hash[-6:] }}` | {{ doc.approved_at or '[pendente]' }} | {{ doc.approved_by_name or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: nenhum documento regulatorio aprovado ainda referenciado. Rodar submissoes + aprovacoes (F4.7) antes de consolidar.]
+{% endif %}
+
+---
+
+## 4. Resumo de Indicadores
+
+- Indicadores obrigatorios reportados: **{{ indicators_summary.mandatory_count }}**
+- Indicadores complementares: **{{ indicators_summary.complementary_count }}**
+- Periodos reportados: **{{ indicators_summary.periods_reported }}**
+
+Detalhamento por indicador: ver Parecer Final de Monitoramento (§3 acima).
+
+---
+
+## 5. Evidencias Operacionais
+
+- POPs executados: **{{ operational_summary.sops_count }}**
+- Desvios registrados: **{{ operational_summary.sop_deviations }}**
+- Acoes CAPA: **{{ operational_summary.capa_actions }}**
+- Analises laboratoriais: **{{ operational_summary.lab_analyses_count }}**
+- Dispensacoes rastreadas: **{{ operational_summary.dispensations_count }}**
+
+---
+
+## 6. Farmacovigilancia
+
+- Eventos adversos notificados: **{{ pharmacovigilance.adverse_events_count }}**
+- Riscos sanitarios identificados: **{{ pharmacovigilance.sanitary_risks_count }}**
+
+---
+
+## 7. Integridade da Rastreabilidade
+
+Total de ancoragens em blockchain publica durante o ciclo: **{{ anchors.total }}**.
+
+{% if anchors.networks %}
+**Redes utilizadas:**
+{% for net, count in anchors.networks.items() %}
+- {{ net }}: {{ count }}
+{% endfor %}
+{% endif %}
+
+{% if anchors.verification_status_counts %}
+**Status de verificacao:**
+{% for status, count in anchors.verification_status_counts.items() %}
+- {{ status }}: {{ count }}
+{% endfor %}
+{% endif %}
+
+Verificacao publica independente: ``GET /api/v1/public/anchors/{{ tenant.id }}/verify``.
+
+---
+
+## 8. Recomendacoes para regulamentacao futura
+
+{% if recommendations %}
+{% for rec in recommendations %}
+- {{ rec }}
+{% endfor %}
+{% else %}
+[pendencia: consolidar a partir do Parecer Final de Monitoramento]
+{% endif %}
+
+---
+
+## 9. Limitacoes do experimento
+
+{% if limitations %}
+{% for lim in limitations %}
+- {{ lim }}
+{% endfor %}
+{% else %}
+- Natureza experimental intrinseca do Sandbox Regulatorio.
+- Amostra limitada ao escopo do Projeto Experimental.
+{% endif %}
+
+---
+
+## 10. Proximos passos regulatorios
+
+{% if next_steps %}
+{% for step in next_steps %}
+- {{ step }}
+{% endfor %}
+{% else %}
+- Submissao formal a ANVISA.
+- Aguardar parecer e iniciar ciclo regulatorio ordinario quando aplicavel.
+{% endif %}
+
+---
+
+## 11. Anexos
+
+{% if attachments %}
+{% for att in attachments %}
+- {{ att }}
+{% endfor %}
+{% else %}
+Nenhum anexo adicional — todos os documentos formais estao em §3.
+{% endif %}
+
+---
+
+## Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }}
+{% else %}
+**Responsavel Tecnico:** [pendencia]
+{% endif %}
+Data: __________________  Assinatura: __________________
+
+**Consultoria Juridica parceira (quando contratada):** __________________
+Data: __________________  Assinatura: __________________
+
+_Gerado pela plataforma CannabIA &middot; template {{ document_version }}._

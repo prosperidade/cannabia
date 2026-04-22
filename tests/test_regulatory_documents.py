@@ -249,6 +249,159 @@ class TestRenderLabelWarning:
         assert "CRM 12345/SP" in doc.content
 
 
+class TestRenderRegulatoryReport:
+    @pytest.fixture
+    def report_ctx(self) -> dict:
+        return {
+            "project": {
+                "id": 1, "title": "PE-2026-001",
+                "objective": None,
+                "start_date": date(2026, 1, 1),
+                "end_date": date(2026, 12, 31),
+                "status": "concluded",
+                "anvisa_reference": "ANV-X-001",
+            },
+            "tenant": {
+                "id": 42, "legal_name": "Assoc X",
+                "trade_name": "AX", "cnpj": "12345678000199",
+                "incorporation_date": date(2023, 1, 1),
+            },
+            "technical_responsible": {
+                "full_name": "Dra Ana", "professional_council": "CRM",
+                "council_number": "12345", "council_state": "SP",
+            },
+            "linked_documents": [
+                {"type": "eligibility_dossier", "title": "Dossie",
+                 "version": "v1", "status": "approved",
+                 "content_hash": "a" * 64,
+                 "approved_at": datetime(2026, 2, 1, tzinfo=timezone.utc),
+                 "approved_by_name": "admin"},
+                {"type": "work_plan", "title": "Plano de Trabalho",
+                 "version": "v1", "status": "approved",
+                 "content_hash": "b" * 64,
+                 "approved_at": datetime(2026, 3, 1, tzinfo=timezone.utc),
+                 "approved_by_name": "admin"},
+            ],
+            "indicators_summary": {
+                "mandatory_count": 10, "complementary_count": 5,
+                "periods_reported": 4,
+            },
+            "operational_summary": {
+                "sops_count": 50, "sop_deviations": 2, "capa_actions": 2,
+                "lab_analyses_count": 12, "dispensations_count": 120,
+            },
+            "pharmacovigilance": {
+                "adverse_events_count": 3, "sanitary_risks_count": 8,
+            },
+            "anchors": {
+                "total": 45,
+                "networks": {"polygon": 40, "bitcoin_ots": 5},
+                "verification_status_counts": {"confirmed": 42, "pending": 3},
+            },
+            "recommendations": ["Ampliar escala da segunda fase."],
+            "limitations": ["Amostra regional limitada."],
+            "next_steps": ["Submissao formal a ANVISA."],
+            "attachments": ["Termo de Abertura"],
+            "generated_at": "2026-04-21T00:00:00+00:00",
+            "document_version": "v1",
+        }
+
+    def test_renderiza_com_documentos_vinculados(self, report_ctx):
+        doc = render_template("final/regulatory_report", report_ctx, format="md")
+        assert "# Relatorio Tecnico-Regulatorio Consolidado" in doc.content
+        assert "ANV-X-001" in doc.content
+        assert "Dossie" in doc.content
+        assert "Plano de Trabalho" in doc.content
+        # content_hash truncado no template
+        assert "aaaaaaaaaaaa…aaaaaa" in doc.content
+        assert "polygon: 40" in doc.content
+        assert "Ampliar escala" in doc.content
+        assert len(doc.content_hash) == 64
+
+    def test_linked_documents_vazio_mostra_pendencia(self, report_ctx):
+        ctx = copy.deepcopy(report_ctx)
+        ctx["linked_documents"] = []
+        doc = render_template("final/regulatory_report", ctx, format="md")
+        assert "[pendencia: nenhum documento regulatorio aprovado" in doc.content
+
+    def test_strict_undefined_pega_chave_ausente(self, report_ctx):
+        ctx = copy.deepcopy(report_ctx)
+        del ctx["anchors"]
+        with pytest.raises(TemplateRenderError):
+            render_template("final/regulatory_report", ctx, format="md")
+
+
+class TestBuildRegulatoryReportData:
+    def test_agrega_documents_e_anchors(self, monkeypatch):
+        project_row = {
+            "id": 7, "title": "PE-X", "status": "concluded",
+            "submitted_at": None, "approved_at": None,
+            "started_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+            "concluded_at": datetime(2026, 12, 31, tzinfo=timezone.utc),
+            "anvisa_reference": "ANV-7",
+        }
+        report_rows = [
+            {"id": 1, "report_type": "eligibility_dossier", "version": "v1",
+             "status": "approved", "content_hash": "a" * 64,
+             "approved_at": datetime(2026, 2, 1, tzinfo=timezone.utc),
+             "approved_by": 10, "approved_by_name": "admin"},
+        ]
+        anchor_rows = [
+            {"n": 20, "blockchain_network": "polygon",
+             "verification_status": "confirmed"},
+            {"n": 2, "blockchain_network": "polygon",
+             "verification_status": "pending"},
+        ]
+        responses = [
+            _TENANT_ROW, [_RT_ROW], project_row,
+            report_rows,
+            {"n": 1}, {"n": 2},     # adverse + sanitary
+            anchor_rows,
+        ]
+        _install_fake(monkeypatch, responses)
+
+        data = rd.build_regulatory_report_data(7, 42)
+        assert data["tenant"]["legal_name"] == "Assoc X"
+        assert data["project"]["anvisa_reference"] == "ANV-7"
+        assert len(data["linked_documents"]) == 1
+        doc = data["linked_documents"][0]
+        assert doc["type"] == "eligibility_dossier"
+        assert doc["content_hash"] == "a" * 64
+        assert doc["approved_by_name"] == "admin"
+        assert data["anchors"]["total"] == 22
+        assert data["anchors"]["networks"]["polygon"] == 22
+        assert data["anchors"]["verification_status_counts"]["confirmed"] == 20
+
+    def test_overrides_substituem_chaves(self, monkeypatch):
+        project_row = {
+            "id": 7, "title": "X", "status": "active",
+            "submitted_at": None, "approved_at": None,
+            "started_at": None, "concluded_at": None,
+            "anvisa_reference": None,
+        }
+        _install_fake(monkeypatch, [
+            _TENANT_ROW, [_RT_ROW], project_row,
+            [], {"n": 0}, {"n": 0}, [],
+        ])
+        data = rd.build_regulatory_report_data(
+            7, 42,
+            overrides={
+                "recommendations": ["manter"],
+                "indicators_summary": {
+                    "mandatory_count": 10, "complementary_count": 0,
+                    "periods_reported": 1,
+                },
+            },
+        )
+        assert data["recommendations"] == ["manter"]
+        assert data["indicators_summary"]["mandatory_count"] == 10
+
+    def test_projeto_inexistente(self, monkeypatch):
+        _install_fake(monkeypatch, [_TENANT_ROW, [_RT_ROW], None])
+        with pytest.raises(ValueError, match="Projeto"):
+            rd.build_regulatory_report_data(9999, 42)
+
+
 class TestRenderSopTemplate:
     def test_renderiza_estrutura_minima_de_pop(self, sop_ctx):
         doc = render_template("operational/sop_template", sop_ctx, format="md")

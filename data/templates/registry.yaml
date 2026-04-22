@@ -13,7 +13,7 @@
 #  -> resolve template_id aqui, busca current_version.file, renderiza.
 
 registry_version: "1.0"
-last_updated: "2026-04-21"
+last_updated: "2026-04-21-v2"
 
 # Engine de renderizacao padronizada pela biblioteca (doc 27 §3.2).
 engine:
@@ -215,6 +215,45 @@ templates:
               Markdown intermediario — o PDF final agrega QR code visual
               apontando para GET /api/v1/public/anchors/<t>/verify (F5.5).
 
+  - id: final/regulatory_report
+    category: final
+    title: Relatorio Tecnico-Regulatorio Consolidado
+    description: >-
+      Documento-master do ciclo SCC. Referencia por content_hash cada
+      documento aprovado anteriormente (dossie, 5 planos, parecer
+      final) e consolida indicadores + evidencias + ancoragens em
+      formato submissivel a ANVISA (doc 27 §3.1).
+    current_version: v1
+    versions:
+      v1:
+        file: final/regulatory_report_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-21"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_regulatory_report_data
+        regulatory_refs:
+          - source: doc 27
+            sections: [§3.1]
+          - source: RDC 1.014/2026
+            articles: [Art. 20]
+            note: consolidado final junto ao parecer
+        data_sources:
+          - sandbox_projects
+          - regulatory_reports
+          - blockchain_anchors
+          - adverse_events
+          - sanitary_risks
+        changelog:
+          - date: "2026-04-21"
+            type: initial
+            notes: >-
+              F4.6 resto — agregador final. 11 secoes; referencia
+              documentos vinculados por content_hash + approved_at +
+              approved_by.
+
   - id: operational/sop_template
     category: operational
     title: Template-Base de POP
@@ -313,12 +352,5 @@ planned_templates:
       - source: doc 27
         sections: [§4.5]
 
-  # --- F4.6+: remanescente da fase (os 4 ativos foram promovidos acima) ---
-  - id: final/regulatory_report
-    category: final
-    title: Relatorio Tecnico-Regulatorio Consolidado
-    target_file: final/regulatory_report_v1.md.j2
-    scheduled_for: F4.6
-    regulatory_refs:
-      - source: doc 27
-        sections: [§3.1]
+  # --- F4.5: cinco planos obrigatorios ainda planejados.
+  # --- F4.6 resto: final/regulatory_report ja promovido para 'templates'.
