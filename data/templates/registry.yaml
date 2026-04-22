@@ -13,7 +13,7 @@
 #  -> resolve template_id aqui, busca current_version.file, renderiza.
 
 registry_version: "1.0"
-last_updated: "2026-04-21-v2"
+last_updated: "2026-04-22"
 
 # Engine de renderizacao padronizada pela biblioteca (doc 27 §3.2).
 engine:
@@ -254,6 +254,195 @@ templates:
               documentos vinculados por content_hash + approved_at +
               approved_by.
 
+  # --- F4.5: cinco planos obrigatorios do Projeto Experimental (RDC Art. 9) ---
+
+  - id: project_plans/work_plan
+    category: project_plans
+    title: Plano de Trabalho Geral e Criterios Tecnicos
+    description: >-
+      Descreve escopo, metodologia, cronograma e criterios tecnicos do
+      Projeto Experimental. 12 secoes conforme doc 27 §4.1.
+    current_version: v1
+    versions:
+      v1:
+        file: project_plans/work_plan_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-22"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_work_plan_data
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 9]
+          - source: doc 27
+            sections: [§4.1]
+        data_sources:
+          - tenants
+          - associations
+          - technical_responsibles
+          - technical_operational_capacity
+          - sops
+          - sandbox_projects
+        changelog:
+          - date: "2026-04-22"
+            type: initial
+            notes: >-
+              F4.5 — Jinja2 com 12 secoes. Agregados complexos
+              (metodologia, RH, cronograma) recebem overrides; dados
+              estruturais (tenant, associacao, POPs ativos) vem direto.
+
+  - id: project_plans/communication_plan
+    category: project_plans
+    title: Plano de Comunicacao, Transparencia e Publicidade
+    description: >-
+      Reconhece vedacoes de publicidade do Sandbox, define canais oficiais,
+      moderacao de conteudo e governanca de comunicacao com associados,
+      ANVISA, publico e imprensa. 9 secoes conforme doc 27 §4.2.
+    current_version: v1
+    versions:
+      v1:
+        file: project_plans/communication_plan_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-22"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_communication_plan_data
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 9]
+          - source: doc 27
+            sections: [§4.2]
+        data_sources:
+          - tenants
+          - technical_responsibles
+          - sandbox_projects
+        changelog:
+          - date: "2026-04-22"
+            type: initial
+            notes: >-
+              F4.5 — esqueleto com defaults regulatorios (vedacoes).
+              Campos operacionais vao por overrides ou edicao manual.
+
+  - id: project_plans/discontinuity_plan
+    category: project_plans
+    title: Plano de Descontinuidade das Atividades
+    description: >-
+      Descreve encerramento do Projeto em 3 cenarios (natural, suspensao
+      ANVISA, decisao interna), destinacao de insumos, continuidade de
+      cuidado e preservacao de registros. 10 secoes conforme doc 27 §4.3.
+    current_version: v1
+    versions:
+      v1:
+        file: project_plans/discontinuity_plan_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-22"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_discontinuity_plan_data
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 9]
+          - source: doc 27
+            sections: [§4.3]
+        data_sources:
+          - tenants
+          - technical_responsibles
+          - sandbox_projects
+          - sandbox_protocols
+        changelog:
+          - date: "2026-04-22"
+            type: initial
+            notes: >-
+              F4.5 — le sandbox_protocols.discontinuity_plan (JSONB) do
+              protocolo vigente e expoe como contexto; edicao manual
+              amplia antes da aprovacao.
+
+  - id: project_plans/monitoring_plan
+    category: project_plans
+    title: Plano de Monitoramento
+    description: >-
+      Indicadores obrigatorios + complementares, metodologia, frequencia,
+      infraestrutura de coleta, validacao e governanca. 9 secoes conforme
+      doc 27 §4.4.
+    current_version: v1
+    versions:
+      v1:
+        file: project_plans/monitoring_plan_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-22"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_monitoring_plan_data
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 9]
+          - source: doc 27
+            sections: [§4.4]
+        data_sources:
+          - tenants
+          - technical_responsibles
+          - sandbox_projects
+          - sandbox_indicators
+        changelog:
+          - date: "2026-04-22"
+            type: initial
+            notes: >-
+              F4.5 — le sandbox_indicators e separa por is_mandatory.
+              Agregados adicionais (infraestrutura de coleta, governanca)
+              via overrides.
+
+  - id: project_plans/risk_management_plan
+    category: project_plans
+    title: Plano de Gerenciamento e Mitigacao de Riscos Sanitarios
+    description: >-
+      Matriz de riscos + controles + integracao com farmacovigilancia e
+      CAPAs. 9 secoes conforme doc 27 §4.5.
+    current_version: v1
+    versions:
+      v1:
+        file: project_plans/risk_management_plan_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-22"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_risk_management_plan_data
+        regulatory_refs:
+          - source: RDC 1.014/2026
+            articles: [Art. 9]
+          - source: doc 27
+            sections: [§4.5]
+        data_sources:
+          - tenants
+          - technical_responsibles
+          - sandbox_projects
+          - sanitary_risks
+          - risk_controls
+          - adverse_events
+          - sop_deviations
+          - capa_actions
+        changelog:
+          - date: "2026-04-22"
+            type: initial
+            notes: >-
+              F4.5 — matriz ativa de sanitary_risks + risk_controls
+              (com JOIN em users para responsavel e sops para POP
+              relacionado). Contadores de adverse_events + capa_actions
+              agregam farmacovigilancia e CAPAs. Uso de ARRAY(%s) com
+              ANY() exige lista nao vazia; provider pula controls query
+              quando nao ha risks.
+
+  # --- F4.6: operational/sop_template (template-base de POP) ---
+
   - id: operational/sop_template
     category: operational
     title: Template-Base de POP
@@ -294,63 +483,7 @@ templates:
 # ate migrarem para `templates:` com status=active.
 # Cada entrada referencia a fase SCC que ira implementa-la.
 
-planned_templates:
-
-  # --- F4.5: cinco planos obrigatorios (RDC Art. 9, doc 27 §4) ---
-  - id: project_plans/work_plan
-    category: project_plans
-    title: Plano de Trabalho Geral e Criterios Tecnicos
-    target_file: project_plans/work_plan_v1.md.j2
-    scheduled_for: F4.5
-    regulatory_refs:
-      - source: RDC 1.014/2026
-        articles: [Art. 9]
-      - source: doc 27
-        sections: [§4.1]
-
-  - id: project_plans/communication_plan
-    category: project_plans
-    title: Plano de Comunicacao, Transparencia e Publicidade
-    target_file: project_plans/communication_plan_v1.md.j2
-    scheduled_for: F4.5
-    regulatory_refs:
-      - source: RDC 1.014/2026
-        articles: [Art. 9]
-      - source: doc 27
-        sections: [§4.2]
-
-  - id: project_plans/discontinuity_plan
-    category: project_plans
-    title: Plano de Descontinuidade das Atividades
-    target_file: project_plans/discontinuity_plan_v1.md.j2
-    scheduled_for: F4.5
-    regulatory_refs:
-      - source: RDC 1.014/2026
-        articles: [Art. 9]
-      - source: doc 27
-        sections: [§4.3]
-
-  - id: project_plans/monitoring_plan
-    category: project_plans
-    title: Plano de Monitoramento
-    target_file: project_plans/monitoring_plan_v1.md.j2
-    scheduled_for: F4.5
-    regulatory_refs:
-      - source: RDC 1.014/2026
-        articles: [Art. 9]
-      - source: doc 27
-        sections: [§4.4]
-
-  - id: project_plans/risk_management_plan
-    category: project_plans
-    title: Plano de Gerenciamento e Mitigacao de Riscos Sanitarios
-    target_file: project_plans/risk_management_plan_v1.md.j2
-    scheduled_for: F4.5
-    regulatory_refs:
-      - source: RDC 1.014/2026
-        articles: [Art. 9]
-      - source: doc 27
-        sections: [§4.5]
-
-  # --- F4.5: cinco planos obrigatorios ainda planejados.
-  # --- F4.6 resto: final/regulatory_report ja promovido para 'templates'.
+planned_templates: []
+# Todos os templates do roadmap 2026-04 foram promovidos para 'templates'
+# ativos. Proxima onda: F4.1/F4.2 (Evidence Engine) quando F2.5 (captura
+# de desfechos pos-consulta) existir.

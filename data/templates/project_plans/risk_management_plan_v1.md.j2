@@ -1,0 +1,146 @@
+{#-
+ Plano de Gerenciamento e Mitigacao de Riscos Sanitarios — doc 27 §4.5
+
+ Um dos cinco planos obrigatorios (RDC 1.014/2026 Art. 9). Matriz de
+ riscos + controles + integracao com farmacovigilancia e CAPAs.
+
+ Contrato de contexto (StrictUndefined).
+
+ Chaves esperadas:
+  - tenant: dict com legal_name, cnpj
+  - technical_responsible: dict (ou None)
+  - project: dict com id, title
+  - methodology: dict com description, scales (dict)
+  - risks: list de {id, code, category, description, probability, impact, risk_level, is_active}
+  - controls: list de {risk_code, description, control_type, responsible, related_sop, verification_status}
+  - responsibles: list de {risk_code, responsible}
+  - verification: dict com frequency, method, last_review
+  - review_cycle: dict com frequency, responsible
+  - pharmacovigilance: dict com adverse_events_count, sanitary_risks_count, reporting_policy
+  - capa_integration: dict com open_capa_count, resolved_capa_count, policy
+  - governance: dict com committee (list), cadence
+  - generated_at: ISO UTC
+  - document_version: 'v1'
+-#}
+# Plano de Gerenciamento e Mitigacao de Riscos Sanitarios
+
+**Projeto:** {{ project.title }}
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Metodologia de identificacao e classificacao de riscos
+
+{{ methodology.description or 'A associacao adota matriz probabilidade x impacto com 5 niveis em cada eixo (very_low, low, medium, high, very_high), consolidando em 4 niveis de risco (low, medium, high, critical) conforme definido no schema sanitary_risks (migration 031).' }}
+
+{% if methodology.scales %}
+**Escalas aplicadas:**
+{% for name, values in methodology.scales.items() %}
+- **{{ name }}:** {{ values }}
+{% endfor %}
+{% endif %}
+
+---
+
+## 2. Matriz de riscos ativa
+
+{% if risks %}
+| Codigo | Categoria | Descricao | Probabilidade | Impacto | Nivel |
+|---|---|---|---|---|---|
+{% for r in risks %}
+| {{ r.code }} | {{ r.category }} | {{ r.description }} | {{ r.probability }} | {{ r.impact }} | {{ r.risk_level }} |
+{% endfor %}
+{% else %}
+[pendencia: matriz de riscos ativa nao cadastrada em sanitary_risks]
+{% endif %}
+
+---
+
+## 3. Controles por risco
+
+{% if controls %}
+| Risco | Controle | Tipo | Responsavel | POP relacionado | Status de verificacao |
+|---|---|---|---|---|---|
+{% for c in controls %}
+| {{ c.risk_code }} | {{ c.description }} | {{ c.control_type }} | {{ c.responsible or '-' }} | {{ c.related_sop or '-' }} | {{ c.verification_status or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: controles nao registrados em risk_controls]
+{% endif %}
+
+---
+
+## 4. Responsaveis por risco
+
+{% if responsibles %}
+| Risco | Responsavel designado |
+|---|---|
+{% for r in responsibles %}
+| {{ r.risk_code }} | {{ r.responsible or '[pendencia]' }} |
+{% endfor %}
+{% else %}
+[pendencia: responsavel designado por risco nao atribuido]
+{% endif %}
+
+---
+
+## 5. Verificacao de eficacia de controles
+
+- **Metodo:** {{ verification.method or 'Auditoria interna documentada + evidencia registrada em risk_controls.verification_status.' }}
+- **Frequencia:** {{ verification.frequency or '[pendencia]' }}
+- **Ultima revisao:** {{ verification.last_review or '[pendencia]' }}
+
+---
+
+## 6. Processo de revisao periodica
+
+**Responsavel:** {{ review_cycle.responsible or '[pendencia]' }}
+**Frequencia:** {{ review_cycle.frequency or 'Trimestral, com ajuste emergencial mediante evento adverso grave.' }}
+
+---
+
+## 7. Integracao com farmacovigilancia
+
+- Eventos adversos notificados: **{{ pharmacovigilance.adverse_events_count }}**
+- Riscos sanitarios identificados: **{{ pharmacovigilance.sanitary_risks_count }}**
+
+{{ pharmacovigilance.reporting_policy or 'Todo evento adverso grave dispara revisao imediata da matriz de riscos e da eficacia dos controles aplicaveis. Notificacao a ANVISA segue RDC 4/2009 e cronograma do Sandbox.' }}
+
+---
+
+## 8. Integracao com CAPAs
+
+- CAPAs em andamento: **{{ capa_integration.open_capa_count }}**
+- CAPAs resolvidas: **{{ capa_integration.resolved_capa_count }}**
+
+{{ capa_integration.policy or 'Desvios de POP classificados como `high` ou `critical` disparam CAPA obrigatoria. A eficacia e validada via effectiveness_check de capa_actions antes do fechamento.' }}
+
+---
+
+## 9. Governanca da matriz de riscos
+
+**Cadencia:** {{ governance.cadence or 'Comite de Gestao de Riscos se reune trimestralmente; fora de cadencia mediante gatilho de evento grave.' }}
+
+{% if governance.committee %}
+**Composicao:**
+{% for m in governance.committee %}
+- {{ m }}
+{% endfor %}
+{% else %}
+[pendencia: nomear comite — tipicamente RT + diretoria + consultoria juridica quando contratada]
+{% endif %}
+
+---
+
+## Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }} ({{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }})
+{% else %}
+**Responsavel Tecnico:** [pendencia]
+{% endif %}
+Data: __________________  Assinatura: __________________
+
+_Gerado pela plataforma CannabIA &middot; template {{ document_version }}._

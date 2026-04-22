@@ -1,0 +1,199 @@
+{#-
+ Plano de Trabalho Geral e Criterios Tecnicos — doc 27 §4.1
+
+ Um dos cinco planos obrigatorios do Projeto Experimental (RDC 1.014/2026
+ Art. 9). Descreve escopo, metodologia, cronograma e criterios tecnicos.
+
+ Contrato de contexto (todas as chaves obrigatorias sob StrictUndefined).
+ Providers em src/services/regulatory_documents.build_work_plan_data
+ devem preencher todas, mesmo que com listas vazias ou None.
+
+ Chaves esperadas:
+  - tenant: dict com id, legal_name, trade_name, cnpj, incorporation_date
+  - association: dict com members_count, directive_board (list),
+        is_judicial_operation (bool), statute_document_id
+  - technical_responsible: dict com full_name, professional_council,
+        council_number, council_state (ou None)
+  - project: dict com id, title, objective, start_date, end_date, status
+  - scope: dict com activities (list de strings)
+  - methodology: list de {phase, description, records}
+  - quality_criteria: list de strings
+  - infrastructure: dict com summary (string), components (list de strings)
+  - human_resources: list de {role, count, qualification}
+  - scale: dict com members_benefited, production_volume, dispensation_target
+  - schedule: list de {phase, start, end, deliverable}
+  - interdependencies: list de strings (outros planos referenciados)
+  - sops_summary: dict com total (int), by_area (dict area -> count)
+  - generated_at: ISO string UTC
+  - document_version: 'v1' (do registry)
+-#}
+# Plano de Trabalho Geral e Criterios Tecnicos
+
+**Projeto:** {{ project.title }}
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Identificacao da associacao proponente
+
+- **Razao social:** {{ tenant.legal_name }}
+- **Nome fantasia:** {{ tenant.trade_name or '-' }}
+- **CNPJ:** {{ tenant.cnpj or '[pendencia]' }}
+- **Constituicao:** {{ tenant.incorporation_date or '[pendencia]' }}
+- **Associados ativos:** {{ association.members_count if association else '[pendencia]' }}
+- **Operacao judicial:** {{ 'Sim' if association and association.is_judicial_operation else 'Nao' }}
+
+{% if association and association.directive_board %}
+**Diretoria vigente:**
+{% for m in association.directive_board %}
+- {{ m.name or '[pendencia]' }} — {{ m.role or '[pendencia]' }}
+{% endfor %}
+{% else %}
+[pendencia: diretoria nao cadastrada]
+{% endif %}
+
+---
+
+## 2. Qualificacao do Responsavel Tecnico
+
+{% if technical_responsible %}
+- **Nome:** {{ technical_responsible.full_name }}
+- **Conselho:** {{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }}
+{% else %}
+[pendencia: RT ativo nao cadastrado — pre-requisito para submissao]
+{% endif %}
+
+---
+
+## 3. Objetivo do Projeto Experimental
+
+{{ project.objective or '[pendencia: objetivo do projeto nao cadastrado em sandbox_projects]' }}
+
+---
+
+## 4. Escopo das atividades propostas
+
+{% if scope.activities %}
+{% for activity in scope.activities %}
+- {{ activity }}
+{% endfor %}
+{% else %}
+[pendencia: escopo de atividades nao declarado no protocolo]
+{% endif %}
+
+---
+
+## 5. Metodologia tecnica por etapa
+
+{% if methodology %}
+| Etapa | Descricao | Registros gerados |
+|---|---|---|
+{% for m in methodology %}
+| {{ m.phase }} | {{ m.description }} | {{ m.records or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: metodologia por etapa ainda nao declarada]
+{% endif %}
+
+---
+
+## 6. Criterios tecnicos de qualidade
+
+{% if quality_criteria %}
+{% for c in quality_criteria %}
+- {{ c }}
+{% endfor %}
+{% else %}
+[pendencia: criterios de qualidade nao definidos]
+{% endif %}
+
+---
+
+## 7. Infraestrutura disponivel
+
+{{ infrastructure.summary or '[pendencia: infraestrutura nao descrita em technical_operational_capacity]' }}
+
+{% if infrastructure.components %}
+{% for item in infrastructure.components %}
+- {{ item }}
+{% endfor %}
+{% endif %}
+
+---
+
+## 8. Recursos humanos e formacao
+
+{% if human_resources %}
+| Funcao | Quantidade | Qualificacao |
+|---|---|---|
+{% for r in human_resources %}
+| {{ r.role }} | {{ r.count }} | {{ r.qualification or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: recursos humanos nao detalhados]
+{% endif %}
+
+---
+
+## 9. Escala proposta
+
+- **Associados beneficiados:** {{ scale.members_benefited or '[pendencia]' }}
+- **Volume de producao:** {{ scale.production_volume or '[pendencia]' }}
+- **Meta de dispensacao:** {{ scale.dispensation_target or '[pendencia]' }}
+
+**Cobertura de POPs ativos:** {{ sops_summary.total }} POPs.
+{% if sops_summary.by_area %}
+Distribuicao por area:
+{% for area, n in sops_summary.by_area.items() %}
+- {{ area }}: {{ n }}
+{% endfor %}
+{% else %}
+[pendencia: POPs ainda nao registrados]
+{% endif %}
+
+---
+
+## 10. Cronograma por fase
+
+{% if schedule %}
+| Fase | Inicio | Fim | Entregavel |
+|---|---|---|---|
+{% for s in schedule %}
+| {{ s.phase }} | {{ s.start or '[pendencia]' }} | {{ s.end or '[pendencia]' }} | {{ s.deliverable or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: cronograma nao declarado]
+{% endif %}
+
+---
+
+## 11. Interdependencias com outros planos
+
+{% if interdependencies %}
+{% for ref in interdependencies %}
+- {{ ref }}
+{% endfor %}
+{% else %}
+- Plano de Comunicacao, Transparencia e Publicidade (§4.2 do doc 27).
+- Plano de Descontinuidade das Atividades (§4.3).
+- Plano de Monitoramento (§4.4).
+- Plano de Gerenciamento e Mitigacao de Riscos Sanitarios (§4.5).
+{% endif %}
+
+---
+
+## 12. Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }} ({{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }})
+{% else %}
+**Responsavel Tecnico:** [pendencia]
+{% endif %}
+Data: __________________  Assinatura: __________________
+
+**Representante legal da associacao:** __________________
+Data: __________________  Assinatura: __________________
+
+_Gerado pela plataforma CannabIA &middot; template {{ document_version }}._

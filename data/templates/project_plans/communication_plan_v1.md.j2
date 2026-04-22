@@ -1,0 +1,184 @@
+{#-
+ Plano de Comunicacao, Transparencia e Publicidade — doc 27 §4.2
+
+ Um dos cinco planos obrigatorios (RDC 1.014/2026 Art. 9). Regra
+ invariante: publicidade e vedada no Sandbox — o Communication
+ Governance do SCC valida conteudo antes da publicacao.
+
+ Contrato de contexto (StrictUndefined).
+
+ Chaves esperadas:
+  - tenant: dict com id, legal_name, trade_name, cnpj
+  - technical_responsible: dict (ou None)
+  - project: dict com id, title
+  - principles: list de strings (principios de comunicacao)
+  - prohibitions: list de strings (vedacoes reconhecidas)
+  - official_channels: list de {name, url, purpose}
+  - moderation_policy: dict com summary, responsible_role,
+        review_sla_hours, escalation
+  - member_comms: dict com frequency, channels (list), content_types (list)
+  - anvisa_comms: dict com submission_types (list), cadence, responsible
+  - public_comms: dict com allowed_topics (list), forbidden_topics (list)
+  - press_response: dict com spokesperson, approval_flow
+  - review_cycle: dict com frequency, responsible, last_review, next_review
+  - generated_at: ISO UTC
+  - document_version: 'v1'
+-#}
+# Plano de Comunicacao, Transparencia e Publicidade
+
+**Projeto:** {{ project.title }}
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Principios de comunicacao
+
+{% if principles %}
+{% for p in principles %}
+- {{ p }}
+{% endfor %}
+{% else %}
+- Veracidade, objetividade tecnica e ausencia de promessa terapeutica.
+- Respeito a condicao experimental do Sandbox Regulatorio.
+- Transparencia sobre limitacoes, riscos e natureza nao-comercial.
+- Protecao a privacidade dos associados (LGPD).
+{% endif %}
+
+---
+
+## 2. Reconhecimento das vedacoes do Sandbox
+
+Em aderencia a RDC 1.014/2026, a associacao reconhece formalmente:
+
+{% if prohibitions %}
+{% for v in prohibitions %}
+- {{ v }}
+{% endfor %}
+{% else %}
+- Os preparados produzidos no Sandbox **nao sao medicamentos** aprovados pela ANVISA.
+- **Nao ha comercializacao** — os preparados sao disponibilizados a associados sem contraprestacao financeira por dose ou por produto.
+- **Nao ha publicidade** — nenhum conteudo promove uso, consumo ou resultado clinico.
+- Conteudo tecnico-cientifico para fins educacionais e **permitido**, desde que validado pelo Responsavel Tecnico.
+{% endif %}
+
+---
+
+## 3. Canais oficiais da associacao
+
+{% if official_channels %}
+| Canal | Finalidade | Endereco |
+|---|---|---|
+{% for c in official_channels %}
+| {{ c.name }} | {{ c.purpose or '-' }} | {{ c.url or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: cadastrar canais oficiais (site, e-mail, whatsapp institucional)]
+{% endif %}
+
+---
+
+## 4. Processo de moderacao regulatoria de conteudo
+
+**Responsavel:** {{ moderation_policy.responsible_role or '[pendencia: indicar papel — tipicamente RT]' }}
+**SLA de revisao:** {{ moderation_policy.review_sla_hours or '[pendencia]' }} horas.
+**Escalonamento:** {{ moderation_policy.escalation or '[pendencia: definir fluxo de escalonamento]' }}
+
+{{ moderation_policy.summary or '[pendencia: detalhar processo de aprovacao previa de conteudo]' }}
+
+> **Regra invariante:** toda peca de comunicacao publica passa por aprovacao previa do RT antes de publicacao. Conteudo que caracterize publicidade e bloqueado pelo sistema.
+
+---
+
+## 5. Governanca da comunicacao com associados
+
+- **Frequencia:** {{ member_comms.frequency or '[pendencia]' }}
+- **Canais:**
+{% if member_comms.channels %}
+{% for c in member_comms.channels %}
+  - {{ c }}
+{% endfor %}
+{% else %}
+  - [pendencia: listar canais de comunicacao com associados]
+{% endif %}
+- **Tipos de conteudo:**
+{% if member_comms.content_types %}
+{% for t in member_comms.content_types %}
+  - {{ t }}
+{% endfor %}
+{% else %}
+  - Avisos operacionais, orientacoes clinicas individualizadas, convocacoes.
+{% endif %}
+
+---
+
+## 6. Governanca da comunicacao com a ANVISA e autoridades
+
+- **Responsavel:** {{ anvisa_comms.responsible or technical_responsible.full_name if technical_responsible else '[pendencia]' }}
+- **Cadencia:** {{ anvisa_comms.cadence or '[pendencia]' }}
+
+{% if anvisa_comms.submission_types %}
+**Tipos de submissao previstos:**
+{% for s in anvisa_comms.submission_types %}
+- {{ s }}
+{% endfor %}
+{% else %}
+[pendencia: elencar submissoes previstas — relatorios, comunicados, respostas a auditoria]
+{% endif %}
+
+---
+
+## 7. Governanca da comunicacao publica e institucional
+
+{% if public_comms.allowed_topics %}
+**Topicos permitidos:**
+{% for t in public_comms.allowed_topics %}
+- {{ t }}
+{% endfor %}
+{% else %}
+- Missao e institucional da associacao.
+- Conteudo cientifico-educacional sobre cannabis medicinal com base em literatura.
+- Informacoes sobre o Sandbox Regulatorio e a participacao da associacao.
+{% endif %}
+
+{% if public_comms.forbidden_topics %}
+**Topicos proibidos:**
+{% for t in public_comms.forbidden_topics %}
+- {{ t }}
+{% endfor %}
+{% else %}
+- Promessa de cura, alivio ou eficacia terapeutica de qualquer preparado.
+- Comparacao com medicamentos registrados ou produtos de terceiros.
+- Precos, valores de contribuicao associativa vinculados a preparado especifico, ou qualquer estrutura que caracterize venda.
+{% endif %}
+
+---
+
+## 8. Resposta a demandas de imprensa
+
+**Porta-voz oficial:** {{ press_response.spokesperson or '[pendencia: nomear porta-voz — tipicamente Presidencia + RT]' }}
+
+**Fluxo de aprovacao:** {{ press_response.approval_flow or 'Solicitacao -> triagem pelo porta-voz -> aprovacao do RT para conteudo tecnico -> resposta formal com registro auditavel.' }}
+
+---
+
+## 9. Ciclo de revisao do plano
+
+- **Frequencia:** {{ review_cycle.frequency or 'Anual, ou a cada alteracao regulatoria relevante.' }}
+- **Responsavel:** {{ review_cycle.responsible or '[pendencia]' }}
+- **Ultima revisao:** {{ review_cycle.last_review or '[pendencia]' }}
+- **Proxima revisao prevista:** {{ review_cycle.next_review or '[pendencia]' }}
+
+---
+
+## Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }}
+{% else %}
+**Responsavel Tecnico:** [pendencia]
+{% endif %}
+Data: __________________  Assinatura: __________________
+
+_Gerado pela plataforma CannabIA &middot; template {{ document_version }}._

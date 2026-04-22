@@ -591,6 +591,597 @@ class TestBuildSopTemplateData:
 # 3. Smoke: o dossier continua renderizando apos o refactor
 # =====================================================================
 
+# =====================================================================
+# 3. F4.5 — cinco planos obrigatorios (doc 27 §4)
+# =====================================================================
+
+_ASSOCIATION_ROW = {
+    "tenant_id": 42,
+    "statute_document_id": 99,
+    "directive_board": [
+        {"name": "Carlos Presidente", "role": "Presidente"},
+        {"name": "Maria Diretora", "role": "Diretora Tecnica"},
+    ],
+    "members_count": 120,
+    "is_judicial_operation": False,
+    "sandbox_application_status": "preparing",
+}
+
+_PROJECT_ROW = {
+    "id": 7, "project_code": "PE-2026-001", "title": "PE-2026-001",
+    "status": "active",
+    "submitted_at": None, "approved_at": None,
+    "started_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+    "concluded_at": None, "anvisa_reference": "ANV-X-001",
+}
+
+
+class TestRenderWorkPlan:
+    @pytest.fixture
+    def work_ctx(self) -> dict:
+        return {
+            "tenant": {
+                "id": 42, "legal_name": "Associacao X",
+                "trade_name": "AX", "cnpj": "12345678000199",
+                "incorporation_date": date(2023, 1, 1),
+            },
+            "association": {
+                "members_count": 120,
+                "directive_board": [
+                    {"name": "Carlos", "role": "Presidente"},
+                ],
+                "is_judicial_operation": False,
+                "statute_document_id": 99,
+            },
+            "technical_responsible": {
+                "full_name": "Dra Ana", "professional_council": "CRM",
+                "council_number": "12345", "council_state": "SP",
+            },
+            "project": {
+                "id": 7, "title": "PE-2026-001",
+                "objective": "Reduzir desigualdade de acesso",
+                "start_date": date(2026, 1, 1),
+                "end_date": None, "status": "active",
+            },
+            "scope": {"activities": ["cultivo", "preparo", "dispensacao"]},
+            "methodology": [
+                {"phase": "Cultivo", "description": "Indoor controlado",
+                 "records": "Batch record diario"},
+            ],
+            "quality_criteria": ["Perfil canabinoide validado por lab terceiro"],
+            "infrastructure": {
+                "summary": "Sala de cultivo 80m2 + laboratorio de preparo",
+                "components": ["Estufa climatizada", "Bancada de extracao"],
+            },
+            "human_resources": [
+                {"role": "Tecnico agricola", "count": 2,
+                 "qualification": "Formacao tecnica"},
+            ],
+            "scale": {
+                "members_benefited": 100, "production_volume": "2kg/trimestre",
+                "dispensation_target": "500ml/mes",
+            },
+            "schedule": [
+                {"phase": "Fase 1", "start": "2026-01-01",
+                 "end": "2026-06-30", "deliverable": "Primeiro lote aprovado"},
+            ],
+            "interdependencies": ["Plano de Monitoramento §4.4"],
+            "sops_summary": {"total": 12, "by_area": {"cultivo": 5, "preparo": 7}},
+            "generated_at": "2026-04-22T00:00:00+00:00",
+            "document_version": "v1",
+        }
+
+    def test_renderiza_secoes_principais(self, work_ctx):
+        doc = render_template("project_plans/work_plan", work_ctx, format="md")
+        assert "# Plano de Trabalho Geral e Criterios Tecnicos" in doc.content
+        assert "Associacao X" in doc.content
+        assert "Dra Ana" in doc.content
+        assert "Reduzir desigualdade de acesso" in doc.content
+        assert "| Cultivo | Indoor controlado" in doc.content
+        assert "cultivo: 5" in doc.content
+        assert "Plano de Monitoramento §4.4" in doc.content
+        assert len(doc.content_hash) == 64
+
+    def test_defaults_de_interdependencias(self, work_ctx):
+        ctx = copy.deepcopy(work_ctx)
+        ctx["interdependencies"] = []
+        doc = render_template("project_plans/work_plan", ctx, format="md")
+        # quando vazio, template lista os 4 outros planos como default
+        assert "Plano de Comunicacao, Transparencia e Publicidade" in doc.content
+        assert "Plano de Descontinuidade" in doc.content
+
+    def test_strict_undefined_pega_tenant_ausente(self, work_ctx):
+        ctx = copy.deepcopy(work_ctx)
+        del ctx["tenant"]
+        with pytest.raises(TemplateRenderError):
+            render_template("project_plans/work_plan", ctx, format="md")
+
+
+class TestRenderCommunicationPlan:
+    @pytest.fixture
+    def comms_ctx(self) -> dict:
+        return {
+            "tenant": {
+                "id": 42, "legal_name": "Assoc X",
+                "trade_name": "AX", "cnpj": "12345678000199",
+            },
+            "technical_responsible": {
+                "full_name": "Dra Ana", "professional_council": "CRM",
+                "council_number": "12345", "council_state": "SP",
+            },
+            "project": {"id": 7, "title": "PE-2026-001"},
+            "principles": ["Veracidade"],
+            "prohibitions": [],
+            "official_channels": [
+                {"name": "Site oficial", "url": "https://assoc.example",
+                 "purpose": "Institucional"},
+            ],
+            "moderation_policy": {
+                "summary": "RT aprova tudo antes de publicar.",
+                "responsible_role": "Responsavel Tecnico",
+                "review_sla_hours": 48,
+                "escalation": "Diretoria para casos limitrofes.",
+            },
+            "member_comms": {
+                "frequency": "Mensal",
+                "channels": ["E-mail", "WhatsApp oficial"],
+                "content_types": ["Avisos operacionais"],
+            },
+            "anvisa_comms": {
+                "submission_types": ["Relatorio trimestral"],
+                "cadence": "Trimestral",
+                "responsible": "Dra Ana",
+            },
+            "public_comms": {
+                "allowed_topics": ["Educacao sobre cannabis medicinal"],
+                "forbidden_topics": ["Comparacao com medicamentos"],
+            },
+            "press_response": {
+                "spokesperson": "Dra Ana",
+                "approval_flow": "Solicitacao -> RT -> resposta.",
+            },
+            "review_cycle": {
+                "frequency": "Anual",
+                "responsible": "RT",
+                "last_review": "2026-01-01",
+                "next_review": "2027-01-01",
+            },
+            "generated_at": "2026-04-22T00:00:00+00:00",
+            "document_version": "v1",
+        }
+
+    def test_renderiza_e_fixa_vedacoes_default(self, comms_ctx):
+        ctx = copy.deepcopy(comms_ctx)
+        ctx["prohibitions"] = []  # forca o fallback
+        doc = render_template("project_plans/communication_plan", ctx, format="md")
+        assert "# Plano de Comunicacao" in doc.content
+        assert "nao sao medicamentos" in doc.content
+        assert "Nao ha comercializacao" in doc.content
+        assert "Nao ha publicidade" in doc.content
+
+    def test_renderiza_com_prohibitions_customizadas(self, comms_ctx):
+        ctx = copy.deepcopy(comms_ctx)
+        ctx["prohibitions"] = ["regra customizada A", "regra customizada B"]
+        doc = render_template("project_plans/communication_plan", ctx, format="md")
+        assert "regra customizada A" in doc.content
+
+
+class TestRenderDiscontinuityPlan:
+    @pytest.fixture
+    def disc_ctx(self) -> dict:
+        return {
+            "tenant": {"legal_name": "Assoc X", "cnpj": "12345678000199"},
+            "technical_responsible": {
+                "full_name": "Dra Ana", "professional_council": "CRM",
+                "council_number": "12345", "council_state": "SP",
+            },
+            "project": {
+                "id": 7, "title": "PE-2026-001", "objective": None,
+                "start_date": None, "end_date": None, "status": "active",
+            },
+            "scenarios": [
+                {"type": "Suspensao ANVISA",
+                 "description": "Determinacao formal",
+                 "activation_criteria": "Oficio ANVISA recebido"},
+            ],
+            "triggers": [
+                {"scenario": "Suspensao", "condition": "Oficio",
+                 "responsible": "Diretoria"},
+            ],
+            "cultivation_shutdown": {
+                "steps": ["Colheita final", "Inativacao vegetal"],
+                "timeframe_days": 30,
+                "responsible": "RT",
+            },
+            "disposal": {
+                "procedures": ["Incineracao controlada"],
+                "oversight": "RT + auditor externo",
+                "regulatory_reference": "POP-DE-001",
+            },
+            "transition": {
+                "description": "Regime ordinario pos-sandbox",
+                "target_regime": "RDC 327",
+                "steps": ["Registro de produto"],
+            },
+            "member_communication": {
+                "channels": ["E-mail", "Assembleia"],
+                "notice_period_days": 30,
+                "message_template": "Prezados, ...",
+            },
+            "care_continuity": {
+                "description": "Encaminhamento para clinica parceira",
+                "referral_partners": ["Clinica Y"],
+            },
+            "records_preservation": {
+                "retention_years": 10,
+                "storage_method": "Nuvem segregada + backup fisico",
+                "access_policy": "RT + auditoria",
+            },
+            "responsibilities": [
+                {"role": "RT", "duty": "Encerrar operacao tecnica"},
+            ],
+            "schedule": [
+                {"phase": "Aviso", "duration_days": 30,
+                 "description": "Comunicar associados"},
+            ],
+            "generated_at": "2026-04-22T00:00:00+00:00",
+            "document_version": "v1",
+        }
+
+    def test_renderiza_com_cenarios_customizados(self, disc_ctx):
+        doc = render_template("project_plans/discontinuity_plan", disc_ctx, format="md")
+        assert "# Plano de Descontinuidade" in doc.content
+        assert "Suspensao ANVISA" in doc.content
+        assert "Incineracao controlada" in doc.content
+        assert "Clinica Y" in doc.content
+
+    def test_fallback_cenarios_padrao(self, disc_ctx):
+        ctx = copy.deepcopy(disc_ctx)
+        ctx["scenarios"] = []
+        doc = render_template("project_plans/discontinuity_plan", ctx, format="md")
+        assert "Descontinuidade natural" in doc.content
+        assert "Descontinuidade por suspensao ANVISA" in doc.content
+
+
+class TestRenderMonitoringPlan:
+    @pytest.fixture
+    def mon_ctx(self) -> dict:
+        return {
+            "tenant": {"legal_name": "Assoc X", "cnpj": "12345678000199"},
+            "technical_responsible": {
+                "full_name": "Dra Ana", "professional_council": "CRM",
+                "council_number": "12345", "council_state": "SP",
+            },
+            "project": {
+                "id": 7, "title": "PE-2026-001", "objective": None,
+                "start_date": None, "end_date": None, "status": "active",
+            },
+            "mandatory_indicators": [
+                {"code": "IND-01", "name": "Custo por paciente",
+                 "unit": "BRL", "formula": "sum(expenses)/count(members)",
+                 "frequency": "quarterly", "target": 500,
+                 "data_source": "billing + association_members"},
+            ],
+            "complementary_indicators": [
+                {"code": "IND-99", "name": "Satisfacao", "unit": "%",
+                 "frequency": "annual"},
+            ],
+            "collection_infrastructure": {
+                "systems": ["CannabIA plataforma"],
+                "ingestion_cadence": "Real-time",
+            },
+            "validation_process": {
+                "steps": ["Conferencia", "Recalculo"],
+                "responsible": "Dra Ana",
+                "frequency": "Mensal",
+            },
+            "delivery_format": {
+                "to_anvisa": "PDF/A", "to_internal": "Dashboard",
+                "reporting_template": "final/regulatory_report",
+            },
+            "deviation_criteria": [
+                {"indicator": "IND-01", "threshold": ">600 BRL",
+                 "response": "CAPA"},
+            ],
+            "governance": {
+                "review_committee": ["RT", "Diretoria"],
+                "review_cadence": "Trimestral",
+            },
+            "generated_at": "2026-04-22T00:00:00+00:00",
+            "document_version": "v1",
+        }
+
+    def test_renderiza_indicadores(self, mon_ctx):
+        doc = render_template("project_plans/monitoring_plan", mon_ctx, format="md")
+        assert "# Plano de Monitoramento" in doc.content
+        assert "IND-01" in doc.content
+        assert "Custo por paciente" in doc.content
+        assert "sum(expenses)/count(members)" in doc.content
+        assert "Satisfacao" in doc.content
+
+    def test_sem_indicadores_mostra_pendencia(self, mon_ctx):
+        ctx = copy.deepcopy(mon_ctx)
+        ctx["mandatory_indicators"] = []
+        ctx["complementary_indicators"] = []
+        doc = render_template("project_plans/monitoring_plan", ctx, format="md")
+        assert "[pendencia: indicadores obrigatorios nao cadastrados" in doc.content
+
+
+class TestRenderRiskManagementPlan:
+    @pytest.fixture
+    def risk_ctx(self) -> dict:
+        return {
+            "tenant": {"legal_name": "Assoc X", "cnpj": "12345678000199"},
+            "technical_responsible": {
+                "full_name": "Dra Ana", "professional_council": "CRM",
+                "council_number": "12345", "council_state": "SP",
+            },
+            "project": {
+                "id": 7, "title": "PE-2026-001", "objective": None,
+                "start_date": None, "end_date": None, "status": "active",
+            },
+            "methodology": {
+                "description": "Matriz 5x5 classificada em 4 niveis",
+                "scales": {"probabilidade": "very_low..very_high"},
+            },
+            "risks": [
+                {"id": 1, "code": "R-001", "category": "cultivo",
+                 "description": "Contaminacao de lote",
+                 "probability": "medium", "impact": "high",
+                 "risk_level": "high", "is_active": True},
+            ],
+            "controls": [
+                {"risk_code": "R-001",
+                 "description": "Amostragem de agua semanal",
+                 "control_type": "preventive",
+                 "responsible": "tecnico1",
+                 "related_sop": "POP-CT-001",
+                 "verification_status": "effective"},
+            ],
+            "responsibles": [
+                {"risk_code": "R-001", "responsible": "Dra Ana"},
+            ],
+            "verification": {
+                "method": "Auditoria interna trimestral",
+                "frequency": "Trimestral",
+                "last_review": "2026-03-01",
+            },
+            "review_cycle": {"frequency": "Trimestral", "responsible": "Dra Ana"},
+            "pharmacovigilance": {
+                "adverse_events_count": 3, "sanitary_risks_count": 5,
+                "reporting_policy": None,
+            },
+            "capa_integration": {
+                "open_capa_count": 2, "resolved_capa_count": 10,
+                "policy": None,
+            },
+            "governance": {
+                "committee": ["RT", "Diretoria", "Consultoria juridica"],
+                "cadence": "Trimestral",
+            },
+            "generated_at": "2026-04-22T00:00:00+00:00",
+            "document_version": "v1",
+        }
+
+    def test_renderiza_matriz_de_riscos(self, risk_ctx):
+        doc = render_template(
+            "project_plans/risk_management_plan", risk_ctx, format="md"
+        )
+        assert "# Plano de Gerenciamento e Mitigacao de Riscos" in doc.content
+        assert "R-001" in doc.content
+        assert "Contaminacao de lote" in doc.content
+        assert "POP-CT-001" in doc.content
+        assert "Eventos adversos notificados: **3**" in doc.content
+        assert "CAPAs em andamento: **2**" in doc.content
+
+    def test_sem_riscos_mostra_pendencia(self, risk_ctx):
+        ctx = copy.deepcopy(risk_ctx)
+        ctx["risks"] = []
+        ctx["controls"] = []
+        ctx["responsibles"] = []
+        ctx["pharmacovigilance"]["sanitary_risks_count"] = 0
+        doc = render_template(
+            "project_plans/risk_management_plan", ctx, format="md"
+        )
+        assert "[pendencia: matriz de riscos ativa nao cadastrada" in doc.content
+
+
+# =====================================================================
+# 4. F4.5 — providers
+# =====================================================================
+
+class TestBuildWorkPlanData:
+    def test_agrega_sops_e_associacao(self, monkeypatch):
+        sop_rows = [
+            {"area": "cultivo", "n": 5},
+            {"area": "preparo", "n": 7},
+        ]
+        responses = [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW, _ASSOCIATION_ROW, sop_rows,
+        ]
+        _install_fake(monkeypatch, responses)
+
+        data = rd.build_work_plan_data(7, 42)
+        assert data["tenant"]["legal_name"] == "Assoc X"
+        assert data["project"]["title"] == "PE-2026-001"
+        assert data["association"]["members_count"] == 120
+        assert data["sops_summary"]["total"] == 12
+        assert data["sops_summary"]["by_area"]["cultivo"] == 5
+        # renderiza sem erro com esse contexto
+        doc = render_template("project_plans/work_plan", data, format="md")
+        assert "Assoc X" in doc.content
+
+    def test_overrides_substituem_methodology(self, monkeypatch):
+        _install_fake(monkeypatch, [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW, _ASSOCIATION_ROW, [],
+        ])
+        data = rd.build_work_plan_data(
+            7, 42,
+            overrides={
+                "methodology": [{"phase": "X", "description": "Y", "records": "Z"}],
+            },
+        )
+        assert data["methodology"] == [
+            {"phase": "X", "description": "Y", "records": "Z"}
+        ]
+
+    def test_projeto_inexistente(self, monkeypatch):
+        _install_fake(monkeypatch, [_TENANT_ROW, [_RT_ROW], None])
+        with pytest.raises(ValueError, match="Projeto"):
+            rd.build_work_plan_data(9999, 42)
+
+
+class TestBuildCommunicationPlanData:
+    def test_monta_contexto_basico(self, monkeypatch):
+        _install_fake(monkeypatch, [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW,
+        ])
+        data = rd.build_communication_plan_data(7, 42)
+        assert data["tenant"]["legal_name"] == "Assoc X"
+        assert data["anvisa_comms"]["responsible"] == "Dra Ana"
+        # renderiza sem erro
+        doc = render_template(
+            "project_plans/communication_plan", data, format="md"
+        )
+        assert "Plano de Comunicacao" in doc.content
+        # como prohibitions e [], template usa fallback com vedacoes default
+        assert "nao sao medicamentos" in doc.content
+
+
+class TestBuildDiscontinuityPlanData:
+    def test_le_protocolo_vigente(self, monkeypatch):
+        protocol_row = {
+            "protocol_version": "1.0",
+            "discontinuity_plan": {
+                "scenarios": [
+                    {"type": "Natural", "description": "fim do ciclo",
+                     "activation_criteria": "conclusao"},
+                ],
+                "cultivation_shutdown": {
+                    "steps": ["Passo 1"], "timeframe_days": 30,
+                    "responsible": "RT",
+                },
+            },
+            "effective_from": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        }
+        _install_fake(monkeypatch, [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW, protocol_row,
+        ])
+        data = rd.build_discontinuity_plan_data(7, 42)
+        assert len(data["scenarios"]) == 1
+        assert data["scenarios"][0]["type"] == "Natural"
+        assert data["cultivation_shutdown"]["timeframe_days"] == 30
+        # renderiza
+        doc = render_template(
+            "project_plans/discontinuity_plan", data, format="md"
+        )
+        assert "Natural" in doc.content
+
+    def test_sem_protocolo_usa_defaults(self, monkeypatch):
+        _install_fake(monkeypatch, [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW, None,
+        ])
+        data = rd.build_discontinuity_plan_data(7, 42)
+        assert data["scenarios"] == []
+        assert data["cultivation_shutdown"]["steps"] == []
+        doc = render_template(
+            "project_plans/discontinuity_plan", data, format="md"
+        )
+        # template usa fallback com 3 cenarios default
+        assert "Descontinuidade natural" in doc.content
+
+
+class TestBuildMonitoringPlanData:
+    def test_separa_mandatory_de_complementary(self, monkeypatch):
+        indicator_rows = [
+            {"indicator_code": "IND-01", "indicator_name": "Custo",
+             "calculation_formula": "sum/count", "unit": "BRL",
+             "target_value": 500, "reporting_frequency": "quarterly",
+             "is_mandatory": True},
+            {"indicator_code": "IND-99", "indicator_name": "Satisfacao",
+             "calculation_formula": "media", "unit": "%",
+             "target_value": None, "reporting_frequency": "annual",
+             "is_mandatory": False},
+        ]
+        _install_fake(monkeypatch, [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW, indicator_rows,
+        ])
+        data = rd.build_monitoring_plan_data(7, 42)
+        assert len(data["mandatory_indicators"]) == 1
+        assert data["mandatory_indicators"][0]["code"] == "IND-01"
+        assert len(data["complementary_indicators"]) == 1
+        assert data["complementary_indicators"][0]["code"] == "IND-99"
+        doc = render_template(
+            "project_plans/monitoring_plan", data, format="md"
+        )
+        assert "IND-01" in doc.content
+        assert "IND-99" in doc.content
+
+
+class TestBuildRiskManagementPlanData:
+    def test_agrega_matriz_controles_farma_capa(self, monkeypatch):
+        risk_rows = [
+            {"id": 1, "risk_code": "R-001", "category": "cultivo",
+             "description": "Contaminacao", "probability": "medium",
+             "impact": "high", "risk_level": "high", "is_active": True},
+        ]
+        control_rows = [
+            {"risk_id": 1,
+             "control_description": "Amostragem semanal",
+             "control_type": "preventive",
+             "verification_status": "effective",
+             "related_sop_id": 42,
+             "responsible_name": "tecnico1",
+             "related_sop_code": "POP-CT-001"},
+        ]
+        responses = [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW,
+            risk_rows,
+            control_rows,
+            {"n": 3},
+            {"open_n": 2, "resolved_n": 10},
+        ]
+        _install_fake(monkeypatch, responses)
+
+        data = rd.build_risk_management_plan_data(7, 42)
+        assert len(data["risks"]) == 1
+        assert data["risks"][0]["code"] == "R-001"
+        assert len(data["controls"]) == 1
+        assert data["controls"][0]["related_sop"] == "POP-CT-001"
+        assert data["pharmacovigilance"]["adverse_events_count"] == 3
+        assert data["capa_integration"]["open_capa_count"] == 2
+        assert data["capa_integration"]["resolved_capa_count"] == 10
+        doc = render_template(
+            "project_plans/risk_management_plan", data, format="md"
+        )
+        assert "R-001" in doc.content
+        assert "POP-CT-001" in doc.content
+
+    def test_sem_riscos_pula_query_de_controles(self, monkeypatch):
+        responses = [
+            _TENANT_ROW, [_RT_ROW], _PROJECT_ROW,
+            [],
+            {"n": 0},
+            {"open_n": 0, "resolved_n": 0},
+        ]
+        _install_fake(monkeypatch, responses)
+
+        data = rd.build_risk_management_plan_data(7, 42)
+        assert data["risks"] == []
+        assert data["controls"] == []
+        assert data["responsibles"] == []
+        assert data["pharmacovigilance"]["sanitary_risks_count"] == 0
+        # renderiza com fallback [pendencia]
+        doc = render_template(
+            "project_plans/risk_management_plan", data, format="md"
+        )
+        assert "[pendencia: matriz de riscos ativa" in doc.content
+
+
+# =====================================================================
+# 5. Smoke: o dossier continua renderizando apos o refactor
+# =====================================================================
+
 class TestDossierAindaRenderiza:
     def test_dossier_via_engine_produz_markdown(self):
         # Dados minimos do mesmo shape que render_dossier_markdown exige.

@@ -1,0 +1,199 @@
+{#-
+ Plano de Descontinuidade das Atividades — doc 27 §4.3
+
+ Um dos cinco planos obrigatorios (RDC 1.014/2026 Art. 9). Descreve
+ como a associacao encerra o Projeto Experimental em 3 cenarios:
+ natural, por suspensao ANVISA, por decisao interna.
+
+ Contrato de contexto (StrictUndefined).
+
+ Chaves esperadas:
+  - tenant: dict com legal_name, cnpj
+  - technical_responsible: dict (ou None)
+  - project: dict com id, title, start_date, end_date, status
+  - scenarios: list de {type, description, activation_criteria}
+  - triggers: list de {scenario, condition, responsible}
+  - cultivation_shutdown: dict com steps (list), timeframe_days, responsible
+  - disposal: dict com procedures (list), oversight, regulatory_reference
+  - transition: dict com description, target_regime, steps (list)
+  - member_communication: dict com channels (list), notice_period_days, message_template
+  - care_continuity: dict com description, referral_partners (list)
+  - records_preservation: dict com retention_years, storage_method, access_policy
+  - responsibilities: list de {role, duty}
+  - schedule: list de {phase, duration_days, description}
+  - generated_at: ISO UTC
+  - document_version: 'v1'
+-#}
+# Plano de Descontinuidade das Atividades
+
+**Projeto:** {{ project.title }}
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Cenarios previstos de descontinuidade
+
+{% if scenarios %}
+{% for s in scenarios %}
+### 1.{{ loop.index }}. {{ s.type }}
+{{ s.description or '[pendencia: descrever cenario]' }}
+
+**Criterios de ativacao:** {{ s.activation_criteria or '[pendencia]' }}
+
+{% endfor %}
+{% else %}
+- **Descontinuidade natural:** conclusao do ciclo experimental previsto no protocolo.
+- **Descontinuidade por suspensao ANVISA:** determinacao formal da autoridade sanitaria.
+- **Descontinuidade por decisao interna:** deliberacao da diretoria mediante ata formal.
+{% endif %}
+
+---
+
+## 2. Criterios de ativacao de cada cenario
+
+{% if triggers %}
+| Cenario | Condicao detectada | Responsavel pela ativacao |
+|---|---|---|
+{% for t in triggers %}
+| {{ t.scenario }} | {{ t.condition }} | {{ t.responsible or '[pendencia]' }} |
+{% endfor %}
+{% else %}
+[pendencia: detalhar condicoes objetivas que disparam cada cenario]
+{% endif %}
+
+---
+
+## 3. Procedimentos de encerramento do cultivo
+
+**Prazo total:** {{ cultivation_shutdown.timeframe_days or '[pendencia]' }} dias apos ativacao.
+**Responsavel:** {{ cultivation_shutdown.responsible or '[pendencia]' }}
+
+{% if cultivation_shutdown.steps %}
+{% for step in cultivation_shutdown.steps %}
+{{ loop.index }}. {{ step }}
+{% endfor %}
+{% else %}
+[pendencia: detalhar passos de encerramento — colheita final, inativacao de vegetais, descontaminacao]
+{% endif %}
+
+---
+
+## 4. Procedimentos de destinacao de insumos e preparados
+
+**Supervisao:** {{ disposal.oversight or '[pendencia: indicar supervisao — tipicamente RT + auditor externo]' }}
+**Referencia regulatoria:** {{ disposal.regulatory_reference or 'RDC aplicavel + POP de descarte controlado.' }}
+
+{% if disposal.procedures %}
+{% for p in disposal.procedures %}
+- {{ p }}
+{% endfor %}
+{% else %}
+[pendencia: detalhar destinacao — incineracao, devolucao, doacao cientifica]
+{% endif %}
+
+---
+
+## 5. Procedimentos de transicao para regime regulatorio ordinario
+
+**Regime-alvo:** {{ transition.target_regime or '[pendencia]' }}
+
+{{ transition.description or '[pendencia: descrever como a associacao retoma operacao ordinaria pos-Sandbox, quando aplicavel]' }}
+
+{% if transition.steps %}
+**Passos:**
+{% for s in transition.steps %}
+{{ loop.index }}. {{ s }}
+{% endfor %}
+{% endif %}
+
+---
+
+## 6. Comunicacao aos associados
+
+**Canais utilizados:**
+{% if member_communication.channels %}
+{% for c in member_communication.channels %}
+- {{ c }}
+{% endfor %}
+{% else %}
+[pendencia: listar canais — tipicamente e-mail, whatsapp oficial, assembleia]
+{% endif %}
+
+**Antecedencia minima:** {{ member_communication.notice_period_days or '[pendencia]' }} dias.
+
+{% if member_communication.message_template %}
+**Modelo de comunicado:**
+
+> {{ member_communication.message_template }}
+{% else %}
+[pendencia: elaborar modelo de comunicado padrao para cada cenario]
+{% endif %}
+
+---
+
+## 7. Continuidade de cuidado para associados em tratamento
+
+{{ care_continuity.description or '[pendencia: descrever como associados em uso ativo sao encaminhados a alternativas legais e clinicamente adequadas]' }}
+
+{% if care_continuity.referral_partners %}
+**Parceiros de encaminhamento:**
+{% for p in care_continuity.referral_partners %}
+- {{ p }}
+{% endfor %}
+{% else %}
+[pendencia: mapear parceiros — clinicas autorizadas, importacao via Anvisa RDC 660, outras associacoes]
+{% endif %}
+
+---
+
+## 8. Preservacao de registros e evidencias
+
+- **Periodo de retencao:** {{ records_preservation.retention_years or '[pendencia]' }} anos apos o encerramento.
+- **Metodo de armazenamento:** {{ records_preservation.storage_method or '[pendencia]' }}
+- **Politica de acesso:** {{ records_preservation.access_policy or 'Acesso controlado, auditavel; compartilhamento com ANVISA mediante requisicao formal.' }}
+
+---
+
+## 9. Responsabilidades de cada funcao
+
+{% if responsibilities %}
+| Papel | Responsabilidade |
+|---|---|
+{% for r in responsibilities %}
+| {{ r.role }} | {{ r.duty }} |
+{% endfor %}
+{% else %}
+[pendencia: definir matriz RACI para o processo de descontinuidade]
+{% endif %}
+
+---
+
+## 10. Cronograma padrao de descontinuidade
+
+{% if schedule %}
+| Fase | Duracao (dias) | Descricao |
+|---|---|---|
+{% for s in schedule %}
+| {{ s.phase }} | {{ s.duration_days }} | {{ s.description or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: cronograma padrao — tipicamente 90 a 180 dias do gatilho ate encerramento completo]
+{% endif %}
+
+---
+
+## Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }}
+{% else %}
+**Responsavel Tecnico:** [pendencia]
+{% endif %}
+Data: __________________  Assinatura: __________________
+
+**Representante legal da associacao:** __________________
+Data: __________________  Assinatura: __________________
+
+_Gerado pela plataforma CannabIA &middot; template {{ document_version }}._

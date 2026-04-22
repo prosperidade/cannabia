@@ -1,0 +1,159 @@
+{#-
+ Plano de Monitoramento — doc 27 §4.4
+
+ Um dos cinco planos obrigatorios (RDC 1.014/2026 Art. 9). Descreve
+ os indicadores obrigatorios + complementares, metodologia, frequencia
+ de reporte, infraestrutura de coleta e validacao.
+
+ Contrato de contexto (StrictUndefined).
+
+ Chaves esperadas:
+  - tenant: dict com legal_name, cnpj
+  - technical_responsible: dict (ou None)
+  - project: dict com id, title
+  - mandatory_indicators: list de {code, name, unit, formula, frequency, target, data_source}
+  - complementary_indicators: list de {code, name, unit, frequency}
+  - collection_infrastructure: dict com systems (list), ingestion_cadence
+  - validation_process: dict com steps (list), responsible, frequency
+  - delivery_format: dict com to_anvisa, to_internal, reporting_template
+  - deviation_criteria: list de {indicator, threshold, response}
+  - governance: dict com review_committee (list), review_cadence
+  - generated_at: ISO UTC
+  - document_version: 'v1'
+-#}
+# Plano de Monitoramento
+
+**Projeto:** {{ project.title }}
+**Associacao:** {{ tenant.legal_name }} (CNPJ: {{ tenant.cnpj or '[pendencia]' }})
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Conjunto de indicadores obrigatorios
+
+{% if mandatory_indicators %}
+| Codigo | Nome | Unidade | Frequencia | Meta | Fonte |
+|---|---|---|---|---|---|
+{% for i in mandatory_indicators %}
+| {{ i.code }} | {{ i.name }} | {{ i.unit or '-' }} | {{ i.frequency }} | {{ i.target or '-' }} | {{ i.data_source or '-' }} |
+{% endfor %}
+{% else %}
+[pendencia: indicadores obrigatorios nao cadastrados em sandbox_indicators]
+{% endif %}
+
+---
+
+## 2. Conjunto de indicadores complementares
+
+{% if complementary_indicators %}
+{% for i in complementary_indicators %}
+- **{{ i.name }}** ({{ i.code }}) — {{ i.unit or '-' }}, {{ i.frequency }}
+{% endfor %}
+{% else %}
+Nenhum indicador complementar registrado. O conjunto pode ser ampliado sem alteracao estrutural deste plano.
+{% endif %}
+
+---
+
+## 3. Metodologia de calculo de cada indicador
+
+{% if mandatory_indicators %}
+{% for i in mandatory_indicators %}
+### {{ i.code }} — {{ i.name }}
+
+{{ i.formula or '[pendencia: formula nao declarada]' }}
+
+{% endfor %}
+{% else %}
+[pendencia: metodologia seguira o descrito em cada indicator_code apos cadastro]
+{% endif %}
+
+---
+
+## 4. Frequencia de reporte por indicador
+
+Definida caso a caso na coluna "Frequencia" de cada indicador (§1 e §2). Valores suportados pelo schema: `daily`, `weekly`, `monthly`, `quarterly`, `annual`.
+
+---
+
+## 5. Infraestrutura de coleta de dados
+
+**Cadencia de ingestao:** {{ collection_infrastructure.ingestion_cadence or '[pendencia]' }}
+
+{% if collection_infrastructure.systems %}
+**Sistemas e fontes:**
+{% for s in collection_infrastructure.systems %}
+- {{ s }}
+{% endfor %}
+{% else %}
+- [pendencia: plataforma CannabIA — modulos de rastreabilidade, farmacovigilancia e dispensacao]
+{% endif %}
+
+---
+
+## 6. Processo de validacao interna dos indicadores
+
+**Responsavel:** {{ validation_process.responsible or '[pendencia]' }}
+**Frequencia:** {{ validation_process.frequency or '[pendencia]' }}
+
+{% if validation_process.steps %}
+{% for step in validation_process.steps %}
+{{ loop.index }}. {{ step }}
+{% endfor %}
+{% else %}
+[pendencia: detalhar passos — conferencia de fontes, recalculo por amostragem, aprovacao do RT]
+{% endif %}
+
+---
+
+## 7. Formato de entrega a ANVISA
+
+**Formato para ANVISA:** {{ delivery_format.to_anvisa or '[pendencia — tipicamente PDF/A consolidado via Regulatory Reporting do SCC]' }}
+**Formato interno:** {{ delivery_format.to_internal or 'Dashboard + export CSV via plataforma.' }}
+
+{% if delivery_format.reporting_template %}
+**Template de reporte:** {{ delivery_format.reporting_template }}
+{% endif %}
+
+---
+
+## 8. Criterios de desvio e resposta
+
+{% if deviation_criteria %}
+| Indicador | Limite de desvio | Acao de resposta |
+|---|---|---|
+{% for d in deviation_criteria %}
+| {{ d.indicator }} | {{ d.threshold }} | {{ d.response }} |
+{% endfor %}
+{% else %}
+[pendencia: definir thresholds de desvio para cada indicador obrigatorio — dispara CAPA automatica]
+{% endif %}
+
+---
+
+## 9. Governanca da revisao dos indicadores
+
+**Cadencia de revisao:** {{ governance.review_cadence or 'Trimestral, com consolidacao anual.' }}
+
+{% if governance.review_committee %}
+**Comite de revisao:**
+{% for m in governance.review_committee %}
+- {{ m }}
+{% endfor %}
+{% else %}
+[pendencia: nomear comite — tipicamente RT, diretoria, consultoria juridica quando contratada]
+{% endif %}
+
+---
+
+## Assinaturas
+
+{% if technical_responsible %}
+**Responsavel Tecnico:** {{ technical_responsible.full_name }} ({{ technical_responsible.professional_council }} {{ technical_responsible.council_number }}/{{ technical_responsible.council_state }})
+{% else %}
+**Responsavel Tecnico:** [pendencia]
+{% endif %}
+Data: __________________  Assinatura: __________________
+
+_Gerado pela plataforma CannabIA &middot; template {{ document_version }}._
