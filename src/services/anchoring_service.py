@@ -79,7 +79,14 @@ BLOCKCHAIN_NETWORKS = frozenset({"bitcoin_ots", "polygon", "ethereum"})
 # Valores aceitos: 'mock' (default, seguro para dev/CI) ou 'ots'
 # (usa src.integrations.opentimestamps).
 ANCHOR_PROVIDER_ENV = "ANCHORING_PROVIDER"
-_VALID_PROVIDERS = frozenset({"mock", "ots"})
+_VALID_PROVIDERS = frozenset({"mock", "ots", "polygon"})
+
+# Mapa provider -> network esperado (validacao cruzada).
+_PROVIDER_NETWORK: dict[str, str] = {
+    "mock":    "*",                 # mock aceita qualquer rede
+    "ots":     "bitcoin_ots",
+    "polygon": "polygon",
+}
 
 # Tabelas ancoraveis hoje. Cada entrada declara a coluna da chave
 # primaria, a coluna com o hash SHA-256 do evento e o predicado
@@ -336,36 +343,68 @@ def _resolve_provider(explicit: Optional[str]) -> str:
     return candidate
 
 
+def _validate_provider_network(resolved: str, network: str) -> None:
+    expected = _PROVIDER_NETWORK.get(resolved)
+    if expected != "*" and expected != network:
+        raise AnchoringError(
+            f"Provider '{resolved}' exige network='{expected}'; "
+            f"recebeu '{network}'."
+        )
+
+
 def submit_anchor(
     merkle_root: str,
     network: str,
     *,
     provider: Optional[str] = None,
     now_epoch: Optional[int] = None,
+    anchor_scope: Optional[str] = None,
+    tenant_id: Optional[int] = None,
+    project_id: Optional[int] = None,
+    covered_from: Optional[datetime] = None,
+    covered_until: Optional[datetime] = None,
 ) -> Any:
-    """Dispatcher de submissao on-chain (F5.3).
+    """Dispatcher de submissao on-chain (F5.2 / F5.3 / F5.4).
 
-    - provider='mock' → :func:`submit_anchor_mock` (default, F5.2).
-    - provider='ots'  → :func:`src.integrations.opentimestamps.submit_to_ots`
-      + assert de que ``network == 'bitcoin_ots'``.
+    Seleciona provider por prioridade: argumento > env var
+    ``ANCHORING_PROVIDER`` > default 'mock'.
 
-    Retorna um objeto com ``transaction_id``/``proof_uri``/``proof_hash``
-    (MockAnchorReceipt ou OtsReceipt sao estruturalmente compativeis).
+    Providers:
+      - ``'mock'``    → :func:`submit_anchor_mock` (F5.2, default).
+      - ``'ots'``     → :func:`src.integrations.opentimestamps.submit_to_ots`
+                        (F5.3, exige network='bitcoin_ots').
+      - ``'polygon'`` → :func:`src.integrations.polygon_anchor.submit_to_polygon`
+                        (F5.4, exige network='polygon' + anchor_scope +
+                        covered_from/until).
+
+    Retorna um objeto com atributos ``transaction_id``, ``proof_uri``
+    e ``proof_hash`` (shape shared entre os 3 receipts).
     """
     resolved = _resolve_provider(provider)
+    _validate_provider_network(resolved, network)
+
     if resolved == "mock":
         return submit_anchor_mock(merkle_root, network, now_epoch=now_epoch)
 
-    # OTS path
-    if network != "bitcoin_ots":
+    if resolved == "ots":
+        from src.integrations.opentimestamps import submit_to_ots  # noqa: WPS433
+        return submit_to_ots(merkle_root)
+
+    # polygon
+    if anchor_scope is None or covered_from is None or covered_until is None:
         raise AnchoringError(
-            "Provider 'ots' so suporta network='bitcoin_ots'. "
-            f"Recebido: {network}. Use Polygon via provider alternativo "
-            "quando disponivel (F5.4)."
+            "Provider 'polygon' exige anchor_scope + covered_from + "
+            "covered_until no dispatcher (create_anchor ja passa)."
         )
-    # Import lazy para nao forcar dependencia em dev/CI sem uso de OTS.
-    from src.integrations.opentimestamps import submit_to_ots  # noqa: WPS433
-    return submit_to_ots(merkle_root)
+    from src.integrations.polygon_anchor import submit_to_polygon  # noqa: WPS433
+    return submit_to_polygon(
+        merkle_root,
+        scope=anchor_scope,
+        tenant_id=tenant_id,
+        project_id=project_id,
+        period_start=int(covered_from.timestamp()),
+        period_end=int(covered_until.timestamp()),
+    )
 
 
 def submit_anchor_mock(
@@ -597,6 +636,10 @@ def create_anchor(
     receipt = submit_anchor(
         merkle_root, blockchain_network,
         provider=provider, now_epoch=now_epoch,
+        anchor_scope=anchor_scope,
+        tenant_id=tenant_id,
+        covered_from=covered_from,
+        covered_until=covered_until,
     )
 
     with db_cursor(dictionary=True) as (conn, cursor):
