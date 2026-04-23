@@ -1,0 +1,154 @@
+{#- Estudo Observacional de Cohort v1 (F4.2 do docs/BACKLOG_SCC.md).
+    Renderizado em Markdown por src/services/regulatory_documents.py via
+    build_observational_study_data + template_engine.render. Determinismo
+    e reprodutibilidade sao requisitos do documento — qualquer chamada
+    com os mesmos parametros e mesmo estado do banco produz o mesmo
+    content_hash. Lacunas explicitas como "[pendencia: ...]".
+-#}
+# {{ study_title }}
+
+**Identificador do estudo:** `{{ study_id }}`
+**Gerado em:** {{ generated_at }}
+**Versao do template:** {{ document_version }}
+
+---
+
+## 1. Identificacao institucional
+
+| Campo | Valor |
+|---|---|
+| Razao social | {{ tenant.legal_name or "[pendencia: informar razao social]" }} |
+| Nome fantasia | {{ tenant.trade_name or tenant.legal_name }} |
+| CNPJ | {{ tenant.cnpj or "[pendencia: cadastrar CNPJ]" }} |
+| Tipo | {{ tenant.tenant_type or "[pendencia: informar tipo de tenant]" }} |
+
+### 1.1. Responsavel tecnico
+
+{% if responsible_technical -%}
+- **Nome:** {{ responsible_technical.full_name }}
+- **Conselho:** {{ responsible_technical.professional_council }}/{{ responsible_technical.council_state }} {{ responsible_technical.council_number }}
+{% else -%}
+[pendencia: nenhum responsavel tecnico ativo cadastrado para este tenant]
+{% endif %}
+
+---
+
+## 2. Resumo executivo
+
+| Indicador | Valor |
+|---|---|
+| Condicao clinica investigada | {{ condition_name }} |
+| Periodo coberto | ultimos {{ period_days }} dias |
+| Pacientes na cohort | {{ cohort.n_patients }} |
+| Planos de tratamento avaliados | {{ cohort.n_treatment_plans }} |
+| Metrica primaria (baseline -> pos) | {{ "%.2f"|format(cohort.pooled_baseline_mean) if cohort.pooled_baseline_mean is not none else "[sem dado]" }} -> {{ "%.2f"|format(cohort.pooled_post_mean) if cohort.pooled_post_mean is not none else "[sem dado]" }} |
+| Delta da metrica primaria | {{ "%.2f"|format(cohort.pooled_delta) if cohort.pooled_delta is not none else "[sem dado]" }} |
+| Total de follow-ups enviados (periodo) | {{ followup_summary.total_sent }} |
+| Total de follow-ups respondidos | {{ followup_summary.total_responded }} |
+| Taxa global de resposta | {{ "%.1f%%"|format(followup_summary.response_rate * 100) }} |
+
+> Para `pain_level` (escala 0-10), delta NEGATIVO indica MELHORA observada.
+
+---
+
+## 3. Metodologia
+
+| Item | Valor |
+|---|---|
+| Desenho do estudo | {{ methodology.study_design }} |
+| Criterio de inclusao | {{ methodology.inclusion_criteria }} |
+| Criterio de exclusao | {{ methodology.exclusion_criteria }} |
+| Metrica primaria | `{{ methodology.primary_metric }}` |
+| Janela de baseline | {{ methodology.baseline_window_days }} dias antes do plan_started_at |
+| Janela pos-tratamento | dias {{ methodology.post_window_start_days }} a {{ methodology.post_window_end_days }} apos plan_started_at |
+| Metodo de agregacao | {{ methodology.aggregation_method }} |
+| Classificador de outcome | {{ methodology.outcome_classifier }} |
+| Versao do Evidence Engine | `{{ methodology.evidence_engine_version }}` |
+| AI no pipeline | {{ "Sim" if methodology.ai_in_pipeline else "Nao (deterministico)" }} |
+
+---
+
+## 4. Cohort agregada (pooled)
+
+| Indicador | Valor |
+|---|---|
+| Pacientes distintos | {{ cohort.n_patients }} |
+| Planos de tratamento | {{ cohort.n_treatment_plans }} |
+| Mean ponderada de baseline | {{ "%.3f"|format(cohort.pooled_baseline_mean) if cohort.pooled_baseline_mean is not none else "[sem dado]" }} |
+| Mean ponderada pos-tratamento | {{ "%.3f"|format(cohort.pooled_post_mean) if cohort.pooled_post_mean is not none else "[sem dado]" }} |
+| Delta da cohort | {{ "%.3f"|format(cohort.pooled_delta) if cohort.pooled_delta is not none else "[sem dado]" }} |
+
+---
+
+## 5. Pontos de correlacao dose-efeito (anonimizados)
+
+{% if dose_effect_points -%}
+| Paciente (id) | Plano | Dose | Ratio CBD:THC | Inicio do plano | Baseline (mean / N) | Pos (mean / N) | Delta |
+|---:|---:|---|---|---|---|---|---|
+{% for p in dose_effect_points -%}
+| {{ p.patient_id }} | {{ p.plan_id }} | {{ p.dose_label }} | {{ p.cbd_thc_ratio }} | {{ p.plan_started_at }} | {{ "%.2f"|format(p.baseline_mean) if p.baseline_mean is not none else "—" }} / {{ p.baseline_n }} | {{ "%.2f"|format(p.post_mean) if p.post_mean is not none else "—" }} / {{ p.post_n }} | {{ "%.2f"|format(p.score_delta) if p.score_delta is not none else "—" }} |
+{% endfor %}
+{% else -%}
+[pendencia: nenhum ponto de correlacao dose-efeito gerado — pacientes elegiveis nao tem registros suficientes em symptom_diary nas janelas configuradas]
+{% endif %}
+
+---
+
+## 6. Resumo dos follow-ups respondidos
+
+| Tipo | Improved | Unchanged | Worsened | Taxa de resposta |
+|---|---:|---:|---:|---:|
+{% for ftype in ["d3", "d7", "d15"] -%}
+{% set outcomes = followup_summary.by_type_outcomes.get(ftype, {}) -%}
+{% set rate = followup_summary.by_type_response_rate.get(ftype) -%}
+| {{ ftype.upper() }} | {{ outcomes.get("improved", 0) }} | {{ outcomes.get("unchanged", 0) }} | {{ outcomes.get("worsened", 0) }} | {{ "%.1f%%"|format(rate * 100) if rate is not none else "0.0%" }} |
+{% endfor %}
+
+---
+
+## 7. Sample de respostas (qualitativo)
+
+{% if sample_outcomes -%}
+{% for o in sample_outcomes -%}
+- **Paciente {{ o.patient_id }}** — {{ o.followup_type.upper() }} em {{ o.responded_at }}
+  - Outcome classificado: **{{ o.classified_outcome }}**
+  - Resposta: "{{ o.response_text }}"
+{% endfor %}
+{% else -%}
+[pendencia: nenhuma resposta de follow-up no periodo investigado]
+{% endif %}
+
+---
+
+## 8. Limitacoes do estudo
+
+{% for limit in limitations -%}
+- {{ limit }}
+{% endfor %}
+
+---
+
+## 9. Reprodutibilidade
+
+Este documento foi gerado por algoritmo deterministico. Para reproduzir
+exatamente os mesmos numeros (assumindo o mesmo estado do banco):
+
+**Versao do Evidence Engine:** `{{ reproducibility.evidence_engine_version }}`
+
+**Parametros:**
+
+```json
+{{ reproducibility.parameters | tojson(indent=2) }}
+```
+
+**Como reproduzir:**
+
+```python
+{{ reproducibility.how_to_reproduce }}
+```
+
+O `study_id` (`{{ study_id }}`) e funcao deterministica de
+`tenant_id + condition_name + janelas + data_de_geracao`. O
+`content_hash` retornado pelo `template_engine.render` e funcao
+deterministica do conteudo renderizado completo, e pode ser submetido
+como prova de integridade ao protocolo de ancoragem (F5).

@@ -48,6 +48,12 @@ categories:
   final:
     path: final
     description: Parecer Final e Relatorio Tecnico-Regulatorio consolidado.
+  observational_studies:
+    path: observational_studies
+    description: >-
+      Estudos observacionais retrospectivos gerados pelo Evidence Engine
+      (F4.1) — agregacao longitudinal por condicao clinica + correlacao
+      dose-efeito. Saida deterministica e auditavel (F4.2).
   common:
     path: common
     description: Partials e estilos reutilizaveis.
@@ -476,6 +482,49 @@ templates:
               9 secoes estruturais para compor novos POPs. NAO e documento
               de producao — e o molde usado para instanciar POPs concretos.
 
+  - id: observational_studies/cohort_study
+    category: observational_studies
+    title: Estudo Observacional de Cohort por Condicao Clinica
+    description: >-
+      Estudo retrospectivo deterministico construido sobre o Evidence
+      Engine (F4.1). Agrega cohort de pacientes em tratamento para uma
+      condicao, computa correlacao dose-efeito (mean ponderada por N de
+      amostras), classifica respostas de follow-up (D+3/D+7/D+15) em
+      improved/unchanged/worsened, e documenta metodologia + parametros
+      para reprodutibilidade. Saida sem AI no caminho.
+    current_version: v1
+    versions:
+      v1:
+        file: observational_studies/cohort_study_v1.md.j2
+        schema: null
+        status: active
+        activated_at: "2026-04-23"
+        deprecated_at: null
+        output_formats: [md]
+        renderer:
+          builder: src.services.regulatory_documents.build_observational_study_data
+        regulatory_refs:
+          - source: doc 27
+            sections: [§11]
+            note: requisitos de auditabilidade e reprodutibilidade
+          - source: BACKLOG_SCC
+            articles: [F4.2]
+            note: estudos observacionais internos com metodologia reprodutivel
+        data_sources:
+          - treatment_plans
+          - symptom_diary
+          - scheduled_followups
+          - tenants
+          - technical_responsibles
+        changelog:
+          - date: "2026-04-23"
+            type: initial
+            notes: >-
+              Versao inicial (F4.2). Consome build_evidence_summary do
+              evidence_service. Provider grava EVIDENCE_ENGINE_VERSION na
+              metodologia para auditoria — bumps semanticos invalidam
+              comparabilidade entre relatorios de versoes diferentes.
+
 # --------------------------------------------------------------------
 # Templates planejados
 # --------------------------------------------------------------------
@@ -485,5 +534,6 @@ templates:
 
 planned_templates: []
 # Todos os templates do roadmap 2026-04 foram promovidos para 'templates'
-# ativos. Proxima onda: F4.1/F4.2 (Evidence Engine) quando F2.5 (captura
-# de desfechos pos-consulta) existir.
+# ativos. Estudos observacionais (F4.2) ativados em 2026-04-23 sobre o
+# Evidence Engine (F4.1) — confirmado que a "dependencia F2.5 outcome
+# capture" do progresso21 era ilusoria, a telemetria existente bastou.

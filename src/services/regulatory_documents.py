@@ -1165,3 +1165,236 @@ def build_sop_template_data(
     if overrides:
         context.update(overrides)
     return context
+
+
+# ---------------------------------------------------------------------
+# 11. Estudo Observacional de Cohort (observational_studies/cohort_study)
+#     F4.2 do docs/BACKLOG_SCC.md
+# ---------------------------------------------------------------------
+
+# Versao do algoritmo do Evidence Engine consumido por este provider.
+# Bump quando classify_response_text, janelas default, ou agregacao
+# pooled mudarem semantica — relatorios antigos continuam auditaveis
+# pelo registro da versao no proprio documento.
+EVIDENCE_ENGINE_VERSION = "1.0"
+
+
+def build_observational_study_data(
+    tenant_id: int,
+    condition_name: str,
+    *,
+    period_days: int = 180,
+    metric: str = "pain_level",
+    baseline_window_days: int = 30,
+    post_window_start_days: int = 30,
+    post_window_end_days: int = 90,
+    sample_outcomes_n: int = 10,
+    overrides: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Constroi o contexto do Estudo Observacional de Cohort (F4.2).
+
+    Estudo observacional retrospectivo construido sobre o Evidence Engine
+    (F4.1). Resultado e DETERMINISTICO: dados as mesmas parametrizacoes e
+    o mesmo estado do banco, qualquer chamada produz o mesmo dict — e,
+    quando renderizado pelo template_engine, o mesmo content_hash.
+
+    A reprodutibilidade e o que distingue este documento de uma analise
+    livre: cada parametro vai gravado no proprio documento (secao
+    "Reprodutibilidade") junto com a versao do Evidence Engine que o
+    gerou.
+
+    Args:
+        tenant_id: tenant que solicita o estudo. Tambem usado como
+            ``clinic_id`` nas queries do evidence_repository (mesma
+            convencao tenant_id == clinic_id de F4.1).
+        condition_name: termo de busca em ``treatment_plans.plan_name``
+            e ``plan_description`` (ILIKE).
+        period_days: janela total do estudo, contada a partir de hoje
+            para tras.
+        metric: coluna numerica do symptom_diary usada na correlacao
+            dose-efeito (whitelist em evidence_repository).
+        baseline_window_days: dias antes do plan_started_at usados como
+            baseline.
+        post_window_start_days, post_window_end_days: janela pos-plano.
+        sample_outcomes_n: quantos outcomes ilustrativos vao no documento.
+        overrides: dict opcional para sobrescrever campos do contexto
+            final (ex.: ``study_id`` customizado, ``approver`` etc.).
+    """
+    # Import local para evitar acoplamento circular com o Evidence Engine
+    # quando regulatory_documents e importado em paths que nao precisam de
+    # F4.1 (ex.: rotas de templates basicos).
+    from src.services import evidence_service
+
+    tenant = _fetch_tenant(tenant_id)
+    rt = _fetch_primary_rt(tenant_id)
+
+    summary = evidence_service.build_evidence_summary(
+        tenant_id,
+        condition_name,
+        period_days=period_days,
+        metric=metric,
+        baseline_window_days=baseline_window_days,
+        post_window_start_days=post_window_start_days,
+        post_window_end_days=post_window_end_days,
+        sample_outcomes_n=sample_outcomes_n,
+    )
+
+    # Achata os dataclasses do Evidence Summary em dicts simples para o
+    # template Jinja2 (StrictUndefined nao permite getattr em frozen
+    # dataclass de forma confiavel quando os campos podem ser None).
+    cohort = summary.cohort
+    cohort_dict = {
+        "n_patients": cohort.n_patients,
+        "n_treatment_plans": cohort.n_treatment_plans,
+        "pooled_baseline_mean": cohort.pooled_baseline_pain_mean,
+        "pooled_post_mean": cohort.pooled_post_pain_mean,
+        "pooled_delta": cohort.pooled_pain_delta,
+    }
+
+    dose_points = [
+        {
+            "patient_id": p.patient_id,
+            "plan_id": p.plan_id,
+            "dose_label": p.dose_label or "[pendencia: dose nao registrada]",
+            "cbd_thc_ratio": p.cbd_thc_ratio or "[pendencia: ratio nao informado]",
+            "plan_started_at": p.plan_started_at.isoformat(),
+            "baseline_mean": p.baseline_mean,
+            "baseline_n": p.baseline_n,
+            "post_mean": p.post_mean,
+            "post_n": p.post_n,
+            "score_delta": p.score_delta,
+        }
+        for p in summary.dose_effect_points
+    ]
+
+    fs = summary.followup_summary
+    followup_dict = {
+        "period_days": fs.period_days,
+        "total_sent": fs.total_sent,
+        "total_responded": fs.total_responded,
+        "response_rate": fs.response_rate,
+        "by_type_outcomes": fs.by_type_outcomes,
+        "by_type_response_rate": fs.by_type_response_rate,
+    }
+
+    sample = [
+        {
+            "followup_id": o.followup_id,
+            # Anonimizado: so patient_id, sem patient_name
+            "patient_id": o.patient_id,
+            "followup_type": o.followup_type,
+            "responded_at": o.responded_at.isoformat(),
+            "response_text": o.response_text,
+            "classified_outcome": o.classified_outcome,
+        }
+        for o in summary.sample_outcomes
+    ]
+
+    methodology = {
+        "study_design": "Cohort retrospectiva, observacional, nao-controlada",
+        "inclusion_criteria": (
+            "Pacientes com pelo menos um treatment_plan ativo cujo "
+            "plan_name ou plan_description contenha o termo da condicao."
+        ),
+        "exclusion_criteria": (
+            "Pacientes sem nenhum registro em symptom_diary nas janelas "
+            "de baseline e pos-tratamento (sem ponto de correlacao)."
+        ),
+        "primary_metric": metric,
+        "baseline_window_days": baseline_window_days,
+        "post_window_start_days": post_window_start_days,
+        "post_window_end_days": post_window_end_days,
+        "aggregation_method": "Mean ponderada por N de amostras de cada paciente",
+        "outcome_classifier": (
+            "classify_response_text — keyword-based PT-BR, deterministico, "
+            "tres categorias (improved/unchanged/worsened) com empate "
+            "resolvido como unchanged."
+        ),
+        "evidence_engine_version": EVIDENCE_ENGINE_VERSION,
+        "ai_in_pipeline": False,
+    }
+
+    # study_id reproduzivel — mesmo tenant + condicao + parametros + dia
+    # geram mesmo id; muda quando algum elemento muda.
+    raw_id = (
+        f"OBS-{tenant_id}-{condition_name}-{period_days}d-"
+        f"{baseline_window_days}-{post_window_start_days}"
+        f"-{post_window_end_days}-{summary.generated_at.date().isoformat()}"
+    )
+
+    context: dict[str, Any] = {
+        "study_id": raw_id,
+        "study_title": (
+            f"Estudo Observacional — {condition_name} — "
+            f"{period_days} dias"
+        ),
+        "condition_name": condition_name,
+        "period_days": period_days,
+        "generated_at": summary.generated_at.isoformat(),
+        "tenant": {
+            "legal_name": tenant["legal_name"],
+            "trade_name": tenant.get("trade_name"),
+            "cnpj": tenant.get("cnpj"),
+            "tenant_type": tenant.get("tenant_type"),
+        },
+        "responsible_technical": (
+            {
+                "full_name": rt["full_name"],
+                "professional_council": rt["professional_council"],
+                "council_number": rt["council_number"],
+                "council_state": rt["council_state"],
+            }
+            if rt is not None
+            else None
+        ),
+        "methodology": methodology,
+        "cohort": cohort_dict,
+        "dose_effect_points": dose_points,
+        "followup_summary": followup_dict,
+        "sample_outcomes": sample,
+        "limitations": [
+            (
+                "Estudo observacional retrospectivo nao-controlado — "
+                "associacoes observadas nao implicam causalidade."
+            ),
+            (
+                "Classificacao de outcome via heuristica de keywords; "
+                "respostas livres muito curtas ou sem vocabulario tipico "
+                "caem em 'unchanged' por default."
+            ),
+            (
+                "Possivel confounding nao controlado por idade, "
+                "comorbidades, uso concomitante de medicamentos, etc. "
+                "Cohort agregada na pooled mean nao estratifica."
+            ),
+            (
+                "Tamanho amostral por paciente varia — pacientes com "
+                "poucos registros no symptom_diary tem peso menor na "
+                "pooled mean."
+            ),
+        ],
+        "reproducibility": {
+            "evidence_engine_version": EVIDENCE_ENGINE_VERSION,
+            "parameters": {
+                "tenant_id": tenant_id,
+                "condition_name": condition_name,
+                "period_days": period_days,
+                "metric": metric,
+                "baseline_window_days": baseline_window_days,
+                "post_window_start_days": post_window_start_days,
+                "post_window_end_days": post_window_end_days,
+                "sample_outcomes_n": sample_outcomes_n,
+            },
+            "how_to_reproduce": (
+                "from src.services.regulatory_documents import "
+                "build_observational_study_data; "
+                "build_observational_study_data(tenant_id, condition_name, "
+                "period_days=..., metric=..., baseline_window_days=..., "
+                "post_window_start_days=..., post_window_end_days=...)"
+            ),
+        },
+        "document_version": DOCUMENT_VERSION,
+    }
+    if overrides:
+        context.update(overrides)
+    return context
