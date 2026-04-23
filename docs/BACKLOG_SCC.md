@@ -113,7 +113,7 @@ Entregar o cadastro institucional completo e a discriminação formal de tenant 
 
 | ID | Tarefa | Dependência | Prioridade | Status |
 |----|--------|-------------|-----------|--------|
-| F6.1 | Migration `034_indexes_and_performance.sql` — índices compostos críticos para rastreabilidade, farmacovigilância e auditoria | F2.5, F3.1 | Média | Aberto |
+| F6.1 | Migration `034_indexes_and_performance.sql` — índices compostos críticos para rastreabilidade, farmacovigilância e auditoria | F2.5, F3.1 | Média | **Concluído** 2026-04-23 — escrita como `035_indexes_and_performance.sql` (slot 034 já consumido por review_workflows na sessão de 2026-04-21). 11 índices compostos: 2 em traceability_events (cobre doc 25 §13.2), 2 em adverse_events (cobre §13.2 + filtro por severity), 1 partial em pharmacovigilance_notifications (pendentes), 1 partial em scheduled_followups (responded — hot path do F4.1), 1 em treatment_plans (clinic+status+created), 1 em ai_audit_logs (time-series), 1 partial em blockchain_anchors (pending — anchor_upgrade), 1 em sandbox_indicator_values (latest), 1 em symptom_diary (tenant scope). 36 testes (12 static + 24 integration validando presença e shape dos partials). Roundtrip down/up validado. |
 | F6.2 | Migration `035_views_and_helpers.sql` — views operacionais (dashboard ANVISA-ready, matriz de capacidade, trilha consolidada) | F6.1 | Média | Aberto |
 | F6.3 | Migration `036_seed_data_sandbox.sql` — riscos sanitários padrão, categorias de SOP, templates de relatório | F6.2 | Baixa | Aberto |
 | F6.4 | Blueprint `src/web/routes/compliance.py` — evolução do checklist atual para agregador dos 7 submódulos do SCC | F3.7 | Média | Aberto |
