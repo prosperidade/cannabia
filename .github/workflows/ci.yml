@@ -67,6 +67,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Enable PostGIS extension
+        # Defensivo: a migration 028 ja faz CREATE EXTENSION IF NOT EXISTS postgis
+        # como primeira instrucao, mas executar aqui isola a falha (se houver) num
+        # step dedicado em vez de mascarada dentro do log do runner de migrations.
+        # Idempotente: no-op em DB que ja tem a extension.
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d cannabia_test \
+               -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+
       - name: Apply migrations
         run: python scripts/run_migrations.py
 
