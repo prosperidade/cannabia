@@ -1,15 +1,114 @@
 # src/ai/agents/regulatorio.py
 """Agente Regulatorio — verifica compliance ANVISA/CFM usando Google Files
-API + skill de elegibilidade ao Sandbox (F1.6 do docs/BACKLOG_SCC.md)."""
+API + skill de elegibilidade ao Sandbox (F1.6 do docs/BACKLOG_SCC.md) +
+skill de triagem de eventos adversos (F3.4 do docs/BACKLOG_SCC.md)."""
 
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any, Optional
 
 from src.ai.agents.base import AgentResult, BaseAgent
 
 logger = logging.getLogger("cannabia.regulatorio_agent")
+
+
+# ===========================================================================
+# F3.4 — triagem heuristica de eventos adversos
+# ===========================================================================
+#
+# Abordagem deterministica PT-BR (sem LLM no caminho), alinhada com a
+# decisao tomada em F4.1 (classify_response_text): auditavel, reproduzivel,
+# sem custo de AI. Pode ser substituida por um modelo com a mesma
+# interface sem quebrar consumidores — o shape de saida e estavel e
+# versionado via `TRIAGE_MODEL_VERSION`.
+
+TRIAGE_MODEL_VERSION: str = "regulatorio-triage-v1-heuristic"
+
+# Ordem canonica das severidades, alinhada com a whitelist da migration 031
+# e com `SEVERITY_CHOICES` do `adverse_event_service`.
+_TRIAGE_SEVERITY_ORDER: tuple[str, ...] = (
+    "mild",
+    "moderate",
+    "severe",
+    "life_threatening",
+    "fatal",
+)
+_TRIAGE_SEVERITY_RANK: dict[str, int] = {
+    s: i for i, s in enumerate(_TRIAGE_SEVERITY_ORDER, 1)
+}
+
+# Whitelist de severidades que disparam notificacao regulatoria automatica.
+# Espelha `NOTIFIABLE_SEVERITIES` do adverse_event_service — duplicada aqui
+# para manter o agente independente do service (teste de unidade puro).
+_TRIAGE_NOTIFIABLE: frozenset[str] = frozenset(
+    {"severe", "life_threatening", "fatal"}
+)
+
+# Padroes PT-BR por nivel de severidade implicada. Lista expandivel sem
+# alterar o algoritmo de max-rank.
+_TRIAGE_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "fatal": (
+        r"\b[óo]bito\b",
+        r"\bfalecim",
+        r"\bmorreu\b",
+        r"\bmorte\b",
+    ),
+    "life_threatening": (
+        r"\bparada\s+card",
+        r"\bparada\s+resp",
+        r"\banafila",
+        r"\bchoque\s+anaf",
+        r"\bcoma\b",
+        r"\binconsci",
+        r"\bconvuls",
+        r"\boverdose\b",
+        r"\bsuicid",
+        r"\bUTI\b",
+        r"\bintub",
+        r"\bentub",
+    ),
+    "severe": (
+        r"\binternad",
+        r"\bhospitaliz",
+        r"\bemerg[êe]nc",
+        r"\bpronto[-\s]socorro",
+        r"\bUPA\b",
+        r"\bpsicose\b",
+        r"\balucina",
+        r"\barritmia",
+        r"\btaquicardia\s+(severa|intensa|importante)",
+        r"\bpress[ãa]o\s+(muito\s+)?alt",
+    ),
+    "moderate": (
+        r"\bv[ôo]mitos?\s+(repetid|freq)",
+        r"\btontura\s+(forte|intensa)",
+        r"\bconfus[ãa]o\s+mental",
+        r"\bpalpita[cç][ãa]o",
+        r"\bvis[ãa]o\s+turva",
+        r"\bcrise\s+(de|forte|intensa)",
+    ),
+}
+
+_TRIAGE_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
+    level: tuple(re.compile(p, re.IGNORECASE) for p in patterns)
+    for level, patterns in _TRIAGE_KEYWORDS.items()
+}
+
+
+def _read_attr(report: Any, name: str) -> Any:
+    """Le um campo de `report`, aceitando dict ou objeto com atributos.
+
+    Util para deixar a skill consumir tanto um payload cru
+    (ex.: vindo de blueprint/webhook) quanto a dataclass
+    `AdverseEvent` do `adverse_event_service`.
+    """
+    if report is None:
+        return None
+    if isinstance(report, dict):
+        return report.get(name)
+    return getattr(report, name, None)
 
 
 class AgenteRegulatorio(BaseAgent):
@@ -32,6 +131,11 @@ class AgenteRegulatorio(BaseAgent):
             "check_sandbox_eligibility",
             self._check_sandbox_eligibility,
             "Valida elegibilidade da associacao ao Sandbox Regulatorio (RDC 1.014/2026)",
+        )
+        self.register_skill(
+            "triage_adverse_event",
+            self._triage_adverse_event,
+            "Triagem heuristica de evento adverso: severidade sugerida + notify_required",
         )
 
     # =====================================================================
@@ -160,6 +264,149 @@ class AgenteRegulatorio(BaseAgent):
             ),
         }
         return ACTIONS.get(code, fallback_message)
+
+    # =====================================================================
+    # Skill nova: triagem de evento adverso (F3.4)
+    # =====================================================================
+
+    def _triage_adverse_event(
+        self,
+        report: Optional[dict] = None,
+        *,
+        persist: bool = False,
+        event_id: Optional[int] = None,
+        tenant_id: Optional[int] = None,
+        triaged_by: Optional[int] = None,
+        **_kwargs: Any,
+    ) -> dict:
+        """Classifica um evento adverso em severidade sugerida + necessidade
+        de notificacao regulatoria a partir do texto livre e da severidade
+        reportada.
+
+        Algoritmo deterministico (regex PT-BR sobre `description`):
+          1. `severity_reported` = normalizado para a whitelist.
+          2. Para cada nivel de `_TRIAGE_PATTERNS`, marca hit se bate.
+          3. `severity_suggested` = max(reportada, maior nivel com hit).
+          4. `notify_required` = severity_suggested em `_TRIAGE_NOTIFIABLE`.
+          5. `escalated` = severity_suggested > severity_reported.
+
+        Persistencia opt-in: quando `persist=True`, grava o shape completo
+        em `adverse_events.ai_triage_result` via
+        `adverse_event_service.record_triage_result`. Requer `event_id` e
+        `tenant_id`.
+
+        Aceita `report` como dict ou qualquer objeto com atributos
+        `description`/`severity` (ex.: dataclass `AdverseEvent`).
+        """
+        if report is None:
+            return {"ok": False, "error": "report obrigatorio"}
+
+        description = _read_attr(report, "description")
+        severity_reported = _read_attr(report, "severity")
+
+        if not description or not str(description).strip():
+            return {
+                "ok": False,
+                "error": "report.description ausente ou vazio",
+                "model_version": TRIAGE_MODEL_VERSION,
+            }
+        if severity_reported not in _TRIAGE_SEVERITY_RANK:
+            return {
+                "ok": False,
+                "error": (
+                    f"report.severity invalido: {severity_reported!r}. "
+                    f"Esperado um de {_TRIAGE_SEVERITY_ORDER}"
+                ),
+                "model_version": TRIAGE_MODEL_VERSION,
+            }
+
+        reported_rank = _TRIAGE_SEVERITY_RANK[severity_reported]
+        matched: dict[str, list[str]] = {}
+        max_rank = reported_rank
+        for level, patterns in _TRIAGE_PATTERNS.items():
+            hits: list[str] = []
+            for pat in patterns:
+                m = pat.search(description)
+                if m:
+                    hits.append(m.group(0).lower())
+            if hits:
+                matched[level] = hits
+                level_rank = _TRIAGE_SEVERITY_RANK[level]
+                if level_rank > max_rank:
+                    max_rank = level_rank
+
+        severity_suggested = _TRIAGE_SEVERITY_ORDER[max_rank - 1]
+        escalated = max_rank > reported_rank
+        notify_required = severity_suggested in _TRIAGE_NOTIFIABLE
+
+        red_flags = sorted({flag for flags in matched.values() for flag in flags})
+
+        if escalated:
+            reasoning = (
+                f"Severidade escalada de {severity_reported!r} para "
+                f"{severity_suggested!r} por red flags detectados na "
+                f"descricao: {red_flags}."
+            )
+        elif red_flags:
+            reasoning = (
+                f"Red flags detectados ({red_flags}) sao compativeis com "
+                f"a severidade reportada ({severity_reported!r}); mantida."
+            )
+        else:
+            reasoning = (
+                f"Sem red flags na descricao; severidade mantida em "
+                f"{severity_reported!r}."
+            )
+
+        output: dict[str, Any] = {
+            "ok": True,
+            "severity_reported": severity_reported,
+            "severity_suggested": severity_suggested,
+            "escalated": escalated,
+            "notify_required": notify_required,
+            "red_flags": red_flags,
+            "matched_by_level": matched,
+            "reasoning": reasoning,
+            "model_version": TRIAGE_MODEL_VERSION,
+        }
+
+        # Audit trail no diary (fire-and-forget).
+        self.remember(
+            f"triage_adverse_event suggested={severity_suggested} "
+            f"reported={severity_reported} notify={notify_required}"
+        )
+
+        # Persistencia opt-in em adverse_events.ai_triage_result.
+        if persist:
+            if event_id is None or tenant_id is None:
+                output["persist_error"] = (
+                    "persist=True requer event_id e tenant_id"
+                )
+            else:
+                try:
+                    from src.services.adverse_event_service import (
+                        record_triage_result,
+                    )
+
+                    updated = record_triage_result(
+                        int(event_id),
+                        tenant_id=int(tenant_id),
+                        ai_triage_result=output,
+                        triaged_by=triaged_by,
+                    )
+                    output["persisted"] = updated is not None
+                    if updated is None:
+                        output["persist_error"] = (
+                            f"evento {event_id} nao encontrado para tenant "
+                            f"{tenant_id}"
+                        )
+                except Exception as exc:  # pragma: no cover — defensivo
+                    logger.warning(
+                        "triage_adverse_event: falha ao persistir %s", exc
+                    )
+                    output["persist_error"] = str(exc)
+
+        return output
 
     # =====================================================================
     # Execute

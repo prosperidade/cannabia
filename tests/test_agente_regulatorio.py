@@ -217,3 +217,164 @@ class TestExecute:
         )
         # min(0.6, 0.5) = 0.5
         assert result.confidence == 0.5
+
+
+# ---------------------------------------------------------------------
+# Skill: triage_adverse_event (F3.4)
+# ---------------------------------------------------------------------
+
+
+class TestAdverseEventTriageSkill:
+    def test_skill_is_registered(self, agent):
+        assert "triage_adverse_event" in agent.get_skills()
+
+    def test_returns_error_when_report_missing(self, agent):
+        out = agent.invoke_skill("triage_adverse_event")
+        assert out["ok"] is False
+        assert "report" in out["error"]
+
+    def test_returns_error_when_description_empty(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={"description": "   ", "severity": "mild"},
+        )
+        assert out["ok"] is False
+        assert "description" in out["error"]
+
+    def test_returns_error_when_severity_invalid(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={"description": "qualquer coisa", "severity": "catastrophic"},
+        )
+        assert out["ok"] is False
+        assert "severity" in out["error"]
+
+    def test_keeps_severity_when_no_red_flags(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={
+                "description": "sonolencia diurna leve apos dose inicial",
+                "severity": "mild",
+            },
+        )
+        assert out["ok"] is True
+        assert out["severity_reported"] == "mild"
+        assert out["severity_suggested"] == "mild"
+        assert out["escalated"] is False
+        assert out["notify_required"] is False
+        assert out["red_flags"] == []
+        assert out["model_version"].startswith("regulatorio-triage-")
+
+    def test_escalates_to_severe_when_hospitalized(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={
+                "description": "Paciente internado apos reacao intensa.",
+                "severity": "mild",
+            },
+        )
+        assert out["escalated"] is True
+        assert out["severity_suggested"] == "severe"
+        assert out["notify_required"] is True
+        assert any("interna" in f for f in out["red_flags"])
+
+    def test_escalates_to_life_threatening_on_convulsion(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={
+                "description": "Paciente teve convulsao e foi para UTI.",
+                "severity": "mild",
+            },
+        )
+        assert out["severity_suggested"] == "life_threatening"
+        assert out["notify_required"] is True
+        assert out["escalated"] is True
+
+    def test_escalates_to_fatal_on_obito(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={
+                "description": "Paciente evoluiu para obito.",
+                "severity": "severe",
+            },
+        )
+        assert out["severity_suggested"] == "fatal"
+        assert out["escalated"] is True
+        assert out["notify_required"] is True
+
+    def test_does_not_downgrade_when_reported_is_higher(self, agent):
+        # Reportado como severe; descricao sem red flag forte — nao baixa.
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={
+                "description": "dor leve sem outros sintomas",
+                "severity": "severe",
+            },
+        )
+        assert out["severity_suggested"] == "severe"
+        assert out["escalated"] is False
+        assert out["notify_required"] is True
+
+    def test_accepts_object_with_attributes(self, agent):
+        class Stub:
+            description = "Paciente com anafilaxia."
+            severity = "mild"
+
+        out = agent.invoke_skill("triage_adverse_event", report=Stub())
+        assert out["severity_suggested"] == "life_threatening"
+        assert out["notify_required"] is True
+
+    def test_persist_without_ids_records_persist_error(self, agent):
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={"description": "tontura leve", "severity": "mild"},
+            persist=True,
+        )
+        assert out["ok"] is True
+        assert "persist_error" in out
+        assert "event_id" in out["persist_error"]
+
+    def test_persist_calls_record_triage_result(self, agent, monkeypatch):
+        calls = {}
+
+        def fake_record(event_id, *, tenant_id, ai_triage_result, triaged_by=None):
+            calls["event_id"] = event_id
+            calls["tenant_id"] = tenant_id
+            calls["ai_triage_result"] = ai_triage_result
+            calls["triaged_by"] = triaged_by
+            return object()  # nao-None => sucesso
+
+        monkeypatch.setattr(
+            "src.services.adverse_event_service.record_triage_result",
+            fake_record,
+        )
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={"description": "Paciente internado.", "severity": "moderate"},
+            persist=True,
+            event_id=99,
+            tenant_id=7,
+            triaged_by=1,
+        )
+        assert out["persisted"] is True
+        assert calls["event_id"] == 99
+        assert calls["tenant_id"] == 7
+        assert calls["triaged_by"] == 1
+        # O payload gravado e a propria saida da triagem
+        assert calls["ai_triage_result"]["severity_suggested"] == "severe"
+        assert calls["ai_triage_result"]["notify_required"] is True
+
+    def test_persist_reports_missing_event(self, agent, monkeypatch):
+        monkeypatch.setattr(
+            "src.services.adverse_event_service.record_triage_result",
+            lambda *a, **kw: None,  # evento nao encontrado
+        )
+        out = agent.invoke_skill(
+            "triage_adverse_event",
+            report={"description": "tontura", "severity": "mild"},
+            persist=True,
+            event_id=123,
+            tenant_id=7,
+        )
+        assert out["persisted"] is False
+        assert "nao encontrado" in out["persist_error"]
