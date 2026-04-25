@@ -67,6 +67,7 @@ from src.web.routes.clinical_intelligence import clinical_intel_bp
 from src.web.routes.regulatory import regulatory_bp
 from src.web.routes.governance import governance_bp
 from src.web.routes.document_reviews import document_reviews_bp
+from src.web.routes.pharmacovigilance import pharmacovigilance_bp
 from src.web.routes.public_anchors import public_anchors_bp
 from src.web.routes.knowledge import knowledge_bp
 from src.web.routes.admin_agents import admin_agents_bp
@@ -202,6 +203,7 @@ def create_app() -> Flask:
     app.register_blueprint(regulatory_bp)
     app.register_blueprint(governance_bp)
     app.register_blueprint(document_reviews_bp)
+    app.register_blueprint(pharmacovigilance_bp)
     app.register_blueprint(public_anchors_bp)
     app.register_blueprint(knowledge_bp)
     app.register_blueprint(admin_agents_bp)
