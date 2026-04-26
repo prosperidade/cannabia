@@ -11,15 +11,16 @@ const navItems: SidebarNavItem[] = [
   { label: "Pacientes", icon: "group", href: "/org/pacientes" },
   { label: "Medicos", icon: "medical_services", href: "/org/medicos" },
   { label: "Agendamentos", icon: "calendar_month", href: "/org/agendamentos" },
+  { label: "Mensagens", icon: "chat", href: "/org/mensagens" },
   { label: "Campanhas", icon: "campaign", href: "/org/campanhas" },
   { label: "Estoque", icon: "inventory_2", href: "/org/estoque" },
   { label: "Faturamento", icon: "receipt_long", href: "/org/faturamento" },
   { label: "Financeiro", icon: "payments", href: "/org/financeiro" },
-  { label: "Configuracoes", icon: "settings", href: "/org/config" },
   { label: "Relatorios", icon: "analytics", href: "/org/relatorios" },
   { label: "Conformidade", icon: "verified_user", href: "/org/compliance" },
   { label: "Sandbox", icon: "account_balance", href: "/org/sandbox/governance" },
-  { label: "Mensagens", icon: "chat", href: "/org/mensagens" },
+  { label: "Base Cientifica", icon: "library_books", href: "/org/conhecimento" },
+  { label: "Configuracoes", icon: "settings", href: "/org/configuracoes" },
 ];
 
 export default function OrgLayout({ children }: { children: ReactNode }) {

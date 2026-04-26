@@ -17,6 +17,8 @@ const navItems: SidebarNavItem[] = [
   { label: "Laboratorio IA", icon: "biotech", href: "/med/lab-ai" },
   { label: "Ensaios Clinicos", icon: "science", href: "/med/ensaios" },
   { label: "Precisao Botanica", icon: "eco", href: "/med/botanical" },
+  { label: "Base Cientifica", icon: "library_books", href: "/med/conhecimento" },
+  { label: "Configuracoes", icon: "settings", href: "/org/configuracoes" },
 ];
 
 export default function MedLayout({ children }: { children: React.ReactNode }) {
