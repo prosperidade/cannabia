@@ -47,10 +47,14 @@ export default function MedLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
     try {
       await apiLogout(session.csrf_token);
-    } catch {
-      // logout best-effort
+    } catch (error) {
+      console.warn("[logout] backend retornou erro; deslogando localmente.", error);
+    } finally {
+      // window.location forca reload completo, descartando state
+      // cacheado do React e do RSC. router.replace nao basta em alguns
+      // casos (Next 15 + cookie clearing).
+      window.location.href = "/login";
     }
-    router.replace("/login");
   };
 
   return (

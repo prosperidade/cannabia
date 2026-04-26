@@ -32,12 +32,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const session = useApiSession();
 
   async function handleLogout() {
+    const csrf = session.data?.csrf_token ?? "";
     try {
-      await logout(session.data?.csrf_token ?? "");
-      router.push("/login");
-      router.refresh();
-    } catch {
-      // silently fail
+      await logout(csrf);
+    } catch (error) {
+      // Logout no backend pode falhar (CSRF expirado, conexao caiu)
+      // mas mesmo assim derrubamos a sessao client-side e mandamos
+      // o usuario para /login. window.location forca reload completo
+      // descartando state cacheado do React e RSC.
+      console.warn("[logout] backend retornou erro; deslogando localmente.", error);
+    } finally {
+      window.location.href = "/login";
     }
   }
 

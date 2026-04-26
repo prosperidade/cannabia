@@ -51,8 +51,15 @@ export default function OrgLayout({ children }: { children: ReactNode }) {
       brandSubtitle="Gestao Organizacional"
       user={data ? { name: data.user?.username ?? "Admin", role: data.user?.role ?? "Organizacao" } : undefined}
       onLogout={async () => {
-        try { await apiLogout(data?.csrf_token ?? ""); } catch { /* best-effort */ }
-        router.replace("/login");
+        try {
+          await apiLogout(data?.csrf_token ?? "");
+        } catch (error) {
+          console.warn("[logout] backend retornou erro; deslogando localmente.", error);
+        } finally {
+          // window.location forca reload completo, descartando state
+          // cacheado do React e do RSC.
+          window.location.href = "/login";
+        }
       }}
     >
       {children}
