@@ -154,17 +154,20 @@ class TestGovernanceSummary:
     def test_tenant_with_rt_and_statute_has_high_score(
         self, tenant_with_clinic: int
     ) -> None:
-        # Adiciona RT ativo + estatuto
+        import uuid as _uuid
+        rt_council_number = _uuid.uuid4().hex[:8].upper()
+        # Adiciona RT ativo + estatuto. council_number aleatorio para
+        # nao colidir com seed_scc.py (que reserva CRM 12345/SP).
         with db_cursor() as (conn, cur):
             cur.execute(
                 """
                 INSERT INTO technical_responsibles
                   (tenant_id, full_name, professional_council, council_number,
                    council_state, habilitation_valid_until, is_active)
-                VALUES (%s, 'Dr RT Teste', 'CRM', '12345', 'SP',
+                VALUES (%s, 'Dr RT Teste', 'CRM', %s, 'SP',
                         CURRENT_DATE + INTERVAL '1 year', TRUE)
                 """,
-                (tenant_with_clinic,),
+                (tenant_with_clinic, rt_council_number),
             )
             cur.execute(
                 """

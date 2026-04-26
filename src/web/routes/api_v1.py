@@ -107,6 +107,9 @@ def _user_payload() -> Optional[dict]:
         "username": getattr(current_user, "username", None),
         "role": getattr(current_user, "role", None),
         "global_role": getattr(current_user, "global_role", None),
+        "is_clinic_admin": bool(
+            getattr(current_user, "is_clinic_admin", False)
+        ),
     }
 
 
@@ -297,6 +300,7 @@ def session_login():
             user_id=user["id"],
             username=user["username"],
             role=user["role"],
+            is_clinic_admin=bool(user.get("is_clinic_admin", False)),
         )
     )
 

@@ -16,22 +16,51 @@ SENSITIVE_KEYS = {
 }
 
 ROLE_ALIASES = {
+    # ── Super admin da plataforma (global, raro) ──
+    # Apenas o time interno. Acessa /admin com tenants, knowledge global,
+    # configuracao tecnica de agentes IA, auditoria global de gastos LLM.
     "admin": "Admin",
     "administrator": "Admin",
-    "clinic_admin": "Admin",
-    "tenant_admin": "Admin",
     "super_admin": "Admin",
-    "org_admin": "Admin",
-    "organization_admin": "Admin",
+    "platform_admin": "Admin",
+
+    # ── Admin local de um tenant (clinica/associacao) ──
+    # Combina com qualquer role principal via flag `is_clinic_admin`.
+    # Quem tem esse role efetivo ve Operacao, Configuracoes, DNA,
+    # Conformidade-gerir do *seu* tenant, mas nao knowledge global nem
+    # listagem de tenants alheios.
+    "adminclinica": "AdminClinica",
+    "admin_clinica": "AdminClinica",
+    "admin_clinic": "AdminClinica",
+    "clinic_admin": "AdminClinica",
+    "tenant_admin": "AdminClinica",
+    "org_admin": "AdminClinica",
+    "organization_admin": "AdminClinica",
+
+    # ── Medico ──
     "medico": "Medico",
     "doctor": "Medico",
     "physician": "Medico",
-    "atendente": "Atendente",
-    "agent": "Atendente",
-    "assistant": "Atendente",
-    "agente": "Atendente",
-    "agente_atendimento": "Atendente",
-    "agente_acompanhamento": "Atendente",
+
+    # ── Recepcao (era "Atendente" no schema antigo — migration 038) ──
+    "recepcao": "Recepcao",
+    "recepicao": "Recepcao",
+    "recepcionista": "Recepcao",
+    "atendente": "Recepcao",
+    "agent": "Recepcao",
+    "assistant": "Recepcao",
+    "agente": "Recepcao",
+    "agente_atendimento": "Recepcao",
+    "agente_acompanhamento": "Recepcao",
+
+    # ── Financeiro ──
+    "financeiro": "Financeiro",
+    "financial": "Financeiro",
+    "finance": "Financeiro",
+
+    # ── Paciente ──
+    "paciente": "Paciente",
+    "patient": "Paciente",
 }
 
 
@@ -81,6 +110,16 @@ def normalize_role_name(role):
 
 
 def get_effective_roles():
+    """Retorna a lista de roles efetivos do usuario logado (canonicos).
+
+    Coleta de 3 fontes:
+      1. `current_user.role` (papel principal — `users.role`)
+      2. `g.tenant_role` / `g.clinic_role` (papel no contexto do tenant)
+      3. Flag `current_user.is_clinic_admin` — se True, adiciona
+         "AdminClinica" aos roles efetivos. Permite que medico-dono
+         (Medico+is_clinic_admin) seja autorizado em endpoints que
+         pedem AdminClinica sem precisar de role secundario.
+    """
     roles = []
 
     for role in (
@@ -91,6 +130,10 @@ def get_effective_roles():
         normalized = normalize_role_name(role)
         if normalized and normalized not in roles:
             roles.append(normalized)
+
+    if getattr(current_user, "is_clinic_admin", False):
+        if "AdminClinica" not in roles:
+            roles.append("AdminClinica")
 
     return roles
 

@@ -127,6 +127,7 @@ def create_app() -> Flask:
             user_id=user["id"],
             username=user["username"],
             role=user["role"],
+            is_clinic_admin=bool(user.get("is_clinic_admin", False)),
         )
 
     # ==============================
