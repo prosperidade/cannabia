@@ -85,16 +85,6 @@ export function SidebarLayout({
 
         {/* Bottom Section */}
         <div className="px-4 mt-auto border-t border-white/5 pt-6 space-y-2">
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-stone-400 hover:text-stone-200 hover:bg-white/5"
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <span className="font-headline tracking-tight text-sm">
-              Configurações
-            </span>
-          </Link>
-
           {user && (
             <div className="flex items-center gap-3 px-4 py-3">
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">
@@ -178,17 +168,6 @@ export function SidebarLayout({
 
             {/* Bottom */}
             <div className="px-4 mt-auto border-t border-white/5 pt-6 space-y-2">
-              <Link
-                href="/settings"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-stone-400 hover:text-stone-200 hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined">settings</span>
-                <span className="font-headline tracking-tight text-sm">
-                  Configurações
-                </span>
-              </Link>
-
               {user && (
                 <div className="flex items-center gap-3 px-4 py-3">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">
