@@ -98,7 +98,8 @@ def seed_extra_users():
 # ---------------------------------------------------------------------------
 
 PATIENTS = [
-    {"name": "Maria Oliveira Silva", "phone": "5562991001001", "email": "maria.oliveira@email.com", "user_id": 8, "status": "ativo"},
+    # user_id resolvido em runtime para o user 'paciente' (ver seed_patients)
+    {"name": "Maria Oliveira Silva", "phone": "5562991001001", "email": "maria.oliveira@email.com", "user_id": "PACIENTE", "status": "ativo"},
     {"name": "João Santos Costa", "phone": "5562991002002", "email": "joao.santos@email.com", "user_id": None, "status": "ativo"},
     {"name": "Ana Clara Menezes", "phone": "5562991003003", "email": "ana.menezes@email.com", "user_id": None, "status": "em_tratamento"},
     {"name": "Pedro Henrique Lima", "phone": "5562991004004", "email": "pedro.lima@email.com", "user_id": None, "status": "ativo"},
@@ -122,6 +123,11 @@ patient_ids = {}
 def seed_patients():
     print("\n=== 2. Pacientes (15) ===")
     with db_cursor(dictionary=True) as (conn, cursor):
+        # Resolve user_id 'PACIENTE' em runtime para o id real do user 'paciente'
+        cursor.execute("SELECT id FROM users WHERE username = 'paciente' LIMIT 1")
+        paciente_row = cursor.fetchone()
+        paciente_user_id = paciente_row["id"] if paciente_row else None
+
         for p in PATIENTS:
             cursor.execute(
                 "SELECT id FROM patients WHERE clinic_id = %s AND phone = %s LIMIT 1",
@@ -133,13 +139,17 @@ def seed_patients():
                 print(f"  Paciente '{p['name']}' ja existe (id={row['id']})")
                 continue
 
+            user_id = p["user_id"]
+            if user_id == "PACIENTE":
+                user_id = paciente_user_id
+
             cursor.execute(
                 """
                 INSERT INTO patients (clinic_id, name, email, phone, user_id, status)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING id
                 """,
-                (CLINIC_ID, p["name"], p["email"], p["phone"], p["user_id"], p["status"]),
+                (CLINIC_ID, p["name"], p["email"], p["phone"], user_id, p["status"]),
             )
             new_id = cursor.fetchone()["id"]
             patient_ids[p["name"]] = new_id
