@@ -1,29 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { SidebarLayout, type SidebarNavItem } from "@/components/layouts";
-import { useApiSession } from "@/lib/use-api-session";
+import { useEffect, useMemo, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+
 import { logout as apiLogout } from "@/lib/api";
+import { useApiSession } from "@/lib/use-api-session";
+import { MED_NAV, filterNav, type AppRole } from "@/lib/nav";
+import { SidebarLayout } from "@/components/layouts";
 
-const navItems: SidebarNavItem[] = [
-  { label: "Painel", icon: "dashboard", href: "/med/dashboard" },
-  { label: "Fila de Atendimento", icon: "queue", href: "/med/fila" },
-  { label: "Atendimentos", icon: "assignment", href: "/med/atendimentos" },
-  { label: "Prescricoes", icon: "prescriptions", href: "/med/prescricao" },
-  { label: "Meus Pacientes", icon: "group", href: "/med/pacientes" },
-  { label: "Retornos", icon: "event_repeat", href: "/med/retornos" },
-  { label: "Inteligencia Clinica", icon: "psychology", href: "/med/inteligencia" },
-  { label: "Laboratorio IA", icon: "biotech", href: "/med/lab-ai" },
-  { label: "Ensaios Clinicos", icon: "science", href: "/med/ensaios" },
-  { label: "Precisao Botanica", icon: "eco", href: "/med/botanical" },
-  { label: "Base Cientifica", icon: "library_books", href: "/med/conhecimento" },
-  { label: "Configuracoes", icon: "settings", href: "/org/configuracoes" },
-];
+function resolveActiveHref(pathname: string, items: { href: string }[]): string {
+  const match = [...items]
+    .filter((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  return match?.href ?? items[0]?.href ?? "/med/dashboard";
+}
 
-export default function MedLayout({ children }: { children: React.ReactNode }) {
+export default function MedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { loading, data: session, error } = useApiSession();
+  const pathname = usePathname();
+  const { loading, data: session } = useApiSession();
+
+  const role = (session?.user?.role as AppRole | undefined) ?? null;
+  const isClinicAdmin = !!session?.user?.is_clinic_admin;
+  const tenantType = session?.context?.tenant_type ?? null;
+
+  const navItems = useMemo(
+    () => filterNav(MED_NAV, { role, isClinicAdmin, tenantType }),
+    [role, isClinicAdmin, tenantType],
+  );
 
   useEffect(() => {
     if (!loading && (!session?.authenticated || !session.user)) {
@@ -46,15 +50,18 @@ export default function MedLayout({ children }: { children: React.ReactNode }) {
     return null;
   }
 
+  // Apenas Medico (e Admin global) usa /med. Outros roles caem em /org.
+  if (role !== "Medico" && role !== "Admin") {
+    router.replace("/org/dashboard");
+    return null;
+  }
+
   const handleLogout = async () => {
     try {
       await apiLogout(session.csrf_token);
     } catch (error) {
       console.warn("[logout] backend retornou erro; deslogando localmente.", error);
     } finally {
-      // window.location forca reload completo, descartando state
-      // cacheado do React e do RSC. router.replace nao basta em alguns
-      // casos (Next 15 + cookie clearing).
       window.location.href = "/login";
     }
   };
@@ -62,10 +69,11 @@ export default function MedLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarLayout
       navItems={navItems}
+      activeHref={resolveActiveHref(pathname, navItems)}
       brandTitle="Cannab'IA"
-      brandSubtitle="Inteligencia Botanica"
+      brandSubtitle="Modo Medico"
       user={{
-        name: session.user.username,
+        name: session.user.username ?? "Medico",
         role: session.context?.clinic_role ?? session.user.role ?? "Medico",
       }}
       onLogout={handleLogout}

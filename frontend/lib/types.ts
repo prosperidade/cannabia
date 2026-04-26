@@ -5,6 +5,9 @@ export type ApiSessionResponse = {
     username: string;
     role: string;
     global_role?: string;
+    /** True quando o user e admin do tenant (independente do role
+     *  principal). Combina com Medico para gerar "medico-dono". */
+    is_clinic_admin?: boolean;
   } | null;
   context: {
     clinic_id: number | null;

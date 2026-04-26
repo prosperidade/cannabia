@@ -1,25 +1,16 @@
 "use client";
 
+import { useMemo, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { startTransition, type ReactNode } from "react";
+import { startTransition } from "react";
 
 import { logout } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import { SidebarLayout, type SidebarNavItem } from "@/components/layouts/sidebar-layout";
+import { ADMIN_NAV, filterNav, type AppRole } from "@/lib/nav";
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 
-const NAV_ITEMS: SidebarNavItem[] = [
-  { label: "Visao Geral", icon: "dashboard", href: "/admin" },
-  { label: "Organizacoes", icon: "apartment", href: "/admin/tenants" },
-  { label: "Usuarios", icon: "manage_accounts", href: "/admin/usuarios" },
-  { label: "Auditoria IA", icon: "monitoring", href: "/admin/auditoria" },
-  { label: "Agentes IA", icon: "smart_toy", href: "/admin/agentes" },
-  { label: "Base Cientifica", icon: "library_books", href: "/admin/knowledge" },
-  { label: "Sandbox", icon: "account_balance", href: "/admin/sandbox" },
-];
-
-function resolveActiveHref(pathname: string): string {
-  // Return the most specific nav item that matches the current pathname
-  const match = [...NAV_ITEMS]
+function resolveActiveHref(pathname: string, items: { href: string }[]): string {
+  const match = [...items]
     .filter((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
     .sort((a, b) => b.href.length - a.href.length)[0];
   return match?.href ?? "/admin";
@@ -30,15 +21,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const session = useApiSession();
 
+  const role = (session.data?.user?.role as AppRole | undefined) ?? null;
+  const isClinicAdmin = !!session.data?.user?.is_clinic_admin;
+  const tenantType = session.data?.context?.tenant_type ?? null;
+
+  const navItems = useMemo(
+    () => filterNav(ADMIN_NAV, { role, isClinicAdmin, tenantType }),
+    [role, isClinicAdmin, tenantType],
+  );
+
   async function handleLogout() {
     const csrf = session.data?.csrf_token ?? "";
     try {
       await logout(csrf);
     } catch (error) {
-      // Logout no backend pode falhar (CSRF expirado, conexao caiu)
-      // mas mesmo assim derrubamos a sessao client-side e mandamos
-      // o usuario para /login. window.location forca reload completo
-      // descartando state cacheado do React e RSC.
       console.warn("[logout] backend retornou erro; deslogando localmente.", error);
     } finally {
       window.location.href = "/login";
@@ -67,17 +63,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return null;
   }
 
+  /* ── Guard de role: so Admin entra em /admin ── */
+  if (role !== "Admin") {
+    startTransition(() => {
+      router.replace("/login");
+    });
+    return null;
+  }
+
   return (
     <SidebarLayout
-      navItems={NAV_ITEMS}
-      activeHref={resolveActiveHref(pathname)}
+      navItems={navItems}
+      activeHref={resolveActiveHref(pathname, navItems)}
       brandTitle="Cannab'IA"
       brandSubtitle="Painel Administrativo"
       user={
         session.data.user
           ? {
               name: session.data.user.username ?? "Admin",
-              role: session.data.user.role ?? "administrator",
+              role: session.data.user.role ?? "Admin",
             }
           : undefined
       }

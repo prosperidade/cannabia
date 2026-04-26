@@ -6,22 +6,8 @@ import { startTransition, type FormEvent, useEffect, useState } from "react";
 
 import { ApiError, login } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
+import { getRoleRedirect } from "@/lib/nav";
 import { Button, Input } from "@/components/ui-tw";
-
-function getRoleRedirect(role?: string): string {
-  switch (role?.toLowerCase()) {
-    case "admin":
-      return "/admin";
-    case "atendente":
-      return "/org/dashboard";
-    case "paciente":
-      return "/p/dashboard";
-    case "medico":
-      return "/med/dashboard";
-    default:
-      return "/med/dashboard";
-  }
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,7 +19,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session.data?.authenticated) {
-      router.replace(getRoleRedirect(session.data.user?.role));
+      router.replace(
+        getRoleRedirect(
+          session.data.user?.role,
+          !!session.data.user?.is_clinic_admin,
+        ),
+      );
     }
   }, [router, session.data]);
 
@@ -44,7 +35,10 @@ export default function LoginPage() {
 
     try {
       const result = await login(username, password);
-      const target = getRoleRedirect(result.user?.role);
+      const target = getRoleRedirect(
+        result.user?.role,
+        !!result.user?.is_clinic_admin,
+      );
       router.push(target);
       router.refresh();
     } catch (submitError) {

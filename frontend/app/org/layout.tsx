@@ -1,31 +1,33 @@
 "use client";
 
-import { type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { SidebarLayout, type SidebarNavItem } from "@/components/layouts/sidebar-layout";
-import { useApiSession } from "@/lib/use-api-session";
-import { logout as apiLogout } from "@/lib/api";
+import { useMemo, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
-const navItems: SidebarNavItem[] = [
-  { label: "Painel", icon: "dashboard", href: "/org/dashboard" },
-  { label: "Pacientes", icon: "group", href: "/org/pacientes" },
-  { label: "Medicos", icon: "medical_services", href: "/org/medicos" },
-  { label: "Agendamentos", icon: "calendar_month", href: "/org/agendamentos" },
-  { label: "Mensagens", icon: "chat", href: "/org/mensagens" },
-  { label: "Campanhas", icon: "campaign", href: "/org/campanhas" },
-  { label: "Estoque", icon: "inventory_2", href: "/org/estoque" },
-  { label: "Faturamento", icon: "receipt_long", href: "/org/faturamento" },
-  { label: "Financeiro", icon: "payments", href: "/org/financeiro" },
-  { label: "Relatorios", icon: "analytics", href: "/org/relatorios" },
-  { label: "Conformidade", icon: "verified_user", href: "/org/compliance" },
-  { label: "Sandbox", icon: "account_balance", href: "/org/sandbox/governance" },
-  { label: "Base Cientifica", icon: "library_books", href: "/org/conhecimento" },
-  { label: "Configuracoes", icon: "settings", href: "/org/configuracoes" },
-];
+import { logout as apiLogout } from "@/lib/api";
+import { useApiSession } from "@/lib/use-api-session";
+import { ORG_NAV, filterNav, type AppRole } from "@/lib/nav";
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+
+function resolveActiveHref(pathname: string, items: { href: string }[]): string {
+  const match = [...items]
+    .filter((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  return match?.href ?? items[0]?.href ?? "/org/dashboard";
+}
 
 export default function OrgLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { loading, data, error } = useApiSession();
+
+  const role = (data?.user?.role as AppRole | undefined) ?? null;
+  const isClinicAdmin = !!data?.user?.is_clinic_admin;
+  const tenantType = data?.context?.tenant_type ?? null;
+
+  const navItems = useMemo(
+    () => filterNav(ORG_NAV, { role, isClinicAdmin, tenantType }),
+    [role, isClinicAdmin, tenantType],
+  );
 
   if (loading) {
     return (
@@ -40,25 +42,39 @@ export default function OrgLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (error || !data) {
-    router.push("/login");
+  if (error || !data?.authenticated) {
+    router.replace("/login");
+    return null;
+  }
+
+  // Paciente nao entra em /org. Super admin global tambem nao deveria
+  // estar aqui — mas nao bloqueamos pra ele inspecionar os dados de
+  // qualquer tenant via /admin -> /org se quiser.
+  if (role === "Paciente") {
+    router.replace("/p/dashboard");
     return null;
   }
 
   return (
     <SidebarLayout
       navItems={navItems}
+      activeHref={resolveActiveHref(pathname, navItems)}
       brandTitle="Cannab'IA"
-      brandSubtitle="Gestao Organizacional"
-      user={data ? { name: data.user?.username ?? "Admin", role: data.user?.role ?? "Organizacao" } : undefined}
+      brandSubtitle="Painel da Clinica"
+      user={
+        data.user
+          ? {
+              name: data.user.username ?? "Usuario",
+              role: data.user.role ?? "",
+            }
+          : undefined
+      }
       onLogout={async () => {
         try {
-          await apiLogout(data?.csrf_token ?? "");
+          await apiLogout(data.csrf_token ?? "");
         } catch (error) {
           console.warn("[logout] backend retornou erro; deslogando localmente.", error);
         } finally {
-          // window.location forca reload completo, descartando state
-          // cacheado do React e do RSC.
           window.location.href = "/login";
         }
       }}
