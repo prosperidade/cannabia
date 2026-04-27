@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-import { Card, MaterialIcon, Badge } from "@/components/ui-tw";
+import { Card, MaterialIcon, Badge, Avatar } from "@/components/ui-tw";
 import {
   getAcompanhamentoOverview,
+  listAppointments,
   type AcompanhamentoOverview,
 } from "@/lib/api";
+import type { AppointmentItem } from "@/lib/types";
 import { useApiSession } from "@/lib/use-api-session";
 
 /**
@@ -21,6 +23,7 @@ export default function AcompanhamentoPage() {
   const userName = session?.user?.username ?? "";
 
   const [overview, setOverview] = useState<AcompanhamentoOverview | null>(null);
+  const [todayAgenda, setTodayAgenda] = useState<AppointmentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -28,10 +31,24 @@ export default function AcompanhamentoPage() {
     let alive = true;
     setLoading(true);
     setErrorMsg(null);
-    getAcompanhamentoOverview()
-      .then((data) => {
+
+    Promise.all([
+      getAcompanhamentoOverview(),
+      // Agenda do dia — falha aqui nao bloqueia os KPIs
+      listAppointments().catch(() => [] as AppointmentItem[]),
+    ])
+      .then(([ov, appts]) => {
         if (!alive) return;
-        setOverview(data);
+        setOverview(ov);
+        const today = new Date().toISOString().slice(0, 10);
+        const filtered = (Array.isArray(appts) ? appts : [])
+          .filter(
+            (a) =>
+              typeof a.appointment_date === "string" &&
+              a.appointment_date.startsWith(today),
+          )
+          .sort((a, b) => a.appointment_date.localeCompare(b.appointment_date));
+        setTodayAgenda(filtered);
       })
       .catch((err) => {
         if (!alive) return;
@@ -103,6 +120,60 @@ export default function AcompanhamentoPage() {
           hint="sem outcome registrado ainda"
         />
       </section>
+
+      {/* Agenda de hoje (uso primario: Recepcao) */}
+      <Card padding="lg">
+        <div className="flex items-start justify-between mb-5 gap-3">
+          <SectionHeader
+            icon="calendar_today"
+            title="Agenda de hoje"
+            desc={
+              loading
+                ? "Carregando..."
+                : `${todayAgenda.length} agendamento${
+                    todayAgenda.length === 1 ? "" : "s"
+                  } para hoje`
+            }
+          />
+          <a href="/org/agendamentos" className="text-primary text-xs font-bold hover:underline">
+            Abrir agenda
+          </a>
+        </div>
+        {loading ? (
+          <ul className="space-y-2">
+            {[0, 1, 2].map((i) => (
+              <li
+                key={i}
+                className="h-14 rounded-xl bg-surface-container-low/60 animate-pulse"
+              />
+            ))}
+          </ul>
+        ) : todayAgenda.length === 0 ? (
+          <EmptyState
+            icon="event_busy"
+            title="Sem agendamentos para hoje"
+            subtitle="Aproveite para retomar follow-ups e revisar pacientes em risco."
+          />
+        ) : (
+          <ul className="space-y-2">
+            {todayAgenda.slice(0, 8).map((a) => (
+              <AgendaRow key={a.id} appt={a} />
+            ))}
+            {todayAgenda.length > 8 && (
+              <li className="pt-2 text-center text-xs text-stone-500">
+                + {todayAgenda.length - 8} agendamento
+                {todayAgenda.length - 8 === 1 ? "" : "s"} —{" "}
+                <a
+                  href="/org/agendamentos"
+                  className="text-primary font-bold hover:underline"
+                >
+                  ver tudo
+                </a>
+              </li>
+            )}
+          </ul>
+        )}
+      </Card>
 
       {/* Alertas — placeholder ate definir motor de alertas */}
       <Card padding="lg">
@@ -292,6 +363,55 @@ function EmptyState({
       <p className="text-xs text-stone-500 max-w-md">{subtitle}</p>
     </div>
   );
+}
+
+function AgendaRow({ appt }: { appt: AppointmentItem }) {
+  const time = formatTimeShort(appt.appointment_date);
+  const status = (appt.status ?? "").toLowerCase();
+  const statusLabel = mapAgendaStatus(status);
+  return (
+    <li className="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 hover:border-primary/30 transition-colors">
+      <div className="w-12 text-center flex-shrink-0">
+        <p className="text-xs font-bold text-on-surface">{time}</p>
+      </div>
+      <Avatar name={appt.patient_name || "Paciente"} size="sm" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-on-surface truncate">
+          {appt.patient_name || "Paciente"}
+        </p>
+        <p className="text-[11px] text-stone-500">Consulta clinica</p>
+      </div>
+      {statusLabel && <Badge tone={statusLabel.tone}>{statusLabel.label}</Badge>}
+    </li>
+  );
+}
+
+function formatTimeShort(iso: string): string {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "--:--";
+    return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "--:--";
+  }
+}
+
+function mapAgendaStatus(
+  s: string,
+): { label: string; tone: "primary" | "success" | "warning" | "danger" | "neutral" } | null {
+  if (["atendido", "completed", "finalizado", "concluido"].includes(s)) {
+    return { label: "Atendido", tone: "success" };
+  }
+  if (["em_atendimento", "in_progress", "atendendo"].includes(s)) {
+    return { label: "Em atendimento", tone: "primary" };
+  }
+  if (["cancelado", "cancelled"].includes(s)) {
+    return { label: "Cancelado", tone: "danger" };
+  }
+  if (["agendado", "confirmado", "pending", "scheduled"].includes(s)) {
+    return { label: "Aguardando", tone: "warning" };
+  }
+  return null;
 }
 
 function AgentActivityRow({ agent, summary }: { agent: string; summary: string }) {
