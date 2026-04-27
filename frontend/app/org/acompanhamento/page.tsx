@@ -1,22 +1,55 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Card, MaterialIcon, Badge } from "@/components/ui-tw";
+import {
+  getAcompanhamentoOverview,
+  type AcompanhamentoOverview,
+} from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 
 /**
  * Pagina de Acompanhamento — cuidado continuo dos pacientes entre
- * consultas, alimentado pelos agentes IA (Triagem, FollowUp,
+ * consultas, alimentado pelos agentes IA (Triagem, Anamnese, FollowUp,
  * Regulatorio).
- *
- * Esta versao e um SKELETON com 5 cards visuais. A populacao real
- * com endpoints (pacientes em risco, follow-ups pendentes, eventos
- * adversos abertos, etc.) entra na proxima task.
  *
  * Visivel para: Medico, Recepcao, AdminClinica, Admin global.
  */
 export default function AcompanhamentoPage() {
   const { data: session } = useApiSession();
   const userName = session?.user?.username ?? "";
+
+  const [overview, setOverview] = useState<AcompanhamentoOverview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setErrorMsg(null);
+    getAcompanhamentoOverview()
+      .then((data) => {
+        if (!alive) return;
+        setOverview(data);
+      })
+      .catch((err) => {
+        if (!alive) return;
+        const msg =
+          err instanceof Error ? err.message : "Falha ao carregar dados.";
+        setErrorMsg(msg);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const kpis = overview?.kpis;
+  const agents = overview?.agents_activity_24h ?? [];
+  const totalActions = agents.reduce((sum, a) => sum + a.actions, 0);
 
   return (
     <div className="space-y-6">
@@ -30,39 +63,48 @@ export default function AcompanhamentoPage() {
         </p>
       </header>
 
-      {/* ── KPIs do dia ─────────────────────────────────────────── */}
+      {errorMsg && (
+        <Card padding="md" className="border-error/40 bg-error/5">
+          <div className="flex items-center gap-3 text-error">
+            <MaterialIcon icon="error" />
+            <p className="text-sm">Nao foi possivel carregar: {errorMsg}</p>
+          </div>
+        </Card>
+      )}
+
+      {/* KPIs do dia */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
           icon="warning"
           tone="danger"
           label="Pacientes em risco"
-          value="—"
-          hint="red flags detectados pelo agente Triagem"
+          value={renderKpi(loading, kpis?.patients_at_risk)}
+          hint="eventos graves sem parecer clinico ainda"
         />
         <KpiCard
           icon="schedule"
           tone="warning"
           label="Follow-ups pendentes"
-          value="—"
-          hint="aguardando resposta D+3, D+7 ou D+15"
+          value={renderKpi(loading, kpis?.followups_pending)}
+          hint="aguardando resposta do paciente (D+3 / D+7 / D+15)"
         />
         <KpiCard
           icon="medical_services"
           tone="info"
           label="Triagens em andamento"
-          value="—"
-          hint="anamneses sendo coletadas via WhatsApp"
+          value={renderKpi(loading, kpis?.triages_in_progress)}
+          hint="links de triagem ativos ainda nao usados"
         />
         <KpiCard
           icon="report"
           tone="danger"
           label="Eventos adversos abertos"
-          value="—"
-          hint="sem avaliacao do medico ainda"
+          value={renderKpi(loading, kpis?.adverse_events_open)}
+          hint="sem outcome registrado ainda"
         />
       </section>
 
-      {/* ── Alertas ────────────────────────────────────────────── */}
+      {/* Alertas — placeholder ate definir motor de alertas */}
       <Card padding="lg">
         <SectionHeader
           icon="notifications_active"
@@ -76,7 +118,7 @@ export default function AcompanhamentoPage() {
         />
       </Card>
 
-      {/* ── Mensagens automaticas ──────────────────────────────── */}
+      {/* Atividade dos agentes */}
       <Card padding="lg">
         <div className="flex items-start justify-between mb-5 gap-3">
           <SectionHeader
@@ -84,17 +126,30 @@ export default function AcompanhamentoPage() {
             title="Atividade dos agentes hoje"
             desc="Transparencia: o que os agentes IA fizeram autonomamente."
           />
-          <Badge tone="info">Ultimas 24h</Badge>
+          <Badge tone={totalActions > 0 ? "info" : "neutral"}>
+            {loading ? "Carregando..." : `${totalActions} acoes / 24h`}
+          </Badge>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AgentActivityRow agent="Triagem"      summary="—" />
-          <AgentActivityRow agent="Anamnese"     summary="—" />
-          <AgentActivityRow agent="FollowUp"     summary="—" />
-          <AgentActivityRow agent="Regulatorio"  summary="—" />
+          {(agents.length > 0
+            ? agents
+            : ([
+                { agent: "Triagem", actions: 0, last_action_at: null },
+                { agent: "Anamnese", actions: 0, last_action_at: null },
+                { agent: "FollowUp", actions: 0, last_action_at: null },
+                { agent: "Regulatorio", actions: 0, last_action_at: null },
+              ] as AcompanhamentoOverview["agents_activity_24h"])
+          ).map((a) => (
+            <AgentActivityRow
+              key={a.agent}
+              agent={a.agent}
+              summary={renderAgentSummary(loading, a.actions, a.last_action_at)}
+            />
+          ))}
         </div>
       </Card>
 
-      {/* ── Tabela de pacientes em acompanhamento ───────────────── */}
+      {/* Lista de pacientes em acompanhamento ativo — proxima sprint */}
       <Card padding="lg">
         <SectionHeader
           icon="favorite"
@@ -111,10 +166,51 @@ export default function AcompanhamentoPage() {
       {userName && (
         <p className="text-[11px] text-stone-500 text-center pt-4">
           Logado como <span className="text-on-surface">{userName}</span>
+          {overview && (
+            <>
+              {" "}— atualizado{" "}
+              <span className="text-on-surface">
+                {formatTimestamp(overview.generated_at)}
+              </span>
+            </>
+          )}
         </p>
       )}
     </div>
   );
+}
+
+/* ── Helpers de renderizacao ──────────────────────────────────── */
+
+function renderKpi(loading: boolean, value: number | undefined): string {
+  if (loading) return "...";
+  if (value === undefined) return "—";
+  return String(value);
+}
+
+function renderAgentSummary(
+  loading: boolean,
+  actions: number,
+  lastAt: string | null,
+): string {
+  if (loading) return "Carregando atividade...";
+  if (actions === 0) return "Sem atividade nas ultimas 24h.";
+  const when = lastAt ? formatTimestamp(lastAt) : "ha pouco";
+  return `${actions} acao${actions === 1 ? "" : "es"} — ultima ${when}`;
+}
+
+function formatTimestamp(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
 }
 
 /* ── Componentes internos ─────────────────────────────────────── */

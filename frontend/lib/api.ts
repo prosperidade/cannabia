@@ -771,6 +771,34 @@ export async function getUnreadCount() {
   return response.data;
 }
 
+// ── Acompanhamento (cuidado continuo) ──
+export type AcompanhamentoKpis = {
+  patients_at_risk: number;
+  followups_pending: number;
+  triages_in_progress: number;
+  adverse_events_open: number;
+};
+
+export type AcompanhamentoAgentActivity = {
+  agent: "Triagem" | "Anamnese" | "FollowUp" | "Regulatorio";
+  actions: number;
+  last_action_at: string | null;
+};
+
+export type AcompanhamentoOverview = {
+  tenant_id: number;
+  generated_at: string;
+  kpis: AcompanhamentoKpis;
+  agents_activity_24h: AcompanhamentoAgentActivity[];
+};
+
+export async function getAcompanhamentoOverview() {
+  const response = await request<AcompanhamentoOverview>(
+    "/org/acompanhamento/overview",
+  );
+  return response.data;
+}
+
 // ── Agent Management ──
 export async function listAgents() {
   const response = await request<Record<string, unknown>[]>("/admin/agents/");
