@@ -98,12 +98,17 @@ Ele substitui a leitura isolada de backlogs históricos quando a pergunta é:
 | C3 | Validar operação do `AgenteExtrator` para busca PubMed, classificação e ingestão | Parcial | Alta | Knowledge base operável de ponta a ponta |
 | C4 | Ativar e validar monitores de conhecimento (`knowledge_monitors`) | Parcial | Média | Atualização contínua de fontes críticas |
 | C5 | Expor melhor no frontend os fluxos de upload, query regulatória e monitores | Parcial | Média | Operação não dependente de chamadas manuais/API bruta |
-| C6 | **Dívida — agentes IA escrevendo na base de conhecimento.** Hoje só o `AgenteExtrator` adiciona, e por trigger manual via `auto-search`. O agente Científico (e qualquer outro que faça análise — Tratamento, Anamnese, Prescritor, Regulatório, FollowUp, Triagem) deve poder registrar achados relevantes na base conforme processa casos de pacientes, alimentando uma base coletiva crescente compartilhada por todos os tenants credenciados. Requer helper `register_to_knowledge_base()` no `BaseAgent`, política de qualidade/curadoria pra evitar lixo, e gancho nos pontos de análise. | Aberto | Alta | Base de conhecimento cresce organicamente com o uso real do produto, materializando o diferencial RAG anunciado em CLAUDE.md. |
+| C6 | **Dívida — agentes ingerindo o que pesquisam durante atendimento.** Hoje o `AgenteCientifico` apenas consome ChromaDB via `_search_evidence`; quando a query traz 0 chunks, ele só roda em fallback sem RAG e nada novo entra na base. O fluxo correto: ao processar uma consulta, se o agente for buscar PubMed (ou outra fonte) e encontrar artigo relevante que não está no `knowledge_catalog`, deve registrá-lo automaticamente — sem depender de trigger manual `auto-search`. Requer helper `register_to_knowledge_base()` no `BaseAgent` e gancho no `AgenteCientifico` (e em qualquer outro agente que faça consulta externa). Política de qualidade/curadoria leve para evitar lixo. | Aberto | Alta | Base cresce em tempo real conforme os profissionais consultam casos. Materializa metade do diferencial RAG anunciado em CLAUDE.md (a outra metade está em C7). |
+| C7 | **Dívida — extração de conhecimento clínico agregado dos casos do produto.** Os agentes Anamnese/Tratamento/Prescritor já gravam dados estruturados de cada paciente (`medical_history`, `treatment_plans`, `anamnesis_reports`, `adverse_events`, `dispensations`, `prescriptions`) — mas esses dados ficam isolados por paciente. Falta um pipeline que agregue achados clínicos longitudinais (ex.: "neste recorte, CBD 5mg + THC 0.5mg foi eficaz em 80% das epilepsias refratárias", padrões de combinação CBD/THC bem-sucedidos, eventos adversos correlacionados a cepa botânica) e materialize como "casos anonimizados" indexáveis na `knowledge_catalog`. Trabalho técnico maior: pipeline periódico (cron), anonimização LGPD, curadoria, schema de "caso clínico" no `knowledge_catalog`. Sprint dedicada. | Aberto | Alta | Base cresce com o uso real do produto, virando insight científico coletivo — o "diferencial CannabIA" deixa de ser apenas RAG sobre PubMed e vira RAG sobre a própria experiência clínica acumulada. |
 
 **Arquivos-chave:**
 - `src/knowledge/google_files.py`
 - `src/ai/agents/extrator.py`
+- `src/ai/agents/cientifico.py` (gancho da C6)
 - `src/ai/agents/base.py` (extender com `register_to_knowledge_base()` na C6)
+- `src/repositories/medical_record_repository.py` (fonte da C7)
+- `src/repositories/treatment_plan_repository.py` (fonte da C7)
+- `src/repositories/adverse_event_repository.py` (fonte da C7)
 - `src/web/routes/knowledge.py`
 - `src/web/routes/regulatory.py`
 - `frontend/app/admin/knowledge/page.tsx`
