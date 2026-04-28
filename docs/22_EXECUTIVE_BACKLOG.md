@@ -98,10 +98,12 @@ Ele substitui a leitura isolada de backlogs históricos quando a pergunta é:
 | C3 | Validar operação do `AgenteExtrator` para busca PubMed, classificação e ingestão | Parcial | Alta | Knowledge base operável de ponta a ponta |
 | C4 | Ativar e validar monitores de conhecimento (`knowledge_monitors`) | Parcial | Média | Atualização contínua de fontes críticas |
 | C5 | Expor melhor no frontend os fluxos de upload, query regulatória e monitores | Parcial | Média | Operação não dependente de chamadas manuais/API bruta |
+| C6 | **Dívida — agentes IA escrevendo na base de conhecimento.** Hoje só o `AgenteExtrator` adiciona, e por trigger manual via `auto-search`. O agente Científico (e qualquer outro que faça análise — Tratamento, Anamnese, Prescritor, Regulatório, FollowUp, Triagem) deve poder registrar achados relevantes na base conforme processa casos de pacientes, alimentando uma base coletiva crescente compartilhada por todos os tenants credenciados. Requer helper `register_to_knowledge_base()` no `BaseAgent`, política de qualidade/curadoria pra evitar lixo, e gancho nos pontos de análise. | Aberto | Alta | Base de conhecimento cresce organicamente com o uso real do produto, materializando o diferencial RAG anunciado em CLAUDE.md. |
 
 **Arquivos-chave:**
 - `src/knowledge/google_files.py`
 - `src/ai/agents/extrator.py`
+- `src/ai/agents/base.py` (extender com `register_to_knowledge_base()` na C6)
 - `src/web/routes/knowledge.py`
 - `src/web/routes/regulatory.py`
 - `frontend/app/admin/knowledge/page.tsx`

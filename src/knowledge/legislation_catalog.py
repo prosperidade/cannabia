@@ -115,7 +115,7 @@ def infer_legislation_metadata(entry: dict) -> dict:
     }
 
 
-def _build_catalog_record(entry: dict, clinic_id: int, ingested_by: str) -> dict:
+def _build_catalog_record(entry: dict, ingested_by: str, created_by: int | None = None) -> dict:
     local_path = entry.get("local_path")
     if local_path:
         local_path = os.path.abspath(local_path)
@@ -144,7 +144,7 @@ def _build_catalog_record(entry: dict, clinic_id: int, ingested_by: str) -> dict
         tags.append(metadata["source"])
 
     return {
-        "clinic_id": clinic_id,
+        "created_by": created_by,
         "title": metadata["title"],
         "doc_type": "legislation",
         "source": metadata["source"],
@@ -171,8 +171,8 @@ def _build_catalog_record(entry: dict, clinic_id: int, ingested_by: str) -> dict
 
 def sync_legislation_catalog(
     entries: Iterable[dict],
-    clinic_id: int = 1,
     ingested_by: str = "manual_upload",
+    created_by: int | None = None,
 ) -> dict:
     summary = {"created": 0, "updated": 0, "total": 0, "items": []}
     entries = list(entries or [])
@@ -181,7 +181,7 @@ def sync_legislation_catalog(
 
     with db_cursor(dictionary=True) as (conn, cursor):
         for entry in entries:
-            record = _build_catalog_record(entry, clinic_id=clinic_id, ingested_by=ingested_by)
+            record = _build_catalog_record(entry, ingested_by=ingested_by, created_by=created_by)
             conditions = []
             params = []
 
@@ -235,8 +235,7 @@ def sync_legislation_catalog(
                 cursor.execute(
                     """
                     UPDATE knowledge_catalog
-                    SET clinic_id = %s,
-                        title = %s,
+                    SET title = %s,
                         source = %s,
                         source_url = %s,
                         category = %s,
@@ -262,7 +261,6 @@ def sync_legislation_catalog(
                     RETURNING id
                     """,
                     (
-                        record["clinic_id"],
                         record["title"],
                         record["source"],
                         record["source_url"],
@@ -292,23 +290,22 @@ def sync_legislation_catalog(
                 cursor.execute(
                     """
                     INSERT INTO knowledge_catalog
-                        (clinic_id, title, doc_type, source, source_url,
+                        (title, doc_type, source, source_url,
                          category, tags, authors, language,
                          norm_number, norm_body, norm_status,
                          storage_type, google_file_uri, google_file_name,
                          local_path, file_hash, file_size_bytes, mime_type,
-                         status, ingested_by, ingested_at)
+                         status, ingested_by, ingested_at, created_by)
                     VALUES
-                        (%s, %s, %s, %s, %s,
+                        (%s, %s, %s, %s,
                          %s, %s::jsonb, %s::jsonb, %s,
                          %s, %s, %s,
                          %s, %s, %s,
                          %s, %s, %s, %s,
-                         %s, %s, NOW())
+                         %s, %s, NOW(), %s)
                     RETURNING id
                     """,
                     (
-                        record["clinic_id"],
                         record["title"],
                         record["doc_type"],
                         record["source"],
@@ -329,6 +326,7 @@ def sync_legislation_catalog(
                         record["mime_type"],
                         record["status"],
                         record["ingested_by"],
+                        record.get("created_by"),
                     ),
                 )
                 row = cursor.fetchone()

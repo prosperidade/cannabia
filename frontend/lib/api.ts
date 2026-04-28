@@ -705,6 +705,13 @@ export async function searchPubMed(csrfToken: string, query: string, maxResults?
 export async function getKnowledgeStats() {
   return request<Record<string, unknown>>("/knowledge/stats");
 }
+export async function deleteKnowledgeCatalogItem(id: number, csrfToken: string) {
+  return request<{ deleted: boolean; id: number }>(`/knowledge/catalog/${id}`, {
+    method: "DELETE",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify({}),
+  });
+}
 
 // ── Knowledge Monitors ──
 export async function getKnowledgeMonitors() {

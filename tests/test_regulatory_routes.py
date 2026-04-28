@@ -51,7 +51,7 @@ def test_upload_files_syncs_catalog(regulatory_client, monkeypatch):
 
     monkeypatch.setattr(
         "src.web.routes.regulatory.sync_legislation_catalog",
-        lambda entries, clinic_id=1, ingested_by="manual_upload": {
+        lambda entries, ingested_by="manual_upload", created_by=None: {
             "created": 1,
             "updated": 0,
             "total": len(entries),

@@ -6,7 +6,7 @@ Uses Google Files API for full-document analysis.
 from __future__ import annotations
 
 import logging
-from flask import Blueprint, g, request
+from flask import Blueprint
 
 from src.knowledge.legislation_catalog import sync_legislation_catalog
 from src.web.routes.api_v1 import (
@@ -47,8 +47,16 @@ def upload_files():
         from src.knowledge.google_files import upload_all_legislation
 
         results = upload_all_legislation()
-        clinic_id = getattr(g, "clinic_id", None) or 1
-        catalog_summary = sync_legislation_catalog(results, clinic_id=clinic_id, ingested_by="manual_upload")
+        from flask_login import current_user
+        try:
+            created_by = int(current_user.id) if current_user.is_authenticated else None
+        except Exception:
+            created_by = None
+        catalog_summary = sync_legislation_catalog(
+            results,
+            ingested_by="manual_upload",
+            created_by=created_by,
+        )
         return _success({
             "uploaded": len(results),
             "catalog_created": catalog_summary["created"],

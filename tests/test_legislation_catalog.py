@@ -28,14 +28,15 @@ def test_build_catalog_record_prefers_manifest_metadata():
             "checksum": "abc",
             "size_bytes": 10,
         },
-        clinic_id=1,
         ingested_by="manual_upload",
+        created_by=42,
     )
 
     assert record["title"] == "Lei nº 11.343/2006"
     assert record["norm_number"] == "Lei 11.343/2006"
     assert record["source"] == "planalto"
     assert record["source_url"] == "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11343.htm"
+    assert record["created_by"] == 42
 
 
 def test_sync_legislation_catalog_creates_and_updates_entries(monkeypatch):
@@ -95,7 +96,7 @@ def test_sync_legislation_catalog_creates_and_updates_entries(monkeypatch):
                 "local_path": "data/legislation/Lei 11.343 2006.pdf",
             },
         ],
-        clinic_id=3,
+        created_by=7,
     )
 
     assert fake_conn.committed is True

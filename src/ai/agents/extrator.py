@@ -405,23 +405,22 @@ class AgenteExtrator(BaseAgent):
                 cursor.execute(
                     """
                     INSERT INTO knowledge_catalog
-                        (clinic_id, title, doc_type, source, source_url, doi,
+                        (title, doc_type, source, source_url, doi,
                          category, tags, authors, journal, published_date, language,
                          abstract, norm_number, norm_body, norm_status,
                          storage_type, chromadb_chunks, google_file_uri, google_file_name,
                          file_hash, file_size_bytes, mime_type,
-                         status, ingested_by, ingested_at)
+                         status, ingested_by, ingested_at, created_by)
                     VALUES
-                        (%s, %s, %s, %s, %s, %s,
+                        (%s, %s, %s, %s, %s,
                          %s, %s::jsonb, %s::jsonb, %s, %s, %s,
                          %s, %s, %s, %s,
                          %s, %s, %s, %s,
                          %s, %s, %s,
-                         %s, %s, NOW())
+                         %s, %s, NOW(), %s)
                     RETURNING id
                     """,
                     (
-                        doc_data.get("clinic_id", 1),
                         doc_data.get("title", "Untitled"),
                         doc_data.get("doc_type", "article"),
                         doc_data.get("source", "manual_upload"),
@@ -446,6 +445,7 @@ class AgenteExtrator(BaseAgent):
                         doc_data.get("mime_type", "application/pdf"),
                         doc_data.get("status", "indexed"),
                         doc_data.get("ingested_by", "agent_extrator"),
+                        doc_data.get("created_by"),
                     ),
                 )
                 row = cursor.fetchone()
@@ -461,6 +461,7 @@ class AgenteExtrator(BaseAgent):
     def _auto_search_and_ingest(self, terms: list = None, max_per_term: int = 5, **kwargs) -> dict:
         """Automatically search PubMed for cannabis articles and register in catalog."""
         search_terms = terms or DEFAULT_CANNABIS_TERMS
+        created_by = kwargs.get("created_by")
         total_found = 0
         total_registered = 0
         results_detail = []
@@ -497,6 +498,7 @@ class AgenteExtrator(BaseAgent):
                     "storage_type": classification["storage_type"],
                     "status": "indexed",
                     "ingested_by": "agent_extrator_auto",
+                    "created_by": created_by,
                 }
 
                 reg = self._register_in_catalog(doc_data=doc_data)
@@ -527,6 +529,7 @@ class AgenteExtrator(BaseAgent):
                     "status": "pending",  # Needs manual PDF upload
                     "ingested_by": "agent_extrator_auto",
                     "category": "legislacao_cannabis",
+                    "created_by": created_by,
                 }
                 reg = self._register_in_catalog(doc_data=doc_data)
                 if reg.get("registered"):
@@ -694,7 +697,13 @@ class AgenteExtrator(BaseAgent):
         if action == "auto_search":
             terms = kwargs.get("terms")
             max_per_term = kwargs.get("max_per_term", 5)
-            result = self.invoke_skill("auto_search_and_ingest", terms=terms, max_per_term=max_per_term)
+            created_by = kwargs.get("created_by")
+            result = self.invoke_skill(
+                "auto_search_and_ingest",
+                terms=terms,
+                max_per_term=max_per_term,
+                created_by=created_by,
+            )
 
             self.remember(
                 f"Auto-search completed: {result['total_registered']} new documents "
