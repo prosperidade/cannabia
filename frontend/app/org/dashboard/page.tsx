@@ -16,7 +16,7 @@ import {
 type KpiItem = { icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" | "neutral" };
 type ChartConsulta = { month: string; novo: number; retorno: number };
 type ChartReceita = { month: string; value: number };
-type TopMedico = { name: string; specialty: string; count: number; rating: number };
+type TopMedico = { name: string; specialty: string; count: number; rating: number | null };
 type ActivityItem = { icon: string; text: string; time: string; tone: "primary" | "success" | "info" | "danger" };
 
 type OrgDashData = {
@@ -210,10 +210,14 @@ export default function OrgDashboardPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="flex items-center gap-1 text-primary">
-                    <MaterialIcon icon="star" filled size="sm" />
-                    <span className="text-sm font-bold">{doc.rating}</span>
-                  </div>
+                  {doc.rating !== null ? (
+                    <div className="flex items-center gap-1 text-primary">
+                      <MaterialIcon icon="star" filled size="sm" />
+                      <span className="text-sm font-bold">{doc.rating}</span>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-stone-500">sem avaliacao</span>
+                  )}
                   <p className="text-[10px] text-stone-500">{doc.count} consultas</p>
                 </div>
               </div>
@@ -362,13 +366,21 @@ export default function OrgDashboardPage() {
                     <td className="px-5 md:px-8 py-4 text-on-surface-variant">{doc.specialty}</td>
                     <td className="px-5 md:px-8 py-4">{doc.count}</td>
                     <td className="px-5 md:px-8 py-4">
-                      <div className="flex items-center gap-1 text-primary">
-                        <MaterialIcon icon="star" filled size="sm" />
-                        <span className="font-bold">{doc.rating}</span>
-                      </div>
+                      {doc.rating !== null ? (
+                        <div className="flex items-center gap-1 text-primary">
+                          <MaterialIcon icon="star" filled size="sm" />
+                          <span className="font-bold">{doc.rating}</span>
+                        </div>
+                      ) : (
+                        <span className="text-stone-500 text-xs">—</span>
+                      )}
                     </td>
                     <td className="px-5 md:px-8 py-4">
-                      <ProgressBar value={Math.round(doc.rating * 20)} size="sm" glow />
+                      {doc.rating !== null ? (
+                        <ProgressBar value={Math.round(doc.rating * 20)} size="sm" glow />
+                      ) : (
+                        <span className="text-stone-500 text-xs">—</span>
+                      )}
                     </td>
                     <td className="px-5 md:px-8 py-4">
                       <Badge tone="primary">Ativo</Badge>

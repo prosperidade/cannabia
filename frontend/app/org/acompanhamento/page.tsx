@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import { Card, MaterialIcon, Badge, Avatar } from "@/components/ui-tw";
 import {
   getAcompanhamentoOverview,
+  getAcompanhamentoActivePatients,
   listAppointments,
   type AcompanhamentoOverview,
+  type ActivePatient,
 } from "@/lib/api";
 import type { AppointmentItem } from "@/lib/types";
 import { useApiSession } from "@/lib/use-api-session";
@@ -24,6 +26,7 @@ export default function AcompanhamentoPage() {
 
   const [overview, setOverview] = useState<AcompanhamentoOverview | null>(null);
   const [todayAgenda, setTodayAgenda] = useState<AppointmentItem[]>([]);
+  const [activePatients, setActivePatients] = useState<ActivePatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -36,8 +39,10 @@ export default function AcompanhamentoPage() {
       getAcompanhamentoOverview(),
       // Agenda do dia — falha aqui nao bloqueia os KPIs
       listAppointments().catch(() => [] as AppointmentItem[]),
+      // Lista de pacientes em acompanhamento — falha nao bloqueia o resto
+      getAcompanhamentoActivePatients(20).catch(() => ({ items: [], count: 0 })),
     ])
-      .then(([ov, appts]) => {
+      .then(([ov, appts, active]) => {
         if (!alive) return;
         setOverview(ov);
         const today = new Date().toISOString().slice(0, 10);
@@ -49,6 +54,7 @@ export default function AcompanhamentoPage() {
           )
           .sort((a, b) => a.appointment_date.localeCompare(b.appointment_date));
         setTodayAgenda(filtered);
+        setActivePatients(active.items ?? []);
       })
       .catch((err) => {
         if (!alive) return;
@@ -220,18 +226,28 @@ export default function AcompanhamentoPage() {
         </div>
       </Card>
 
-      {/* Lista de pacientes em acompanhamento ativo — proxima sprint */}
+      {/* Lista de pacientes em acompanhamento ativo */}
       <Card padding="lg">
         <SectionHeader
           icon="favorite"
           title="Pacientes em acompanhamento ativo"
-          desc="Lista dos pacientes com tratamento em andamento."
+          desc={`${activePatients.length} pacientes com plano terapeutico vigente.`}
         />
-        <EmptyState
-          icon="hourglass_empty"
-          title="Em construcao"
-          subtitle="A listagem com ultimo contato, dia do tratamento e outcome classificado vem na proxima sprint."
-        />
+        {loading ? (
+          <p className="text-sm text-stone-500 py-4">Carregando lista...</p>
+        ) : activePatients.length === 0 ? (
+          <EmptyState
+            icon="hourglass_empty"
+            title="Sem pacientes ativos"
+            subtitle="Pacientes com plano terapeutico ativo aparecem aqui assim que forem cadastrados."
+          />
+        ) : (
+          <ul className="divide-y divide-white/5">
+            {activePatients.map((p) => (
+              <ActivePatientRow key={p.patient_id} patient={p} />
+            ))}
+          </ul>
+        )}
       </Card>
 
       {userName && (
@@ -363,6 +379,74 @@ function EmptyState({
       <p className="text-xs text-stone-500 max-w-md">{subtitle}</p>
     </div>
   );
+}
+
+function ActivePatientRow({ patient }: { patient: ActivePatient }) {
+  const followup = mapFollowupStatus(patient.followup_status);
+  const returnLabel = renderReturnLabel(patient.next_return_in_days);
+  const returnTone = returnToneFor(patient.next_return_in_days);
+  return (
+    <li className="flex flex-wrap items-center gap-3 py-3">
+      <Avatar name={patient.patient_name || "Paciente"} size="sm" />
+      <div className="flex-1 min-w-[160px]">
+        <p className="text-sm font-bold text-on-surface truncate">
+          {patient.patient_name}
+        </p>
+        <p className="text-[11px] text-stone-500 truncate">
+          {patient.plan_name ?? "Plano sem nome"}
+          {patient.dosage ? ` · ${patient.dosage}` : ""}
+          {patient.frequency ? ` · ${patient.frequency}` : ""}
+        </p>
+      </div>
+      <div className="text-right text-[11px] text-stone-500">
+        <p className="text-on-surface font-bold">Dia {patient.days_in_treatment}</p>
+        <p>de tratamento</p>
+      </div>
+      {returnLabel && (
+        <Badge tone={returnTone}>{returnLabel}</Badge>
+      )}
+      {followup && <Badge tone={followup.tone}>{followup.label}</Badge>}
+    </li>
+  );
+}
+
+function renderReturnLabel(days: number | null): string | null {
+  if (days === null || days === undefined) return null;
+  if (days < 0) return `Retorno atrasado ${Math.abs(days)}d`;
+  if (days === 0) return "Retorno hoje";
+  if (days === 1) return "Retorno amanha";
+  if (days <= 7) return `Retorno em ${days}d`;
+  return `Retorno em ${days}d`;
+}
+
+function returnToneFor(
+  days: number | null,
+): "primary" | "success" | "warning" | "danger" | "neutral" {
+  if (days === null || days === undefined) return "neutral";
+  if (days < 0) return "danger";
+  if (days <= 1) return "warning";
+  if (days <= 7) return "primary";
+  return "neutral";
+}
+
+function mapFollowupStatus(
+  s: string | null,
+): { label: string; tone: "primary" | "success" | "warning" | "danger" | "neutral" } | null {
+  if (!s) return null;
+  switch (s) {
+    case "responded":
+      return { label: "Respondeu", tone: "success" };
+    case "sent":
+      return { label: "Aguardando resposta", tone: "warning" };
+    case "pending":
+      return { label: "Follow-up agendado", tone: "primary" };
+    case "failed":
+      return { label: "Falha follow-up", tone: "danger" };
+    case "cancelled":
+      return { label: "Cancelado", tone: "neutral" };
+    default:
+      return null;
+  }
 }
 
 function AgendaRow({ appt }: { appt: AppointmentItem }) {

@@ -809,6 +809,29 @@ export async function getAcompanhamentoOverview() {
   return response.data;
 }
 
+export type ActivePatient = {
+  patient_id: number;
+  patient_name: string;
+  patient_phone: string | null;
+  plan_name: string | null;
+  dosage: string | null;
+  frequency: string | null;
+  plan_started_at: string | null;
+  days_in_treatment: number;
+  next_return_date: string | null;
+  next_return_in_days: number | null;
+  followup_status: string | null;
+  followup_type: string | null;
+  last_contact_at: string | null;
+};
+
+export async function getAcompanhamentoActivePatients(limit: number = 20) {
+  const response = await request<{ items: ActivePatient[]; count: number }>(
+    `/org/acompanhamento/active-patients?limit=${limit}`,
+  );
+  return response.data;
+}
+
 // ── Agent Management ──
 export async function listAgents() {
   const response = await request<Record<string, unknown>[]>("/admin/agents/");

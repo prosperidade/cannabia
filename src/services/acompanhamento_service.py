@@ -52,6 +52,25 @@ class AcompanhamentoOverview:
     agents_activity_24h: tuple[AgentActivity, ...]
 
 
+@dataclass(frozen=True)
+class ActivePatientItem:
+    """Linha da lista 'Pacientes em acompanhamento ativo'."""
+
+    patient_id: int
+    patient_name: str
+    patient_phone: Optional[str]
+    plan_name: Optional[str]
+    dosage: Optional[str]
+    frequency: Optional[str]
+    plan_started_at: Optional[str]   # ISO 8601
+    days_in_treatment: int
+    next_return_date: Optional[str]  # ISO 8601
+    next_return_in_days: Optional[int]  # negativo = atrasado
+    followup_status: Optional[str]   # pending | sent | responded | failed | cancelled
+    followup_type: Optional[str]     # d3 | d7 | d15
+    last_contact_at: Optional[str]   # ISO 8601 (responded_at | sent_at | scheduled_at)
+
+
 # ---------------------------------------------------------------------------
 # Classificacao endpoint -> agente
 # ---------------------------------------------------------------------------
@@ -145,3 +164,75 @@ def get_overview(tenant_id: int) -> AcompanhamentoOverview:
         kpis=kpis,
         agents_activity_24h=activity_tuple,
     )
+
+
+# ---------------------------------------------------------------------------
+# Pacientes em acompanhamento ativo
+# ---------------------------------------------------------------------------
+
+def _isoformat_or_none(value) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.isoformat()
+    iso = getattr(value, "isoformat", None)
+    return iso() if callable(iso) else None
+
+
+def _days_between(start, end) -> Optional[int]:
+    if start is None or end is None:
+        return None
+    if isinstance(start, datetime):
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=timezone.utc)
+    if isinstance(end, datetime):
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=timezone.utc)
+    try:
+        delta = end - start
+    except TypeError:
+        # date - datetime mismatch — coerce
+        return None
+    return delta.days
+
+
+def get_active_patients(tenant_id: int, limit: int = 20) -> tuple[ActivePatientItem, ...]:
+    """Lista de pacientes com plano terapeutico ativo no tenant."""
+    if tenant_id is None:
+        raise ValueError("tenant_id e obrigatorio.")
+    tenant_id = int(tenant_id)
+
+    rows = acompanhamento_repository.list_active_patients(tenant_id, limit=limit)
+    now = datetime.now(tz=timezone.utc)
+
+    items: list[ActivePatientItem] = []
+    for row in rows:
+        plan_started = row.get("plan_started_at")
+        next_return = row.get("next_return_date")
+        last_contact = (
+            row.get("responded_at")
+            or row.get("sent_at")
+            or row.get("scheduled_at")
+        )
+        items.append(
+            ActivePatientItem(
+                patient_id=int(row["patient_id"]),
+                patient_name=row["patient_name"],
+                patient_phone=row.get("patient_phone"),
+                plan_name=row.get("plan_name"),
+                dosage=row.get("dosage"),
+                frequency=row.get("frequency"),
+                plan_started_at=_isoformat_or_none(plan_started),
+                days_in_treatment=max(0, _days_between(plan_started, now) or 0),
+                next_return_date=_isoformat_or_none(next_return),
+                next_return_in_days=_days_between(now, next_return),
+                followup_status=row.get("followup_status"),
+                followup_type=row.get("followup_type"),
+                last_contact_at=_isoformat_or_none(last_contact),
+            )
+        )
+    return tuple(items)

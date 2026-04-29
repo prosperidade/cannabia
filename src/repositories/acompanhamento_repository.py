@@ -103,6 +103,81 @@ def count_triages_in_progress(tenant_id: int) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Pacientes em acompanhamento ativo
+# ---------------------------------------------------------------------------
+
+def list_active_patients(tenant_id: int, limit: int = 20) -> list[dict[str, Any]]:
+    """Pacientes com plano terapeutico ativo no tenant.
+
+    "Ativo" = ultima entrada em ``treatment_plans`` (por paciente) com
+    ``status = 'ativo'``. A lista vem ordenada pela proxima data de retorno
+    (NULLS por ultimo, depois ``plan_started_at`` DESC).
+
+    Cada item traz tambem o status do ultimo follow-up enviado/agendado
+    para a tela exibir um badge "respondido"/"aguardando".
+
+    Nota: ``adverse_events`` usa ``member_id`` (nao ``patient_id``); a
+    flag de "tem evento aberto" fica para sprint que ligar
+    ``association_members`` a ``patients``.
+    """
+    sql = """
+        WITH active_plans AS (
+            SELECT DISTINCT ON (tp.patient_id)
+                tp.patient_id,
+                tp.plan_name,
+                tp.dosage,
+                tp.frequency,
+                tp.created_at      AS plan_started_at,
+                tp.next_return_date,
+                tp.status          AS plan_status
+            FROM treatment_plans tp
+            JOIN clinics c ON c.id = tp.clinic_id
+            WHERE c.tenant_id = %(tenant)s
+              AND tp.status = 'ativo'
+            ORDER BY tp.patient_id, tp.created_at DESC
+        ),
+        last_followup AS (
+            SELECT DISTINCT ON (sf.patient_id)
+                sf.patient_id,
+                sf.status            AS followup_status,
+                sf.followup_type,
+                sf.responded_at,
+                sf.scheduled_at,
+                sf.sent_at
+            FROM scheduled_followups sf
+            JOIN clinics c ON c.id = sf.clinic_id
+            WHERE c.tenant_id = %(tenant)s
+            ORDER BY sf.patient_id,
+                     COALESCE(sf.sent_at, sf.scheduled_at, sf.responded_at) DESC NULLS LAST
+        )
+        SELECT
+            p.id           AS patient_id,
+            p.name         AS patient_name,
+            p.phone        AS patient_phone,
+            ap.plan_name,
+            ap.dosage,
+            ap.frequency,
+            ap.plan_started_at,
+            ap.next_return_date,
+            lf.followup_status,
+            lf.followup_type,
+            lf.responded_at,
+            lf.sent_at,
+            lf.scheduled_at
+        FROM patients p
+        JOIN clinics c   ON c.id = p.clinic_id
+        JOIN active_plans ap ON ap.patient_id = p.id
+        LEFT JOIN last_followup lf ON lf.patient_id = p.id
+        WHERE c.tenant_id = %(tenant)s
+        ORDER BY ap.next_return_date NULLS LAST, ap.plan_started_at DESC
+        LIMIT %(limit)s
+    """
+    with db_cursor(dictionary=True) as (_, cur):
+        cur.execute(sql, {"tenant": tenant_id, "limit": limit})
+        return list(cur.fetchall() or [])
+
+
+# ---------------------------------------------------------------------------
 # Atividade dos agentes (ultimas 24h)
 # ---------------------------------------------------------------------------
 

@@ -14,6 +14,7 @@ import pytest
 from src.services import acompanhamento_service
 from src.services.acompanhamento_service import (
     AcompanhamentoOverview,
+    ActivePatientItem,
     AgentActivity,
     KpiSnapshot,
 )
@@ -228,3 +229,128 @@ def test_agent_activity_dataclass_is_frozen() -> None:
     a = AgentActivity(agent="Triagem", actions=1, last_action_at=None)
     with pytest.raises(Exception):
         a.actions = 2  # type: ignore[misc]
+
+
+# ---------------------------------------------------------------------------
+# get_active_patients
+# ---------------------------------------------------------------------------
+
+
+def _install_active_patients_stub(monkeypatch: pytest.MonkeyPatch, rows: list[dict]) -> list[tuple]:
+    """Substitui list_active_patients no repo, registrando chamadas em uma lista."""
+    calls: list[tuple] = []
+    repo = acompanhamento_service.acompanhamento_repository
+
+    def fake(tenant_id: int, limit: int = 20):
+        calls.append((tenant_id, limit))
+        return rows
+
+    monkeypatch.setattr(repo, "list_active_patients", fake)
+    return calls
+
+
+def test_get_active_patients_requires_tenant_id() -> None:
+    with pytest.raises(ValueError):
+        acompanhamento_service.get_active_patients(None)  # type: ignore[arg-type]
+
+
+def test_get_active_patients_returns_empty_tuple_when_no_rows(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = _install_active_patients_stub(monkeypatch, rows=[])
+    result = acompanhamento_service.get_active_patients(7, limit=10)
+
+    assert result == ()
+    assert calls == [(7, 10)]
+
+
+def test_get_active_patients_maps_rows_into_dataclass(monkeypatch: pytest.MonkeyPatch) -> None:
+    plan_started = datetime(2026, 4, 1, 12, 0, tzinfo=timezone.utc)
+    next_return = datetime(2026, 5, 5, 12, 0, tzinfo=timezone.utc)
+    sent_at = datetime(2026, 4, 25, 9, 0, tzinfo=timezone.utc)
+    rows = [
+        {
+            "patient_id": 11,
+            "patient_name": "Maria",
+            "patient_phone": "+551199",
+            "plan_name": "Plano CBD",
+            "dosage": "5mg",
+            "frequency": "2x/dia",
+            "plan_started_at": plan_started,
+            "next_return_date": next_return,
+            "followup_status": "sent",
+            "followup_type": "d7",
+            "responded_at": None,
+            "sent_at": sent_at,
+            "scheduled_at": None,
+        }
+    ]
+    _install_active_patients_stub(monkeypatch, rows=rows)
+    result = acompanhamento_service.get_active_patients(42)
+
+    assert len(result) == 1
+    item = result[0]
+    assert isinstance(item, ActivePatientItem)
+    assert item.patient_id == 11
+    assert item.patient_name == "Maria"
+    assert item.plan_name == "Plano CBD"
+    assert item.plan_started_at == plan_started.isoformat()
+    assert item.next_return_date == next_return.isoformat()
+    assert item.last_contact_at == sent_at.isoformat()
+    assert item.followup_status == "sent"
+    assert item.followup_type == "d7"
+    assert item.days_in_treatment >= 0
+
+
+def test_get_active_patients_handles_missing_dates(monkeypatch: pytest.MonkeyPatch) -> None:
+    rows = [
+        {
+            "patient_id": 99,
+            "patient_name": "Joao",
+            "patient_phone": None,
+            "plan_name": None,
+            "dosage": None,
+            "frequency": None,
+            "plan_started_at": None,
+            "next_return_date": None,
+            "followup_status": None,
+            "followup_type": None,
+            "responded_at": None,
+            "sent_at": None,
+            "scheduled_at": None,
+        }
+    ]
+    _install_active_patients_stub(monkeypatch, rows=rows)
+    item = acompanhamento_service.get_active_patients(1)[0]
+
+    assert item.plan_started_at is None
+    assert item.days_in_treatment == 0
+    assert item.next_return_date is None
+    assert item.next_return_in_days is None
+    assert item.last_contact_at is None
+
+
+def test_get_active_patients_marks_overdue_return_with_negative_days(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Retorno no passado deve produzir next_return_in_days < 0."""
+    past_return = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    # Forca data 5 dias no passado.
+    past_return = past_return.replace(year=past_return.year - 1)
+    rows = [
+        {
+            "patient_id": 5,
+            "patient_name": "Ana",
+            "patient_phone": None,
+            "plan_name": "X",
+            "dosage": None,
+            "frequency": None,
+            "plan_started_at": None,
+            "next_return_date": past_return,
+            "followup_status": None,
+            "followup_type": None,
+            "responded_at": None,
+            "sent_at": None,
+            "scheduled_at": None,
+        }
+    ]
+    _install_active_patients_stub(monkeypatch, rows=rows)
+    item = acompanhamento_service.get_active_patients(1)[0]
+    assert item.next_return_in_days is not None
+    assert item.next_return_in_days < 0

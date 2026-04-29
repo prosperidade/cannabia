@@ -205,3 +205,138 @@ def test_overview_uses_clinic_id_fallback(monkeypatch: pytest.MonkeyPatch) -> No
     resp = client.get("/api/v1/org/acompanhamento/overview")
     assert resp.status_code == 200, resp.get_json()
     assert captured["tenant_id"] == 99
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/org/acompanhamento/active-patients
+# ---------------------------------------------------------------------------
+
+from src.services.acompanhamento_service import ActivePatientItem  # noqa: E402
+
+
+def _make_active_patient(**overrides) -> ActivePatientItem:
+    base: dict[str, Any] = dict(
+        patient_id=1,
+        patient_name="Maria",
+        patient_phone="+5511999",
+        plan_name="Plano CBD",
+        dosage="5mg",
+        frequency="2x/dia",
+        plan_started_at="2026-04-01T00:00:00+00:00",
+        days_in_treatment=28,
+        next_return_date="2026-05-15T00:00:00+00:00",
+        next_return_in_days=15,
+        followup_status="sent",
+        followup_type="d7",
+        last_contact_at="2026-04-25T09:00:00+00:00",
+    )
+    base.update(overrides)
+    return ActivePatientItem(**base)
+
+
+@pytest.mark.parametrize("role", ["Admin", "AdminClinica", "Medico", "Recepcao"])
+def test_active_patients_allowed_roles(role: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_active(tenant_id: int, limit: int = 20):
+        captured["tenant_id"] = tenant_id
+        captured["limit"] = limit
+        return (
+            _make_active_patient(patient_id=10, patient_name="Ana"),
+            _make_active_patient(patient_id=11, patient_name="Joao", followup_status="responded"),
+        )
+
+    monkeypatch.setattr(
+        "src.web.routes.acompanhamento.acompanhamento_service.get_active_patients",
+        fake_active,
+    )
+
+    app = _build_app(role=role)
+    resp = _client(app).get("/api/v1/org/acompanhamento/active-patients")
+    assert resp.status_code == 200, resp.get_json()
+    data = resp.get_json()["data"]
+
+    assert captured["tenant_id"] == TENANT_ID
+    assert captured["limit"] == 20
+    assert data["count"] == 2
+    assert len(data["items"]) == 2
+    item = data["items"][0]
+    assert item["patient_id"] == 10
+    assert item["patient_name"] == "Ana"
+    assert item["plan_name"] == "Plano CBD"
+    assert item["next_return_in_days"] == 15
+    assert item["followup_status"] == "sent"
+
+
+def test_active_patients_respects_limit_query(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_active(tenant_id: int, limit: int = 20):
+        captured["limit"] = limit
+        return ()
+
+    monkeypatch.setattr(
+        "src.web.routes.acompanhamento.acompanhamento_service.get_active_patients",
+        fake_active,
+    )
+
+    app = _build_app()
+    resp = _client(app).get("/api/v1/org/acompanhamento/active-patients?limit=50")
+    assert resp.status_code == 200
+    assert captured["limit"] == 50
+
+
+def test_active_patients_clamps_limit_to_max(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_active(tenant_id: int, limit: int = 20):
+        captured["limit"] = limit
+        return ()
+
+    monkeypatch.setattr(
+        "src.web.routes.acompanhamento.acompanhamento_service.get_active_patients",
+        fake_active,
+    )
+
+    app = _build_app()
+    _client(app).get("/api/v1/org/acompanhamento/active-patients?limit=999")
+    assert captured["limit"] == 100  # clamp em 100
+
+
+def test_active_patients_falls_back_to_default_on_invalid_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_active(tenant_id: int, limit: int = 20):
+        captured["limit"] = limit
+        return ()
+
+    monkeypatch.setattr(
+        "src.web.routes.acompanhamento.acompanhamento_service.get_active_patients",
+        fake_active,
+    )
+
+    app = _build_app()
+    _client(app).get("/api/v1/org/acompanhamento/active-patients?limit=abc")
+    assert captured["limit"] == 20
+
+
+def test_active_patients_rejects_paciente(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "src.web.routes.acompanhamento.acompanhamento_service.get_active_patients",
+        lambda tenant_id, limit=20: (),
+    )
+    app = _build_app(role="Paciente")
+    resp = _client(app).get("/api/v1/org/acompanhamento/active-patients")
+    assert resp.status_code == 403
+
+
+def test_active_patients_missing_tenant_returns_400(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "src.web.routes.acompanhamento.acompanhamento_service.get_active_patients",
+        lambda tenant_id, limit=20: (),
+    )
+    app = _build_app(tenant_id=None)
+    resp = _client(app).get("/api/v1/org/acompanhamento/active-patients")
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"]["code"] == "tenant_context_missing"

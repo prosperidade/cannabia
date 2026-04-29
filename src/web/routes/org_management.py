@@ -29,89 +29,353 @@ org_management_bp = Blueprint("org_management", __name__, url_prefix="/api/v1/or
 # ==================================================================
 # GET /api/v1/org/dashboard
 # ==================================================================
+#
+# Shape esperada pelo frontend (frontend/app/org/dashboard/page.tsx):
+#   {
+#     kpiData:        [{icon, label, value, delta, deltaType}],
+#     chartConsultas: [{month, novo, retorno}],
+#     chartReceita:   [{month, value}],   # value em R$ mil
+#     topMedicos:     [{name, specialty, count, rating}],
+#     recentActivity: [{icon, text, time, tone}]
+#   }
+#
+# Fontes ja disponiveis: patients, anamnesis_reports, billing, adverse_events,
+# users, ai_audit_logs. Top medicos fica vazio ate anamnesis_reports.doctor_id
+# existir (TODO).
+
+PT_MONTH_ABBR = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+
+def _format_delta(current: float, previous: float) -> tuple[str, str]:
+    """Calcula delta percentual e retorna (texto, deltaType)."""
+    if previous in (0, 0.0, None):
+        if current > 0:
+            return ("novo", "up")
+        return ("0%", "neutral")
+    pct = round(((current - previous) / previous) * 100)
+    if pct > 0:
+        return (f"+{pct}%", "up")
+    if pct < 0:
+        return (f"{pct}%", "down")
+    return ("0%", "neutral")
+
+
+def _format_brl_compact(value: float) -> str:
+    if value >= 1_000_000:
+        return f"R$ {value / 1_000_000:.1f}M"
+    if value >= 1_000:
+        return f"R$ {value / 1_000:.1f}k"
+    return f"R$ {value:.0f}"
+
+
+# Mapa de endpoint do ai_audit_logs -> mensagem amigavel + icone + tone.
+AUDIT_ACTIVITY_MAP = {
+    "/api/v1/triage": ("vaccines", "Triagem concluida", "primary"),
+    "anamnese": ("psychology", "Anamnese processada", "primary"),
+    "tratamento": ("medication", "Plano de tratamento gerado", "success"),
+    "cientifico": ("science", "Relatorio cientifico gerado", "info"),
+    "regulator": ("policy", "Validacao regulatoria executada", "info"),
+    "follow": ("schedule", "Follow-up enviado", "primary"),
+    "knowledge": ("library_books", "Base cientifica atualizada", "info"),
+    "vigimed": ("warning", "Notificacao de farmacovigilancia", "danger"),
+    "anvisa": ("warning", "Notificacao ANVISA", "danger"),
+}
+
+
+def _classify_audit_endpoint(endpoint: str) -> tuple[str, str, str]:
+    e = (endpoint or "").lower()
+    for needle, payload in AUDIT_ACTIVITY_MAP.items():
+        if needle in e:
+            return payload
+    return ("bolt", "Acao do agente IA", "primary")
+
+
+def _humanize_age(seconds: int) -> str:
+    if seconds < 60:
+        return "agora ha pouco"
+    if seconds < 3600:
+        return f"ha {seconds // 60} min"
+    if seconds < 86400:
+        return f"ha {seconds // 3600} h"
+    days = seconds // 86400
+    return f"ha {days} d" if days > 1 else "ontem"
+
 
 @org_management_bp.get("/dashboard")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required("Admin", "AdminClinica", "Medico", "Recepcao", "Financeiro")
 def org_dashboard():
-    """Organization-level KPIs and chart data."""
+    """KPIs, charts, top medicos e atividade recente — todos com dados reais.
+
+    Campos sem fonte real ainda (rating de medico, count de consultas por
+    medico) sao retornados como None e o frontend ja tem fallback de
+    'Dados de desempenho serao exibidos quando houver atendimentos
+    suficientes' para a tabela.
+    """
     clinic_id = g.clinic_id
+    empty = {"kpiData": [], "chartConsultas": [], "chartReceita": [], "topMedicos": [], "recentActivity": []}
 
     try:
         with db_cursor(dictionary=True) as (_, cursor):
-            # Active patients
+            # ── KPIs do mes corrente vs mes anterior ──
             cursor.execute(
-                "SELECT COUNT(*) AS cnt FROM patients WHERE clinic_id = %s",
+                """
+                SELECT COUNT(*) AS cnt FROM patients
+                WHERE clinic_id = %s
+                """,
                 (clinic_id,),
             )
             patients_active = cursor.fetchone()["cnt"]
 
-            # Consultations this month
             cursor.execute(
                 """
-                SELECT COUNT(*) AS cnt FROM anamnesis_reports
-                WHERE clinic_id = %s
-                  AND created_at >= date_trunc('month', CURRENT_DATE)
+                SELECT
+                    COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE))           AS this_month,
+                    COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '1 month'
+                                       AND created_at <  date_trunc('month', CURRENT_DATE))           AS last_month
+                FROM patients WHERE clinic_id = %s
                 """,
                 (clinic_id,),
             )
-            consultations_month = cursor.fetchone()["cnt"]
-
-            # Consultations by month (last 6 months)
-            cursor.execute(
-                """
-                SELECT to_char(created_at, 'YYYY-MM') AS month, COUNT(*) AS total
-                FROM anamnesis_reports
-                WHERE clinic_id = %s
-                  AND created_at >= CURRENT_DATE - INTERVAL '6 months'
-                GROUP BY 1 ORDER BY 1
-                """,
-                (clinic_id,),
-            )
-            consultations_by_month = cursor.fetchall()
+            new_patients = cursor.fetchone()
+            new_patients_this = new_patients["this_month"]
+            new_patients_last = new_patients["last_month"]
 
             cursor.execute(
                 """
-                SELECT COALESCE(SUM(amount), 0) AS total
-                FROM billing
-                WHERE clinic_id = %s AND status = 'pago'
-                  AND created_at >= date_trunc('month', CURRENT_DATE)
+                SELECT
+                    COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE))           AS this_month,
+                    COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '1 month'
+                                       AND created_at <  date_trunc('month', CURRENT_DATE))           AS last_month
+                FROM anamnesis_reports WHERE clinic_id = %s
                 """,
                 (clinic_id,),
             )
-            revenue_month = float(cursor.fetchone()["total"])
+            consults = cursor.fetchone()
+            consults_this = consults["this_month"]
+            consults_last = consults["last_month"]
 
-            # Revenue by month chart (last 6 months)
             cursor.execute(
                 """
-                SELECT to_char(created_at, 'YYYY-MM') AS month,
-                       COALESCE(SUM(amount), 0) AS total
-                FROM billing
-                WHERE clinic_id = %s AND status = 'pago'
-                  AND created_at >= CURRENT_DATE - INTERVAL '6 months'
-                GROUP BY 1 ORDER BY 1
+                SELECT
+                    COALESCE(SUM(amount) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE)
+                                              AND status = 'pago'), 0)        AS this_month,
+                    COALESCE(SUM(amount) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '1 month'
+                                              AND created_at <  date_trunc('month', CURRENT_DATE)
+                                              AND status = 'pago'), 0)        AS last_month
+                FROM billing WHERE clinic_id = %s
                 """,
                 (clinic_id,),
             )
-            revenue_by_month = cursor.fetchall()
+            revenue = cursor.fetchone()
+            revenue_this = float(revenue["this_month"])
+            revenue_last = float(revenue["last_month"])
+
+            cursor.execute(
+                """
+                SELECT
+                    (SELECT clinics.tenant_id FROM clinics WHERE clinics.id = %s) AS tenant_id
+                """,
+                (clinic_id,),
+            )
+            tenant_row = cursor.fetchone()
+            tenant_id = tenant_row["tenant_id"] if tenant_row else None
+
+            adverse_events_open = 0
+            if tenant_id is not None:
+                cursor.execute(
+                    """
+                    SELECT COUNT(*) AS cnt FROM adverse_events
+                    WHERE tenant_id = %s AND outcome IS NULL
+                    """,
+                    (tenant_id,),
+                )
+                adverse_events_open = cursor.fetchone()["cnt"]
+
+            # Delta de pacientes ativos: comparar contagem atual com NOW() - 1 month
+            cursor.execute(
+                """
+                SELECT COUNT(*) AS cnt FROM patients
+                WHERE clinic_id = %s AND created_at < date_trunc('month', CURRENT_DATE)
+                """,
+                (clinic_id,),
+            )
+            patients_active_last = cursor.fetchone()["cnt"]
+
+            kpi_data = [
+                {
+                    "icon": "groups",
+                    "label": "Pacientes ativos",
+                    "value": str(patients_active),
+                    **dict(zip(("delta", "deltaType"), _format_delta(patients_active, patients_active_last))),
+                },
+                {
+                    "icon": "person_add",
+                    "label": "Novos pacientes",
+                    "value": str(new_patients_this),
+                    **dict(zip(("delta", "deltaType"), _format_delta(new_patients_this, new_patients_last))),
+                },
+                {
+                    "icon": "event",
+                    "label": "Consultas no mes",
+                    "value": str(consults_this),
+                    **dict(zip(("delta", "deltaType"), _format_delta(consults_this, consults_last))),
+                },
+                {
+                    "icon": "payments",
+                    "label": "Receita no mes",
+                    "value": _format_brl_compact(revenue_this),
+                    **dict(zip(("delta", "deltaType"), _format_delta(revenue_this, revenue_last))),
+                },
+                {
+                    "icon": "warning",
+                    "label": "Eventos adversos abertos",
+                    "value": str(adverse_events_open),
+                    "delta": "monitor",
+                    "deltaType": "neutral",
+                },
+            ]
+
+            # ── chartConsultas: 6 meses, novo vs retorno ──
+            cursor.execute(
+                """
+                WITH first_anamnesis AS (
+                    SELECT patient_id, MIN(date_trunc('month', created_at)) AS first_month
+                    FROM anamnesis_reports
+                    WHERE clinic_id = %(clinic)s AND patient_id IS NOT NULL
+                    GROUP BY patient_id
+                ),
+                months AS (
+                    SELECT generate_series(
+                        date_trunc('month', CURRENT_DATE) - INTERVAL '5 months',
+                        date_trunc('month', CURRENT_DATE),
+                        INTERVAL '1 month'
+                    )::date AS month_start
+                )
+                SELECT
+                    m.month_start,
+                    COUNT(*) FILTER (WHERE fa.first_month = m.month_start) AS novo,
+                    COUNT(*) FILTER (WHERE fa.first_month <> m.month_start OR fa.first_month IS NULL) AS retorno
+                FROM months m
+                LEFT JOIN anamnesis_reports a
+                    ON date_trunc('month', a.created_at) = m.month_start
+                    AND a.clinic_id = %(clinic)s
+                LEFT JOIN first_anamnesis fa ON a.patient_id = fa.patient_id
+                GROUP BY m.month_start
+                ORDER BY m.month_start
+                """,
+                {"clinic": clinic_id},
+            )
+            consult_rows = cursor.fetchall()
+            max_count = max((r["novo"] + r["retorno"] for r in consult_rows), default=0) or 1
+            chart_consultas = [
+                {
+                    "month": PT_MONTH_ABBR[r["month_start"].month - 1],
+                    # Frontend escala height: %, entao mandamos 0-100.
+                    "novo": int(round((r["novo"] / max_count) * 90)),
+                    "retorno": int(round((r["retorno"] / max_count) * 90)),
+                }
+                for r in consult_rows
+            ]
+
+            # ── chartReceita: 6 meses em R$ mil ──
+            cursor.execute(
+                """
+                WITH months AS (
+                    SELECT generate_series(
+                        date_trunc('month', CURRENT_DATE) - INTERVAL '5 months',
+                        date_trunc('month', CURRENT_DATE),
+                        INTERVAL '1 month'
+                    )::date AS month_start
+                )
+                SELECT m.month_start,
+                       COALESCE(SUM(b.amount) FILTER (WHERE b.status = 'pago'), 0) AS total
+                FROM months m
+                LEFT JOIN billing b
+                    ON date_trunc('month', b.created_at) = m.month_start
+                    AND b.clinic_id = %s
+                GROUP BY m.month_start
+                ORDER BY m.month_start
+                """,
+                (clinic_id,),
+            )
+            revenue_rows = cursor.fetchall()
+            chart_receita = [
+                {
+                    "month": PT_MONTH_ABBR[r["month_start"].month - 1],
+                    "value": round(float(r["total"]) / 1000, 1),
+                }
+                for r in revenue_rows
+            ]
+
+            # ── topMedicos: lista de medicos do tenant.
+            # TODO: schema atual nao tem doctor_id em anamnesis_reports —
+            # count e rating viram None ate sprint dedicada de attendances.
+            top_medicos: list[dict] = []
+            if tenant_id is not None:
+                cursor.execute(
+                    """
+                    SELECT u.id, u.username AS name
+                    FROM users u
+                    JOIN user_clinics uc ON uc.user_id = u.id
+                    JOIN clinics c ON c.id = uc.clinic_id
+                    WHERE c.tenant_id = %s
+                      AND u.role = 'Medico'
+                      AND u.is_active = TRUE
+                    GROUP BY u.id, u.username
+                    ORDER BY u.username
+                    LIMIT 5
+                    """,
+                    (tenant_id,),
+                )
+                top_medicos = [
+                    {
+                        "name": row["name"],
+                        "specialty": "Cannabis Medicinal",
+                        "count": 0,
+                        "rating": None,
+                    }
+                    for row in cursor.fetchall()
+                ]
+
+            # ── recentActivity: ultimas 8 entradas em ai_audit_logs do tenant ──
+            cursor.execute(
+                """
+                SELECT a.endpoint, a.created_at
+                FROM ai_audit_logs a
+                JOIN clinics c ON c.id = a.clinic_id
+                WHERE c.tenant_id = %s
+                ORDER BY a.created_at DESC
+                LIMIT 8
+                """,
+                (tenant_id,) if tenant_id is not None else (-1,),
+            )
+            activity_rows = cursor.fetchall() if tenant_id is not None else []
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            recent_activity = []
+            for row in activity_rows:
+                icon, text, tone = _classify_audit_endpoint(row["endpoint"] or "")
+                created = row["created_at"]
+                if created.tzinfo is None:
+                    created = created.replace(tzinfo=timezone.utc)
+                age_seconds = int((now - created).total_seconds())
+                recent_activity.append({
+                    "icon": icon,
+                    "text": text,
+                    "time": _humanize_age(age_seconds),
+                    "tone": tone,
+                })
 
             return _success({
-                "metrics": {
-                    "patients_active": patients_active,
-                    "consultations_month": consultations_month,
-                    "revenue_month": revenue_month,
-                    "conversion_rate": 0,
-                },
-                "charts": {
-                    "consultations_by_month": consultations_by_month,
-                    "revenue_by_month": revenue_by_month,
-                },
+                "kpiData": kpi_data,
+                "chartConsultas": chart_consultas,
+                "chartReceita": chart_receita,
+                "topMedicos": top_medicos,
+                "recentActivity": recent_activity,
             })
     except Exception:
         logger.warning("Error fetching org dashboard from DB", exc_info=True)
-        return _success({
-            "metrics": {"patients_active": 0, "consultations_month": 0, "revenue_month": 0, "conversion_rate": 0},
-            "charts": {"consultations_by_month": [], "revenue_by_month": []},
-        })
+        return _success(empty)
 
 
 # ==================================================================
