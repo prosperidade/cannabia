@@ -123,6 +123,42 @@ class BaseAgent(ABC):
         """Get recent diary entries for this agent."""
         return diary_read(self.palace_room, last_n=last_n)
 
+    # ── Knowledge base ingestion (fire-and-forget) ──
+
+    def register_to_knowledge_base(
+        self,
+        doc_data: Dict[str, Any],
+        created_by: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Registra um documento (artigo PubMed, legislacao, etc.) na knowledge_catalog
+        durante a execucao do agente. Fire-and-forget: nunca levanta excecao.
+
+        Usa-se quando o agente, ao consultar fonte externa durante atendimento,
+        encontra material relevante que ainda nao esta no catalogo. A insercao
+        usa dedup por DOI/source_url, entao chamadas repetidas para o mesmo
+        artigo sao seguras.
+
+        Marca ingested_by com o nome do agente + sufixo "_auto" para distinguir
+        do fluxo manual.
+        """
+        try:
+            from src.knowledge.auto_ingest import register_article_in_catalog
+
+            payload = dict(doc_data)
+            payload.setdefault("ingested_by", f"agent_{self.agent_name}_auto")
+            if created_by is not None:
+                payload["created_by"] = created_by
+
+            return register_article_in_catalog(payload)
+        except Exception as e:
+            logger.warning(
+                "Agent '%s' failed to register article in knowledge base: %s",
+                self.agent_name,
+                e,
+            )
+            return {"registered": False, "reason": "exception", "error": str(e), "catalog_id": None}
+
     # ── Execution ──
 
     @abstractmethod

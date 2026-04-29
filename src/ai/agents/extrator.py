@@ -383,78 +383,14 @@ class AgenteExtrator(BaseAgent):
     # ── Catalog Registration ──
 
     def _register_in_catalog(self, doc_data: dict, **kwargs) -> dict:
-        """Register document in the PostgreSQL knowledge_catalog table."""
-        try:
-            from src.infra.database import db_cursor
+        """Register document in the PostgreSQL knowledge_catalog table.
 
-            with db_cursor(dictionary=True) as (conn, cursor):
-                # Check for duplicate (by DOI or URL)
-                doi = doc_data.get("doi", "")
-                url = doc_data.get("source_url", "")
-
-                if doi:
-                    cursor.execute("SELECT id FROM knowledge_catalog WHERE doi = %s LIMIT 1", (doi,))
-                    if cursor.fetchone():
-                        return {"registered": False, "reason": "duplicate_doi", "doi": doi}
-
-                if url:
-                    cursor.execute("SELECT id FROM knowledge_catalog WHERE source_url = %s LIMIT 1", (url,))
-                    if cursor.fetchone():
-                        return {"registered": False, "reason": "duplicate_url", "url": url}
-
-                cursor.execute(
-                    """
-                    INSERT INTO knowledge_catalog
-                        (title, doc_type, source, source_url, doi,
-                         category, tags, authors, journal, published_date, language,
-                         abstract, norm_number, norm_body, norm_status,
-                         storage_type, chromadb_chunks, google_file_uri, google_file_name,
-                         file_hash, file_size_bytes, mime_type,
-                         status, ingested_by, ingested_at, created_by)
-                    VALUES
-                        (%s, %s, %s, %s, %s,
-                         %s, %s::jsonb, %s::jsonb, %s, %s, %s,
-                         %s, %s, %s, %s,
-                         %s, %s, %s, %s,
-                         %s, %s, %s,
-                         %s, %s, NOW(), %s)
-                    RETURNING id
-                    """,
-                    (
-                        doc_data.get("title", "Untitled"),
-                        doc_data.get("doc_type", "article"),
-                        doc_data.get("source", "manual_upload"),
-                        url or None,
-                        doi or None,
-                        doc_data.get("category", "cannabis_medicinal"),
-                        json.dumps(doc_data.get("tags", [])),
-                        json.dumps(doc_data.get("authors", [])),
-                        doc_data.get("journal"),
-                        doc_data.get("published_date"),
-                        doc_data.get("language", "en"),
-                        doc_data.get("abstract"),
-                        doc_data.get("norm_number"),
-                        doc_data.get("norm_body"),
-                        doc_data.get("norm_status"),
-                        doc_data.get("storage_type", "pending"),
-                        doc_data.get("chromadb_chunks", 0),
-                        doc_data.get("google_file_uri"),
-                        doc_data.get("google_file_name"),
-                        doc_data.get("file_hash"),
-                        doc_data.get("file_size_bytes", 0),
-                        doc_data.get("mime_type", "application/pdf"),
-                        doc_data.get("status", "indexed"),
-                        doc_data.get("ingested_by", "agent_extrator"),
-                        doc_data.get("created_by"),
-                    ),
-                )
-                row = cursor.fetchone()
-                conn.commit()
-                return {"registered": True, "catalog_id": row["id"]}
-
-        except Exception as e:
-            logger.error("Catalog registration failed: %s", e)
-            return {"registered": False, "reason": "db_error", "error": str(e)}
+        Delegates to src.knowledge.auto_ingest.register_article_in_catalog
+        (single source of truth — also used by BaseAgent.register_to_knowledge_base
+        when other agents ingest material during attendance).
+        """
+        from src.knowledge.auto_ingest import register_article_in_catalog
+        return register_article_in_catalog(doc_data)
 
     # ── Auto Search & Ingest ──
 

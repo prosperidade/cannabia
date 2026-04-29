@@ -1,25 +1,42 @@
 # src/ai/agents/cientifico.py
-"""Agente Científico — gera relatório com evidências (RAG + ChromaDB)."""
+"""Agente Cientifico — gera relatorio com evidencias (RAG + ChromaDB).
+
+Tambem alimenta a base cientifica (C6): quando o RAG nao encontra evidencia
+no ChromaDB, o agente busca PubMed em tempo real, registra os artigos
+relevantes em knowledge_catalog e ingere os abstracts no ChromaDB para
+que a propria chamada — e as proximas — possam usar RAG real.
+"""
 
 from __future__ import annotations
+
+import logging
+import time
+
 from src.ai.agents.base import BaseAgent, AgentResult
+
+logger = logging.getLogger("cannabia.agents.cientifico")
 
 
 class AgenteCientifico(BaseAgent):
     palace_room = "pipeline_cientifico"
     agent_name = "cientifico"
-    description = "Gera relatório científico com evidências de PubMed/Cochrane via RAG"
+    description = "Gera relatorio cientifico com evidencias de PubMed/Cochrane via RAG"
 
     def _register_skills(self):
         self.register_skill(
             "search_evidence",
             self._search_evidence,
-            "Busca evidências científicas no ChromaDB",
+            "Busca evidencias cientificas no ChromaDB",
+        )
+        self.register_skill(
+            "auto_ingest_evidence",
+            self._auto_ingest_evidence,
+            "Busca PubMed em tempo real, registra no catalogo e ingere abstracts no ChromaDB",
         )
         self.register_skill(
             "generate_report",
             self._generate_report,
-            "Gera relatório científico com ou sem RAG",
+            "Gera relatorio cientifico com ou sem RAG",
         )
 
     def _search_evidence(self, query_text: str, n_results: int = 5, **kwargs) -> dict:
@@ -36,6 +53,105 @@ class AgenteCientifico(BaseAgent):
         except Exception:
             return {"chunks": [], "has_evidence": False}
 
+    def _auto_ingest_evidence(
+        self,
+        query_text: str,
+        max_results: int = 3,
+        created_by: int | None = None,
+        **kwargs,
+    ) -> dict:
+        """
+        Gancho C6: cresce a base cientifica em tempo real.
+
+        Roda quando search_evidence retorna 0 chunks. Busca PubMed pelo termo,
+        filtra por qualidade leve (titulo, abstract, identificador), registra
+        no knowledge_catalog (dedup por DOI/URL) e ingere os abstracts no
+        ChromaDB para que a propria chamada possa fazer RAG.
+        """
+        from src.knowledge.auto_ingest import is_quality_acceptable
+        from src.knowledge.pubmed import search_pubmed_articles, fetch_pubmed_abstract
+
+        result = search_pubmed_articles(query=query_text, max_results=max_results)
+        articles = result.get("articles", [])
+        if not articles:
+            return {"articles_seen": 0, "registered": 0, "chunks_added": 0}
+
+        registered = 0
+        chunks_added = 0
+        embedder = None
+        store = None
+
+        for article in articles:
+            abstract_resp = fetch_pubmed_abstract(article["pmid"])
+            abstract_text = abstract_resp.get("abstract", "")
+
+            article_full = {**article, "abstract": abstract_text}
+            if not is_quality_acceptable(article_full):
+                # Rate limit do PubMed mesmo quando descartamos.
+                time.sleep(0.4)
+                continue
+
+            doc_data = {
+                "title": article["title"],
+                "doc_type": "article",
+                "source": "pubmed",
+                "source_url": article["source_url"],
+                "doi": article.get("doi", ""),
+                "category": "cannabis_medicinal",
+                "tags": ["auto_ingest_attendance"],
+                "authors": article.get("authors", []),
+                "journal": article.get("journal", ""),
+                "published_date": article.get("published_date"),
+                "language": "en",
+                "abstract": abstract_text,
+                "storage_type": "chromadb",
+                "status": "indexed",
+            }
+
+            reg = self.register_to_knowledge_base(doc_data, created_by=created_by)
+            if not reg.get("registered"):
+                # Pode ser duplicate_doi/duplicate_url — segue ingesta no Chroma
+                # so se for caso novo. Para duplicatas, pula tambem o Chroma para
+                # nao re-embedar.
+                time.sleep(0.4)
+                continue
+            registered += 1
+
+            # Ingere o abstract no ChromaDB como chunk unico para que a propria
+            # chamada possa usar RAG sem trigger manual.
+            try:
+                if embedder is None:
+                    from src.knowledge.embeddings import EmbeddingClient
+                    from src.knowledge.vector_store import KnowledgeStore
+                    embedder = EmbeddingClient()
+                    store = KnowledgeStore()
+                embedding = embedder.embed_document(abstract_text)
+                chunk_id = f"pubmed_{article['pmid']}_chunk_0"
+                store.add(
+                    chunk_id=chunk_id,
+                    embedding=embedding,
+                    text=abstract_text,
+                    metadata={
+                        "title": article["title"],
+                        "source": "pubmed",
+                        "doi": article.get("doi", ""),
+                        "source_url": article["source_url"],
+                        "ingested_by": f"agent_{self.agent_name}_auto",
+                        "catalog_id": reg.get("catalog_id"),
+                    },
+                )
+                chunks_added += 1
+            except Exception as e:
+                logger.warning("ChromaDB ingest of PubMed abstract failed: %s", e)
+
+            time.sleep(0.4)  # PubMed rate limit (3 req/s max).
+
+        return {
+            "articles_seen": len(articles),
+            "registered": registered,
+            "chunks_added": chunks_added,
+        }
+
     def _generate_report(self, treatment_plan: dict, chunks: list = None, **kwargs) -> dict:
         from src.ai.schemas import TreatmentPlan
         tp = TreatmentPlan(**treatment_plan) if isinstance(treatment_plan, dict) else treatment_plan
@@ -51,36 +167,83 @@ class AgenteCientifico(BaseAgent):
             return {"report": report.model_dump() if hasattr(report, "model_dump") else report,
                     "tokens": tokens, "model": "gpt-4o-mini", "rag_used": False}
 
+    @staticmethod
+    def _build_query(treatment_plan: dict, kwargs: dict) -> str:
+        """
+        Monta um termo de busca util tanto para ChromaDB quanto para PubMed.
+
+        Prioriza dicas explicitas (memory_query do clinical_flow) e cai para
+        os campos textuais do treatment_plan. Evita serializar o dict inteiro.
+        """
+        memory_ctx = kwargs.get("_memory_context") or {}
+        diary_query = memory_ctx.get("query") if isinstance(memory_ctx, dict) else None
+        if diary_query:
+            return str(diary_query)
+
+        if isinstance(treatment_plan, dict):
+            parts = [
+                str(treatment_plan.get("cannabinoid_ratio", "")),
+                str(treatment_plan.get("administration_route", "")),
+                str(treatment_plan.get("monitoring_plan", "")),
+            ]
+            joined = " ".join(p for p in parts if p).strip()
+            if joined:
+                return joined
+
+        import json
+        return json.dumps(treatment_plan)[:500] if treatment_plan else "cannabis medicinal"
+
     def execute(self, **kwargs) -> AgentResult:
         treatment_plan = kwargs.get("treatment_plan", {})
         if not treatment_plan:
             return AgentResult(success=False, error="treatment_plan is required")
 
-        import json
-        query_text = json.dumps(treatment_plan) if isinstance(treatment_plan, dict) else str(treatment_plan)
+        query_text = self._build_query(treatment_plan, kwargs)
+        skills_used = ["search_evidence"]
 
-        # Search evidence
         evidence = self.invoke_skill("search_evidence", query_text=query_text)
+        chunks = evidence.get("chunks") or []
 
-        # Generate report
+        # C6: gancho de crescimento da base. Se ChromaDB nao tem evidencia,
+        # o agente busca PubMed em tempo real e ingere o que encontrar.
+        auto_ingest_enabled = kwargs.get("auto_ingest_evidence", True)
+        ingest_summary = None
+        if not chunks and auto_ingest_enabled:
+            ingest_summary = self.invoke_skill(
+                "auto_ingest_evidence",
+                query_text=query_text,
+                max_results=kwargs.get("auto_ingest_max", 3),
+                created_by=kwargs.get("created_by"),
+            )
+            skills_used.append("auto_ingest_evidence")
+
+            if ingest_summary.get("chunks_added", 0) > 0:
+                evidence = self.invoke_skill("search_evidence", query_text=query_text)
+                chunks = evidence.get("chunks") or []
+
         report_result = self.invoke_skill(
             "generate_report",
             treatment_plan=treatment_plan,
-            chunks=evidence.get("chunks"),
+            chunks=chunks,
         )
+        skills_used.append("generate_report")
 
         report = report_result["report"]
         tokens = report_result.get("tokens", {})
 
+        data = {
+            "scientific_report": report,
+            "rag_used": report_result.get("rag_used", False),
+            "model": report_result.get("model", "unknown"),
+            "chunks_used": len(chunks),
+        }
+        if ingest_summary is not None:
+            data["auto_ingest"] = ingest_summary
+
         return AgentResult(
             success=True,
-            data={
-                "scientific_report": report,
-                "rag_used": report_result.get("rag_used", False),
-                "model": report_result.get("model", "unknown"),
-                "chunks_used": len(evidence.get("chunks", [])),
-            },
+            data=data,
             tokens=tokens if isinstance(tokens, dict) else {},
             confidence=0.85 if report_result.get("rag_used") else 0.7,
-            skills_used=["search_evidence", "generate_report"],
+            skills_used=skills_used,
         )
