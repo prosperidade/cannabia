@@ -55,67 +55,159 @@ def _get_patient_id_for_user() -> Optional[int]:
 # ==================================================================
 # GET /api/v1/patient/profile
 # ==================================================================
+#
+# Shape (envelope esperado pelo frontend /p/dashboard):
+#   {
+#     "patient":     {id, name, phone, email, status, treatment_status,
+#                     treatment_phase, treatment_day, treatment_total_days},
+#     "appointment": {date, time, doctor, modality}            # ou None
+#     "treatment":   {product, dose, frequency, cbd_mg, thc_mg} # ou None
+#   }
+#
+# Campos sem fonte no schema atual sao retornados como None
+# (treatment_total_days, doctor, modality, cbd_mg, thc_mg) — o frontend
+# esconde os pedacos correspondentes. Quando os campos chegarem ao DB
+# (migration nova), basta plugar aqui.
+
+def _empty_profile_envelope(name: str) -> dict:
+    return {
+        "patient": {
+            "id": 0,
+            "name": name,
+            "phone": None,
+            "email": None,
+            "status": "ativo",
+            "treatment_status": None,
+            "treatment_phase": None,
+            "treatment_day": 0,
+            "treatment_total_days": None,
+        },
+        "appointment": None,
+        "treatment": None,
+    }
+
+
+def _format_appointment(row: dict | None) -> dict | None:
+    """Monta o sub-objeto appointment a partir de uma linha de appointments."""
+    if not row:
+        return None
+    when = row.get("appointment_date")
+    if when is None:
+        return None
+    # appointment_date e TIMESTAMP — formata em PT-BR curto.
+    months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+    date_str = f"{when.day:02d} {months[when.month - 1]}"
+    time_str = when.strftime("%H:%M")
+    return {
+        "date": date_str,
+        "time": time_str,
+        "doctor": "A confirmar",  # TODO: appointments.doctor_id (nao existe no schema)
+        "modality": "presencial",  # TODO: appointments.appointment_type (nao existe)
+    }
+
+
+def _format_treatment(plan: dict | None) -> dict | None:
+    """Monta o sub-objeto treatment a partir de uma linha de treatment_plans."""
+    if not plan:
+        return None
+    return {
+        "product": plan.get("plan_name") or "Plano Terapeutico",
+        "dose": plan.get("dosage"),
+        "frequency": plan.get("frequency"),
+        # TODO: parsing de cbd/thc a partir de ratio + dosage exige unidades
+        # padronizadas; fica para sprint dedicada de prescricao estruturada.
+        "cbd_mg": None,
+        "thc_mg": None,
+    }
+
+
+def _format_patient_block(patient_row: dict, plan_row: dict | None) -> dict:
+    """Monta o sub-objeto patient incluindo dados derivados do plano."""
+    treatment_day = 0
+    if plan_row and plan_row.get("created_at"):
+        from datetime import datetime, timezone
+        created = plan_row["created_at"]
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        delta = datetime.now(timezone.utc) - created
+        treatment_day = max(0, delta.days)
+
+    return {
+        "id": patient_row["id"],
+        "name": patient_row["name"],
+        "phone": patient_row.get("phone"),
+        "email": patient_row.get("email"),
+        "status": patient_row.get("status", "ativo"),
+        "treatment_status": plan_row.get("status") if plan_row else None,
+        "treatment_phase": plan_row.get("treatment_phase") if plan_row else None,
+        "treatment_day": treatment_day,
+        # TODO: treatment_plans.duration_days nao existe; quando criarmos a
+        # migration, leitura passa a vir do DB. Por ora null = frontend esconde
+        # a barra de progresso.
+        "treatment_total_days": None,
+    }
+
 
 @patient_portal_bp.get("/profile")
 @api_auth_required
 def patient_profile():
     patient_id = _get_patient_id_for_user()
+    fallback_name = getattr(current_user, "username", "Paciente")
 
-    if patient_id:
-        try:
-            with db_cursor(dictionary=True) as (_, cursor):
-                cursor.execute(
-                    """
-                    SELECT id, name, phone, email, status, created_at
-                    FROM patients
-                    WHERE id = %s AND clinic_id = %s
-                    """,
-                    (patient_id, g.clinic_id),
-                )
-                patient = cursor.fetchone()
-                if patient:
-                    # Also get treatment info
-                    cursor.execute(
-                        """
-                        SELECT status, dosage, cbd_thc_ratio, plan_name,
-                               CASE WHEN next_return_date IS NULL THEN 'manutencao'
-                                    WHEN next_return_date > NOW() THEN 'titulacao'
-                                    ELSE 'retorno_pendente'
-                               END AS treatment_phase
-                        FROM treatment_plans
-                        WHERE patient_id = %s AND clinic_id = %s
-                        ORDER BY created_at DESC LIMIT 1
-                        """,
-                        (patient_id, g.clinic_id),
-                    )
-                    plan = cursor.fetchone()
+    if not patient_id:
+        return _success(_empty_profile_envelope(fallback_name))
 
-                    return _success({
-                        "id": patient["id"],
-                        "name": patient["name"],
-                        "phone": patient.get("phone"),
-                        "email": patient.get("email"),
-                        "status": patient.get("status", "ativo"),
-                        "treatment_phase": plan["treatment_phase"] if plan else None,
-                        "next_appointment": None,
-                        "treatment_progress_pct": 65 if plan else 0,
-                        "current_dosage": plan["dosage"] if plan else None,
-                    })
-        except Exception:
-            logger.warning("Error fetching patient profile from DB", exc_info=True)
+    try:
+        with db_cursor(dictionary=True) as (_, cursor):
+            cursor.execute(
+                """
+                SELECT id, name, phone, email, status, created_at
+                FROM patients
+                WHERE id = %s AND clinic_id = %s
+                """,
+                (patient_id, g.clinic_id),
+            )
+            patient = cursor.fetchone()
+            if not patient:
+                return _success(_empty_profile_envelope(fallback_name))
 
-    # No patient linked to this user — return minimal profile
-    return _success({
-        "id": 0,
-        "name": getattr(current_user, "username", "Paciente"),
-        "phone": None,
-        "email": None,
-        "status": "ativo",
-        "treatment_phase": None,
-        "next_appointment": None,
-        "treatment_progress_pct": 0,
-        "current_dosage": None,
-    })
+            cursor.execute(
+                """
+                SELECT status, dosage, cbd_thc_ratio, plan_name, frequency,
+                       created_at,
+                       CASE WHEN next_return_date IS NULL THEN 'manutencao'
+                            WHEN next_return_date > NOW() THEN 'titulacao'
+                            ELSE 'retorno_pendente'
+                       END AS treatment_phase
+                FROM treatment_plans
+                WHERE patient_id = %s AND clinic_id = %s
+                ORDER BY created_at DESC LIMIT 1
+                """,
+                (patient_id, g.clinic_id),
+            )
+            plan = cursor.fetchone()
+
+            cursor.execute(
+                """
+                SELECT id, appointment_date, status
+                FROM appointments
+                WHERE patient_id = %s AND clinic_id = %s
+                  AND appointment_date >= NOW()
+                ORDER BY appointment_date ASC
+                LIMIT 1
+                """,
+                (patient_id, g.clinic_id),
+            )
+            next_appt = cursor.fetchone()
+
+            return _success({
+                "patient": _format_patient_block(patient, plan),
+                "appointment": _format_appointment(next_appt),
+                "treatment": _format_treatment(plan),
+            })
+    except Exception:
+        logger.warning("Error fetching patient profile from DB", exc_info=True)
+        return _success(_empty_profile_envelope(fallback_name))
 
 
 # ==================================================================
@@ -174,6 +266,70 @@ def patient_treatment():
         "adjustment_history": [],
         "bottle_remaining_pct": 0,
     })
+
+
+# ==================================================================
+# GET /api/v1/patient/appointments
+# ==================================================================
+#
+# Lista de consultas do paciente. Retorna {upcoming: [...], past: [...]}
+# com formatacao basica de data/hora em PT-BR.
+
+def _format_appointment_row(row: dict) -> dict:
+    when = row["appointment_date"]
+    months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+    return {
+        "id": row["id"],
+        "date": f"{when.day:02d} {months[when.month - 1]} {when.year}",
+        "time": when.strftime("%H:%M"),
+        "iso": when.isoformat(),
+        "status": row.get("status") or "agendado",
+        "doctor": "A confirmar",  # TODO: appointments.doctor_id ainda nao existe
+        "modality": "presencial",  # TODO: appointments.appointment_type ainda nao existe
+        "notes": row.get("notes"),
+    }
+
+
+@patient_portal_bp.get("/appointments")
+@api_auth_required
+def patient_appointments():
+    patient_id = _get_patient_id_for_user()
+
+    if not patient_id:
+        return _success({"upcoming": [], "past": []})
+
+    try:
+        with db_cursor(dictionary=True) as (_, cursor):
+            cursor.execute(
+                """
+                SELECT id, appointment_date, status, notes
+                FROM appointments
+                WHERE patient_id = %s AND clinic_id = %s
+                  AND appointment_date >= NOW()
+                ORDER BY appointment_date ASC
+                LIMIT 20
+                """,
+                (patient_id, g.clinic_id),
+            )
+            upcoming = [_format_appointment_row(r) for r in cursor.fetchall()]
+
+            cursor.execute(
+                """
+                SELECT id, appointment_date, status, notes
+                FROM appointments
+                WHERE patient_id = %s AND clinic_id = %s
+                  AND appointment_date < NOW()
+                ORDER BY appointment_date DESC
+                LIMIT 20
+                """,
+                (patient_id, g.clinic_id),
+            )
+            past = [_format_appointment_row(r) for r in cursor.fetchall()]
+
+            return _success({"upcoming": upcoming, "past": past})
+    except Exception:
+        logger.warning("Error fetching patient appointments from DB", exc_info=True)
+        return _success({"upcoming": [], "past": []})
 
 
 # ==================================================================
@@ -284,62 +440,84 @@ def patient_diary_list():
 # ==================================================================
 # GET /api/v1/patient/evolution
 # ==================================================================
+#
+# Shape (envelope esperado pelo frontend /p/dashboard):
+#   { "evolution": { "<key>": {"label", "value", "prev"} } }
+#
+# Diary scores sao 0-10; convertemos para 0-100. Dor (maior = pior) e
+# invertida porque o frontend trata "value > prev" como melhora.
+
+def _empty_evolution_envelope() -> dict:
+    return {
+        "evolution": {
+            "pain": {"label": "Dor", "value": 0, "prev": 0},
+            "sleep": {"label": "Sono", "value": 0, "prev": 0},
+            "mood": {"label": "Humor", "value": 0, "prev": 0},
+        }
+    }
+
 
 @patient_portal_bp.get("/evolution")
 @api_auth_required
 def patient_evolution():
     patient_id = _get_patient_id_for_user()
 
-    if patient_id:
-        try:
-            with db_cursor(dictionary=True) as (_, cursor):
-                # Current period: last 7 days
-                cursor.execute(
-                    """
-                    SELECT
-                        AVG(pain_level) AS avg_pain,
-                        AVG(sleep_quality) AS avg_sleep,
-                        AVG(overall_score) AS avg_mood
-                    FROM symptom_diary
-                    WHERE clinic_id = %s AND patient_id = %s
-                      AND created_at >= NOW() - INTERVAL '7 days'
-                    """,
-                    (g.clinic_id, patient_id),
-                )
-                current = cursor.fetchone()
+    if not patient_id:
+        return _success(_empty_evolution_envelope())
 
-                # Previous period: 14-7 days ago
-                cursor.execute(
-                    """
-                    SELECT
-                        AVG(pain_level) AS avg_pain,
-                        AVG(sleep_quality) AS avg_sleep,
-                        AVG(overall_score) AS avg_mood
-                    FROM symptom_diary
-                    WHERE clinic_id = %s AND patient_id = %s
-                      AND created_at >= NOW() - INTERVAL '14 days'
-                      AND created_at < NOW() - INTERVAL '7 days'
-                    """,
-                    (g.clinic_id, patient_id),
-                )
-                previous = cursor.fetchone()
+    try:
+        with db_cursor(dictionary=True) as (_, cursor):
+            cursor.execute(
+                """
+                SELECT
+                    AVG(pain_level) AS avg_pain,
+                    AVG(sleep_quality) AS avg_sleep,
+                    AVG(overall_score) AS avg_mood
+                FROM symptom_diary
+                WHERE clinic_id = %s AND patient_id = %s
+                  AND created_at >= NOW() - INTERVAL '7 days'
+                """,
+                (g.clinic_id, patient_id),
+            )
+            current = cursor.fetchone() or {}
 
-                def _metric(cur, prev):
-                    c = round(float(cur or 0), 1)
-                    p = round(float(prev or 0), 1)
-                    return {"current": c, "previous": p, "delta": round(c - p, 1)}
+            cursor.execute(
+                """
+                SELECT
+                    AVG(pain_level) AS avg_pain,
+                    AVG(sleep_quality) AS avg_sleep,
+                    AVG(overall_score) AS avg_mood
+                FROM symptom_diary
+                WHERE clinic_id = %s AND patient_id = %s
+                  AND created_at >= NOW() - INTERVAL '14 days'
+                  AND created_at < NOW() - INTERVAL '7 days'
+                """,
+                (g.clinic_id, patient_id),
+            )
+            previous = cursor.fetchone() or {}
 
-                return _success({
-                    "pain": _metric(current.get("avg_pain"), previous.get("avg_pain")),
-                    "sleep": _metric(current.get("avg_sleep"), previous.get("avg_sleep")),
-                    "mood": _metric(current.get("avg_mood"), previous.get("avg_mood")),
-                })
-        except Exception:
-            logger.warning("Error fetching evolution metrics from DB", exc_info=True)
+            def _scale(value, *, invert=False) -> int:
+                if value is None:
+                    return 0
+                pct = round(float(value) * 10)
+                if invert:
+                    pct = 100 - pct
+                return max(0, min(100, pct))
 
-    # No data available
-    return _success({
-        "pain": {"current": 0, "previous": 0, "delta": 0},
-        "sleep": {"current": 0, "previous": 0, "delta": 0},
-        "mood": {"current": 0, "previous": 0, "delta": 0},
-    })
+            def _metric(label: str, key: str, *, invert: bool = False) -> dict:
+                return {
+                    "label": label,
+                    "value": _scale(current.get(key), invert=invert),
+                    "prev": _scale(previous.get(key), invert=invert),
+                }
+
+            return _success({
+                "evolution": {
+                    "pain": _metric("Dor", "avg_pain", invert=True),
+                    "sleep": _metric("Sono", "avg_sleep"),
+                    "mood": _metric("Humor", "avg_mood"),
+                }
+            })
+    except Exception:
+        logger.warning("Error fetching evolution metrics from DB", exc_info=True)
+        return _success(_empty_evolution_envelope())

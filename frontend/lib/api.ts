@@ -519,6 +519,9 @@ export async function getDiaryHistory(days?: number) {
 export async function getPatientEvolution() {
   return request<Record<string, unknown>>("/patient/evolution");
 }
+export async function getPatientAppointments() {
+  return request<Record<string, unknown>>("/patient/appointments");
+}
 
 // ── Returns ──
 export async function listReturns() {

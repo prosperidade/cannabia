@@ -35,10 +35,10 @@ function getEvolutionVariant(value: number): "primary" | "success" | "warning" |
 
 type PatientData = {
   name: string;
-  treatment_status: string;
-  treatment_phase: string;
+  treatment_status: string | null;
+  treatment_phase: string | null;
   treatment_day: number;
-  treatment_total_days: number;
+  treatment_total_days: number | null;
 };
 
 type AppointmentData = {
@@ -50,10 +50,10 @@ type AppointmentData = {
 
 type TreatmentSummary = {
   product: string;
-  dose: string;
-  frequency: string;
-  cbd_mg: number;
-  thc_mg: number;
+  dose: string | null;
+  frequency: string | null;
+  cbd_mg: number | null;
+  thc_mg: number | null;
 };
 
 type EvolutionMetric = {
@@ -123,8 +123,9 @@ export default function PatientDashboardPage() {
   }
 
   const patientName = session?.user?.username ?? patient?.name ?? "Paciente";
-  const progress = patient
-    ? Math.round((patient.treatment_day / patient.treatment_total_days) * 100)
+  const totalDays = patient?.treatment_total_days ?? 0;
+  const progress = patient && totalDays > 0
+    ? Math.round((patient.treatment_day / totalDays) * 100)
     : 0;
 
   return (
@@ -160,21 +161,27 @@ export default function PatientDashboardPage() {
           </div>
         </div>
 
-        {patient && (
+        {patient && (patient.treatment_phase || totalDays > 0) && (
           <div className="pt-4 border-t border-white/5">
             <div className="flex justify-between items-center mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-on-surface">
                 Status do Tratamento
               </span>
-              <Badge tone="primary">{patient.treatment_phase}</Badge>
+              {patient.treatment_phase && (
+                <Badge tone="primary">{patient.treatment_phase}</Badge>
+              )}
             </div>
-            <ProgressBar value={progress} variant="primary" size="md" glow />
-            <div className="flex justify-between mt-2">
-              <span className="text-[10px] text-stone-500">
-                Dia {patient.treatment_day} de {patient.treatment_total_days}
-              </span>
-              <span className="text-[10px] text-stone-500">{progress}% concluido</span>
-            </div>
+            {totalDays > 0 && (
+              <>
+                <ProgressBar value={progress} variant="primary" size="md" glow />
+                <div className="flex justify-between mt-2">
+                  <span className="text-[10px] text-stone-500">
+                    Dia {patient.treatment_day} de {totalDays}
+                  </span>
+                  <span className="text-[10px] text-stone-500">{progress}% concluido</span>
+                </div>
+              </>
+            )}
           </div>
         )}
       </Card>
@@ -263,7 +270,7 @@ export default function PatientDashboardPage() {
                   <span className="text-xs font-medium text-on-surface-variant">Posologia</span>
                 </div>
                 <p className="text-sm font-bold">
-                  {treatment.dose} &bull; {treatment.frequency}
+                  {[treatment.dose, treatment.frequency].filter(Boolean).join(" • ") || "A definir"}
                 </p>
               </div>
             </div>
