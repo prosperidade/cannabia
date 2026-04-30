@@ -60,6 +60,7 @@ from src.web.routes.patient_portal import patient_portal_bp
 from src.web.routes.returns import returns_bp
 from src.web.routes.org_management import org_management_bp
 from src.web.routes.admin_users import admin_users_bp
+from src.web.routes.admin_case_aggregates import admin_case_aggregates_bp
 from src.web.routes.clinic_config import clinic_config_bp
 from src.web.routes.reports import reports_bp
 from src.web.routes.compliance import compliance_bp
@@ -199,6 +200,7 @@ def create_app() -> Flask:
     app.register_blueprint(returns_bp)
     app.register_blueprint(org_management_bp)
     app.register_blueprint(admin_users_bp)
+    app.register_blueprint(admin_case_aggregates_bp)
     app.register_blueprint(clinic_config_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(compliance_bp)
