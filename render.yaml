@@ -29,6 +29,8 @@ services:
         sync: false
       - key: WHATSAPP_APP_SECRET
         sync: false
+      - key: WHATSAPP_WEBHOOK_REQUIRE_SIGNATURE
+        value: "true"
       - key: RECIPIENT_PHONE
         sync: false
       - key: VERIFY_TOKEN

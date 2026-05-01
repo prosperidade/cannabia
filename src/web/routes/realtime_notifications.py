@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import logging
+import os
 
 from flask import Blueprint, abort, render_template, request, g
 from flask_socketio import SocketIO
@@ -46,10 +47,16 @@ def _verify_hmac_meta(raw_body: bytes) -> bool:
     """
     Valida X-Hub-Signature-256 enviada pela Meta no header da request.
     Usa hmac.compare_digest para ser resistente a timing attacks.
-    Se WHATSAPP_APP_SECRET não estiver configurado, emite warning e
-    permite a passagem (comportamento dev-mode).
+    Em produção, ou quando WHATSAPP_WEBHOOK_REQUIRE_SIGNATURE=true, a ausência
+    de WHATSAPP_APP_SECRET bloqueia o webhook. Em desenvolvimento, mantém a
+    tolerância legada para facilitar testes locais.
     """
     if not WHATSAPP_APP_SECRET:
+        if _strict_meta_webhook_hmac():
+            logger.error(
+                "WHATSAPP_APP_SECRET não configurado com validação HMAC obrigatória."
+            )
+            return False
         logger.warning(
             "WHATSAPP_APP_SECRET não configurado — validação HMAC desativada (dev mode)."
         )
@@ -67,6 +74,13 @@ def _verify_hmac_meta(raw_body: bytes) -> bool:
     ).hexdigest()
 
     return hmac.compare_digest(computed, expected)
+
+
+def _strict_meta_webhook_hmac() -> bool:
+    explicit = os.getenv("WHATSAPP_WEBHOOK_REQUIRE_SIGNATURE", "").strip().lower()
+    if explicit in {"1", "true", "yes", "on"}:
+        return True
+    return os.getenv("FLASK_ENV", "").strip().lower() == "production"
 
 
 def _process_meta_payload(data: dict, clinic_id: int) -> None:
