@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MobileLayout, type MobileNavItem } from "@/components/layouts";
 import { useApiSession } from "@/lib/use-api-session";
+import { getRoleRedirect } from "@/lib/nav";
 import { MaterialIcon } from "@/components/ui-tw";
 
 const patientNavItems: MobileNavItem[] = [
@@ -15,12 +16,19 @@ const patientNavItems: MobileNavItem[] = [
 ];
 
 export default function PatientLayout({ children }: { children: React.ReactNode }) {
-  const { loading, data, error } = useApiSession();
+  const { loading, data } = useApiSession();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && (!data || !data.authenticated)) {
       router.replace("/login");
+      return;
+    }
+    if (!loading && data?.user && data.user.role !== "Paciente") {
+      router.replace(getRoleRedirect(
+        data.user.role,
+        data.user.is_clinic_admin,
+      ));
     }
   }, [loading, data, router]);
 
@@ -36,6 +44,10 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
   }
 
   if (!data || !data.authenticated) {
+    return null;
+  }
+
+  if (data.user?.role !== "Paciente") {
     return null;
   }
 

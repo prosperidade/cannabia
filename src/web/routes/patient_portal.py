@@ -7,9 +7,11 @@ Prefix: /api/v1/patient
 from __future__ import annotations
 
 import logging
+import json
+from datetime import datetime, timezone
 from typing import Any, Optional
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, g, request
 from flask_login import current_user
 
 from src.infra.database import db_cursor
@@ -19,7 +21,6 @@ from src.web.routes.api_v1 import (
     _require_json_csrf,
     _serialize,
     _success,
-    api_auth_required,
     api_role_required,
 )
 
@@ -52,6 +53,66 @@ def _get_patient_id_for_user() -> Optional[int]:
         return None
 
 
+def _as_list(value: Any) -> list:
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    return []
+
+
+def _as_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _iso_date(value: Any) -> str | None:
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    return None
+
+
+def _parse_ratio(raw: Any) -> tuple[int, int]:
+    text = str(raw or "").strip().lower().replace("cbd", "").replace("thc", "")
+    text = text.replace("/", ":").replace("-", ":")
+    parts = [p.strip() for p in text.split(":") if p.strip()]
+    if len(parts) < 2:
+        return 0, 0
+    return _as_int(parts[0]), _as_int(parts[1])
+
+
+def _bottle_remaining_pct(plan: dict | None) -> int | None:
+    if not plan:
+        return None
+    capacity = plan.get("bottle_capacity_ml")
+    consumed = plan.get("bottle_consumed_ml")
+    if capacity is None or consumed is None:
+        return None
+    try:
+        capacity_f = float(capacity)
+        consumed_f = float(consumed)
+    except (TypeError, ValueError):
+        return None
+    if capacity_f <= 0:
+        return None
+    remaining = round(((capacity_f - consumed_f) / capacity_f) * 100)
+    return max(0, min(100, int(remaining)))
+
+
+def _treatment_day(plan_row: dict | None) -> int:
+    if not plan_row or not plan_row.get("created_at"):
+        return 0
+    created = plan_row["created_at"]
+    if not isinstance(created, datetime):
+        return 0
+    if created.tzinfo is None:
+        created = created.replace(tzinfo=timezone.utc)
+    delta = datetime.now(timezone.utc) - created
+    return max(0, delta.days)
+
+
 # ==================================================================
 # GET /api/v1/patient/profile
 # ==================================================================
@@ -64,10 +125,8 @@ def _get_patient_id_for_user() -> Optional[int]:
 #     "treatment":   {product, dose, frequency, cbd_mg, thc_mg} # ou None
 #   }
 #
-# Campos sem fonte no schema atual sao retornados como None
-# (treatment_total_days, doctor, modality, cbd_mg, thc_mg) — o frontend
-# esconde os pedacos correspondentes. Quando os campos chegarem ao DB
-# (migration nova), basta plugar aqui.
+# Campos sem fonte preenchida no banco sao retornados como None. O frontend
+# decide a apresentacao sem fingir que placeholders sao dados reais.
 
 def _empty_profile_envelope(name: str) -> dict:
     return {
@@ -101,8 +160,8 @@ def _format_appointment(row: dict | None) -> dict | None:
     return {
         "date": date_str,
         "time": time_str,
-        "doctor": "A confirmar",  # TODO: appointments.doctor_id (nao existe no schema)
-        "modality": "presencial",  # TODO: appointments.appointment_type (nao existe)
+        "doctor": row.get("doctor"),
+        "modality": row.get("appointment_type"),
     }
 
 
@@ -123,15 +182,6 @@ def _format_treatment(plan: dict | None) -> dict | None:
 
 def _format_patient_block(patient_row: dict, plan_row: dict | None) -> dict:
     """Monta o sub-objeto patient incluindo dados derivados do plano."""
-    treatment_day = 0
-    if plan_row and plan_row.get("created_at"):
-        from datetime import datetime, timezone
-        created = plan_row["created_at"]
-        if created.tzinfo is None:
-            created = created.replace(tzinfo=timezone.utc)
-        delta = datetime.now(timezone.utc) - created
-        treatment_day = max(0, delta.days)
-
     return {
         "id": patient_row["id"],
         "name": patient_row["name"],
@@ -140,16 +190,13 @@ def _format_patient_block(patient_row: dict, plan_row: dict | None) -> dict:
         "status": patient_row.get("status", "ativo"),
         "treatment_status": plan_row.get("status") if plan_row else None,
         "treatment_phase": plan_row.get("treatment_phase") if plan_row else None,
-        "treatment_day": treatment_day,
-        # TODO: treatment_plans.duration_days nao existe; quando criarmos a
-        # migration, leitura passa a vir do DB. Por ora null = frontend esconde
-        # a barra de progresso.
-        "treatment_total_days": None,
+        "treatment_day": _treatment_day(plan_row),
+        "treatment_total_days": plan_row.get("duration_days") if plan_row else None,
     }
 
 
 @patient_portal_bp.get("/profile")
-@api_auth_required
+@api_role_required("Paciente")
 def patient_profile():
     patient_id = _get_patient_id_for_user()
     fallback_name = getattr(current_user, "username", "Paciente")
@@ -174,10 +221,10 @@ def patient_profile():
             cursor.execute(
                 """
                 SELECT status, dosage, cbd_thc_ratio, plan_name, frequency,
-                       created_at,
+                       created_at, duration_days,
                        CASE WHEN next_return_date IS NULL THEN 'manutencao'
-                            WHEN next_return_date > NOW() THEN 'titulacao'
-                            ELSE 'retorno_pendente'
+                             WHEN next_return_date > NOW() THEN 'titulacao'
+                             ELSE 'retorno_pendente'
                        END AS treatment_phase
                 FROM treatment_plans
                 WHERE patient_id = %s AND clinic_id = %s
@@ -189,11 +236,13 @@ def patient_profile():
 
             cursor.execute(
                 """
-                SELECT id, appointment_date, status
-                FROM appointments
-                WHERE patient_id = %s AND clinic_id = %s
-                  AND appointment_date >= NOW()
-                ORDER BY appointment_date ASC
+                SELECT a.id, a.appointment_date, a.status, a.appointment_type,
+                       COALESCE(NULLIF(u.full_name, ''), u.username) AS doctor
+                FROM appointments a
+                LEFT JOIN users u ON u.id = a.doctor_id
+                WHERE a.patient_id = %s AND a.clinic_id = %s
+                  AND a.appointment_date >= NOW()
+                ORDER BY a.appointment_date ASC
                 LIMIT 1
                 """,
                 (patient_id, g.clinic_id),
@@ -214,8 +263,94 @@ def patient_profile():
 # GET /api/v1/patient/treatment
 # ==================================================================
 
+def _empty_treatment_envelope() -> dict:
+    return {
+        "protocol": None,
+        "schedule": [],
+        "instructions": {
+            "doctor": None,
+            "notes": None,
+            "precautions": [],
+        },
+        "monitoring": {
+            "observe": [],
+            "contact_when": [],
+        },
+        "history": [],
+    }
+
+
+def _format_schedule_slots(value: Any) -> list[dict]:
+    slots = []
+    for index, item in enumerate(_as_list(value)):
+        if isinstance(item, dict):
+            period = item.get("period") or item.get("label") or f"Dose {index + 1}"
+            slots.append({
+                "period": period,
+                "icon": item.get("icon") or "schedule",
+                "time": item.get("time") or item.get("at") or "",
+                "dose": item.get("dose") or item.get("dosage") or "",
+                "taken": bool(item.get("taken", False)),
+            })
+        elif item:
+            slots.append({
+                "period": str(item),
+                "icon": "schedule",
+                "time": "",
+                "dose": "",
+                "taken": False,
+            })
+    return slots
+
+
+def _format_adjustment_history(value: Any) -> list[dict]:
+    history = []
+    for item in _as_list(value):
+        if isinstance(item, dict):
+            history.append({
+                "date": item.get("date") or item.get("created_at") or "",
+                "change": item.get("change") or item.get("title") or item.get("description") or "",
+                "reason": item.get("reason") or item.get("notes") or "",
+            })
+    return history
+
+
+def _format_treatment_envelope(plan: dict) -> dict:
+    cbd_ratio, thc_ratio = _parse_ratio(plan.get("cbd_thc_ratio"))
+    return {
+        "protocol": {
+            "id": plan["id"],
+            "name": plan.get("plan_name") or "Plano Terapeutico",
+            "status": plan.get("status"),
+            "phase": plan.get("treatment_phase"),
+            "start_date": _iso_date(plan.get("created_at")),
+            "product": plan.get("plan_name"),
+            "concentration": plan.get("cbd_thc_ratio"),
+            "route": plan.get("route"),
+            "dose": plan.get("dosage"),
+            "frequency": plan.get("frequency"),
+            "cbd_ratio": cbd_ratio,
+            "thc_ratio": thc_ratio,
+            "bottle_remaining": _bottle_remaining_pct(plan),
+            "bottle_end_estimate": None,
+            "duration_days": plan.get("duration_days"),
+        },
+        "schedule": _format_schedule_slots(plan.get("schedule")),
+        "instructions": {
+            "doctor": None,
+            "notes": plan.get("plan_description"),
+            "precautions": _as_list(plan.get("precautions")),
+        },
+        "monitoring": {
+            "observe": [],
+            "contact_when": _as_list(plan.get("precautions")),
+        },
+        "history": _format_adjustment_history(plan.get("adjustment_history")),
+    }
+
+
 @patient_portal_bp.get("/treatment")
-@api_auth_required
+@api_role_required("Paciente")
 def patient_treatment():
     patient_id = _get_patient_id_for_user()
 
@@ -224,9 +359,14 @@ def patient_treatment():
             with db_cursor(dictionary=True) as (_, cursor):
                 cursor.execute(
                     """
-                    SELECT id, plan_name, status, cbd_thc_ratio, dosage,
+                    SELECT id, plan_name, plan_description, status, cbd_thc_ratio, dosage,
                            frequency, route, precautions, schedule, adjustment_history,
-                           created_at, updated_at
+                           created_at, updated_at, duration_days, bottle_capacity_ml,
+                           bottle_consumed_ml,
+                           CASE WHEN next_return_date IS NULL THEN 'manutencao'
+                                WHEN next_return_date > NOW() THEN 'titulacao'
+                                ELSE 'retorno_pendente'
+                           END AS treatment_phase
                     FROM treatment_plans
                     WHERE patient_id = %s AND clinic_id = %s
                     ORDER BY created_at DESC
@@ -236,36 +376,12 @@ def patient_treatment():
                 )
                 plan = cursor.fetchone()
                 if plan:
-                    return _success({
-                        "id": plan["id"],
-                        "plan_name": plan.get("plan_name", "Plano Terapeutico"),
-                        "status": plan.get("status", "ativo"),
-                        "cbd_thc_ratio": plan.get("cbd_thc_ratio", "10:1"),
-                        "dosage": plan.get("dosage"),
-                        "frequency": plan.get("frequency"),
-                        "route": plan.get("route", "sublingual"),
-                        "schedule": plan.get("schedule") or [],
-                        "precautions": plan.get("precautions") or [],
-                        "adjustment_history": plan.get("adjustment_history") or [],
-                        "bottle_remaining_pct": 68,
-                    })
+                    return _success(_format_treatment_envelope(plan))
         except Exception:
             logger.warning("Error fetching treatment plan from DB", exc_info=True)
 
     # No treatment plan found
-    return _success({
-        "id": 0,
-        "plan_name": None,
-        "status": None,
-        "cbd_thc_ratio": None,
-        "dosage": None,
-        "frequency": None,
-        "route": None,
-        "schedule": [],
-        "precautions": [],
-        "adjustment_history": [],
-        "bottle_remaining_pct": 0,
-    })
+    return _success(_empty_treatment_envelope())
 
 
 # ==================================================================
@@ -284,14 +400,14 @@ def _format_appointment_row(row: dict) -> dict:
         "time": when.strftime("%H:%M"),
         "iso": when.isoformat(),
         "status": row.get("status") or "agendado",
-        "doctor": "A confirmar",  # TODO: appointments.doctor_id ainda nao existe
-        "modality": "presencial",  # TODO: appointments.appointment_type ainda nao existe
+        "doctor": row.get("doctor"),
+        "modality": row.get("appointment_type"),
         "notes": row.get("notes"),
     }
 
 
 @patient_portal_bp.get("/appointments")
-@api_auth_required
+@api_role_required("Paciente")
 def patient_appointments():
     patient_id = _get_patient_id_for_user()
 
@@ -302,11 +418,13 @@ def patient_appointments():
         with db_cursor(dictionary=True) as (_, cursor):
             cursor.execute(
                 """
-                SELECT id, appointment_date, status, notes
-                FROM appointments
-                WHERE patient_id = %s AND clinic_id = %s
-                  AND appointment_date >= NOW()
-                ORDER BY appointment_date ASC
+                SELECT a.id, a.appointment_date, a.status, a.notes, a.appointment_type,
+                       COALESCE(NULLIF(u.full_name, ''), u.username) AS doctor
+                FROM appointments a
+                LEFT JOIN users u ON u.id = a.doctor_id
+                WHERE a.patient_id = %s AND a.clinic_id = %s
+                  AND a.appointment_date >= NOW()
+                ORDER BY a.appointment_date ASC
                 LIMIT 20
                 """,
                 (patient_id, g.clinic_id),
@@ -315,11 +433,13 @@ def patient_appointments():
 
             cursor.execute(
                 """
-                SELECT id, appointment_date, status, notes
-                FROM appointments
-                WHERE patient_id = %s AND clinic_id = %s
-                  AND appointment_date < NOW()
-                ORDER BY appointment_date DESC
+                SELECT a.id, a.appointment_date, a.status, a.notes, a.appointment_type,
+                       COALESCE(NULLIF(u.full_name, ''), u.username) AS doctor
+                FROM appointments a
+                LEFT JOIN users u ON u.id = a.doctor_id
+                WHERE a.patient_id = %s AND a.clinic_id = %s
+                  AND a.appointment_date < NOW()
+                ORDER BY a.appointment_date DESC
                 LIMIT 20
                 """,
                 (patient_id, g.clinic_id),
@@ -337,7 +457,7 @@ def patient_appointments():
 # ==================================================================
 
 @patient_portal_bp.post("/diary")
-@api_auth_required
+@api_role_required("Paciente")
 def patient_diary_create():
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -346,6 +466,8 @@ def patient_diary_create():
     payload = _json_payload()
 
     overall_score = payload.get("overall_score")
+    if overall_score is None:
+        overall_score = payload.get("overall")
     pain_level = payload.get("pain_level")
     sleep_quality = payload.get("sleep_quality")
     mood = payload.get("mood")
@@ -356,6 +478,8 @@ def patient_diary_create():
         return _error("validation_error", "overall_score e obrigatorio.", 422)
 
     patient_id = _get_patient_id_for_user()
+    if not patient_id:
+        return _error("patient_not_linked", "Paciente nao vinculado ao usuario.", 403)
 
     try:
         with db_cursor(dictionary=True) as (conn, cursor):
@@ -375,7 +499,7 @@ def patient_diary_create():
                     pain_level,
                     sleep_quality,
                     mood,
-                    _serialize(side_effects) if side_effects else "[]",
+                    json.dumps(_serialize(side_effects)) if side_effects else "[]",
                     notes,
                 ),
             )
@@ -391,8 +515,30 @@ def patient_diary_create():
 # GET /api/v1/patient/diary
 # ==================================================================
 
+def _format_diary_entry(row: dict) -> dict:
+    created = row.get("created_at")
+    if isinstance(created, datetime):
+        date_str = created.date().isoformat()
+    else:
+        date_str = str(created or "").split("T")[0].split(" ")[0]
+
+    overall_score = _as_int(row.get("overall_score"))
+    return {
+        "id": row.get("id"),
+        "date": date_str,
+        "created_at": created,
+        "overall_score": overall_score,
+        "overall": overall_score,
+        "pain_level": _as_int(row.get("pain_level")),
+        "sleep_quality": _as_int(row.get("sleep_quality")),
+        "mood": _as_int(row.get("mood")),
+        "side_effects": _as_list(row.get("side_effects")),
+        "notes": row.get("notes") or "",
+    }
+
+
 @patient_portal_bp.get("/diary")
-@api_auth_required
+@api_role_required("Paciente")
 def patient_diary_list():
     try:
         days = int(request.args.get("days", 30))
@@ -411,12 +557,13 @@ def patient_diary_list():
                            side_effects, notes, created_at
                     FROM symptom_diary
                     WHERE clinic_id = %s AND patient_id = %s
-                      AND created_at >= NOW() - INTERVAL '%s days'
+                      AND created_at >= NOW() - (%s * INTERVAL '1 day')
                     ORDER BY created_at DESC
                     """,
                     (g.clinic_id, patient_id, days),
                 )
                 entries = cursor.fetchall()
+                formatted_entries = [_format_diary_entry(e) for e in entries]
 
                 # Compute weekly averages
                 scores = [e["overall_score"] for e in entries if e.get("overall_score") is not None]
@@ -429,7 +576,7 @@ def patient_diary_list():
                     "sleep": round(sum(sleeps) / len(sleeps), 1) if sleeps else 0,
                 }
 
-                return _success({"entries": entries, "weekly_avg": weekly_avg})
+                return _success({"entries": formatted_entries, "weekly_avg": weekly_avg})
         except Exception:
             logger.warning("Error fetching diary entries from DB", exc_info=True)
 
@@ -458,7 +605,7 @@ def _empty_evolution_envelope() -> dict:
 
 
 @patient_portal_bp.get("/evolution")
-@api_auth_required
+@api_role_required("Paciente")
 def patient_evolution():
     patient_id = _get_patient_id_for_user()
 

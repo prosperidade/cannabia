@@ -17,6 +17,8 @@ services:
         fromDatabase:
           name: cannabia-db
           property: connectionString
+      - key: FLASK_ENV
+        value: "production"
       - key: OPENAI_API_KEY
         sync: false
       - key: GOOGLE_API_KEY
@@ -59,6 +61,14 @@ services:
         value: "2"
       - key: FF_BILLING_ENABLED
         value: "true"
+      - key: PAYMENT_WEBHOOK_REQUIRE_SIGNATURE
+        value: "true"
+      - key: PAYMENT_WEBHOOK_SECRET_MERCADOPAGO
+        sync: false
+      - key: PAYMENT_WEBHOOK_SECRET_ASAAS
+        sync: false
+      - key: PAYMENT_WEBHOOK_SECRET_PAGSEGURO
+        sync: false
 
   - type: web
     name: cannabia-frontend

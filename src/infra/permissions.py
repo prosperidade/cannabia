@@ -79,7 +79,7 @@ ADMIN_AUDIT = "admin:audit"
 # Mapeamento Role -> Permissões
 #
 # Cada role herda todas as permissões do nível inferior:
-#   Atendente < Medico < Admin
+#   Recepcao/Atendente < Medico < Admin
 # ═══════════════════════════════════════════════════════════════════════
 
 _ATENDENTE_PERMISSIONS: FrozenSet[str] = frozenset({
@@ -114,6 +114,7 @@ _ADMIN_PERMISSIONS: FrozenSet[str] = _MEDICO_PERMISSIONS | frozenset({
 ROLE_PERMISSIONS: dict[str, FrozenSet[str]] = {
     "Admin": _ADMIN_PERMISSIONS,
     "Medico": _MEDICO_PERMISSIONS,
+    "Recepcao": _ATENDENTE_PERMISSIONS,
     "Atendente": _ATENDENTE_PERMISSIONS,
 }
 

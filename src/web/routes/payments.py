@@ -11,6 +11,7 @@ Autenticacao:
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 from flask import Blueprint, g, request
@@ -194,18 +195,24 @@ def cancel_payment(request_id: int):
 # Webhook externo (reconciliacao automatica)
 # ═══════════════════════════════════════════════════════════════════════════
 
+def _strict_payment_webhook_signatures() -> bool:
+    explicit = os.getenv("PAYMENT_WEBHOOK_REQUIRE_SIGNATURE", "").strip().lower()
+    if explicit in {"1", "true", "yes", "on"}:
+        return True
+    return os.getenv("FLASK_ENV", "").strip().lower() == "production"
+
+
 def _verify_payment_webhook_signature(provider_slug: str, raw_body: bytes) -> tuple[bool, str | None]:
     """
     Valida assinatura HMAC-SHA256 do webhook via cabecalho X-Signature.
 
     A chave e lida de PAYMENT_WEBHOOK_SECRET_<PROVIDER_UPPER> no ambiente.
     Se a chave nao estiver configurada:
-      - em producao (FLASK_ENV=production) rejeita com False
+      - em modo estrito rejeita com False
       - fora de producao aceita mas marca signature_ok=False no log
     """
     import hashlib
     import hmac
-    import os
 
     header_sig = (
         request.headers.get("X-Signature")
@@ -218,7 +225,7 @@ def _verify_payment_webhook_signature(provider_slug: str, raw_body: bytes) -> tu
     secret = os.getenv(secret_env, "")
 
     if not secret:
-        if os.getenv("FLASK_ENV") == "production":
+        if _strict_payment_webhook_signatures():
             return False, f"Secret {secret_env} nao configurada."
         logger.warning(
             "Webhook %s sem secret configurada (%s). Aceito em modo dev.",
@@ -246,7 +253,7 @@ def payment_webhook(provider: str):
     Validacao de assinatura:
       - Header: X-Signature (ou X-Hub-Signature-256, X-Webhook-Signature)
       - Secret: PAYMENT_WEBHOOK_SECRET_<PROVIDER_UPPER> no ambiente
-      - Em FLASK_ENV=production, eventos sem assinatura valida sao REJEITADOS
+      - Em modo estrito, eventos sem assinatura valida sao REJEITADOS
 
     Corpo JSON obrigatorio:
         event_type         (str)
@@ -265,9 +272,7 @@ def payment_webhook(provider: str):
     raw_body = request.get_data() or b""
     signature_ok, sig_error = _verify_payment_webhook_signature(provider_slug, raw_body)
 
-    # Em producao bloqueia quando invalido
-    import os
-    if not signature_ok and os.getenv("FLASK_ENV") == "production":
+    if not signature_ok and _strict_payment_webhook_signatures():
         try:
             repo.log_webhook(
                 provider=provider_slug,

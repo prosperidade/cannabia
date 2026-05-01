@@ -43,6 +43,25 @@ async function proxy(request: Request, context: RouteContext) {
     headers.set("x-csrf-token", csrfToken);
   }
 
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
+  if (forwardedFor) {
+    headers.set("x-forwarded-for", forwardedFor);
+  } else if (realIp) {
+    headers.set("x-forwarded-for", realIp);
+  }
+  if (realIp) {
+    headers.set("x-real-ip", realIp);
+  }
+
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? incomingUrl.protocol.replace(":", "");
+  headers.set("x-forwarded-proto", forwardedProto);
+
+  const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (forwardedHost) {
+    headers.set("x-forwarded-host", forwardedHost);
+  }
+
   let body: string | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
     const contentType = request.headers.get("content-type") ?? "";

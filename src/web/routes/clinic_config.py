@@ -28,6 +28,7 @@ from flask import Blueprint, g
 from flask_login import current_user
 
 from src.infra.database import db_cursor
+from src.repositories.tenant_settings_repository import get_integrations, upsert_integrations
 from src.web.routes.api_v1 import (
     _error,
     _json_payload,
@@ -38,6 +39,8 @@ from src.web.routes.api_v1 import (
 
 logger = logging.getLogger("cannabia.clinic_config")
 clinic_config_bp = Blueprint("clinic_config", __name__, url_prefix="/api/v1/org")
+
+_MASKED_SECRET = "********"
 
 
 # ---------------------------------------------------------------------------
@@ -82,12 +85,8 @@ _FIELD_TO_CATEGORY: dict[str, str] = {
     "modalityOnline": "operacional",
     # integracoes
     "whatsappNumber": "integracoes",
-    "apiKeyMeta": "integracoes",
-    "apiKeyOpenAI": "integracoes",
-    "apiKeyGemini": "integracoes",
     "smtpHost": "integracoes",
     "smtpUser": "integracoes",
-    "smtpPassword": "integracoes",
     # business dna
     "businessMission": "businessDna",
     "targetPatientProfile": "businessDna",
@@ -100,6 +99,13 @@ _FIELD_TO_CATEGORY: dict[str, str] = {
     "notifyWhatsappReminder": "notificacoes",
     "notifyWhatsappFollowup": "notificacoes",
     "notifyWhatsappBilling": "notificacoes",
+}
+
+_SECRET_FIELD_TO_INTEGRATION: dict[str, str] = {
+    "apiKeyMeta": "meta_whatsapp_key",
+    "apiKeyOpenAI": "openai_api_key",
+    "apiKeyGemini": "ai_api_key",
+    "smtpPassword": "email_password",
 }
 
 
@@ -155,11 +161,79 @@ def _flatten_payload(
         cat_data = settings_obj.get(category) or {}
         if isinstance(cat_data, dict):
             for k, v in cat_data.items():
+                if k in _SECRET_FIELD_TO_INTEGRATION:
+                    continue
                 # Nao sobrescreve chaves ja preenchidas (ex.: name).
                 if k not in out:
                     out[k] = v
 
     return out
+
+
+def _masked_secret_fields(
+    tenant_id: int,
+    settings_obj: dict[str, Any] | None,
+) -> dict[str, str]:
+    out = {field: "" for field in _SECRET_FIELD_TO_INTEGRATION}
+    legacy_integrations = {}
+    if isinstance(settings_obj, dict):
+        maybe_integrations = settings_obj.get("integracoes")
+        if isinstance(maybe_integrations, dict):
+            legacy_integrations = maybe_integrations
+
+    for field in _SECRET_FIELD_TO_INTEGRATION:
+        if legacy_integrations.get(field):
+            out[field] = _MASKED_SECRET
+
+    try:
+        encrypted_integrations = get_integrations(tenant_id, decrypted=False) or {}
+    except Exception:
+        logger.warning("Falha ao carregar tenant_integrations mascarado", exc_info=True)
+        encrypted_integrations = {}
+
+    for ui_field, integration_field in _SECRET_FIELD_TO_INTEGRATION.items():
+        if encrypted_integrations.get(integration_field):
+            out[ui_field] = _MASKED_SECRET
+
+    return out
+
+
+def _split_secret_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    updates: dict[str, Any] = {}
+    for ui_field, integration_field in _SECRET_FIELD_TO_INTEGRATION.items():
+        if ui_field not in payload:
+            continue
+        value = payload.get(ui_field)
+        if value is None or value == _MASKED_SECRET:
+            continue
+        updates[integration_field] = str(value)
+    return updates
+
+
+def _legacy_secret_updates(settings_obj: dict[str, Any]) -> dict[str, Any]:
+    integrations = settings_obj.get("integracoes")
+    if not isinstance(integrations, dict):
+        return {}
+
+    updates: dict[str, Any] = {}
+    for ui_field, integration_field in _SECRET_FIELD_TO_INTEGRATION.items():
+        value = integrations.get(ui_field)
+        if value not in (None, ""):
+            updates[integration_field] = str(value)
+    return updates
+
+
+def _scrub_legacy_secret_settings(settings_obj: dict[str, Any]) -> bool:
+    integrations = settings_obj.get("integracoes")
+    if not isinstance(integrations, dict):
+        return False
+
+    changed = False
+    for field in _SECRET_FIELD_TO_INTEGRATION:
+        if field in integrations:
+            integrations.pop(field, None)
+            changed = True
+    return changed
 
 
 def _split_payload(
@@ -236,7 +310,9 @@ def get_clinic_config():
             settings_row = cur.fetchone()
             settings_obj = settings_row["settings"] if settings_row else None
 
-            return _success(_flatten_payload(clinic, branding, settings_obj))
+            response = _flatten_payload(clinic, branding, settings_obj)
+            response.update(_masked_secret_fields(tenant_id, settings_obj))
+            return _success(response)
     except Exception:
         logger.error("Erro ao buscar config do tenant", exc_info=True)
         # Fallback minimo
@@ -270,8 +346,10 @@ def update_clinic_config():
 
     payload = _json_payload()
     clinics_updates, branding_updates, settings_updates = _split_payload(payload)
+    secret_updates = _split_secret_payload(payload)
+    has_secret_fields = any(field in payload for field in _SECRET_FIELD_TO_INTEGRATION)
 
-    if not (clinics_updates or branding_updates or settings_updates):
+    if not (clinics_updates or branding_updates or settings_updates or secret_updates or has_secret_fields):
         return _error("validation_error", "Nenhum campo para atualizar.", 422)
 
     user_id = int(current_user.id) if current_user.is_authenticated else None
@@ -312,7 +390,7 @@ def update_clinic_config():
                     )
 
             # 3. tenant_settings.settings — UPSERT com merge JSONB
-            if settings_updates:
+            if settings_updates or secret_updates or has_secret_fields:
                 # jsonb_set nao funciona bem para multiplas categorias
                 # de uma vez. Estrategia: ler o existente, mesclar em
                 # Python, gravar de volta.
@@ -326,14 +404,21 @@ def update_clinic_config():
                 if not isinstance(existing, dict):
                     existing = {}
 
+                for key, value in _legacy_secret_updates(existing).items():
+                    secret_updates.setdefault(key, value)
+
+                settings_changed = False
                 for category, fields in settings_updates.items():
                     cat = existing.get(category)
                     if not isinstance(cat, dict):
                         cat = {}
                     cat.update(fields)
                     existing[category] = cat
+                    settings_changed = True
 
-                if row:
+                settings_changed = _scrub_legacy_secret_settings(existing) or settings_changed
+
+                if row and settings_changed:
                     cur.execute(
                         """
                         UPDATE tenant_settings
@@ -344,7 +429,7 @@ def update_clinic_config():
                         """,
                         (json.dumps(existing), user_id, tenant_id),
                     )
-                else:
+                elif settings_changed:
                     cur.execute(
                         """
                         INSERT INTO tenant_settings (
@@ -356,6 +441,9 @@ def update_clinic_config():
                     )
 
             conn.commit()
+
+            if secret_updates:
+                upsert_integrations(tenant_id, **secret_updates)
 
             # Retornar o shape achatado atualizado.
             cur.execute(
@@ -377,7 +465,9 @@ def update_clinic_config():
             settings_row = cur.fetchone()
             settings_obj = settings_row["settings"] if settings_row else None
 
-            return _success(_flatten_payload(clinic, branding, settings_obj))
+            response = _flatten_payload(clinic, branding, settings_obj)
+            response.update(_masked_secret_fields(tenant_id, settings_obj))
+            return _success(response)
     except Exception:
         logger.error("Erro ao atualizar config do tenant", exc_info=True)
         return _error("internal_error", "Falha ao salvar configuracao.", 500)

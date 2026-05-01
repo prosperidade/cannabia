@@ -27,7 +27,9 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
-from flask import Blueprint, jsonify, g
+from flask import Blueprint, jsonify, g, request
+
+from src.web.routes.api_v1 import api_role_required
 
 logger = logging.getLogger("cannabia.system")
 
@@ -420,76 +422,60 @@ def system_status():
 
 
 @system_bp.route("/flags", methods=["GET"])
+@api_role_required("Admin")
 def system_flags():
     """
     GET /api/v1/system/flags — Estado detalhado das feature flags.
     Admin-only.
     """
-    from src.infra.security import api_role_required
-
-    @api_role_required("Admin")
-    def _inner():
-        return jsonify({
-            "flags": flags.get_all(),
-        }), 200
-
-    return _inner()
+    return jsonify({
+        "flags": flags.get_all(),
+    }), 200
 
 
 @system_bp.route("/flags/<flag_name>", methods=["PUT"])
+@api_role_required("Admin")
 def set_flag(flag_name: str):
     """
     PUT /api/v1/system/flags/<flag_name> — Override temporário de uma flag.
     Admin-only. Body: {"enabled": true/false}
     """
-    from flask import request
-    from src.infra.security import api_role_required
+    if flag_name not in _FLAG_DEFINITIONS:
+        return jsonify({"error": f"Flag desconhecida: '{flag_name}'"}), 404
 
-    @api_role_required("Admin")
-    def _inner():
-        if flag_name not in _FLAG_DEFINITIONS:
-            return jsonify({"error": f"Flag desconhecida: '{flag_name}'"}), 404
+    body = request.get_json(silent=True) or {}
+    enabled = body.get("enabled")
 
-        body = request.get_json(silent=True) or {}
-        enabled = body.get("enabled")
+    if enabled is None:
+        return jsonify({"error": "Campo 'enabled' obrigatório."}), 400
 
-        if enabled is None:
-            return jsonify({"error": "Campo 'enabled' obrigatório."}), 400
+    flags.set_override(flag_name, bool(enabled))
 
-        flags.set_override(flag_name, bool(enabled))
-
-        return jsonify({
-            "flag": flag_name,
-            "enabled": bool(enabled),
-            "source": "override",
-            "note": "Override temporário — não sobrevive restart do processo.",
-        }), 200
-
-    return _inner()
+    return jsonify({
+        "flag": flag_name,
+        "enabled": bool(enabled),
+        "source": "override",
+        "note": "Override temporário — não sobrevive restart do processo.",
+    }), 200
 
 
 @system_bp.route("/flags/<flag_name>", methods=["DELETE"])
+@api_role_required("Admin")
 def clear_flag(flag_name: str):
     """
     DELETE /api/v1/system/flags/<flag_name> — Remove override de uma flag.
     Admin-only.
     """
-    from src.infra.security import api_role_required
+    if flag_name not in _FLAG_DEFINITIONS:
+        return jsonify({"error": f"Flag desconhecida: '{flag_name}'"}), 404
 
-    @api_role_required("Admin")
-    def _inner():
-        if flag_name not in _FLAG_DEFINITIONS:
-            return jsonify({"error": f"Flag desconhecida: '{flag_name}'"}), 404
+    flags.clear_override(flag_name)
 
-        flags.clear_override(flag_name)
+    current = flags.is_enabled(flag_name)
+    source = flags._resolve_source(flag_name)
 
-        current = flags.is_enabled(flag_name)
-        source = flags._resolve_source(flag_name)
-
-        return jsonify({
-            "flag": flag_name,
-            "enabled": current,
-            "source": source,
-        }), 200
-
-    return _inner()
+    return jsonify({
+        "flag": flag_name,
+        "enabled": current,
+        "source": source,
+    }), 200

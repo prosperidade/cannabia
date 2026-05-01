@@ -3,7 +3,7 @@
 Blueprint de Telemetria Pós-Consulta.
 
 Endpoints:
-  POST /api/telemetry/iot              — Webhook IoT (Apple Health / Google Fit)
+  POST /api/telemetry/iot              — Ingestao IoT autenticada
   GET  /api/telemetry/iot/<patient_id> — Consultar série temporal de um paciente
   GET  /api/telemetry/followups/<patient_id> — Histórico de follow-ups CRM
   POST /api/telemetry/admin/schedule-now     — Trigger manual do agendamento diário
@@ -16,6 +16,8 @@ import logging
 from datetime import datetime, timezone
 
 from flask import Blueprint, g, jsonify, request
+
+from src.web.routes.api_v1 import _require_json_csrf, api_role_required
 
 logger = logging.getLogger("cannabia.routes.telemetry")
 
@@ -56,13 +58,16 @@ def _serialize_row(row: dict) -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# POST /api/telemetry/iot — Webhook IoT (Apple Health / Google Fit)
+# POST /api/telemetry/iot — Ingestao IoT autenticada
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @telemetry_bp.route("/iot", methods=["POST"])
+@api_role_required("Admin", "AdminClinica", "Medico", "Recepcao")
 def ingest_iot_data():
     """
     Recebe leituras de telemetria de dispositivos IoT/wearables.
+    Requer sessao autenticada e CSRF; integracoes server-to-server devem usar
+    um endpoint/token dedicado em sprint futura.
 
     Aceita um único reading ou batch (array).
 
@@ -91,6 +96,10 @@ def ingest_iot_data():
         400 — Payload inválido.
         403 — clinic_id não resolvido.
     """
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
+
     clinic_id, err = _require_clinic_id()
     if err:
         return err
@@ -210,6 +219,7 @@ def _validate_reading(clinic_id: int, data: dict) -> dict:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @telemetry_bp.route("/iot/<int:patient_id>", methods=["GET"])
+@api_role_required("Admin", "AdminClinica", "Medico", "Recepcao")
 def query_patient_iot(patient_id: int):
     """
     Consulta leituras IoT de um paciente.
@@ -273,6 +283,7 @@ def query_patient_iot(patient_id: int):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @telemetry_bp.route("/followups/<int:patient_id>", methods=["GET"])
+@api_role_required("Admin", "AdminClinica", "Medico", "Recepcao")
 def list_patient_followups(patient_id: int):
     """
     Lista follow-ups agendados/enviados/respondidos de um paciente.
@@ -297,14 +308,15 @@ def list_patient_followups(patient_id: int):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @telemetry_bp.route("/admin/schedule-now", methods=["POST"])
+@api_role_required("Admin", "AdminClinica")
 def admin_schedule_now():
     """
     Trigger manual: agenda follow-ups para consultas de hoje.
     Admin-only.
     """
-    role = getattr(g, "clinic_role", None) or getattr(g, "tenant_role", None)
-    if role not in ("Admin", "admin"):
-        return jsonify({"error": "Acesso restrito a administradores."}), 403
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
 
     try:
         from src.infra.telemetry_tasks import enqueue_schedule_daily_followups
@@ -320,14 +332,15 @@ def admin_schedule_now():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @telemetry_bp.route("/admin/dispatch-now", methods=["POST"])
+@api_role_required("Admin", "AdminClinica")
 def admin_dispatch_now():
     """
     Trigger manual: processa e envia follow-ups pendentes agora.
     Admin-only.
     """
-    role = getattr(g, "clinic_role", None) or getattr(g, "tenant_role", None)
-    if role not in ("Admin", "admin"):
-        return jsonify({"error": "Acesso restrito a administradores."}), 403
+    csrf_error = _require_json_csrf()
+    if csrf_error:
+        return csrf_error
 
     try:
         from src.infra.telemetry_tasks import enqueue_dispatch_pending_followups

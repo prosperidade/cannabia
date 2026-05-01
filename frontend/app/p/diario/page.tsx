@@ -14,7 +14,13 @@ import {
   ProgressBar,
 } from "@/components/ui-tw";
 
-type DiaryEntry = SymptomDiaryEntry & { overall: number; side_effects?: string[] };
+type DiaryEntry = SymptomDiaryEntry & {
+  id?: number;
+  created_at?: string;
+  overall_score: number;
+  overall: number;
+  side_effects?: string[];
+};
 
 const SIDE_EFFECTS_OPTIONS = [
   "Boca seca",
@@ -53,7 +59,9 @@ function scoreBarVariant(score: number): "success" | "warning" | "danger" {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
+  const normalized = dateStr.includes("T") ? dateStr : `${dateStr}T12:00:00`;
+  const d = new Date(normalized);
+  if (Number.isNaN(d.getTime())) return dateStr;
   const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
   const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
@@ -65,6 +73,30 @@ function moodIcon(moodValue: number): string {
   if (moodValue >= 4) return "sentiment_neutral";
   if (moodValue >= 2) return "sentiment_dissatisfied";
   return "sentiment_very_dissatisfied";
+}
+
+function toNumber(value: unknown, fallback = 0): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function normalizeDiaryEntry(raw: unknown): DiaryEntry {
+  const entry = (raw ?? {}) as Record<string, unknown>;
+  const created = String(entry.created_at ?? "");
+  const date = String(entry.date ?? created.split("T")[0].split(" ")[0] ?? "");
+  const overallScore = toNumber(entry.overall_score ?? entry.overall);
+  return {
+    id: typeof entry.id === "number" ? entry.id : undefined,
+    date,
+    created_at: created || undefined,
+    overall_score: overallScore,
+    overall: overallScore,
+    pain_level: toNumber(entry.pain_level),
+    sleep_quality: toNumber(entry.sleep_quality),
+    mood: toNumber(entry.mood),
+    side_effects: Array.isArray(entry.side_effects) ? entry.side_effects.map(String) : [],
+    notes: typeof entry.notes === "string" ? entry.notes : "",
+  };
 }
 
 export default function DiarioPage() {
@@ -95,7 +127,8 @@ export default function DiarioPage() {
         const res = await getDiaryHistory(30);
         if (cancelled) return;
         const d = res.data as Record<string, unknown>;
-        setHistory((d.entries as DiaryEntry[]) ?? []);
+        const entries = Array.isArray(d.entries) ? d.entries.map(normalizeDiaryEntry) : [];
+        setHistory(entries);
       } catch {
         if (!cancelled) setHistoryError("Nao foi possivel carregar o historico.");
       } finally {
@@ -124,7 +157,7 @@ export default function DiarioPage() {
     try {
       const csrfToken = session?.csrf_token ?? "";
       await submitDiaryEntry(csrfToken, {
-        overall,
+        overall_score: overall,
         pain_level: painLevel,
         sleep_quality: sleepQuality,
         mood: selectedMood ?? 5,
@@ -142,7 +175,8 @@ export default function DiarioPage() {
       try {
         const res = await getDiaryHistory(30);
         const d = res.data as Record<string, unknown>;
-        setHistory((d.entries as DiaryEntry[]) ?? []);
+        const entries = Array.isArray(d.entries) ? d.entries.map(normalizeDiaryEntry) : [];
+        setHistory(entries);
       } catch {
         // History refresh failed silently
       }
@@ -412,7 +446,7 @@ export default function DiarioPage() {
               const isExpanded = expandedEntry === i;
               return (
                 <button
-                  key={entry.date}
+                  key={entry.id ?? entry.created_at ?? entry.date}
                   onClick={() => setExpandedEntry(isExpanded ? null : i)}
                   className="w-full text-left"
                 >

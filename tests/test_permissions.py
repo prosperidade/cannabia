@@ -46,6 +46,13 @@ def test_atendente_has_limited_permissions():
     assert "admin:metrics" not in atendente_perms
 
 
+def test_recepcao_keeps_atendente_permissions_after_role_rename():
+    """Recepcao e o nome canonico atual e deve manter as permissoes antigas."""
+    from src.infra.permissions import ROLE_PERMISSIONS
+
+    assert ROLE_PERMISSIONS["Recepcao"] == ROLE_PERMISSIONS["Atendente"]
+
+
 def test_role_hierarchy_is_inclusive():
     """Cada role deve conter todas as permissões do nível inferior."""
     from src.infra.permissions import ROLE_PERMISSIONS
@@ -74,6 +81,14 @@ def test_has_permission_or_semantics():
 
     with patch("src.infra.permissions.get_effective_roles", return_value=["Atendente"]):
         # Atendente tem message:read mas não medical_record:write
+        assert has_permission("message:read", "medical_record:write") is True
+        assert has_permission("admin:metrics") is False
+
+
+def test_has_permission_accepts_recepcao_role():
+    from src.infra.permissions import has_permission
+
+    with patch("src.infra.permissions.get_effective_roles", return_value=["Recepcao"]):
         assert has_permission("message:read", "medical_record:write") is True
         assert has_permission("admin:metrics") is False
 
