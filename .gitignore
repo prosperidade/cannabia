@@ -42,6 +42,10 @@ chroma_db/
 cannabia.log
 .pytest_tmp/
 pytest-cache-files-*/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
 
 # ──────────────────────────────────────────────
 # IDEs E EDITORES
