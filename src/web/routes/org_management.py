@@ -375,6 +375,8 @@ def org_dashboard():
             })
     except Exception:
         logger.warning("Error fetching org dashboard from DB", exc_info=True)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success(empty)
 
 
@@ -420,6 +422,8 @@ def org_patients():
             return _success(items, meta=meta)
     except Exception:
         logger.warning("Error fetching org patients from DB", exc_info=True)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success([], meta={"page": page, "page_size": page_size, "total": 0})
 
 

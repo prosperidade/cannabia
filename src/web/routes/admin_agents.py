@@ -105,6 +105,8 @@ def get_agent_diary(agent_name: str):
         return _success(diary)
     except Exception as e:
         logger.error("Error fetching diary for %s: %s", agent_name, e)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success([])
 
 
