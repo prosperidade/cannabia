@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any, Dict, Protocol
 
 from src.ai.agents import AgenteAnamnese, AgenteCientifico, AgenteTratamento
@@ -40,11 +41,13 @@ class SpecialistClinicalFlow:
             ]
         ).strip(" |")
 
+        t0 = time.perf_counter()
         with measure("ai.stage.clinical"):
             anamnese_result = self.anamnese.run(
                 patient_data=patient_data,
                 _memory_query=memory_query or None,
             )
+        clinical_ms = int((time.perf_counter() - t0) * 1000)
         if not anamnese_result.success:
             raise RuntimeError(anamnese_result.error or "Falha na etapa de anamnese.")
 
@@ -56,11 +59,13 @@ class SpecialistClinicalFlow:
             ]
         ).strip(" |")
 
+        t0 = time.perf_counter()
         with measure("ai.stage.treatment"):
             tratamento_result = self.tratamento.run(
                 clinical_analysis=clinical_analysis,
                 _memory_query=treatment_query or None,
             )
+        treatment_ms = int((time.perf_counter() - t0) * 1000)
         if not tratamento_result.success:
             raise RuntimeError(tratamento_result.error or "Falha na etapa de tratamento.")
 
@@ -72,11 +77,13 @@ class SpecialistClinicalFlow:
             ]
         ).strip(" |")
 
+        t0 = time.perf_counter()
         with measure("ai.stage.report"):
             cientifico_result = self.cientifico.run(
                 treatment_plan=treatment_plan,
                 _memory_query=scientific_query or None,
             )
+        report_ms = int((time.perf_counter() - t0) * 1000)
         if not cientifico_result.success:
             raise RuntimeError(cientifico_result.error or "Falha na etapa científica.")
 
@@ -94,6 +101,11 @@ class SpecialistClinicalFlow:
                 "input": token_1["input"] + token_2["input"] + token_3["input"],
                 "output": token_1["output"] + token_2["output"] + token_3["output"],
                 "total": token_1["total"] + token_2["total"] + token_3["total"],
+            },
+            "timings_ms": {
+                "clinical": clinical_ms,
+                "treatment": treatment_ms,
+                "report": report_ms,
             },
             "execution_mode": "specialists",
             "specialists_used": [
