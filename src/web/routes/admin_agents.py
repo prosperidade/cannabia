@@ -45,7 +45,11 @@ def list_agents():
                 diary = instance.get_diary(last_n=100)
                 diary_count = len(diary)
             except Exception:
-                pass
+                logger.debug(
+                    "Diary count unavailable for %s (non-critical)",
+                    cls.__name__,
+                    exc_info=True,
+                )
 
             agents_list.append({
                 "name": instance.agent_name,

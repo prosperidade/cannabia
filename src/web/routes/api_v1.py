@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from functools import wraps
@@ -7,6 +8,8 @@ from typing import Any, Iterable, Optional
 
 from flask import Blueprint, g, jsonify, request, session
 from flask_login import current_user, login_user, logout_user
+
+logger = logging.getLogger("cannabia.api_v1")
 
 from src.config import FRONTEND_ORIGINS, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_S
 from src.infra.security import get_effective_roles, normalize_role_name
@@ -508,6 +511,7 @@ def intake_triage_submit():
     except RuntimeError as exc:
         return _error("internal_error", str(exc), 500)
     except Exception:
+        logger.exception("Erro inesperado em submit_triage_intake")
         return _error("internal_error", "Erro ao processar triagem.", 500)
 
 
@@ -763,7 +767,12 @@ def appointment_triage_link(appointment_id: int):
         try:
             update_appointment_triage_link(appointment_id, link["link_id"])
         except Exception:
-            pass
+            logger.warning(
+                "Falha ao atualizar appointment.triage_link_id (appointment_id=%s, link_id=%s)",
+                appointment_id,
+                link["link_id"],
+                exc_info=True,
+            )
 
     from src.infra.audit import log_audit_event
 

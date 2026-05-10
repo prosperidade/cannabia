@@ -158,6 +158,10 @@ def _billing_enabled() -> bool:
         from src.web.routes.system import flags
         return flags.is_enabled("billing_enabled")
     except Exception:
+        logger.warning(
+            "Falha ao ler feature flag 'billing_enabled' — fail-safe: enforcando billing.",
+            exc_info=True,
+        )
         return True  # Se não conseguir ler a flag, enforça por segurança
 
 

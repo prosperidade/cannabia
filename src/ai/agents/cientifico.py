@@ -51,6 +51,11 @@ class AgenteCientifico(BaseAgent):
             chunks = store.query(query_vec, n_results=n_results)
             return {"chunks": chunks, "has_evidence": bool(chunks)}
         except Exception:
+            logger.warning(
+                "RAG search_evidence falhou — degradando para sem evidencia (chunks=[]). "
+                "Verifique ChromaDB / EmbeddingClient.",
+                exc_info=True,
+            )
             return {"chunks": [], "has_evidence": False}
 
     def _auto_ingest_evidence(
