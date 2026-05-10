@@ -388,6 +388,37 @@ def test_prescription_result_pii_is_redacted_by_audit_sanitizer():
     assert pr["patient_name"] == "[REDACTED:key]"
 
 
+def test_dosage_defaults_used_false_when_anamnesis_complete(monkeypatch):
+    """Sprint 2 Track AI: AnamnesisInput agora aceita weight_kg + height_cm +
+    prior_cannabis_use (Optional). Quando wizard de triagem alimenta os 3
+    campos, defaults_used=False e o Prescritor recebe os valores reais."""
+    Anamnese = _make_fake_anamnese()
+    Tratamento = _make_fake_tratamento()
+    Prescritor = _make_fake_prescritor()
+    Cientifico = _make_fake_cientifico()
+    _patch_all_agents(monkeypatch, Anamnese, Tratamento, Prescritor, Cientifico)
+
+    flow = SpecialistClinicalFlow()
+    flow.run(
+        AnamnesisInput(
+            patient_name="Paciente Completo",
+            age=40,
+            main_complaint="Dor cronica",
+            symptoms=["dor"],
+            weight_kg=80.0,
+            height_cm=175.0,
+            prior_cannabis_use=True,
+        )
+    )
+
+    pres_kwargs = Prescritor.calls[0]
+    assert pres_kwargs["dosage_input"]["weight_kg"] == 80.0
+    assert pres_kwargs["dosage_input"]["height_cm"] == 175.0
+    assert pres_kwargs["dosage_input"]["prior_cannabis_use"] is True
+    # Conservador: ambos campos populados → defaults nao usados
+    assert pres_kwargs["_dosage_defaults_used"] is False
+
+
 def test_build_clinical_flow_prefers_specialists(monkeypatch):
     monkeypatch.setenv("AI_EXECUTION_MODE", "specialists")
     _patch_all_agents(

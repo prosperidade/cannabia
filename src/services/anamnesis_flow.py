@@ -225,6 +225,11 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
                 current_medications=data.get("current_medications", []),
                 allergies=data.get("allergies", []),
                 medical_history=data.get("medical_history", ""),
+                # WhatsApp ainda nao coleta peso/altura/uso previo —
+                # back-compat com defaults conservadores em clinical_flow.
+                weight_kg=None,
+                height_cm=None,
+                prior_cannabis_use=None,
             )
 
             flow = build_clinical_flow()

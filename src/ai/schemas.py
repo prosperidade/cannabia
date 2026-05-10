@@ -12,6 +12,9 @@ class AnamnesisInput(BaseModel):
     current_medications: Optional[List[str]] = []
     allergies: Optional[List[str]] = []
     medical_history: Optional[str] = None
+    weight_kg: Optional[float] = Field(default=None, ge=1.0, le=300.0)
+    height_cm: Optional[float] = Field(default=None, ge=30.0, le=250.0)
+    prior_cannabis_use: Optional[bool] = None
 
 
 class ClinicalAnalysis(BaseModel):

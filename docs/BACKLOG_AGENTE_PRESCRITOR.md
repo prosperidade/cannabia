@@ -128,24 +128,29 @@ Aplicada em [src/ai/prescriber.py:253-324](../src/ai/prescriber.py#L253-L324) �
 
 ## Dívida 4 — `AnamnesisInput` não coleta `weight_kg` nem `prior_cannabis_use`
 
-**Sprint alvo:** 2 (alta prioridade — flag `dosage_defaults_used=True` está ATIVA HOJE em 100% dos atendimentos por causa disso).
+**✅ FECHADA na Sprint 2 (Track AI — branch `feat/sprint-2-AI-anamnesis-extension`)**
 
-**Diagnóstico:** [src/ai/schemas.py](../src/ai/schemas.py) `AnamnesisInput` tem só: `patient_name`, `age`, `main_complaint`, `symptoms`, `current_medications`, `allergies`, `medical_history`. Sem peso, sem altura, sem histórico de uso prévio de cannabis. [src/ai/clinical_flow.py:87-91](../src/ai/clinical_flow.py#L87-L91) aplica defaults conservadores:
+**Surpresa do Phase 0:** o wizard de triagem (`step-dados-fisicos.tsx` + `types-triagem.ts`) JÁ coletava peso/altura/uso prévio. O bug não era ausência de UI, era propagação: `triage_intake_service.py:190-198` extraía os 3 campos das linhas 185-187 mas dropava-os ao construir `AnamnesisInput`. Resultado: `dosage_defaults_used=True` em 100% dos atendimentos.
+
+**Trabalho realizado:**
+
+1. ✅ `src/ai/schemas.py` — `AnamnesisInput` recebeu `weight_kg: Optional[float]` (ge=1.0/le=300.0), `height_cm: Optional[float]` (ge=30.0/le=250.0), `prior_cannabis_use: Optional[bool]`.
+2. ✅ `src/services/triage_intake_service.py` — construtor `AnamnesisInput(...)` agora passa os 3 campos extraídos do payload.
+3. ✅ `src/services/anamnesis_flow.py` (WhatsApp) — passa `None` explícito (WhatsApp ainda não coleta; back-compat com defaults conservadores).
+4. ✅ `src/ai/clinical_flow.py:87-92` — defaults conservadores (`DOSAGE_DEFAULT_WEIGHT_KG=70.0`, `DOSAGE_DEFAULT_PRIOR_USE=False`) mantidos como fallback. `defaults_used` continua usando `or` (qualquer campo `None` mantém badge).
+5. ✅ Frontend tooltip atualizado em `frontend/app/atendimentos/[id]/page.tsx`.
+6. ✅ Tests: regression (`test_build_triage_payload_propagates_physical_data_to_anamnesis_input`) + happy path (`test_dosage_defaults_used_false_when_anamnesis_complete`).
+
+**Resultado clínico:** quando wizard de triagem alimenta os 3 campos, `dosage_defaults_used=False` e o Prescritor calcula com peso/uso reais. Atendimentos via WhatsApp continuam exibindo o badge (gap de UI, não código).
+
+**Diagnóstico histórico (mantido para auditoria):** [src/ai/schemas.py](../src/ai/schemas.py) `AnamnesisInput` tinha só: `patient_name`, `age`, `main_complaint`, `symptoms`, `current_medications`, `allergies`, `medical_history`. Sem peso, sem altura, sem histórico de uso prévio de cannabis. [src/ai/clinical_flow.py:87-91](../src/ai/clinical_flow.py#L87-L91) aplicava defaults conservadores:
 
 ```python
 DOSAGE_DEFAULT_WEIGHT_KG = 70.0   # adulto médio
 DOSAGE_DEFAULT_PRIOR_USE = False  # naive (halve initial dose)
 ```
 
-**Impacto clínico:** dosagem inicial sai sub-otimizada para pacientes muito magros/pesados; pacientes experientes recebem dose halved desnecessariamente. UI mostra badge "Dosagem com defaults conservadores" sinalizando ao médico que ele deve ajustar manualmente.
-
-**Trabalho Sprint 2:**
-
-1. Estender `AnamnesisInput` com `weight_kg: Optional[float]`, `height_cm: Optional[float]`, `prior_cannabis_use: Optional[bool]`.
-2. Estender widget de triagem (`PHYSICAL_DATA_SLIDER` já existe — ver [src/ai/schemas.py:45-54](../src/ai/schemas.py#L45-L54)) pra coletar peso e altura.
-3. Adicionar widget novo `CANNABIS_HISTORY_TOGGLE` ou estender `MEDICATION_SELECTOR` pra capturar uso prévio.
-4. Remover defaults em `clinical_flow.py` quando todos os campos novos estiverem populados (manter como fallback temporário durante migração).
-5. Quando `dosage_defaults_used` puder ser `False` em produção, atualizar este doc e o badge UI.
+**Impacto clínico (pré-fix):** dosagem inicial sub-otimizada para pacientes muito magros/pesados; pacientes experientes recebiam dose halved desnecessariamente. UI mostrava badge "Dosagem com defaults conservadores" sinalizando ao médico que deveria ajustar manualmente.
 
 ---
 

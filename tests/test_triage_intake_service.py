@@ -70,6 +70,20 @@ def test_build_triage_payload_maps_prescription_contract_fields():
     assert anamnesis_data["chief_complaint"] == anamnesis_input.main_complaint
 
 
+def test_build_triage_payload_propagates_physical_data_to_anamnesis_input():
+    """Sprint 2 Track AI — Divida 4: regressao do bug do construtor.
+    Antes da correcao, triage_intake_service.py:190-198 dropava
+    weight_kg/height_cm/prior_cannabis_use do AnamnesisInput. Resultado:
+    dosage_defaults_used=True em 100% dos atendimentos. Pos-correcao,
+    os 3 campos chegam ao AnamnesisInput e o Prescritor recebe valores
+    reais do wizard de triagem."""
+    anamnesis_input, _ = triage_intake_service.build_triage_payload(_sample_triage_payload())
+
+    assert anamnesis_input.weight_kg == 62.0
+    assert anamnesis_input.height_cm == 168.0
+    assert anamnesis_input.prior_cannabis_use is True
+
+
 def test_submit_triage_intake_persists_report_and_returns_ready_contract(monkeypatch):
     saved: dict = {}
     events: list[dict] = []
