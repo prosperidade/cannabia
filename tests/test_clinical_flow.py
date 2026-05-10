@@ -99,6 +99,16 @@ def test_specialist_clinical_flow_composes_specialists(monkeypatch):
         assert isinstance(elapsed, int), f"timings_ms[{stage}] deve ser int (ms)"
         assert elapsed >= 0, f"timings_ms[{stage}] deve ser >= 0"
 
+    # Sprint 1 Track B.2 — tokens_per_stage extensivel com modelo + tokens por etapa
+    assert "tokens_per_stage" in result
+    assert set(result["tokens_per_stage"].keys()) == {"clinical", "treatment", "report"}
+    assert result["tokens_per_stage"]["clinical"]["model"] == "gpt-4o-mini"
+    assert result["tokens_per_stage"]["treatment"]["model"] == "gpt-4o-mini"
+    assert result["tokens_per_stage"]["report"]["model"] == "gemini-1.5-flash"
+    assert result["tokens_per_stage"]["clinical"]["tokens"] == {"input": 10, "output": 5}
+    assert result["tokens_per_stage"]["treatment"]["tokens"] == {"input": 20, "output": 10}
+    assert result["tokens_per_stage"]["report"]["tokens"] == {"input": 30, "output": 12}
+
 
 def test_build_clinical_flow_prefers_specialists(monkeypatch):
     class FakeAnamnese:

@@ -91,16 +91,38 @@ class SpecialistClinicalFlow:
         token_2 = self._token_triplet(tratamento_result.tokens)
         token_3 = self._token_triplet(cientifico_result.tokens)
 
+        # Modelo por etapa: anamnese e tratamento usam OpenAI gpt-4o-mini
+        # (chains.OPENAI_MODEL); cientifico usa o reportado pelo agente (Gemini
+        # quando RAG ativo, gpt-4o-mini no fallback).
+        report_model = cientifico_result.data.get("model", "gpt-4o-mini")
+
         return {
             "clinical_analysis": clinical_analysis,
             "treatment_plan": treatment_plan,
             "scientific_report": cientifico_result.data["scientific_report"],
             "rag_chunks_used": cientifico_result.data.get("chunks_used", 0),
-            "report_model": cientifico_result.data.get("model", "unknown"),
+            "report_model": report_model,
             "token_usage": {
                 "input": token_1["input"] + token_2["input"] + token_3["input"],
                 "output": token_1["output"] + token_2["output"] + token_3["output"],
                 "total": token_1["total"] + token_2["total"] + token_3["total"],
+            },
+            # tokens_per_stage e o input correto para cost-per-stage em
+            # service.py — cada etapa pode usar modelo diferente. Estrutura
+            # extensivel: Track C adicionara entry "prescription".
+            "tokens_per_stage": {
+                "clinical": {
+                    "model": "gpt-4o-mini",
+                    "tokens": {"input": token_1["input"], "output": token_1["output"]},
+                },
+                "treatment": {
+                    "model": "gpt-4o-mini",
+                    "tokens": {"input": token_2["input"], "output": token_2["output"]},
+                },
+                "report": {
+                    "model": report_model,
+                    "tokens": {"input": token_3["input"], "output": token_3["output"]},
+                },
             },
             "timings_ms": {
                 "clinical": clinical_ms,
