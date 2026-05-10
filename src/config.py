@@ -1,9 +1,57 @@
 # src/config.py
 
+import logging
 import os
+import secrets
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
+_logger = logging.getLogger("cannabia.config")
+
+
+def _get_secret_key_or_fail() -> str:
+    """Resolve SECRET_KEY com estratégia híbrida FLASK_ENV-aware (Q-A3 / A.4).
+
+    Producao (FLASK_ENV=production): raise se ausente — fallback hardcoded
+    e' inaceitavel quando cookies/sessoes carregam dados sensiveis.
+
+    Dev: gera chave random in-memory + warning. App sobe out-of-the-box;
+    cookies invalidam a cada restart, mas isso e' ok em dev.
+    """
+    key = os.getenv("SECRET_KEY", "").strip()
+    if key:
+        return key
+    if os.getenv("FLASK_ENV", "").lower() == "production":
+        raise RuntimeError(
+            "SECRET_KEY env var required in production. "
+            "Render: gerar via dashboard ou usar render.yaml generateValue:true."
+        )
+    fallback = secrets.token_hex(32)
+    _logger.warning(
+        "SECRET_KEY ausente em ambiente non-production. Usando chave random "
+        "em-memoria — cookies invalidam a cada restart. Setar SECRET_KEY no "
+        ".env para sessoes persistentes em dev."
+    )
+    return fallback
+
+
+def _check_encryption_key_or_fail() -> None:
+    """Q-A5 / A.4: produção exige ENCRYPTION_KEY explícita.
+
+    src/infra/crypto.py usa SECRET_KEY como seed HKDF se ENCRYPTION_KEY
+    ausente — fallback dev-only. Em prod, rotacionar SECRET_KEY (pra
+    invalidar sessoes) NAO deve invalidar ciphertexts em colunas
+    _encrypted; por isso a chave de cripto precisa ser separada.
+    """
+    if os.getenv("FLASK_ENV", "").lower() == "production":
+        if not os.getenv("ENCRYPTION_KEY"):
+            raise RuntimeError(
+                "ENCRYPTION_KEY env var required in production. "
+                "Render: gerar via dashboard ou usar render.yaml "
+                "generateValue:true. Nao usar SECRET_KEY como seed em prod."
+            )
 
 # ==============================
 # BANCO DE DADOS
@@ -22,7 +70,8 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # ==============================
 # SEGURANÇA
 # ==============================
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-fallback")
+SECRET_KEY = _get_secret_key_or_fail()
+_check_encryption_key_or_fail()
 
 SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
 SESSION_COOKIE_HTTPONLY = True

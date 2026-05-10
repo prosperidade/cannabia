@@ -86,6 +86,36 @@ from src.repositories.user_repository import (
 
 logger = logging.getLogger("cannabia.app")
 
+
+def _validate_next_url(next_url: str | None) -> str | None:
+    """A.4: valida next_url contra open redirect + header injection.
+
+    Aceita apenas paths relativos ao mesmo host. Retorna None pra qualquer
+    valor inseguro — chamador deve fazer fallback pro index.
+
+    Bloqueia:
+    - Falsy (None, vazio).
+    - Nao comeca com '/' (URL absoluta tipo https:// ou javascript:).
+    - Comeca com '//' (protocol-relative URL — '//evil.com' carrega evil).
+    - Contem '://' (schema absoluto inserido depois do '/').
+    - Contem '\\' (Windows-style path / parser quirks).
+    - Contem '\\n' ou '\\r' (CRLF -> HTTP header injection).
+    """
+    if not next_url:
+        return None
+    if not next_url.startswith("/"):
+        return None
+    if next_url.startswith("//"):
+        return None
+    if "://" in next_url:
+        return None
+    if "\\" in next_url:
+        return None
+    if "\n" in next_url or "\r" in next_url:
+        return None
+    return next_url
+
+
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -101,7 +131,7 @@ def create_app() -> Flask:
     # ==============================
     # CONFIG
     # ==============================
-    app.config["SECRET_KEY"] = SECRET_KEY or "dev-secret-key-fallback"
+    app.config["SECRET_KEY"] = SECRET_KEY  # ja validado por config._get_secret_key_or_fail
     app.config["SESSION_COOKIE_SECURE"] = SESSION_COOKIE_SECURE   # True em produção (HTTPS)
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = SESSION_COOKIE_SAMESITE
@@ -270,7 +300,7 @@ def create_app() -> Flask:
                         role=user["role"],
                     )
                 )
-                next_url = request.args.get("next")
+                next_url = _validate_next_url(request.args.get("next"))
                 return redirect(next_url or url_for("index"))
 
             return (

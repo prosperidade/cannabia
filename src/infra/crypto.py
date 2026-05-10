@@ -23,11 +23,20 @@ from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
 
+# A.4 / Q-A3: SECRET_KEY ja validado por src.config._get_secret_key_or_fail
+# (raise em prod, random in-memory + warning em dev). Importado direto pra
+# nao replicar a logica de fallback aqui.
+from src.config import SECRET_KEY as _SECRET_KEY
+
 logger = logging.getLogger("cannabia.crypto")
 
 # Variáveis de ambiente
 _ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
-_SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-fallback")
+# _SECRET_KEY-como-seed-HKDF e' fallback dev-only. Em producao,
+# src.config._check_encryption_key_or_fail() ja garante que ENCRYPTION_KEY
+# existe; o caminho de fallback abaixo e' inalcancavel em prod (defense-in-depth
+# tambem em _derive_key — raise se FLASK_ENV=production). Rotacionar SECRET_KEY
+# nao deve invalidar ciphertexts — por isso ENCRYPTION_KEY separada.
 
 
 def _derive_key() -> bytes:
@@ -48,6 +57,15 @@ def _derive_key() -> bytes:
         # Senão, deriva via HKDF do valor fornecido
         raw = _ENCRYPTION_KEY.encode()
     else:
+        # A.4 / Q-A5: defense-in-depth. config.py ja raise no import se
+        # FLASK_ENV=production sem ENCRYPTION_KEY; este check garante que
+        # nem por bypass acidental o caminho de fallback HKDF eh executado
+        # em prod.
+        if os.getenv("FLASK_ENV", "").lower() == "production":
+            raise RuntimeError(
+                "ENCRYPTION_KEY required in production. Recusando derivar "
+                "chave Fernet de SECRET_KEY — fallback dev-only."
+            )
         logger.warning(
             "ENCRYPTION_KEY não definida. Derivando chave de SECRET_KEY via HKDF. "
             "Configure ENCRYPTION_KEY em produção para segurança adequada."
