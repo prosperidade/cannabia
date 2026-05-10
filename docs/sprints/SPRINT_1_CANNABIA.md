@@ -60,7 +60,9 @@ Sprint 1 fecha 4 frentes simultâneas — diferente do EnjoyFun, CannabIA tem **
 
 - `.env` (local de dev — confirmar quais keys aparecem no repo, prefixos, mtime)
 - `.env.example` (template oficial)
-- `src/config.py:25` (entender resolução de envs + SECRET_KEY fallback)
+- `src/config.py:25` (SECRET_KEY fallback principal — alvo de A.4)
+- `src/app.py:104` (segundo fallback inline `SECRET_KEY or "dev-secret-key-fallback"` — alvo de A.4; ver Q-A3)
+- `src/infra/crypto.py:30` (terceiro fallback, seed HKDF se ENCRYPTION_KEY ausente — alvo de A.4; ver Q-A3 + comentário em `crypto.py:52`)
 - `src/infra/database.py:38` (SimpleConnectionPool atual)
 - `src/app.py:273-274` (linha 273: `next_url = request.args.get("next")`; linha 274: o redirect propriamente)
 - `src/ai/service.py:168-189` (bloco `save_ai_audit_log`; linha 174 `input_payload`; linha **175** `output_payload`)
@@ -78,6 +80,7 @@ Sprint 1 fecha 4 frentes simultâneas — diferente do EnjoyFun, CannabIA tem **
 - Em produção, as keys vivem no Render dashboard — Phase 0 não acessa Render. Apenas listar o que precisa rotacionar.
 - `_sanitize_pii` em `memory.py:54` é regex-based (escrita pra MemPalace, texto livre). Para `ai_audit_logs.input_payload/output_payload` que é **JSONB estruturado**, regex em string serializada é a abordagem errada — corrompe estrutura. Ver pergunta numerada Q-A1.
 - `next_url` em `src/app.py:273-274`: 273 é a leitura do GET param, 274 é o redirect. A.4 valida next_url entre as 2 linhas.
+- **`SECRET_KEY` fallback aparece em 3 pontos** (não 1): `config.py:25`, `app.py:104` (inline), `crypto.py:30` (seed HKDF). Ver Q-A3.
 
 **(b) Confirmações:**
 - `ThreadedConnectionPool` é drop-in replacement do `SimpleConnectionPool` (mesma assinatura).
@@ -89,6 +92,7 @@ Sprint 1 fecha 4 frentes simultâneas — diferente do EnjoyFun, CannabIA tem **
 - **Rotação de keys em produção** exige janela curta (~5min). Phase 0 não rotaciona.
 - **PII redaction só forward.** Logs antigos com PII viram dívida explícita pra purge separado (Sprint 2 + retention policy). Documentar em `docs/BACKLOG_LGPD.md`.
 - **Estratégia de PII redaction (CRÍTICO):** ver Q-A1 abaixo.
+- **`SECRET_KEY` como seed de criptografia (CRÍTICO):** `crypto.py:30+52` usa `SECRET_KEY` como base de HKDF se `ENCRYPTION_KEY` não definida. Fallback `dev-secret-key-fallback` público vira chave de cripto pública conhecida — vulnerabilidade séria. Ver Q-A3.
 
 **(d) Proposta:**
 - Ordem: A.2 (pool fix, isolado) → A.4 (next_url + SECRET_KEY) → A.3 (PII redaction, mais elaborado) → A.1 (rotação de keys, último porque exige janela).
@@ -120,6 +124,30 @@ A partir do schema de `patients`, `medical_history`, e demais tabelas que alimen
 - Profissionais: identificação do médico responsável, CRM, conselho regional.
 - Outros campos clínicos específicos do CannabIA que aparecerem nos schemas.
 
+**Q-A3 (CRÍTICA): Estratégia de SECRET_KEY failsafe (3 pontos simultâneos)**
+
+`SECRET_KEY` com fallback `"dev-secret-key-fallback"` aparece em **3 pontos**, não 1:
+
+1. `src/config.py:25` — fallback principal.
+2. `src/app.py:104` — `app.config["SECRET_KEY"] = SECRET_KEY or "dev-secret-key-fallback"` (fallback inline secundário).
+3. `src/infra/crypto.py:30` — usado como seed HKDF se `ENCRYPTION_KEY` não definida (ver comentário em `crypto.py:52`).
+
+Se A.4 só consertar `config.py:25`, sobram 2 pontos onde a string fallback aceita produção sem `SECRET_KEY` setada. Pior: `crypto.py` usa `SECRET_KEY` como seed de chave de criptografia — fallback público conhecido = vulnerabilidade séria.
+
+Decida entre:
+
+- **(a) Sempre raise:** `if not SECRET_KEY: raise RuntimeError("SECRET_KEY env var required")` aplicado nos 3 pontos. Dev é forçado a setar em `.env`. Mais limpo, mas friction inicial.
+
+- **(b) Random in-memory em dev:** se `FLASK_ENV != "production"` e `SECRET_KEY` ausente, gera `secrets.token_hex(32)` em memória. Imprime warning. Dev funciona out-of-the-box; cookies invalidam a cada restart.
+
+- **(c) Híbrido com FLASK_ENV:** raise em produção (hard); random in-memory + warning em dev. Mais seguro que (b), menos friction que (a).
+
+**Recomendação:** (c).
+
+A.4 deve aplicar a estratégia escolhida nos **3 pontos simultaneamente** — sugestão: extrair função utilitária em `src/config.py` (ex: `_get_secret_key_or_fail()`) consumida por `app.py:104` e `crypto.py:30`. Em `crypto.py:30+52`, adicionar comentário explícito que `SECRET_KEY` como seed de cripto **só é aceitável em dev**; produção deve exigir `ENCRYPTION_KEY` separada.
+
+Sub-agente reporta na Phase 0 qual estratégia propõe e o coordenador valida antes de implementar A.4.
+
 **Step 4 — PARE.** Aguarde sinal verde do coordenador.
 
 ### Tarefas — Track A
@@ -137,11 +165,15 @@ A partir do schema de `patients`, `medical_history`, e demais tabelas que alimen
 - Documentar comportamento "só forward" em `docs/BACKLOG_LGPD.md` (criar arquivo) — logs anteriores ficam como dívida pra Sprint 2 + retention policy.
 - **Critério:** teste verde + smoke real fazendo `process_patient_case` e inspecionando registro no DB.
 
-**A.4 — Hardening básico** (~1h)
+**A.4 — Hardening básico** (~1.5-2h, expandido pra 3 pontos de SECRET_KEY)
 - Em `src/app.py:273-274`, validar `next_url` entre a leitura do GET param e o redirect: deve começar com `/` E não conter `://` E não conter `\\`. Caso contrário, redirect pra `/`.
-- Em `src/config.py:25`, remover fallback `dev-secret-key-fallback`. Substituir por: `if not SECRET_KEY: raise RuntimeError("SECRET_KEY env var required")`.
-- Adicionar 2 testes pequenos: open redirect bloqueado, SECRET_KEY ausente → app falha startup.
-- **Critério:** testes verdes; app local sem `SECRET_KEY` falha com mensagem útil.
+- Implementar estratégia decidida em Q-A3 nos **3 pontos simultaneamente**:
+  - `src/config.py:25` — fallback principal.
+  - `src/app.py:104` — fallback inline secundário.
+  - `src/infra/crypto.py:30` — seed HKDF se `ENCRYPTION_KEY` ausente.
+- Sugestão: extrair `_get_secret_key_or_fail()` em `src/config.py` consumido pelos 3 callers. Em `crypto.py:30+52`, adicionar comentário explícito que `SECRET_KEY` como seed de cripto **só é aceitável em dev**; produção deve exigir `ENCRYPTION_KEY` separada.
+- Adicionar 3 testes pequenos: open redirect bloqueado; SECRET_KEY ausente em prod → app falha startup; SECRET_KEY ausente em dev → app inicia com warning + chave random.
+- **Critério:** testes verdes; app local sem `SECRET_KEY` em modo dev funciona com warning; app em modo produção falha com mensagem útil.
 
 **A.1 — Rotação de keys** (~2h, exige janela)
 - **PRÉ-REQUISITO:** confirmar com André quais keys rotacionar e horário da janela.
