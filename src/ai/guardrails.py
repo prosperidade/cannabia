@@ -532,3 +532,62 @@ def validate_output(
         layers_checked=["output"],
         input_hash=output_hash,
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HELPER — Aplica Camada 4 ao output_dict de um pipeline de IA
+# Usado por src/ai/service.py após o flow.run() para sanitizar o retorno antes
+# de devolver ao paciente / frontend (Sprint 1 Track B.1).
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _sanitize_string_leaves(obj: Any) -> Any:
+    """Aplica sanitize_output em cada string-leaf de obj, recursivamente.
+
+    Preserva estrutura: dict, list, tuple e scalars não-string ficam intactos.
+    Evita serializar+regex+re-parsear o JSON inteiro (que poderia corromper
+    aspas ou estrutura se o padrao perigoso atravessasse limites de campo).
+    """
+    if isinstance(obj, str):
+        return sanitize_output(obj)
+    if isinstance(obj, dict):
+        return {k: _sanitize_string_leaves(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_string_leaves(v) for v in obj]
+    if isinstance(obj, tuple):
+        return tuple(_sanitize_string_leaves(v) for v in obj)
+    return obj
+
+
+def apply_to_output_dict(
+    output_dict: Dict[str, Any],
+    config: Optional[GuardrailConfig] = None,
+) -> Tuple[Dict[str, Any], GuardrailResult]:
+    """Aplica Camada 4 (output guardrail) ao retorno de um pipeline de IA.
+
+    Comportamento:
+      - Serializa output_dict via json.dumps + chama validate_output.
+      - Se passou: retorna (output_dict, GuardrailResult(passed=True)) sem
+        modificar o dict — caso normal, zero overhead semantico.
+      - Se nao passou: aplica sanitize_output recursivamente em cada
+        string-leaf do dict (preserva estrutura JSON), retorna
+        (sanitized_dict, GuardrailResult original com passed=False).
+
+    Calibracao progressiva (Sprint 1): a Camada 4 NAO bloqueia o output —
+    sanitiza + sinaliza via flag externa (`_guardrail_output.requires_review`)
+    setada pelo caller. Sprint 4 (eval harness) calibra threshold com base
+    em corpus real e pode promover bloqueio total.
+    """
+    if not isinstance(output_dict, dict):
+        # Defensive: caller mandou algo que nao e dict — devolve cru com pass.
+        return output_dict, GuardrailResult(passed=True, layers_checked=[])
+
+    serialized = json.dumps(output_dict, ensure_ascii=False)
+    result = validate_output(serialized, config=config)
+
+    if result.passed:
+        return output_dict, result
+
+    # Output suspeito — sanitiza string-leaves preservando estrutura.
+    sanitized = _sanitize_string_leaves(output_dict)
+    return sanitized, result
