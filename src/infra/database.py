@@ -12,20 +12,23 @@ import threading
 from contextlib import contextmanager
 
 from psycopg2.extras import RealDictCursor
-from psycopg2.pool import SimpleConnectionPool
+from psycopg2.pool import ThreadedConnectionPool
 
 from src.config import DATABASE_URL
 
 logger = logging.getLogger("cannabia.database")
 
-_pool: SimpleConnectionPool | None = None
+# ThreadedConnectionPool: seguro para uso sob gunicorn multi-worker / threads.
+# SimpleConnectionPool nao protege _used/_pool com lock interno e quebra sob
+# concorrencia real (race em getconn/putconn).
+_pool: ThreadedConnectionPool | None = None
 _pool_lock = threading.Lock()
 
 DB_POOL_MIN = int(os.getenv("DB_POOL_MIN", "2"))
 DB_POOL_MAX = int(os.getenv("DB_POOL_MAX", "10"))
 
 
-def _get_pool() -> SimpleConnectionPool:
+def _get_pool() -> ThreadedConnectionPool:
     global _pool
     if _pool is None or _pool.closed:
         with _pool_lock:
@@ -35,7 +38,7 @@ def _get_pool() -> SimpleConnectionPool:
                     DB_POOL_MIN,
                     DB_POOL_MAX,
                 )
-                _pool = SimpleConnectionPool(
+                _pool = ThreadedConnectionPool(
                     minconn=DB_POOL_MIN,
                     maxconn=DB_POOL_MAX,
                     dsn=DATABASE_URL,
