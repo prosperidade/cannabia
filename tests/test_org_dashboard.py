@@ -242,8 +242,9 @@ def test_dashboard_returns_shape_with_all_top_level_keys():
     assert "library_books" in icons  # /knowledge
 
 
-def test_dashboard_returns_empty_envelope_when_db_fails():
-    """Excecao no DB devolve envelope vazio com todas as chaves."""
+def test_dashboard_returns_500_envelope_when_db_fails():
+    """Sprint 2 Track Audit: excecao generica no DB devolve 500 explicito
+    via envelope de erro (sem mais swallow para empty data)."""
 
     def boom(*_a, **_kw):
         raise RuntimeError("connection refused")
@@ -252,15 +253,9 @@ def test_dashboard_returns_empty_envelope_when_db_fails():
     with patch("src.web.routes.org_management.db_cursor", side_effect=boom):
         resp = _client(app).get("/api/v1/org/dashboard")
 
-    data = resp.get_json()["data"]
-    assert resp.status_code == 200
-    assert data == {
-        "kpiData": [],
-        "chartConsultas": [],
-        "chartReceita": [],
-        "topMedicos": [],
-        "recentActivity": [],
-    }
+    payload = resp.get_json()
+    assert resp.status_code == 500
+    assert payload["error"]["code"] == "internal_error"
 
 
 def test_dashboard_requires_authorized_role():

@@ -145,7 +145,7 @@ Decisão de produto pra definir janela. Memória: usuário tinha confirmado que 
 | Anchor | Plugar `prompt_registry` + tabela `ai_prompt_versions` em service.py | Q3=b adiado |
 | Anchor | Paginação LIMIT/OFFSET no banco | Sprint 2 explícito |
 | Anchor | Sentry / observabilidade básica | Sprint 2 explícito |
-| D.2.c | Auditar consumer frontend dos 8 endpoints com `FIXME(sprint-2)` e decidir 500 vs empty data | inline FIXME nos arquivos |
+| ~~D.2.c~~ | ~~Auditar consumer frontend dos 8 endpoints com `FIXME(sprint-2)` e decidir 500 vs empty data~~ | ✅ **FECHADA na Sprint 2 Track Audit** — empty-data swallow → 5xx explícito em 11 endpoints (7 FIXMEs + 4 análogos). Pattern: OperationalError→503 `database_unavailable`; Exception→500 `internal_error`; lab_analysis com 404 explícito quando patient_id passado mas paciente inexiste. Tests: `tests/test_audit_error_handling.py`. |
 | B.1 | Estender pattern 7 do `_OUTPUT_DANGER_PATTERNS` pra capturar valor das env vars | `tests/test_output_guardrail.py` FIXME |
 | A.3 | Purge retroativo de logs pré-A.3 com PII em texto plano | [docs/BACKLOG_LGPD.md](../BACKLOG_LGPD.md) Dívida 1 |
 | A.3 | Retention policy em `ai_audit_logs` (LGPD) | [docs/BACKLOG_LGPD.md](../BACKLOG_LGPD.md) Dívida 2 |
@@ -192,7 +192,7 @@ Decisão de produto pra definir janela. Memória: usuário tinha confirmado que 
 2. **Plugar `prompt_registry` + `ai_prompt_versions`** (Q3=b adiado da Sprint 1).
 3. **Paginação LIMIT/OFFSET** no banco — endpoints sem paginação são bomba-relógio com volume real.
 4. **Sentry** — observabilidade básica antes de pacientes piloto chegarem em produção.
-5. **Auditar 8 endpoints com `FIXME(sprint-2)`** — decidir 500 vs empty data caso a caso (D.2.c).
+5. ~~**Auditar 8 endpoints com `FIXME(sprint-2)`** — decidir 500 vs empty data caso a caso (D.2.c).~~ → ✅ resolvido em Sprint 2 Track Audit (11 endpoints migrados pra 5xx explícito).
 6. **Purge retroativo de logs pré-A.3 + retention policy** (LGPD Dívidas 1+2).
 
 ## Encerramento

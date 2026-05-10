@@ -11,6 +11,7 @@ import logging
 import bcrypt
 from flask import Blueprint, g, request
 from flask_login import current_user
+from psycopg2 import OperationalError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -83,11 +84,12 @@ def list_users():
             rows = cursor.fetchall()
             items, meta = _paginate(rows, page, page_size)
             return _success(items, meta=meta)
+    except OperationalError:
+        logger.error("DB unavailable on admin_users.list_users", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.error("Error fetching users", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success([], meta={"page": page, "page_size": page_size, "total": 0})
+        logger.error("Unexpected error on admin_users.list_users", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 @admin_users_bp.post("/")

@@ -6,8 +6,9 @@ Prefix: /api/v1/clinical
 from __future__ import annotations
 import logging
 from flask import Blueprint, g, request
+from psycopg2 import OperationalError
 from src.infra.database import db_cursor
-from src.web.routes.api_v1 import _success, api_role_required
+from src.web.routes.api_v1 import _error, _success, api_role_required
 
 logger = logging.getLogger("cannabia.clinical_intelligence")
 clinical_intel_bp = Blueprint("clinical_intelligence", __name__, url_prefix="/api/v1/clinical")
@@ -68,11 +69,12 @@ def intelligence_dashboard():
                 "recent_executions": recent,
                 "top_conditions": top_conditions,
             })
+    except OperationalError:
+        logger.error("DB unavailable on clinical_intelligence.intelligence_dashboard", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.error("Error fetching intelligence data", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success({"stats": {}, "by_model": [], "recent_executions": [], "top_conditions": []})
+        logger.error("Unexpected error on clinical_intelligence.intelligence_dashboard", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 @clinical_intel_bp.get("/botanical")
@@ -120,11 +122,12 @@ def botanical_analysis():
                 "top_ratios": top_ratios,
                 "recent_prescriptions": recent_prescriptions,
             })
+    except OperationalError:
+        logger.error("DB unavailable on clinical_intelligence.botanical_analysis", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.error("Error fetching botanical data", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success({"patterns": [], "top_ratios": [], "recent_prescriptions": []})
+        logger.error("Unexpected error on clinical_intelligence.botanical_analysis", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 @clinical_intel_bp.get("/lab")
@@ -144,6 +147,8 @@ def lab_analysis():
                     (patient_id, clinic_id),
                 )
                 patient = cursor.fetchone()
+                if patient_id is not None and patient is None:
+                    return _error("not_found", "Paciente nao encontrado.", 404)
 
                 cursor.execute(
                     """SELECT cannabinoid_ratio, concentration_mg_ml, max_daily_mg,
@@ -178,11 +183,12 @@ def lab_analysis():
             stats = cursor.fetchone()
 
             return _success({"stats": stats})
+    except OperationalError:
+        logger.error("DB unavailable on clinical_intelligence.lab_analysis", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.error("Error fetching lab data", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success({"patient": None, "prescription": None, "diary_stats": None})
+        logger.error("Unexpected error on clinical_intelligence.lab_analysis", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 @clinical_intel_bp.get("/trials")
@@ -221,8 +227,9 @@ def clinical_trials():
                 "outcomes": outcomes,
                 "stats": stats,
             })
+    except OperationalError:
+        logger.error("DB unavailable on clinical_intelligence.clinical_trials", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.error("Error fetching trials data", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success({"outcomes": [], "stats": {"total_patients": 0, "total_plans": 0}})
+        logger.error("Unexpected error on clinical_intelligence.clinical_trials", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
