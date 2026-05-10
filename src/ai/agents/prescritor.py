@@ -55,21 +55,61 @@ class AgentePrescritor(BaseAgent):
 
     def execute(self, **kwargs) -> AgentResult:
         dosage_input = kwargs.get("dosage_input", kwargs)
+        # Sinaliza que weight_kg/prior_cannabis_use vieram de default — anamnese
+        # nao coleta esses campos hoje (ver docs/BACKLOG_AGENTE_PRESCRITOR.md).
+        defaults_used = bool(kwargs.get("_dosage_defaults_used", False))
 
-        # MemPalace recall/remember removidos em Track C.2 — agentes nao tem
-        # mais memoria persistente automatica. Skip do _memory_context que
-        # call sites legados ainda passam.
         kwargs.pop("_memory_context", None)
+        kwargs.pop("_dosage_defaults_used", None)
 
         result = self.invoke_skill("calculate_dosage", **dosage_input)
         rec = result["recommendation"]
+        limits = result.get("safety_limits", {}) or {}
         tokens = result.get("tokens", {})
 
         confidence = rec.get("confidence_score", 0.0) if isinstance(rec, dict) else 0.0
 
+        cyp450 = list(limits.get("drug_interactions") or [])
+        contraind = list(limits.get("contraindications") or [])
+        warn = list(limits.get("warnings") or [])
+
+        # Safety clamp ativou efeito real quando Rules Engine detectou
+        # interacao ou contraindicacao — dose foi reduzida ou cap aplicado.
+        clamp_applied = bool(cyp450 or contraind)
+        clamp_reason = None
+        if clamp_applied:
+            parts = []
+            if cyp450:
+                parts.append(f"{len(cyp450)} interacao(oes) CYP450")
+            if contraind:
+                parts.append(f"{len(contraind)} contraindicacao(oes)")
+            clamp_reason = "Dose ajustada por: " + " + ".join(parts)
+
+        prescription_result = {
+            "final_dosage": rec,
+            "safety_clamp_applied": clamp_applied,
+            "safety_clamp_reason": clamp_reason,
+            "cyp450_interactions": cyp450,
+            "monitoring_alerts": list({*contraind, *warn}),
+            "rules_engine_summary": {
+                "max_cbd_daily_mg": limits.get("max_cbd_daily_mg"),
+                "max_thc_daily_mg": limits.get("max_thc_daily_mg"),
+                "age_adjustment": limits.get("age_adjustment"),
+                "recommended_ratio": limits.get("recommended_ratio"),
+                "recommended_route": (
+                    limits.get("recommended_route").value
+                    if hasattr(limits.get("recommended_route"), "value")
+                    else limits.get("recommended_route")
+                ),
+            },
+            "dosage_defaults_used": defaults_used,
+            "confidence_score": confidence,
+        }
+
         return AgentResult(
             success=True,
             data={
+                "prescription_result": prescription_result,
                 "recommendation": rec,
                 "treatment_plan": rec,  # Alias for chain compatibility
             },

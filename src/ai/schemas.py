@@ -333,6 +333,43 @@ class DosageRecommendation(BaseModel):
     )
 
 
+# ── Output do AgentePrescritor no clinical_flow ───────────────────────────
+
+class PrescriptionResult(BaseModel):
+    """Output do stage Prescritor no clinical_flow.
+
+    Encapsula a recomendação clampada (Rules Engine + LLM + Safety Clamp) +
+    telemetria de safety + flags de qualidade. Frontend consome este shape
+    em paralelo a treatment_plan e scientific_report.
+    """
+    final_dosage: DosageRecommendation = Field(
+        description="Recomendação final pós safety-clamp",
+    )
+    safety_clamp_applied: bool = Field(
+        description="True se _clamp_recommendation cortou alguma dose do LLM",
+    )
+    safety_clamp_reason: Optional[str] = Field(
+        default=None,
+        description="Razão humanamente legível se clamp foi aplicado",
+    )
+    cyp450_interactions: List[str] = Field(
+        default_factory=list,
+        description="Warnings de interação CYP450 detectados pelo Rules Engine",
+    )
+    monitoring_alerts: List[str] = Field(
+        default_factory=list,
+        description="Contraindicações + warnings agregados para monitoramento",
+    )
+    rules_engine_summary: Dict[str, Any] = Field(
+        description="Snapshot dos limits: max_cbd_daily_mg, max_thc_daily_mg, age_adjustment, recommended_ratio",
+    )
+    dosage_defaults_used: bool = Field(
+        default=False,
+        description="True quando weight_kg/prior_cannabis_use vieram de defaults — anamnese ainda nao coleta esses campos (ver docs/BACKLOG_AGENTE_PRESCRITOR.md)",
+    )
+    confidence_score: float = Field(ge=0.0, le=1.0)
+
+
 # ── Prescrição formal (médico aprova e emite) ─────────────────────────────
 
 class PrescriptionPayload(BaseModel):

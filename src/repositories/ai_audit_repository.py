@@ -29,6 +29,9 @@ def save_ai_audit_log(
     report_time_ms,
     total_time_ms,
     estimated_cost_usd,
+    prescription_time_ms=None,
+    prescription_input_tokens=None,
+    prescription_output_tokens=None,
 ):
 
     with db_cursor() as (connection, cursor):
@@ -55,9 +58,12 @@ def save_ai_audit_log(
                 treatment_time_ms,
                 report_time_ms,
                 total_time_ms,
-                estimated_cost_usd
+                estimated_cost_usd,
+                prescription_time_ms,
+                prescription_input_tokens,
+                prescription_output_tokens
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 patient_id,
@@ -87,6 +93,9 @@ def save_ai_audit_log(
                 report_time_ms,
                 total_time_ms,
                 estimated_cost_usd,
+                prescription_time_ms,
+                prescription_input_tokens,
+                prescription_output_tokens,
             ),
         )
 

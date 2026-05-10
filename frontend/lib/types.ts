@@ -130,6 +130,7 @@ export type AttendanceReport = {
   anamnesis_data: Record<string, unknown>;
   clinical_analysis: Record<string, unknown>;
   treatment_plan: Record<string, unknown>;
+  prescription_result?: Record<string, unknown>;
   scientific_report: Record<string, unknown>;
 };
 

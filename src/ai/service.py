@@ -189,6 +189,10 @@ class CannabIAService:
                 estimated_cost_usd=estimated_cost,
             )
 
+            prescription_tokens = (
+                (result.get("tokens_per_stage") or {}).get("prescription", {}).get("tokens")
+                or {}
+            )
             save_ai_audit_log(
                 clinic_id=clinic_id,
                 patient_id=patient_id,
@@ -210,6 +214,9 @@ class CannabIAService:
                 report_time_ms=result.get("timings_ms", {}).get("report"),
                 total_time_ms=total_time_ms,
                 estimated_cost_usd=estimated_cost,
+                prescription_time_ms=result.get("timings_ms", {}).get("prescription"),
+                prescription_input_tokens=prescription_tokens.get("input"),
+                prescription_output_tokens=prescription_tokens.get("output"),
             )
 
             # Camada 4 (Sprint 1 Track B.1): sanitiza output do LLM antes de

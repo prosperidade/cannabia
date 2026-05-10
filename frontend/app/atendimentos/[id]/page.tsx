@@ -19,6 +19,187 @@ function prettyJson(input: unknown) {
   return JSON.stringify(input, null, 2);
 }
 
+// ── Prescription result rendering helpers (Sprint 1 C.1.4) ────────────────
+// prescription_result vem como Record<string, unknown> do backend (sem
+// tipagem estrita no AttendanceReport). Helpers fazem narrowing seguro
+// para extrair campos esperados sem quebrar quando ausentes (reports
+// pre-C.1 nao tem o bloco).
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function asStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function asString(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function asNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
+  const finalDosage = asRecord(data.final_dosage) ?? {};
+  const summary = asRecord(data.rules_engine_summary) ?? {};
+  const titration = Array.isArray(finalDosage.titration_protocol)
+    ? (finalDosage.titration_protocol as unknown[])
+    : [];
+  const cyp450 = asStringList(data.cyp450_interactions);
+  const alerts = asStringList(data.monitoring_alerts);
+  const checkpoints = asStringList(finalDosage.monitoring_checkpoints);
+  const clampApplied = data.safety_clamp_applied === true;
+  const defaultsUsed = data.dosage_defaults_used === true;
+  const ratio = asString(finalDosage.cannabinoid_ratio) ?? "—";
+  const route = asString(finalDosage.administration_route) ?? "—";
+  const spectrum = asString(finalDosage.spectrum);
+  const maxDaily = asNumber(finalDosage.max_daily_mg);
+  const concentration = asNumber(finalDosage.concentration_mg_ml);
+  const confidence = asNumber(data.confidence_score);
+  const rationale = asString(finalDosage.clinical_rationale);
+
+  return (
+    <article className="content-card">
+      <header className="attendance-card">
+        <div>
+          <p className="eyebrow">Recomendacao do Prescritor</p>
+          <h2>{ratio} · {humanize(route)}</h2>
+          {spectrum ? <p className="lead">Espectro: {humanize(spectrum)}</p> : null}
+        </div>
+        {maxDaily !== null ? (
+          <div style={{ textAlign: "right" }}>
+            <p className="eyebrow">Dose maxima diaria</p>
+            <strong style={{ fontSize: "1.4rem" }}>{maxDaily} mg</strong>
+            {concentration !== null ? (
+              <p className="lead">{concentration} mg/mL</p>
+            ) : null}
+          </div>
+        ) : null}
+      </header>
+
+      <div className="pill-row" style={{ marginTop: 12 }}>
+        {clampApplied ? (
+          <span
+            className="mini-pill"
+            title={
+              asString(data.safety_clamp_reason)
+              ?? "Rules Engine ajustou a dose por seguranca."
+            }
+          >
+            ⚠ Dosagem ajustada por seguranca
+          </span>
+        ) : null}
+        {defaultsUsed ? (
+          <span
+            className="mini-pill"
+            title="AnamnesisInput nao coleta peso/uso previo de cannabis. Defaults conservadores aplicados (peso=70kg, naive). Sprint 2 estende a anamnese."
+          >
+            ⓘ Dosagem com defaults conservadores
+          </span>
+        ) : null}
+        {confidence !== null ? (
+          <span className="mini-pill">
+            Confianca: {(confidence * 100).toFixed(0)}%
+          </span>
+        ) : null}
+      </div>
+
+      {cyp450.length ? (
+        <div style={{ marginTop: 16 }}>
+          <p className="eyebrow">Interacoes CYP450 detectadas</p>
+          <ul className="lead" style={{ paddingLeft: 18, margin: 0 }}>
+            {cyp450.map((item, idx) => (
+              <li key={`cyp-${idx}`}>⚠ {item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {alerts.length ? (
+        <div style={{ marginTop: 16 }}>
+          <p className="eyebrow">Alertas de monitoramento</p>
+          <ul className="lead" style={{ paddingLeft: 18, margin: 0 }}>
+            {alerts.map((item, idx) => (
+              <li key={`alert-${idx}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {titration.length ? (
+        <div style={{ marginTop: 16 }}>
+          <p className="eyebrow">Protocolo de titulacao</p>
+          <div className="timeline-stack">
+            {titration.map((stepRaw, idx) => {
+              const step = asRecord(stepRaw);
+              if (!step) return null;
+              const phase = asString(step.phase) ?? `fase ${idx + 1}`;
+              const range = asString(step.day_range) ?? "—";
+              const drops = asNumber(step.drops_per_dose);
+              const doses = asNumber(step.doses_per_day);
+              const stepMg = asNumber(step.total_daily_mg);
+              const obs = asString(step.observations);
+              return (
+                <div className="timeline-card" key={`tit-${idx}`}>
+                  <header>
+                    <div>
+                      <strong>{humanize(phase)} · {range}</strong>
+                      {drops !== null && doses !== null ? (
+                        <p className="lead">{drops} gota(s) · {doses}x ao dia</p>
+                      ) : null}
+                    </div>
+                    {stepMg !== null ? (
+                      <span className="mini-pill">{stepMg} mg/dia</span>
+                    ) : null}
+                  </header>
+                  {obs ? <p className="lead">{obs}</p> : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {checkpoints.length ? (
+        <div style={{ marginTop: 16 }}>
+          <p className="eyebrow">Marcos de monitoramento clinico</p>
+          <ul className="lead" style={{ paddingLeft: 18, margin: 0 }}>
+            {checkpoints.map((item, idx) => (
+              <li key={`chk-${idx}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {summary.age_adjustment || summary.recommended_ratio ? (
+        <p
+          className="lead"
+          style={{ marginTop: 12, fontSize: "0.85rem", opacity: 0.75 }}
+        >
+          Rules Engine: {asString(summary.age_adjustment) ?? "—"}
+          {asString(summary.recommended_ratio)
+            ? ` · ratio recomendado: ${summary.recommended_ratio as string}`
+            : ""}
+        </p>
+      ) : null}
+
+      {rationale ? (
+        <details style={{ marginTop: 16 }}>
+          <summary className="eyebrow" style={{ cursor: "pointer" }}>
+            Racional clinico (LLM)
+          </summary>
+          <p className="lead" style={{ marginTop: 8 }}>{rationale}</p>
+        </details>
+      ) : null}
+    </article>
+  );
+}
+
 function splitText(raw: string) {
   return raw
     .replaceAll("\r", "")
@@ -228,6 +409,10 @@ export default function AttendanceDetailPage() {
               })}
             </pre>
           </article>
+
+          {report.prescription_result
+            ? <PrescriptionResultBlock data={report.prescription_result} />
+            : null}
         </div>
 
         <div className="record-stack">
