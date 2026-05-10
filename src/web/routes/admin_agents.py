@@ -5,7 +5,7 @@ Prefix: /api/v1/admin/agents
 """
 from __future__ import annotations
 import logging
-from flask import Blueprint, request
+from flask import Blueprint
 from src.web.routes.api_v1 import _error, _success, _json_payload, _require_json_csrf, api_role_required
 
 logger = logging.getLogger("cannabia.admin_agents")
@@ -39,26 +39,17 @@ def list_agents():
                     "description": skill.description,
                 })
 
-            # Try to get diary count
-            diary_count = 0
-            try:
-                diary = instance.get_diary(last_n=100)
-                diary_count = len(diary)
-            except Exception:
-                logger.debug(
-                    "Diary count unavailable for %s (non-critical)",
-                    cls.__name__,
-                    exc_info=True,
-                )
-
+            # diary_entries: MemPalace extirpado em Track C.2; campo
+            # mantido na response com valor 0 para compatibilidade com
+            # frontend (frontend/app/admin/agentes/page.tsx ja guarda
+            # condicionalmente) ate cleanup do Track C.X.
             agents_list.append({
                 "name": instance.agent_name,
                 "class": cls.__name__,
                 "description": instance.description,
-                "palace_room": instance.palace_room,
                 "skills_count": len(skills),
                 "skills": skills,
-                "diary_entries": diary_count,
+                "diary_entries": 0,
                 "status": "active",
             })
         except Exception as e:
@@ -98,16 +89,11 @@ def get_agent_diary(agent_name: str):
     if not cls:
         return _error("not_found", f"Agente '{agent_name}' nao encontrado.", 404)
 
-    try:
-        last_n = request.args.get("last_n", 20, type=int)
-        instance = cls()
-        diary = instance.get_diary(last_n=last_n)
-        return _success(diary)
-    except Exception as e:
-        logger.error("Error fetching diary for %s: %s", agent_name, e)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success([])
+    # MemPalace extirpado em Track C.2 — agentes nao tem mais diary
+    # persistente. Endpoint mantido por compat com frontend que ainda
+    # consulta /diary; retorna lista vazia silenciosamente. Remocao
+    # definitiva quando o frontend for limpo (TODO Track C.X).
+    return _success([])
 
 
 @admin_agents_bp.get("/<agent_name>/skills")
@@ -147,7 +133,6 @@ def get_agent_skills(agent_name: str):
             })
         return _success({
             "agent": instance.agent_name,
-            "palace_room": instance.palace_room,
             "description": instance.description,
             "skills": skills,
         })

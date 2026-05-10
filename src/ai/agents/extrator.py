@@ -49,7 +49,6 @@ LEGISLATION_URLS = {
 
 
 class AgenteExtrator(BaseAgent):
-    palace_room = "pipeline_cientifico"
     agent_name = "extrator"
     description = "Busca, classifica e ingere documentos na base de conhecimento (PubMed, ANVISA, Scholar)"
 
@@ -644,10 +643,8 @@ class AgenteExtrator(BaseAgent):
                 created_by=created_by,
             )
 
-            self.remember(
-                f"Auto-search completed: {result['total_registered']} new documents "
-                f"from {result['terms_searched']} search terms"
-            )
+            # Audit trail via MemPalace foi extirpado em Track C.2 — resumo
+            # do auto-search vive em result.
 
             return AgentResult(
                 success=True,
@@ -715,7 +712,6 @@ class AgenteExtrator(BaseAgent):
 
         elif action == "run_monitors":
             result = self.invoke_skill("run_all_monitors")
-            self.remember(f"Monitors checked: {result.get('monitors_checked', 0)}, new items: {result.get('total_new_items', 0)}")
             return AgentResult(
                 success=True,
                 data=result,

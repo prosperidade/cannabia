@@ -6,7 +6,6 @@ from src.ai.agents.base import BaseAgent, AgentResult
 
 
 class AgentePrescritor(BaseAgent):
-    palace_room = "pipeline_prescricao"
     agent_name = "prescritor"
     description = "Calcula dosagem CBD/THC com rules engine, LLM e safety clamp"
 
@@ -57,22 +56,16 @@ class AgentePrescritor(BaseAgent):
     def execute(self, **kwargs) -> AgentResult:
         dosage_input = kwargs.get("dosage_input", kwargs)
 
-        # Recall similar prescriptions from memory
-        memory_ctx = kwargs.get("_memory_context")
-        if memory_ctx and memory_ctx.get("has_memory"):
-            similar = memory_ctx.get("search_results", [])
-            if similar:
-                self.remember(f"Found {len(similar)} similar past prescriptions for context")
+        # MemPalace recall/remember removidos em Track C.2 — agentes nao tem
+        # mais memoria persistente automatica. Skip do _memory_context que
+        # call sites legados ainda passam.
+        kwargs.pop("_memory_context", None)
 
         result = self.invoke_skill("calculate_dosage", **dosage_input)
         rec = result["recommendation"]
         tokens = result.get("tokens", {})
 
         confidence = rec.get("confidence_score", 0.0) if isinstance(rec, dict) else 0.0
-
-        # Log outcome to knowledge graph
-        ratio = rec.get("cannabinoid_ratio", "unknown") if isinstance(rec, dict) else "unknown"
-        self.remember_fact(ratio, "prescribed_for", dosage_input.get("main_complaint", "unknown"))
 
         return AgentResult(
             success=True,

@@ -6,7 +6,6 @@ from src.ai.agents.base import BaseAgent, AgentResult
 
 
 class AgenteAnamnese(BaseAgent):
-    palace_room = "pipeline_anamnese"
     agent_name = "anamnese"
     description = "Analisa sintomas e gera avaliação clínica estruturada"
 

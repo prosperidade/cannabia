@@ -143,11 +143,7 @@ def _build_client(tenant_id: int, admin_id: int, monkeypatch):
       - login session de Admin com `admin_id` (precisa ser id REAL
         em users porque adverse_events.triaged_by tem FK)
       - g.tenant_id injetado a cada request
-      - diary_write stubado (skill IA da triagem usa fire-and-forget)
     """
-    monkeypatch.setattr(
-        "src.ai.agents.base.diary_write", lambda *a, **kw: True
-    )
 
     app = Flask(__name__)
     app.config.update(TESTING=True, SECRET_KEY="test-secret")

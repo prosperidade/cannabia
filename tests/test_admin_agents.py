@@ -14,7 +14,6 @@ from src.web.routes.admin_agents import admin_agents_bp
 class _FakeAgent:
     agent_name = "tratamento"
     description = "Agente fake de tratamento"
-    palace_room = "pipeline_anamnese"
 
     def __init__(self):
         self._skills = {
@@ -103,7 +102,6 @@ def test_get_agent_skills_returns_skill_metadata(admin_agents_client, monkeypatc
     assert response.status_code == 200
     payload = response.get_json()["data"]
     assert payload["agent"] == "tratamento"
-    assert payload["palace_room"] == "pipeline_anamnese"
     assert payload["skills"][0]["name"] == "build_plan"
 
 

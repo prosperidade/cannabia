@@ -17,9 +17,9 @@ FAIL-SAFE OBRIGATÓRIO: nunca raise. Em caso de erro interno, devolve
 um dict com _redaction_failed=True + lista de top-level keys, garantindo
 que audit log NÃO desaparece mesmo se sanitizer quebrar.
 
-Não confundir com src/ai/memory.py:54 _sanitize_pii (regex-based, escrita
-pra MemPalace texto livre — Track C extirpa MemPalace e essa função vira
-órfã).
+Substitui o antigo _sanitize_pii regex-based de src/ai/memory.py (escrito
+pra MemPalace, removido em Track C.2 da Sprint 1). Esta versao trabalha
+em JSONB estruturado (dict/list), nao em string livre serializada.
 """
 from __future__ import annotations
 

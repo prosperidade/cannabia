@@ -15,9 +15,7 @@ from src.services.governance_service import EligibilityFinding, EligibilityRepor
 
 
 @pytest.fixture
-def agent(monkeypatch):
-    # Isola o diary fire-and-forget — testes nao dependem do MemPalace real.
-    monkeypatch.setattr("src.ai.agents.base.diary_write", lambda *a, **kw: True)
+def agent():
     return AgenteRegulatorio()
 
 
