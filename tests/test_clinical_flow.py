@@ -92,6 +92,13 @@ def test_specialist_clinical_flow_composes_specialists(monkeypatch):
     assert FakeTratamento.calls[0]["clinical_analysis"]["risk_level"] == "medio"
     assert FakeCientifico.calls[0]["treatment_plan"]["administration_route"] == "sublingual"
 
+    # Sprint 1 Track B.3 — timings_ms populado por etapa (clinical/treatment/report)
+    assert "timings_ms" in result
+    assert set(result["timings_ms"].keys()) == {"clinical", "treatment", "report"}
+    for stage, elapsed in result["timings_ms"].items():
+        assert isinstance(elapsed, int), f"timings_ms[{stage}] deve ser int (ms)"
+        assert elapsed >= 0, f"timings_ms[{stage}] deve ser >= 0"
+
 
 def test_build_clinical_flow_prefers_specialists(monkeypatch):
     class FakeAnamnese:
