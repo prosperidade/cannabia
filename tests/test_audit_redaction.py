@@ -181,6 +181,108 @@ def test_sanitize_handles_none_payload():
 
 
 # =====================================================
+# 5. Idempotencia — pre-requisito do purge in-place (Sprint 2 LGPD)
+# =====================================================
+#
+# O script scripts/purge_audit_pii_pre_a3.py aplica sanitize_clinical_payload
+# in-place em rows ja gravadas pre-A.3. Para que purge seja seguro contra
+# replays/resume, a funcao precisa ser IDEMPOTENTE: f(f(x)) == f(x). Caso
+# contrario, rodar o purge duas vezes pode danificar dados (ex: marcadores
+# como [REDACTED:key] sendo reinterpretados como string-leaves e gerando
+# transformacoes secundarias).
+
+def test_sanitize_idempotent_on_clean_payload():
+    """Payload simples sem PII: f(f(x)) == f(x). Garante que sanitize
+    em payload ja-limpo nao introduz mudancas."""
+    from src.ai.audit_redaction import sanitize_clinical_payload
+
+    payload = {
+        "age": 45,
+        "main_complaint": "Dor cronica lombar ha 6 meses",
+        "symptoms": ["dor persistente", "insonia"],
+        "cannabinoid_ratio": "1:1",
+        "confidence_score": 0.85,
+        "tokens_used": 1234,
+    }
+
+    r1 = sanitize_clinical_payload(payload)
+    r2 = sanitize_clinical_payload(r1)
+
+    assert r1 == r2, "sanitize precisa ser idempotente em payload limpo"
+
+
+def test_sanitize_idempotent_with_redacted_markers():
+    """Payload com PII: sanitize -> re-sanitize -> mesmo resultado.
+    Garante que marcadores como [REDACTED:key], [CPF_REDACTED], etc.
+    nao sao reinterpretados em passes subsequentes."""
+    from src.ai.audit_redaction import sanitize_clinical_payload
+
+    payload = {
+        "patient_name": "Joao Silva Santos",
+        "main_complaint": "Paciente com dor. CPF 123.456.789-00. Email: x@y.com",
+        "patient_data": {
+            "cpf": "111.222.333-44",
+            "email": "test@example.com",
+            "phone": "(62) 98281-0427",
+        },
+        "free_notes": [
+            "Telefone (11) 99999-1234.",
+            "Endereco: Rua Exemplo 42.",
+        ],
+    }
+
+    r1 = sanitize_clinical_payload(payload)
+    r2 = sanitize_clinical_payload(r1)
+
+    assert r1 == r2, (
+        "sanitize precisa ser idempotente em payload com marcadores de "
+        "redaction. Diff: r1=%r r2=%r" % (r1, r2)
+    )
+
+
+def test_sanitize_preserves_clinical_metadata():
+    """Keys NAO sensiveis (cannabinoid_ratio, confidence_score, etc.)
+    sobrevivem intactas tanto no primeiro quanto no segundo pass.
+    Critico pra dashboards/relatorios que dependem desses campos."""
+    from src.ai.audit_redaction import sanitize_clinical_payload
+
+    payload = {
+        "patient_name": "Joao Silva",  # sera redacted
+        "cannabinoid_ratio": "20:1 CBD:THC",
+        "confidence_score": 0.92,
+        "recommended_dosage_mg": 25,
+        "treatment_response": "Boa resposta",
+        "stage_timings_ms": {
+            "clinical": 1200,
+            "treatment": 800,
+            "report": 1500,
+        },
+        "cost_per_stage_usd": [0.001, 0.002, 0.003],
+    }
+
+    r1 = sanitize_clinical_payload(payload)
+    r2 = sanitize_clinical_payload(r1)
+
+    # Metadata clinica preservada nos dois passes
+    for result in (r1, r2):
+        assert result["cannabinoid_ratio"] == "20:1 CBD:THC"
+        assert result["confidence_score"] == 0.92
+        assert result["recommended_dosage_mg"] == 25
+        assert result["treatment_response"] == "Boa resposta"
+        assert result["stage_timings_ms"] == {
+            "clinical": 1200,
+            "treatment": 800,
+            "report": 1500,
+        }
+        assert result["cost_per_stage_usd"] == [0.001, 0.002, 0.003]
+        # patient_name continua redacted
+        assert result["patient_name"] == "[REDACTED:key]"
+
+    # Idempotencia garantida tambem no agregado
+    assert r1 == r2
+
+
+# =====================================================
 # 4. Repository integration — DB roundtrip
 # =====================================================
 
