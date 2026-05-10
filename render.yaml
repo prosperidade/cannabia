@@ -71,6 +71,13 @@ services:
         sync: false
       - key: PAYMENT_WEBHOOK_SECRET_PAGSEGURO
         sync: false
+      # Sprint 2 Track Obs — Sentry observabilidade (LGPD-safe via before_send)
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: SENTRY_SAMPLE_RATE
+        value: "1.0"
 
   - type: web
     name: cannabia-frontend

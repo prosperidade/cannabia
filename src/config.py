@@ -37,6 +37,54 @@ def _get_secret_key_or_fail() -> str:
     return fallback
 
 
+def _get_sentry_config() -> dict | None:
+    """Resolve config Sentry com pattern SOFT em prod (Sprint 2 Track Obs).
+
+    Decisao do coordenador (Q-Obs-1): se SENTRY_DSN ausente em producao,
+    loga error mas NAO raise — app sobe sem Sentry vs quebrar deploy.
+    Sprint 3+ pode endurecer pra raise se quisermos garantia hard.
+
+    Em dev (FLASK_ENV != production), DSN ausente e' silent (debug log) —
+    desenvolvedor local nao precisa configurar Sentry.
+
+    Returns:
+        dict com {dsn, environment, sample_rate} ou None se DSN ausente
+        (sinaliza pra init_sentry pular o sentry_sdk.init).
+    """
+    dsn = os.getenv("SENTRY_DSN", "").strip()
+    is_production = os.getenv("FLASK_ENV", "").lower() == "production"
+
+    if not dsn:
+        if is_production:
+            _logger.error(
+                "SENTRY_DSN ausente em producao — app sobe sem observabilidade "
+                "Sentry. Configurar variavel no Render dashboard pra ativar. "
+                "Soft-fail pattern (Q-Obs-1) — nao bloqueia deploy."
+            )
+        else:
+            _logger.debug("SENTRY_DSN ausente em dev — Sentry off (esperado).")
+        return None
+
+    environment = os.getenv("SENTRY_ENVIRONMENT") or os.getenv("FLASK_ENV") or "development"
+
+    sample_rate_default = "1.0" if is_production else "0.0"
+    try:
+        sample_rate = float(os.getenv("SENTRY_SAMPLE_RATE", sample_rate_default))
+    except ValueError:
+        _logger.warning(
+            "SENTRY_SAMPLE_RATE invalido (%s) — usando default %s",
+            os.getenv("SENTRY_SAMPLE_RATE"),
+            sample_rate_default,
+        )
+        sample_rate = float(sample_rate_default)
+
+    return {
+        "dsn": dsn,
+        "environment": environment,
+        "sample_rate": sample_rate,
+    }
+
+
 def _check_encryption_key_or_fail() -> None:
     """Q-A5 / A.4: produção exige ENCRYPTION_KEY explícita.
 

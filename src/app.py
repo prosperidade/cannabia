@@ -30,6 +30,7 @@ from flask_login import (
 
 from src.infra.logging import setup_logging
 from src.infra.metrics import record as record_metric
+from src.infra.observability import init_sentry, tag_request
 from src.config import (
     SECRET_KEY,
     SESSION_COOKIE_SECURE,
@@ -37,6 +38,7 @@ from src.config import (
     LOGIN_RATE_LIMIT,
     LOGIN_RATE_WINDOW_S,
     FRONTEND_ORIGINS,
+    _get_sentry_config,
 )
 
 from src.web.routes.auth import limit_or_429, generate_csrf_token, validate_csrf_from_form
@@ -117,6 +119,11 @@ def _validate_next_url(next_url: str | None) -> str | None:
 
 
 def create_app() -> Flask:
+    # Sprint 2 Track Obs: Sentry init no TOPO de create_app — antes
+    # do Flask() pra capturar erros de bootstrap (registro de blueprint,
+    # init_tenancy, etc.). Soft em prod (config.py): DSN ausente nao bloqueia.
+    init_sentry(_get_sentry_config())
+
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Correção para proxy reverso (ex: Render) confiar no protocolo HTTPS
@@ -174,6 +181,12 @@ def create_app() -> Flask:
             g.user_id = getattr(current_user, "id", None)
         else:
             g.user_id = None
+
+        # Sprint 2 Track Obs: anexa tags Sentry ao escopo do request
+        # APOS request_id/user_id estarem em g. Tenant/clinic vem de
+        # init_tenancy (rodou antes deste hook). getattr defensivo
+        # cobre rotas publicas sem tenant.
+        tag_request(g)
 
     @app.after_request
     def after_request(response):
