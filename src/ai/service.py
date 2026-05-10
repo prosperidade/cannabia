@@ -152,11 +152,35 @@ class CannabIAService:
             output_tokens = token_usage.get("output")
             total_tokens = token_usage.get("total")
 
-            estimated_cost = calculate_cost(
-                model_name,
-                input_tokens,
-                output_tokens,
-            )
+            # Cost honesto: cada stage pode usar modelo diferente (ex.: report
+            # usa gemini-1.5-flash quando RAG ativo). Soma calculate_cost por
+            # stage com seu proprio modelo. Fallback para o calculo agregado
+            # antigo caso tokens_per_stage nao venha (compat).
+            tokens_per_stage = result.get("tokens_per_stage") or {}
+            if tokens_per_stage:
+                estimated_cost = round(
+                    sum(
+                        calculate_cost(
+                            info.get("model", model_name),
+                            (info.get("tokens") or {}).get("input", 0),
+                            (info.get("tokens") or {}).get("output", 0),
+                        )
+                        for info in tokens_per_stage.values()
+                    ),
+                    6,
+                )
+                # ai_audit_logs.model VARCHAR(50): concat ordenado deduplicado
+                # dos modelos efetivamente usados. Ex.: "gpt-4o-mini+gemini-1.5-flash".
+                effective_model = "+".join(
+                    sorted({info.get("model", model_name) for info in tokens_per_stage.values()})
+                )
+            else:
+                estimated_cost = calculate_cost(
+                    model_name,
+                    input_tokens,
+                    output_tokens,
+                )
+                effective_model = model_name
 
             # Billing — registra consumo após execução bem-sucedida (Fase 5.3)
             record_ai_usage(
@@ -175,7 +199,7 @@ class CannabIAService:
                 output_payload=result,
                 status="success",
                 error_message=None,
-                model=model_name,
+                model=effective_model,
                 prompt_version=prompt_version,
                 prompt_hash=prompt_hash,
                 input_tokens=input_tokens,
