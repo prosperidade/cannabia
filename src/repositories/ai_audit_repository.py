@@ -1,5 +1,6 @@
 import json
 from flask import g
+from src.ai.audit_redaction import sanitize_clinical_payload
 from src.infra.database import db_cursor
 
 
@@ -64,8 +65,13 @@ def save_ai_audit_log(
                 request_id,
                 user_id,
                 endpoint,
-                json.dumps(input_payload, ensure_ascii=False),
-                json.dumps(output_payload, ensure_ascii=False)
+                # A.3: sanitiza PII estruturalmente antes do json.dumps.
+                # Single point of intervention — toda call site (5+ em
+                # service.py, prescription_service, futuras) herda protecao.
+                # Sanitizer eh fail-safe (nunca raise), audit log nunca
+                # desaparece por causa de erro de redaction.
+                json.dumps(sanitize_clinical_payload(input_payload), ensure_ascii=False),
+                json.dumps(sanitize_clinical_payload(output_payload), ensure_ascii=False)
                 if output_payload
                 else None,
                 status,
