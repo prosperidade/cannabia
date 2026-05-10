@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from src.ai.clinical_flow import build_clinical_flow
 from src.ai.schemas import AnamnesisInput
-from src.ai.guardrails import validate_input
+from src.ai.guardrails import apply_to_output_dict, validate_input
 from src.repositories.ai_audit_repository import save_ai_audit_log
 from src.repositories.patient_repository import get_or_create_patient_by_name
 from src.ai.pricing import calculate_cost
@@ -212,7 +212,26 @@ class CannabIAService:
                 estimated_cost_usd=estimated_cost,
             )
 
-            return result
+            # Camada 4 (Sprint 1 Track B.1): sanitiza output do LLM antes de
+            # devolver ao paciente/frontend. Audit log acima ja gravou o
+            # `result` cru pra rastreabilidade. Aqui aplica regex de output
+            # (script tag, env var name, secret patterns) recursivamente nos
+            # string-leaves do dict; se algum padrao foi detectado, sinaliza
+            # via flag externa requires_review=True (sem bloquear — calibra
+            # progressiva, Sprint 4 endurece).
+            sanitized_result, output_guardrail = apply_to_output_dict(result)
+            sanitized_result["_guardrail_output"] = {
+                "passed": output_guardrail.passed,
+                "reason": output_guardrail.reason,
+                "requires_review": not output_guardrail.passed,
+            }
+            if not output_guardrail.passed:
+                logger.warning(
+                    "Output sanitizado pela Camada 4 (request_id=%s, reason=%s)",
+                    request_id,
+                    output_guardrail.reason,
+                )
+            return sanitized_result
 
         except Exception as execution_error:
 
