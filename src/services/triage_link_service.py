@@ -8,6 +8,7 @@ Suporta dois modos:
 from __future__ import annotations
 
 import hashlib
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
@@ -15,6 +16,8 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from src.config import FRONTEND_ORIGINS, SECRET_KEY, TRIAGE_LINK_TTL_S
 from src.repositories.tenancy_repository import get_clinic_public_label
+
+logger = logging.getLogger("cannabia.triage_link")
 
 _SALT = "triage-link"
 
@@ -36,10 +39,20 @@ def _hash_token(token: str) -> str:
 
 
 def _try_persist(fn, *args, **kwargs):
-    """Tenta persistir no banco; se a tabela ainda nao existir, ignora."""
+    """Tenta persistir no banco; se a tabela ainda nao existir, ignora.
+
+    Loga em debug porque a ausencia da tabela e esperada em alguns
+    ambientes de dev/CI; em prod com schema migrado, qualquer falha
+    aqui e visivel via log de debug + traceback.
+    """
     try:
         return fn(*args, **kwargs)
     except Exception:
+        logger.debug(
+            "_try_persist: %s falhou (tabela ausente ou erro nao critico)",
+            getattr(fn, "__name__", "callable"),
+            exc_info=True,
+        )
         return None
 
 

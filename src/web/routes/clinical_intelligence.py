@@ -70,6 +70,8 @@ def intelligence_dashboard():
             })
     except Exception:
         logger.error("Error fetching intelligence data", exc_info=True)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success({"stats": {}, "by_model": [], "recent_executions": [], "top_conditions": []})
 
 
@@ -120,6 +122,8 @@ def botanical_analysis():
             })
     except Exception:
         logger.error("Error fetching botanical data", exc_info=True)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success({"patterns": [], "top_ratios": [], "recent_prescriptions": []})
 
 
@@ -176,6 +180,8 @@ def lab_analysis():
             return _success({"stats": stats})
     except Exception:
         logger.error("Error fetching lab data", exc_info=True)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success({"patient": None, "prescription": None, "diary_stats": None})
 
 
@@ -217,4 +223,6 @@ def clinical_trials():
             })
     except Exception:
         logger.error("Error fetching trials data", exc_info=True)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success({"outcomes": [], "stats": {"total_patients": 0, "total_plans": 0}})

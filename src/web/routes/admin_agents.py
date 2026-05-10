@@ -45,7 +45,11 @@ def list_agents():
                 diary = instance.get_diary(last_n=100)
                 diary_count = len(diary)
             except Exception:
-                pass
+                logger.debug(
+                    "Diary count unavailable for %s (non-critical)",
+                    cls.__name__,
+                    exc_info=True,
+                )
 
             agents_list.append({
                 "name": instance.agent_name,
@@ -101,6 +105,8 @@ def get_agent_diary(agent_name: str):
         return _success(diary)
     except Exception as e:
         logger.error("Error fetching diary for %s: %s", agent_name, e)
+        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
+        # contrato com frontend (ver Track D do Sprint 1).
         return _success([])
 
 

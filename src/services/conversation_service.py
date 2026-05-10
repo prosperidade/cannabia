@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Optional
 
 from src.repositories.conversation_repository import (
@@ -15,6 +16,8 @@ from src.repositories.conversation_repository import (
     mark_conversation_read,
     update_conversation_on_message,
 )
+
+logger = logging.getLogger("cannabia.conversation")
 
 
 def receive_inbound_message(
@@ -93,6 +96,12 @@ def send_outbound_message(
         send_whatsapp_text(conv["contact_phone"], message_text)
         sent = True
     except Exception:
-        pass
+        logger.warning(
+            "Falha ao enviar mensagem via WhatsApp (conv_id=%s, message_id=%s); "
+            "sent_via_whatsapp=False",
+            conv.get("id"),
+            msg["id"],
+            exc_info=True,
+        )
 
     return {"message_id": msg["id"], "sent_via_whatsapp": sent}

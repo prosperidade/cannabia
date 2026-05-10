@@ -147,11 +147,12 @@ def webhook_meta():
 
 @realtime_bp.route("/webhook/twilio", methods=["POST"])
 def webhook_twilio():
-    # TODO: Implementar validação X-Twilio-Signature
-    # TODO: Implementar parser de mensagens Twilio
-    # TODO: Normalizar para o formato interno e chamar handle_message_event
-    logger.info("Webhook Twilio recebido — implementação pendente.")
-    return "OK", 200
+    # Skeleton reservado para integração Twilio futura. Até existir parser +
+    # validação X-Twilio-Signature, retornar 501 evita aceitar payloads
+    # arbitrários e sinaliza claramente que o endpoint não está implementado.
+    # Quando a integração for priorizada, substituir por handler real.
+    logger.info("Webhook Twilio recebido — endpoint nao implementado (501).")
+    abort(501, "Webhook Twilio not yet implemented")
 
 
 # ──────────────────────────────────────────────
@@ -160,11 +161,12 @@ def webhook_twilio():
 
 @realtime_bp.route("/webhook/zapi", methods=["POST"])
 def webhook_zapi():
-    # TODO: Implementar validação de token Bearer Z-API
-    # TODO: Implementar parser de mensagens Z-API
-    # TODO: Normalizar para o formato interno e chamar handle_message_event
-    logger.info("Webhook Z-API recebido — implementação pendente.")
-    return "OK", 200
+    # Skeleton reservado para integração Z-API futura. Até existir parser +
+    # validação de token Bearer, retornar 501 evita aceitar payloads
+    # arbitrários e sinaliza claramente que o endpoint não está implementado.
+    # Quando a integração for priorizada, substituir por handler real.
+    logger.info("Webhook Z-API recebido — endpoint nao implementado (501).")
+    abort(501, "Webhook Z-API not yet implemented")
 
 
 # ──────────────────────────────────────────────

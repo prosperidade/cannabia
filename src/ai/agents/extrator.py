@@ -256,7 +256,10 @@ class AgenteExtrator(BaseAgent):
                         "note": "Portal ANVISA Cannabis disponivel para consulta manual",
                     })
             except Exception:
-                pass
+                logger.warning(
+                    "Falha ao montar fallback de legislacao ANVISA (nao critico)",
+                    exc_info=True,
+                )
 
         return {"results": results, "query": query}
 
@@ -680,6 +683,12 @@ class AgenteExtrator(BaseAgent):
                     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                 except Exception:
+                    logger.warning(
+                        "Falha ao ler arquivo %s para ingest no ChromaDB; "
+                        "ingerindo conteudo vazio",
+                        filepath,
+                        exc_info=True,
+                    )
                     content = ""
                 ingest_result = self.invoke_skill(
                     "ingest_to_chromadb",
