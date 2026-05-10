@@ -8,7 +8,6 @@ from src.ai.agents.base import AgentResult, BaseAgent
 
 
 class _DummyAgent(BaseAgent):
-    palace_room = "test_room"
     agent_name = "dummy"
     description = "Agent fake para testar register_to_knowledge_base"
 

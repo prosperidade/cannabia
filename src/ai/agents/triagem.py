@@ -6,7 +6,6 @@ from src.ai.agents.base import BaseAgent, AgentResult
 
 
 class AgenteTriagem(BaseAgent):
-    palace_room = "pipeline_anamnese"
     agent_name = "triagem"
     description = "Extrai condições clínicas do relato do paciente usando widgets interativos"
 
@@ -59,14 +58,10 @@ class AgenteTriagem(BaseAgent):
         # Check red flags
         flags = self.invoke_skill("detect_red_flags", triage_response=triage)
 
-        # Knowledge graph
+        # Knowledge graph fire-and-forget via MemPalace foi extirpado em
+        # Track C.2 — condicoes detectadas vivem apenas no AgentResult
+        # retornado, consumidores podem persistir explicitamente se precisarem.
         conditions = triage.get("extracted_conditions", [])
-        for cond in conditions:
-            self.remember_fact(
-                cond.get("condition_name", "unknown"),
-                "detected_in_triage",
-                f"confidence={cond.get('confidence', 'unknown')}",
-            )
 
         return AgentResult(
             success=True,

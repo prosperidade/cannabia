@@ -7,7 +7,6 @@ from src.ai.agents.base import BaseAgent, AgentResult
 
 
 class AgenteTratamento(BaseAgent):
-    palace_room = "pipeline_prescricao"
     agent_name = "tratamento"
     description = "Gera plano terapêutico inicial a partir da análise clínica"
 

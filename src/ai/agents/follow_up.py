@@ -6,7 +6,6 @@ from src.ai.agents.base import BaseAgent, AgentResult
 
 
 class AgenteFollowUp(BaseAgent):
-    palace_room = "crm_telemetria"
     agent_name = "follow_up"
     description = "Gerencia retornos, analisa diário de sintomas e sugere ajustes de dosagem"
 
@@ -124,13 +123,8 @@ class AgenteFollowUp(BaseAgent):
         schedule = self.invoke_skill("schedule_return", treatment_phase=treatment_phase)
         skills_used.append("schedule_return")
 
-        # Remember patterns
-        if analysis.get("trend") != "insufficient_data":
-            self.remember(
-                f"Diary analysis: trend={analysis['trend']} "
-                f"avg_overall={analysis['avg_scores'].get('overall', 0)} "
-                f"adjustment={adjustment['action']}"
-            )
+        # Padroes do diary FollowUp via MemPalace foram extirpados em
+        # Track C.2 — analysis e adjustment voltam no AgentResult.
 
         return AgentResult(
             success=True,

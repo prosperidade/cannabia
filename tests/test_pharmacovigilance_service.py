@@ -100,11 +100,7 @@ def _capture(tenant_id: int, **overrides) -> int:
 
 
 class TestTriageEvent:
-    def test_triage_persists_ai_triage_result(self, fixture_tenant_id, monkeypatch):
-        # Stub diary_write — fire-and-forget, nao queremos rede
-        monkeypatch.setattr(
-            "src.ai.agents.base.diary_write", lambda *a, **kw: True
-        )
+    def test_triage_persists_ai_triage_result(self, fixture_tenant_id):
         event_id = _capture(
             fixture_tenant_id,
             description="Paciente internado com convulsao.",
@@ -124,18 +120,12 @@ class TestTriageEvent:
         assert refreshed.ai_triage_result is not None
         assert refreshed.ai_triage_result["severity_suggested"] == "life_threatening"
 
-    def test_triage_raises_for_missing_event(self, fixture_tenant_id, monkeypatch):
-        monkeypatch.setattr(
-            "src.ai.agents.base.diary_write", lambda *a, **kw: True
-        )
+    def test_triage_raises_for_missing_event(self, fixture_tenant_id):
         with pytest.raises(pv_svc.AdverseEventNotFoundError):
             pv_svc.triage_event(999_999_999, tenant_id=fixture_tenant_id)
 
-    def test_triage_isolated_by_tenant(self, fixture_tenant_id, monkeypatch):
+    def test_triage_isolated_by_tenant(self, fixture_tenant_id):
         # Cria evento em outro tenant — nao pode ser triado pelo nosso
-        monkeypatch.setattr(
-            "src.ai.agents.base.diary_write", lambda *a, **kw: True
-        )
         suffix = uuid.uuid4().hex[:8]
         with db_cursor(dictionary=True) as (conn, cur):
             cur.execute(

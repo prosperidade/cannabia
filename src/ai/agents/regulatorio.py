@@ -112,7 +112,6 @@ def _read_attr(report: Any, name: str) -> Any:
 
 
 class AgenteRegulatorio(BaseAgent):
-    palace_room = "regulatorio_anvisa"
     agent_name = "regulatorio"
     description = "Verifica compliance regulatoria ANVISA/CFM + elegibilidade Sandbox"
 
@@ -223,11 +222,9 @@ class AgenteRegulatorio(BaseAgent):
             if f.status == "warn"
         ]
 
-        # Audit trail no diary do palace_room (fire-and-forget via remember).
-        self.remember(
-            f"sandbox_eligibility tenant={resolved_tenant_id} "
-            f"eligible={report.is_eligible} blockers={len(blockers)} warnings={len(warnings)}"
-        )
+        # Audit trail via MemPalace foi extirpado em Track C.2 — eventos
+        # operacionais que precisam de auditoria devem usar audit_trail
+        # (migrations/008_audit_trail.sql) explicitamente.
 
         return {
             "ok": True,
@@ -370,11 +367,9 @@ class AgenteRegulatorio(BaseAgent):
             "model_version": TRIAGE_MODEL_VERSION,
         }
 
-        # Audit trail no diary (fire-and-forget).
-        self.remember(
-            f"triage_adverse_event suggested={severity_suggested} "
-            f"reported={severity_reported} notify={notify_required}"
-        )
+        # Audit trail via MemPalace foi extirpado em Track C.2; resultado
+        # da triagem volta intacto pra caller que persiste em
+        # adverse_events.ai_triage_result quando opt-in.
 
         # Persistencia opt-in em adverse_events.ai_triage_result.
         if persist:
@@ -423,8 +418,8 @@ class AgenteRegulatorio(BaseAgent):
         if prescription:
             compliance = self.invoke_skill("check_anvisa_compliance", prescription=prescription)
             skills_used.append("check_anvisa_compliance")
-            if not compliance["compliant"]:
-                self.remember(f"Compliance issues: {compliance['issues']}")
+            # Compliance issues sao retornadas no compliance dict; diary
+            # via MemPalace foi extirpado em Track C.2.
         else:
             compliance = {"compliant": True, "issues": [], "checked_norms": []}
 

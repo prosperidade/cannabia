@@ -2,14 +2,17 @@
 """
 BaseAgent — foundation for all Cannabia AI agents.
 
-Each agent:
-- Has a palace_room for MemPalace memory
-- Auto-logs execution diary entries
-- Can recall past memory and remember new facts
-- Has registered skills (callable functions)
-- Reports execution metrics (duration, tokens, cost)
+Cada agente:
+- Auto-loga timing de execucao via `run()`.
+- Tem skills registradas (callable functions).
+- Reporta metricas (duration, tokens, confidence) via AgentResult.
 
-Design: Fire-and-forget for memory ops. Agent execution NEVER blocked by memory failures.
+Nota historica: ate Track C.2 da Sprint 1, BaseAgent integrava MemPalace
+para recall/diary/knowledge graph. MemPalace foi classificado como fraude
+em 2026-04-24 e o path inteiro foi extirpado. Os metodos memory-related
+(recall_memory, remember, remember_fact, get_diary) e o atributo
+palace_room nao existem mais — agentes que precisarem de memoria
+persistente devem usar storage explicito (DB, knowledge_catalog).
 """
 
 from __future__ import annotations
@@ -18,16 +21,7 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
-
-from src.ai.memory import (
-    diary_write,
-    diary_read,
-    kg_add,
-    kg_query,
-    recall_agent_context,
-    _sanitize_pii,
-)
+from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger("cannabia.agents")
 
@@ -63,12 +57,10 @@ class BaseAgent(ABC):
         - execute(**kwargs) -> AgentResult
 
     Subclasses should set:
-        - palace_room: str (MemPalace room name)
         - agent_name: str (display name)
         - description: str (what this agent does)
     """
 
-    palace_room: str = "general"
     agent_name: str = "base"
     description: str = "Base agent"
 
@@ -103,25 +95,6 @@ class BaseAgent(ABC):
         if not skill:
             raise ValueError(f"Skill '{name}' not registered for agent '{self.agent_name}'")
         return skill.handler(**kwargs)
-
-    # ── Memory Operations (fire-and-forget) ──
-
-    def recall_memory(self, query: str, diary_n: int = 5, search_n: int = 3) -> Dict:
-        """Recall relevant past memory for this agent."""
-        return recall_agent_context(self.palace_room, query, diary_n=diary_n, search_n=search_n)
-
-    def remember(self, content: str) -> bool:
-        """Save a note to this agent's diary."""
-        sanitized = _sanitize_pii(content)
-        return diary_write(self.palace_room, sanitized)
-
-    def remember_fact(self, subject: str, predicate: str, obj: str, confidence: str = "high") -> bool:
-        """Add a structured fact to the knowledge graph."""
-        return kg_add(subject, predicate, obj, confidence)
-
-    def get_diary(self, last_n: int = 10) -> List[Dict]:
-        """Get recent diary entries for this agent."""
-        return diary_read(self.palace_room, last_n=last_n)
 
     # ── Knowledge base ingestion (fire-and-forget) ──
 
@@ -173,53 +146,28 @@ class BaseAgent(ABC):
 
     def run(self, **kwargs) -> AgentResult:
         """
-        Run the agent with automatic diary logging and metrics.
-        Wraps execute() with timing, memory ops, and error handling.
+        Run the agent with timing and error handling.
+        Wraps execute() — sem memory ops (MemPalace extirpado em Track C.2).
         """
         start = time.time()
         result = AgentResult(success=False, agent_name=self.agent_name)
 
-        try:
-            # Optional: recall context if query provided
-            context_query = kwargs.pop("_memory_query", None)
-            if context_query:
-                memory = self.recall_memory(context_query)
-                if memory.get("has_memory"):
-                    kwargs["_memory_context"] = memory
+        # Compat com call sites pre-C.2 (clinical_flow ainda passa _memory_query
+        # e agentes individuais checam _memory_context). Pop e descarta — nada
+        # alimenta esses kwargs apos a extirpacao do MemPalace.
+        kwargs.pop("_memory_query", None)
 
-            # Execute agent logic
+        try:
             result = self.execute(**kwargs)
             result.agent_name = self.agent_name
             result.duration_ms = int((time.time() - start) * 1000)
-
-            # Auto-log success diary
-            diary_write(
-                self.palace_room,
-                f"[OK] {self.agent_name} | duration={result.duration_ms}ms | "
-                f"confidence={result.confidence:.2f} | skills={result.skills_used}",
-            )
-
-            # Auto-log knowledge graph fact
-            if result.success and result.data.get("_kg_subject"):
-                kg_add(
-                    result.data["_kg_subject"],
-                    f"analyzed_by_{self.agent_name}",
-                    f"confidence={result.confidence}",
-                )
-
         except Exception as e:
             result.duration_ms = int((time.time() - start) * 1000)
             result.error = str(e)
             logger.error("Agent '%s' failed: %s", self.agent_name, e, exc_info=True)
 
-            # Auto-log failure diary
-            diary_write(
-                self.palace_room,
-                f"[FAIL] {self.agent_name} | duration={result.duration_ms}ms | error={str(e)[:200]}",
-            )
-
         return result
 
     def __repr__(self) -> str:
         skills = ", ".join(self._skills.keys())
-        return f"<{self.__class__.__name__} room='{self.palace_room}' skills=[{skills}]>"
+        return f"<{self.__class__.__name__} skills=[{skills}]>"

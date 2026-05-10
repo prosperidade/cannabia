@@ -18,7 +18,6 @@ logger = logging.getLogger("cannabia.agents.cientifico")
 
 
 class AgenteCientifico(BaseAgent):
-    palace_room = "pipeline_cientifico"
     agent_name = "cientifico"
     description = "Gera relatorio cientifico com evidencias de PubMed/Cochrane via RAG"
 
