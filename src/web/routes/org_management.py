@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from flask import Blueprint, g, request
 from flask_login import current_user
+from psycopg2 import OperationalError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -112,7 +113,6 @@ def org_dashboard():
     suficientes' para a tabela.
     """
     clinic_id = g.clinic_id
-    empty = {"kpiData": [], "chartConsultas": [], "chartReceita": [], "topMedicos": [], "recentActivity": []}
 
     try:
         with db_cursor(dictionary=True) as (_, cursor):
@@ -373,11 +373,12 @@ def org_dashboard():
                 "topMedicos": top_medicos,
                 "recentActivity": recent_activity,
             })
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_dashboard", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.warning("Error fetching org dashboard from DB", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success(empty)
+        logger.error("Unexpected error on org_management.org_dashboard", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 # ==================================================================
@@ -420,11 +421,12 @@ def org_patients():
             rows = cursor.fetchall()
             items, meta = _paginate(rows, page, page_size)
             return _success(items, meta=meta)
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_patients", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.warning("Error fetching org patients from DB", exc_info=True)
-        # FIXME(sprint-2): decidir entre 500 explicito vs empty data conforme
-        # contrato com frontend (ver Track D do Sprint 1).
-        return _success([], meta={"page": page, "page_size": page_size, "total": 0})
+        logger.error("Unexpected error on org_management.org_patients", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 # ==================================================================
@@ -451,9 +453,12 @@ def org_doctors():
             )
             doctors = cursor.fetchall()
             return _success(doctors)
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_doctors", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.warning("Error fetching doctors from DB", exc_info=True)
-        return _success([])
+        logger.error("Unexpected error on org_management.org_doctors", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 # ==================================================================
@@ -484,9 +489,12 @@ def org_stock():
                 rows = [r for r in rows if search.lower() in (r.get("product_name") or "").lower()]
             items, meta = _paginate(rows, page, page_size)
             return _success(items, meta=meta)
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_stock", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.warning("Error fetching stock from DB", exc_info=True)
-        return _success([], meta={"page": page, "page_size": page_size, "total": 0})
+        logger.error("Unexpected error on org_management.org_stock", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 # ==================================================================
@@ -662,9 +670,12 @@ def org_billing():
             items, page_meta = _paginate(rows, page, page_size)
             meta = {**page_meta, "total_revenue": total_revenue, "pending": pending, "overdue": overdue}
             return _success(items, meta=meta)
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_billing", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.warning("Error fetching billing from DB", exc_info=True)
-        return _success([], meta={"page": page, "page_size": page_size, "total": 0, "total_revenue": 0, "pending": 0, "overdue": 0})
+        logger.error("Unexpected error on org_management.org_billing", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
 
 # ==================================================================
@@ -704,9 +715,9 @@ def org_financial():
                 "overdue": float(row["overdue"]),
                 "transfers": [],
             })
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_financial", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
     except Exception:
-        logger.warning("Error fetching financial data from DB", exc_info=True)
-        return _success({
-            "revenue": 0, "costs": 0, "profit": 0, "margin": 0,
-            "pending": 0, "overdue": 0, "transfers": [],
-        })
+        logger.error("Unexpected error on org_management.org_financial", exc_info=True)
+        return _error("internal_error", "Erro interno ao processar requisicao.", 500)
