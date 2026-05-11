@@ -141,16 +141,16 @@ Decisão de produto pra definir janela. Memória: usuário tinha confirmado que 
 
 | Origem | Dívida | Doc/issue |
 |---|---|---|
-| C.1 | **AnamnesisInput não coleta `weight_kg`/`prior_cannabis_use`** → defaults em 100% dos atendimentos | `docs/BACKLOG_AGENTE_PRESCRITOR.md` Dívida 4 |
-| Anchor | ~~Plugar `prompt_registry` + tabela `ai_prompt_versions` em service.py~~ | ✅ **Resolvido em Sprint 2 Track Reg** (migration 046 + seed_prompts.py + chains/prescriber/clinical_flow plugados + service.py grava `prompt_version`+`prompt_hash` REAIS). Ver `docs/sprints/sprint_2_Reg.md` quando criado. |
-| Anchor | Paginação LIMIT/OFFSET no banco | Sprint 2 explícito |
-| Anchor | Sentry / observabilidade básica | Sprint 2 explícito |
-| ~~D.2.c~~ | ~~Auditar consumer frontend dos 8 endpoints com `FIXME(sprint-2)` e decidir 500 vs empty data~~ | ✅ **FECHADA na Sprint 2 Track Audit** — empty-data swallow → 5xx explícito em 11 endpoints (7 FIXMEs + 4 análogos). Pattern: OperationalError→503 `database_unavailable`; Exception→500 `internal_error`; lab_analysis com 404 explícito quando patient_id passado mas paciente inexiste. Tests: `tests/test_audit_error_handling.py`. |
-| B.1 | Estender pattern 7 do `_OUTPUT_DANGER_PATTERNS` pra capturar valor das env vars | `tests/test_output_guardrail.py` FIXME |
-| A.3 | Purge retroativo de logs pré-A.3 com PII em texto plano | [docs/BACKLOG_LGPD.md](../BACKLOG_LGPD.md) Dívida 1 |
-| A.3 | Retention policy em `ai_audit_logs` (LGPD) | [docs/BACKLOG_LGPD.md](../BACKLOG_LGPD.md) Dívida 2 |
-| A.3 | Auditoria de PII em `medical_record_entries` + `anamnesis_reports` | [docs/BACKLOG_LGPD.md](../BACKLOG_LGPD.md) Dívida 4 |
-| C.1 | Cientifico citar evidência da `final_dosage` (não do treatment_plan draft) | `docs/BACKLOG_AGENTE_PRESCRITOR.md` Dívida 6 |
+| ~~C.1~~ | ~~**AnamnesisInput não coleta `weight_kg`/`prior_cannabis_use`** → defaults em 100% dos atendimentos~~ | ✅ **FECHADA na Sprint 2 Track AI** (PR #28). Surpresa: wizard já coletava — bug era propagação em `triage_intake_service.py:190-198`. AnamnesisInput estendido com 3 Optional Fields; defaults conservadores ficam como fallback. Ver `docs/sprints/sprint_2_consolidado.md`. |
+| ~~Anchor~~ | ~~Plugar `prompt_registry` + tabela `ai_prompt_versions` em service.py~~ | ✅ **FECHADA na Sprint 2 Track Reg** (PR #33). Migration 046 + seed_prompts.py + chains/prescriber/clinical_flow plugados + service.py grava `prompt_version`+`prompt_hash` REAIS. Surpresa: módulo já existia, schema drift impedia. Pós-merge: `python -m scripts.seed_prompts --commit` ✅. |
+| ~~Anchor~~ | ~~Paginação LIMIT/OFFSET no banco~~ | ✅ **FECHADA parcialmente na Sprint 2 Track Page** (PR #30) — Tier-1 (4 endpoints) migrados pra envelope `{items, total, limit, offset, has_more}`. Helper `src/web/pagination.py`. `?legacy=1` escape hatch 1 sprint. Tier-2 (4 endpoints) + frontend consumers vira dívida Sprint 3. |
+| ~~Anchor~~ | ~~Sentry / observabilidade básica~~ | ✅ **FECHADA na Sprint 2 Track Obs** (PR #29). sentry-sdk[flask] + `src/infra/observability.py` com defense-in-depth (denylist nativa + `sanitize_clinical_payload` no before_send + `include_local_variables=False` + fail-drop em erro). Pattern soft (DSN ausente em prod = warning, não raise — Sprint 3 endurece). |
+| ~~D.2.c~~ | ~~Auditar consumer frontend dos 8 endpoints com `FIXME(sprint-2)` e decidir 500 vs empty data~~ | ✅ **FECHADA na Sprint 2 Track Audit** (PR #32) — empty-data swallow → 5xx explícito em 11 endpoints (7 FIXMEs + 4 análogos). Pattern: OperationalError→503 `database_unavailable`; Exception→500 `internal_error`; lab_analysis com 404 explícito quando patient_id passado mas paciente inexiste. Tests: `tests/test_audit_error_handling.py`. |
+| B.1 | Estender pattern 7 do `_OUTPUT_DANGER_PATTERNS` pra capturar valor das env vars | `tests/test_output_guardrail.py` FIXME (Sprint 3) |
+| ~~A.3~~ | ~~Purge retroativo de logs pré-A.3 com PII em texto plano~~ | ✅ **FECHADA na Sprint 2 Track LGPD** (PR #31). Script `scripts/purge_audit_pii_pre_a3.py` (dry-run/commit) + migration 044 (purge_events + processed_ids) + cutoff `2026-05-10T17:00:00Z`. **Production run aguarda OK jurídico.** |
+| ~~A.3~~ | ~~Retention policy em `ai_audit_logs` (LGPD)~~ | ✅ **FECHADA na Sprint 2 Track LGPD** (PR #31). Script `scripts/retention_audit_logs.py` + migration 045 (archive table) + Render Cron Job (0 4 * * *). Kill switch `LGPD_PURGE_ENABLED=false` default (vira true via Render dashboard pós OK jurídico). |
+| A.3 | Auditoria de PII em `medical_record_entries` + `anamnesis_reports` | [docs/BACKLOG_LGPD.md](../BACKLOG_LGPD.md) Dívida 4 (Sprint 4 — design separado: encrypt at-rest vs auditar acesso) |
+| C.1 | Cientifico citar evidência da `final_dosage` (não do treatment_plan draft) | `docs/BACKLOG_AGENTE_PRESCRITOR.md` Dívida 6 (Sprint 3) |
 
 ### Sprint 3 (clínico — exige revisão médica externa)
 
@@ -184,16 +184,20 @@ Decisão de produto pra definir janela. Memória: usuário tinha confirmado que 
 5. **Memory cache pode mentir.** Hooks injetaram observações falsas dizendo que `service.py` já estava wired pra `prescription_result` e que `ai_audit_logs` já tinha colunas Prescritor — ambas falsas. Verificar arquivos reais sempre.
 6. **Decisão UX explícita do coordenador economiza retrabalho.** C.1.4 — display em `/atendimentos/[id]` standalone (não em `/med/prescricao/*`) — foi decidida antes da Phase 0 do frontend e evitou refactor de `prescription_contract`.
 
-## Próximo passo: Sprint 2
+## Próximo passo: Sprint 2 ✅ FECHADA
 
-**Foco recomendado** (ordem de prioridade derivada das dívidas acima):
+**Sprint 2 encerrada em 2026-05-11 — 6 PRs, 6 tracks, todas dívidas alvo resolvidas:**
 
-1. **Estender `AnamnesisInput` + widget de triagem** pra coletar peso, altura, uso prévio de cannabis. Remove o badge "defaults conservadores" que aparece em 100% dos atendimentos hoje. (Dívida C.4 — alta prioridade clínica.)
-2. **Plugar `prompt_registry` + `ai_prompt_versions`** (Q3=b adiado da Sprint 1).
-3. **Paginação LIMIT/OFFSET** no banco — endpoints sem paginação são bomba-relógio com volume real.
-4. **Sentry** — observabilidade básica antes de pacientes piloto chegarem em produção.
-5. ~~**Auditar 8 endpoints com `FIXME(sprint-2)`** — decidir 500 vs empty data caso a caso (D.2.c).~~ → ✅ resolvido em Sprint 2 Track Audit (11 endpoints migrados pra 5xx explícito).
-6. **Purge retroativo de logs pré-A.3 + retention policy** (LGPD Dívidas 1+2).
+1. ✅ **AnamnesisInput estendido** (Track AI / PR #28) — bug de propagação em `triage_intake_service.py` corrigido. Wizard já coletava; campos agora chegam ao schema.
+2. ✅ **prompt_registry plugado** (Track Reg / PR #33) — service.py grava `prompt_version`+`prompt_hash` reais. Pós-merge: `seed_prompts --commit` rodado.
+3. ✅ **Paginação parcial** (Track Page / PR #30) — Tier-1 (4 endpoints) migrados pra envelope. Tier-2 + frontend consumers → Sprint 3.
+4. ✅ **Sentry deployado** (Track Obs / PR #29) — defense-in-depth contra vazamento PII.
+5. ✅ **8 FIXME(sprint-2) resolvidos** (Track Audit / PR #32) — 11 sites empty→5xx (D.2.c).
+6. ✅ **Purge + retention LGPD** (Track LGPD / PR #31) — código + Render Cron com kill switch `LGPD_PURGE_ENABLED=false` (vira true pós OK jurídico).
+
+**Detalhamento completo:** ver [`docs/sprints/sprint_2_consolidado.md`](sprint_2_consolidado.md).
+
+**Próximo passo:** Sprint 3 — production hardening (Obs DSN raise, frontend pagination migration, cientifico cita final_dosage) + ANVISA kickoff (SCC-I1 + legislação real). Em planejamento.
 
 ## Encerramento
 
