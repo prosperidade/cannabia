@@ -279,6 +279,20 @@ def main() -> int:
         level=log_level,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
+
+    # Kill switch — production run espera OK juridico antes de executar.
+    # Default false; vira true no Render dashboard quando liberado. Aceita
+    # "true"/"1"/"yes" (case-insensitive). Render Cron Job continua agendado
+    # mas roda como no-op enquanto desativado.
+    enabled = os.getenv("LGPD_PURGE_ENABLED", "false").strip().lower()
+    if enabled not in {"true", "1", "yes"}:
+        logger.info(
+            "LGPD_PURGE_ENABLED=%r — retention DESATIVADO (no-op). "
+            "Para ativar: set LGPD_PURGE_ENABLED=true no Render dashboard.",
+            enabled,
+        )
+        return 0
+
     try:
         stats = run()
     except Exception:  # noqa: BLE001

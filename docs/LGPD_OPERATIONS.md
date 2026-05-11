@@ -8,14 +8,14 @@
 
 Os prazos de retencao definidos abaixo (90d / 365d / 5y) sao **defensaveis tecnicamente** mas **NAO foram revisados pela area juridica** ate o merge desta PR.
 
-- O **Render Cron Job `cannabia-audit-retention`** comeca a rodar diariamente apos o proximo deploy.
+- O **Render Cron Job `cannabia-audit-retention`** eh agendado e roda diariamente, MAS comeca **DESATIVADO** via kill switch `LGPD_PURGE_ENABLED=false` (default em `render.yaml`). Enquanto a flag for false, o cron loga "DESATIVADO (no-op)" e retorna 0 — zero efeito em DB. Quando o juridico aprovar, **vire `LGPD_PURGE_ENABLED=true` no Render dashboard** (Environment > edit env var) — proximo run do cron passa a executar.
 - O **purge retroativo** (`scripts/purge_audit_pii_pre_a3.py`) NAO roda em producao automaticamente — eh manual.
-- **Antes do primeiro production run** (purge OU primeira execucao do cron em producao), o coordenador deve revisar:
+- **Antes de ligar a flag** (ou de rodar o purge manual em prod), o coordenador deve revisar:
   - Prazos de retencao com area juridica + DPO.
   - Politica de archive cleanup (5y).
   - Processo de snapshot/rollback documentado neste runbook.
 
-Se necessario adiar o cron, **suspender o service no Render dashboard** ate liberacao.
+Alternativa pra adiar o cron alem do kill switch: **suspender o service no Render dashboard** (efeito equivalente, mas exige re-enable manual).
 
 ---
 

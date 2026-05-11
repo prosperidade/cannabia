@@ -88,6 +88,10 @@ services:
         fromDatabase:
           name: cannabia-db
           property: connectionString
+      # Kill switch: cron eh agendado mas roda como no-op enquanto false.
+      # Vire "true" no Render dashboard apos OK juridico (Q-LGPD-2).
+      - key: LGPD_PURGE_ENABLED
+        value: "false"
       - key: LGPD_AUDIT_RETENTION_DAYS_DETAIL
         value: "90"
       - key: LGPD_AUDIT_RETENTION_DAYS_CRITICAL
