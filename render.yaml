@@ -79,6 +79,33 @@ services:
       - key: SENTRY_SAMPLE_RATE
         value: "1.0"
 
+  # Sprint 2 Track LGPD: retention policy automatizada para ai_audit_logs.
+  # Roda diariamente as 04:00 UTC (01:00 BRT) — janela de baixo trafego.
+  # AVISO: prazos de retencao precisam de OK juridico antes do primeiro
+  # production run. Ver docs/LGPD_OPERATIONS.md.
+  - type: cron
+    name: cannabia-audit-retention
+    env: python
+    region: ohio
+    schedule: "0 4 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m scripts.retention_audit_logs
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cannabia-db
+          property: connectionString
+      # Kill switch: cron eh agendado mas roda como no-op enquanto false.
+      # Vire "true" no Render dashboard apos OK juridico (Q-LGPD-2).
+      - key: LGPD_PURGE_ENABLED
+        value: "false"
+      - key: LGPD_AUDIT_RETENTION_DAYS_DETAIL
+        value: "90"
+      - key: LGPD_AUDIT_RETENTION_DAYS_CRITICAL
+        value: "365"
+      - key: LGPD_AUDIT_ARCHIVE_RETENTION_DAYS
+        value: "1825"
+
   - type: web
     name: cannabia-frontend
     runtime: node

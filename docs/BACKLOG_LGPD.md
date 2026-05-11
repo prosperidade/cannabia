@@ -8,9 +8,20 @@
 
 **Fora do escopo de A.3:** purge retroativo. Risco operacional de varrer logs em produção sem janela definida + sem schema de evento de purge auditável. Vai pra Sprint 2.
 
-## Dívida 1 — Purge retroativo de logs PII em `ai_audit_logs`
+## Dívida 1 — Purge retroativo de logs PII em `ai_audit_logs` ✅ FECHADA na Sprint 2
 
-**Sprint:** 2 (a definir).
+**Status:** ✅ **FECHADA na Sprint 2 Track LGPD** — código pronto, production run aguarda OK jurídico.
+
+- Script: [scripts/purge_audit_pii_pre_a3.py](../scripts/purge_audit_pii_pre_a3.py).
+- Migrations: [044_audit_purge_events.sql](../migrations/044_audit_purge_events.sql), [045_audit_archive_retention.sql](../migrations/045_audit_archive_retention.sql).
+- Runbook: [docs/LGPD_OPERATIONS.md](LGPD_OPERATIONS.md).
+- Testes: `tests/test_audit_redaction.py` (idempotência) + `tests/test_purge_script.py`.
+- Cutoff fixo: `2026-05-10T17:00:00+00:00` (1h margin pós-merge A.3).
+- Estratégia: opção 1 (re-sanitização in-place) com snapshot table TTL 30d (alerta manual).
+
+> ⚠️ **Production run depende de OK jurídico.** Ver runbook.
+
+### Diagnóstico inicial (mantido para referência)
 
 ### Diagnóstico inicial
 
@@ -46,15 +57,27 @@ LIMIT 20;
 
 **Recomendação:** opção 1 com snapshot em `ai_audit_logs_pre_redact_backup` (DROP TABLE ao final da Sprint 2 após validação).
 
-## Dívida 2 — Retention policy
+## Dívida 2 — Retention policy ✅ FECHADA na Sprint 2
 
-**Sprint:** 2.
+**Status:** ✅ **FECHADA na Sprint 2 Track LGPD** — código + cron prontos, primeiro production tick aguarda OK jurídico.
 
-LGPD exige justificativa de retenção e prazos de descarte. Hoje não há retention policy em `ai_audit_logs`. Definir:
+- Script: [scripts/retention_audit_logs.py](../scripts/retention_audit_logs.py).
+- Cron: Render Cron Job `cannabia-audit-retention` (`0 4 * * *` UTC) — definido em [render.yaml](../render.yaml).
+- Migrations: [044_audit_purge_events.sql](../migrations/044_audit_purge_events.sql), [045_audit_archive_retention.sql](../migrations/045_audit_archive_retention.sql).
+- Runbook: [docs/LGPD_OPERATIONS.md](LGPD_OPERATIONS.md).
+- Testes: `tests/test_retention_script.py`.
 
-- Prazo padrão (ex: 5 anos pós último acesso? ou pós inatividade do paciente?).
-- Trigger de DELETE automático (cron diária / pgAgent / GitHub Actions schedule).
-- Eventos de purge gravados em `audit_trail` (criado em [migrations/008_audit_trail.sql](../migrations/008_audit_trail.sql)) pra rastreabilidade.
+Política implementada (overridable via env vars no `render.yaml`):
+
+| Tipo | Prazo no hot table | Env var |
+| --- | --- | --- |
+| Detail (status comum) | 90d | `LGPD_AUDIT_RETENTION_DAYS_DETAIL` |
+| Critical (`security_blocked`/`error`) | 365d | `LGPD_AUDIT_RETENTION_DAYS_CRITICAL` |
+| Archive cleanup | 1825d (5y) | `LGPD_AUDIT_ARCHIVE_RETENTION_DAYS` |
+
+Estratégia archive-then-delete: rows aposentados são copiados para `ai_audit_logs_archive` (com `archived_at`) antes de DELETE em `ai_audit_logs`. Eventos rastreados em `ai_audit_purge_events` (executor_host='cron'). pg_cron NÃO está disponível em basic-256mb — daí Render Cron Job.
+
+> ⚠️ **Cron começa a rodar no próximo deploy.** Suspender service no Render dashboard se OK jurídico ainda não veio.
 
 ## Dívida 3 — Rotação de SECRET_KEY exige re-encryption
 
