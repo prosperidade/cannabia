@@ -97,7 +97,7 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
         {defaultsUsed ? (
           <span
             className="mini-pill"
-            title="AnamnesisInput nao coleta peso/uso previo de cannabis. Defaults conservadores aplicados (peso=70kg, naive). Sprint 2 estende a anamnese."
+            title="Anamnese sem peso e/ou uso prévio de cannabis cadastrados — defaults conservadores aplicados (peso=70kg, naive)."
           >
             ⓘ Dosagem com defaults conservadores
           </span>

@@ -195,6 +195,9 @@ def build_triage_payload(payload: dict[str, Any]) -> tuple[AnamnesisInput, dict[
         current_medications=[],
         allergies=[],
         medical_history=medical_history,
+        weight_kg=weight_kg,
+        height_cm=height_cm,
+        prior_cannabis_use=prior_cannabis_use,
     )
 
     anamnesis_data = {
