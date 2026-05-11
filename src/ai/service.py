@@ -21,6 +21,49 @@ from src.services.billing_service import (
 )
 
 
+# Sprint 2 Track Reg: prompt_version + prompt_hash REAIS substituem o
+# placeholder eterno (prompt_version="v1.0" + sha256("v1.0")). Helpers
+# abaixo derivam strings agregadas a partir do dict prompts_used que
+# clinical_flow.run() agora popula.
+
+_NA = "n/a"
+
+
+def _aggregate_prompt_version(prompts_used: Dict[str, Dict[str, Any]]) -> str:
+    """
+    Concat ordenado de "<stage>:<version>" pra prompt_version.
+    Ex: "anamnese:v1.0.0+cientifico:hardcoded+prescritor:v1.0.0+tratamento:v1.0.0".
+    Se vazio, retorna "n/a" (pre-flow paths).
+    """
+    if not prompts_used:
+        return _NA
+    parts = sorted(
+        f"{stage}:{(meta or {}).get('version', _NA)}"
+        for stage, meta in prompts_used.items()
+        if meta
+    )
+    return "+".join(parts) if parts else _NA
+
+
+def _aggregate_prompt_hash(prompts_used: Dict[str, Dict[str, Any]]) -> str:
+    """
+    SHA-256 da concat ordenada dos hashes individuais. Deterministico:
+    mesma combinacao de prompts -> mesmo hash agregado.
+    Se vazio, retorna "n/a" (pre-flow paths).
+    """
+    if not prompts_used:
+        return _NA
+    hashes = sorted(
+        (meta or {}).get("hash", "")
+        for stage, meta in prompts_used.items()
+        if meta
+    )
+    if not any(hashes):
+        return _NA
+    concat = "|".join(hashes)
+    return hashlib.sha256(concat.encode("utf-8")).hexdigest()
+
+
 logger = logging.getLogger("cannabia.ai")
 
 
@@ -42,8 +85,11 @@ class CannabIAService:
             raise RuntimeError("clinic_id não encontrado no contexto da request")
 
         model_name = "gpt-4o-mini"
-        prompt_version = "v1.0"
-        prompt_hash = hashlib.sha256(prompt_version.encode()).hexdigest()
+        # Sprint 2 Track Reg: pre-flow paths (billing/security/validation/
+        # error) gravam "n/a" honestamente. So apos flow.run() temos o
+        # snapshot real dos prompts usados.
+        pre_flow_prompt_version = _NA
+        pre_flow_prompt_hash = _NA
 
         patient_name = data.get("patient_name")
         if not patient_name:
@@ -65,8 +111,8 @@ class CannabIAService:
                 status="billing_blocked",
                 error_message=allowance.message,
                 model=model_name,
-                prompt_version=prompt_version,
-                prompt_hash=prompt_hash,
+                prompt_version=pre_flow_prompt_version,
+                prompt_hash=pre_flow_prompt_hash,
                 input_tokens=None,
                 output_tokens=None,
                 total_tokens=None,
@@ -101,8 +147,8 @@ class CannabIAService:
                 status="security_blocked",
                 error_message=str(security_error),
                 model=model_name,
-                prompt_version=prompt_version,
-                prompt_hash=prompt_hash,
+                prompt_version=pre_flow_prompt_version,
+                prompt_hash=pre_flow_prompt_hash,
                 input_tokens=None,
                 output_tokens=None,
                 total_tokens=None,
@@ -129,8 +175,8 @@ class CannabIAService:
                 status="validation_error",
                 error_message=str(validation_error),
                 model=model_name,
-                prompt_version=prompt_version,
-                prompt_hash=prompt_hash,
+                prompt_version=pre_flow_prompt_version,
+                prompt_hash=pre_flow_prompt_hash,
                 input_tokens=None,
                 output_tokens=None,
                 total_tokens=None,
@@ -146,6 +192,13 @@ class CannabIAService:
             result = self.flow.run(anamnesis)
 
             total_time_ms = int((time.time() - start_total) * 1000)
+
+            # Sprint 2 Track Reg: extrai snapshot dos prompts efetivamente
+            # usados pelo flow. clinical_flow.run() popula prompts_used
+            # com 4 metas (anamnese/tratamento/prescritor/cientifico).
+            prompts_used = result.get("prompts_used", {}) or {}
+            effective_prompt_version = _aggregate_prompt_version(prompts_used)
+            effective_prompt_hash = _aggregate_prompt_hash(prompts_used)
 
             token_usage = result.get("token_usage", {})
             input_tokens = token_usage.get("input")
@@ -204,8 +257,8 @@ class CannabIAService:
                 status="success",
                 error_message=None,
                 model=effective_model,
-                prompt_version=prompt_version,
-                prompt_hash=prompt_hash,
+                prompt_version=effective_prompt_version,
+                prompt_hash=effective_prompt_hash,
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 total_tokens=total_tokens,
@@ -255,8 +308,8 @@ class CannabIAService:
                 status="error",
                 error_message=str(execution_error),
                 model=model_name,
-                prompt_version=prompt_version,
-                prompt_hash=prompt_hash,
+                prompt_version=pre_flow_prompt_version,
+                prompt_hash=pre_flow_prompt_hash,
                 input_tokens=None,
                 output_tokens=None,
                 total_tokens=None,

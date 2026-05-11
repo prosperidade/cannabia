@@ -34,7 +34,10 @@ logger = logging.getLogger("cannabia.ai.prompts")
 # CONFIGURAÇÃO
 # ═══════════════════════════════════════════════════════════════════════════════
 
-CACHE_TTL = int(os.getenv("PROMPT_CACHE_TTL", "300"))  # 5 minutos
+# Sprint 2 Track Reg: TTL reduzido de 300s -> 60s. Piloto precisa de
+# resposta rapida quando admin atualiza prompt via UI; 60s eh o sweet
+# spot entre evitar query-storm e refletir mudancas em quase-tempo-real.
+CACHE_TTL = int(os.getenv("PROMPT_CACHE_TTL", "60"))
 
 
 @dataclass
@@ -59,14 +62,22 @@ from src.ai.prompts import (
     SCIENTIFIC_REPORT_PROMPT,
     SCIENTIFIC_REPORT_RAG_PROMPT,
     TRIAGE_AGENT_SYSTEM_PROMPT,
+    PRESCRIBER_SYSTEM_PROMPT,
+    PRESCRIBER_USER_PROMPT,
 )
 
+# Sprint 2 Track Reg: prescriber_system e prescriber_user adicionados.
+# Sprint 1 Track C.1 entregou o AgentePrescritor sem versionamento — esta
+# entrada fecha o gap. Audit log agora consegue identificar a versao real
+# de cada prompt usado em cada execucao do flow.
 _HARDCODED_PROMPTS: Dict[str, str] = {
     "anamnesis": ANAMNESIS_PROMPT,
     "treatment_plan": TREATMENT_PLAN_PROMPT,
     "scientific_report": SCIENTIFIC_REPORT_PROMPT,
     "scientific_report_rag": SCIENTIFIC_REPORT_RAG_PROMPT,
     "triage_agent": TRIAGE_AGENT_SYSTEM_PROMPT,
+    "prescriber_system": PRESCRIBER_SYSTEM_PROMPT,
+    "prescriber_user": PRESCRIBER_USER_PROMPT,
 }
 
 
@@ -284,7 +295,18 @@ def activate_prompt_version(prompt_key: str, version: str) -> bool:
     """
     Ativa uma versão específica do prompt (e desativa as demais).
     Retorna True se encontrou e ativou, False se versão não existe.
+
+    Sprint 2 Track Reg: protegido por feature flag FF_PROMPT_REGISTRY_ADMIN
+    (default OFF). Sprint 3 ativa quando UI admin estiver pronta.
     """
+    if os.getenv("FF_PROMPT_REGISTRY_ADMIN", "0").strip() not in {"1", "true", "TRUE"}:
+        logger.warning(
+            "activate_prompt_version bloqueada: FF_PROMPT_REGISTRY_ADMIN OFF "
+            "(key=%s, version=%s)",
+            prompt_key, version,
+        )
+        return False
+
     from src.infra.database import db_cursor
 
     with db_cursor(dictionary=True) as (conn, cur):

@@ -39,7 +39,9 @@ from src.ai.schemas import (
     TitrationStep,
     PRESCRIBER_TOOL_DEFINITION,
 )
-from src.ai.prompts import PRESCRIBER_SYSTEM_PROMPT, PRESCRIBER_USER_PROMPT
+# Sprint 2 Track Reg: prompts vem do registry (DB-first com fallback
+# hardcoded em src.ai.prompts). Permite override versionado via DB.
+from src.ai.prompt_registry import get_prompt
 
 from tenacity import (
     retry,
@@ -479,7 +481,7 @@ def run_prescriber(dosage_input: DosageInput) -> Tuple[DosageRecommendation, Saf
     )
 
     # ── Camada 2: LLM (temperature=0) ────────────────────────────────────
-    system_prompt = PRESCRIBER_SYSTEM_PROMPT.format(
+    system_prompt = get_prompt("prescriber_system").text.format(
         patient_name=dosage_input.patient_name,
         age=dosage_input.age,
         weight_kg=dosage_input.weight_kg,
@@ -494,7 +496,7 @@ def run_prescriber(dosage_input: DosageInput) -> Tuple[DosageRecommendation, Saf
         risk_level=dosage_input.risk_level,
     )
 
-    raw_output, tokens = _run_prescriber_llm(system_prompt, PRESCRIBER_USER_PROMPT)
+    raw_output, tokens = _run_prescriber_llm(system_prompt, get_prompt("prescriber_user").text)
 
     # ── Parse e validação Pydantic ────────────────────────────────────────
     try:
