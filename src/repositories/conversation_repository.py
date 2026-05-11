@@ -77,31 +77,76 @@ def list_conversations(
     status: Optional[str] = None,
     search: Optional[str] = None,
     limit: int = 50,
-) -> list[dict]:
+    offset: int = 0,
+    include_total: bool = False,
+    paginated: bool = False,
+):
+    """Lista conversas da clinica corrente.
+
+    Compat (default): retorna `list[dict]` (Sprint 1).
+    Sprint 2 Track Page: passe `paginated=True` pra receber dict
+    {items, total, has_more}. Sempre aplica LIMIT (default 50).
+    """
     cid = clinic_id or _clinic_id()
     with db_cursor(dictionary=True) as (_, cur):
-        sql = """
+        base_sql = """
             SELECT c.*,
                    p.name AS patient_name_resolved
             FROM conversations c
             LEFT JOIN patients p ON p.id = c.patient_id AND p.clinic_id = c.clinic_id
             WHERE c.clinic_id = %s
         """
-        args: list = [cid]
+        base_args: list = [cid]
 
         if status:
-            sql += " AND c.status = %s"
-            args.append(status)
+            base_sql += " AND c.status = %s"
+            base_args.append(status)
         if search:
-            sql += " AND (c.contact_name ILIKE %s OR c.contact_phone ILIKE %s OR p.name ILIKE %s)"
+            base_sql += " AND (c.contact_name ILIKE %s OR c.contact_phone ILIKE %s OR p.name ILIKE %s)"
             pat = f"%{search}%"
-            args.extend([pat, pat, pat])
+            base_args.extend([pat, pat, pat])
 
-        sql += " ORDER BY c.last_message_at DESC NULLS LAST LIMIT %s"
-        args.append(limit)
+        if not paginated:
+            sql = base_sql + " ORDER BY c.last_message_at DESC NULLS LAST LIMIT %s"
+            args = base_args + [limit]
+            cur.execute(sql, args)
+            return [dict(r) for r in cur.fetchall()]
 
+        # Modo paginado.
+        total = None
+        if include_total:
+            count_sql = (
+                "SELECT COUNT(*) AS n FROM conversations c "
+                "LEFT JOIN patients p ON p.id = c.patient_id AND p.clinic_id = c.clinic_id "
+                "WHERE c.clinic_id = %s"
+            )
+            count_args: list = [cid]
+            if status:
+                count_sql += " AND c.status = %s"
+                count_args.append(status)
+            if search:
+                count_sql += (
+                    " AND (c.contact_name ILIKE %s OR c.contact_phone ILIKE %s OR p.name ILIKE %s)"
+                )
+                pat = f"%{search}%"
+                count_args.extend([pat, pat, pat])
+            cur.execute(count_sql, count_args)
+            total = int(cur.fetchone()["n"])
+
+        fetch_n = limit if include_total else limit + 1
+        sql = base_sql + " ORDER BY c.last_message_at DESC NULLS LAST LIMIT %s OFFSET %s"
+        args = base_args + [fetch_n, offset]
         cur.execute(sql, args)
-        return [dict(r) for r in cur.fetchall()]
+        rows = [dict(r) for r in cur.fetchall()]
+
+    if include_total:
+        items = rows
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}
 
 
 def get_conversation(conversation_id: int, clinic_id: Optional[int] = None) -> Optional[dict]:

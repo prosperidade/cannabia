@@ -22,18 +22,43 @@ conversations_bp = Blueprint("conversations", __name__, url_prefix="/api/v1")
 @conversations_bp.get("/conversations")
 @api_role_required("Admin", "Medico", "Atendente")
 def list_convs():
+    """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
+
+    `?legacy=1` -> compat path (lista nua, max=100).
+    """
     from src.repositories.conversation_repository import list_conversations
+    from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
 
     status = request.args.get("status") or None
     search = request.args.get("search") or None
-    try:
-        limit = int(request.args.get("limit", 50))
-    except (TypeError, ValueError):
-        limit = 50
-    limit = max(1, min(limit, 100))
 
-    convs = list_conversations(status=status, search=search, limit=limit)
-    return _success(_serialize(convs))
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _error("validation_error", str(exc), 422)
+
+    if legacy_mode:
+        # Compat path: lista nua com cap antigo (max=100).
+        legacy_limit = max(1, min(limit, 100))
+        convs = list_conversations(status=status, search=search, limit=legacy_limit)
+        return _success(bare_legacy_response(_serialize(convs)))
+
+    result = list_conversations(
+        status=status,
+        search=search,
+        limit=limit,
+        offset=offset,
+        include_total=include_total,
+        paginated=True,
+    )
+    envelope = paginated_response(
+        _serialize(result["items"]),
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
+    return _success(envelope)
 
 
 @conversations_bp.get("/conversations/unread")

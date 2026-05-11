@@ -92,8 +92,16 @@ def save_report(
 def list_reports(
     clinic_id: int,
     status: Optional[str] = None,
-) -> List[Dict[str, Any]]:
-    """Lista relatórios da clínica, com filtro opcional de status."""
+    *,
+    limit: Optional[int] = None,
+    offset: int = 0,
+    include_total: bool = False,
+):
+    """Lista relatórios da clínica, com filtro opcional de status.
+
+    Sem `limit` -> compat path (retorna `List[Dict]` cru).
+    Com `limit` -> retorna dict {items, total, has_more} (Sprint 2 Track Page).
+    """
     has_patient_id = _anamnesis_has_patient_id()
     with db_cursor(dictionary=True) as (_, cursor):
         if has_patient_id:
@@ -123,8 +131,36 @@ def list_reports(
             sql += " AND status = %s"
             args.append(status)
         sql += " ORDER BY created_at DESC"
-        cursor.execute(sql, args)
-        return cursor.fetchall()
+
+        if limit is None:
+            cursor.execute(sql, args)
+            return cursor.fetchall()
+
+        # Modo paginado.
+        total = None
+        if include_total:
+            count_sql = "SELECT COUNT(*) AS n FROM anamnesis_reports WHERE clinic_id = %s"
+            count_args: list = [clinic_id]
+            if status:
+                count_sql += " AND status = %s"
+                count_args.append(status)
+            cursor.execute(count_sql, count_args)
+            total = int(cursor.fetchone()["n"])
+
+        fetch_n = limit if include_total else limit + 1
+        sql += " LIMIT %s OFFSET %s"
+        args_paged = args + [fetch_n, offset]
+        cursor.execute(sql, args_paged)
+        rows = cursor.fetchall()
+
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}
 
 
 def get_report(clinic_id: int, report_id: int) -> Optional[Dict[str, Any]]:
