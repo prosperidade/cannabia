@@ -331,3 +331,34 @@ export type ConversationDetail = {
   conversation: Conversation;
   messages: ConversationMessage[];
 };
+
+/**
+ * Envelope canonico de paginacao (Sprint 2 Track Page).
+ *
+ * Contrato backend: src/web/pagination.py::paginated_response
+ * Endpoints atuais (Tier-1, Sprint 2):
+ *   - GET /api/v1/appointments
+ *   - GET /api/v1/attendances    (relatorios de anamnese)
+ *   - GET /api/v1/conversations
+ *   - GET /api/v1/admin/ai-metrics?paginated=1   (recent_logs vira envelope)
+ *
+ * Query params suportados:
+ *   - ?limit=50         (default; max=200; >200 -> clamp + warning server-side)
+ *   - ?offset=0         (default; offset-based; cursor existe so em messages)
+ *   - ?include_total=1  (opt-in pra COUNT(*); custa)
+ *   - ?legacy=1         (escape hatch 1 sprint -> retorna lista nua)
+ *
+ * has_more:
+ *   - Quando total e conhecido: (offset + items.length) < total
+ *   - Senao: heuristica LIMIT_PLUS_ONE_TRICK (true se backend trouxe limit+1)
+ *
+ * DIVIDA Sprint 3: migrar consumers existentes (hoje ainda esperam Type[]
+ * cru; Sprint 2 so adicionou o tipo, nao mudou nenhum fetch).
+ */
+export type Paginated<T> = {
+  items: T[];
+  total: number | null;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+};

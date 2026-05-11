@@ -172,17 +172,64 @@ def get_recent_ai_logs(limit=10):
     return get_recent_ai_logs_filtered(limit=limit)
 
 
-def get_recent_ai_logs_filtered(limit=10, status=None, days=None):
+def get_recent_ai_logs_filtered(
+    limit=10,
+    status=None,
+    days=None,
+    *,
+    offset: int = 0,
+    include_total: bool = False,
+    paginated: bool = False,
+):
+    """Retorna logs de auditoria de IA da clinica corrente.
 
+    Compat (default): retorna `list[dict]` (Sprint 1).
+    Sprint 2 Track Page: passe `paginated=True` pra receber dict
+    {items, total, has_more}.
+    """
     clinic_id = getattr(g, "clinic_id", None)
     if clinic_id is None:
         raise RuntimeError("clinic_id não encontrado no contexto da request")
 
-    where_clause, params = _build_audit_filters(clinic_id, status=status, days=days)
-    params.append(limit)
+    where_clause, base_params = _build_audit_filters(clinic_id, status=status, days=days)
 
+    if not paginated:
+        # Compat path Sprint 1.
+        params = base_params + [limit]
+        with db_cursor(dictionary=True) as (_, cursor):
+            cursor.execute(
+                f"""
+                SELECT
+                    id,
+                    patient_id,
+                    status,
+                    endpoint,
+                    model,
+                    total_tokens,
+                    estimated_cost_usd,
+                    error_message,
+                    created_at
+                FROM ai_audit_logs
+                WHERE {where_clause}
+                ORDER BY id DESC
+                LIMIT %s
+                """,
+                params,
+            )
+            return cursor.fetchall()
+
+    # Modo paginado.
+    total = None
     with db_cursor(dictionary=True) as (_, cursor):
+        if include_total:
+            cursor.execute(
+                f"SELECT COUNT(*) AS n FROM ai_audit_logs WHERE {where_clause}",
+                base_params,
+            )
+            total = int(cursor.fetchone()["n"])
 
+        fetch_n = limit if include_total else limit + 1
+        params = base_params + [fetch_n, offset]
         cursor.execute(
             f"""
             SELECT
@@ -198,9 +245,17 @@ def get_recent_ai_logs_filtered(limit=10, status=None, days=None):
             FROM ai_audit_logs
             WHERE {where_clause}
             ORDER BY id DESC
-            LIMIT %s
+            LIMIT %s OFFSET %s
             """,
             params,
         )
+        rows = cursor.fetchall()
 
-        return cursor.fetchall()
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}

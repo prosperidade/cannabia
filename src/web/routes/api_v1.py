@@ -429,11 +429,40 @@ def message_contacts():
 @api_v1_bp.get("/attendances")
 @api_role_required("Admin", "Medico")
 def attendances():
+    """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
+
+    `?legacy=1` -> compat path Sprint 1 (lista nua + ?page/?page_size).
+    """
+    from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
+
     status = request.args.get("status") or None
-    page, page_size = _pagination_args()
-    reports = list_reports(g.clinic_id, status=status)
-    items, meta = _paginate(reports, page, page_size)
-    return _success(items, meta=meta)
+
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _error("validation_error", str(exc), 422)
+
+    if legacy_mode:
+        page, page_size = _pagination_args()
+        reports = list_reports(g.clinic_id, status=status)
+        items, meta = _paginate(reports, page, page_size)
+        return _success(bare_legacy_response(items), meta=meta)
+
+    result = list_reports(
+        g.clinic_id,
+        status=status,
+        limit=limit,
+        offset=offset,
+        include_total=include_total,
+    )
+    envelope = paginated_response(
+        result["items"],
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
+    return _success(envelope)
 
 
 @api_v1_bp.get("/intake/triage-link")
@@ -692,10 +721,34 @@ def patient_medical_record(patient_id: int):
 @api_v1_bp.get("/appointments")
 @api_role_required("Admin", "Medico", "Atendente")
 def appointments_list():
-    page, page_size = _pagination_args()
-    appointments = list_appointments()
-    items, meta = _paginate(appointments, page, page_size)
-    return _success(items, meta=meta)
+    """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
+
+    `?legacy=1` preserva contrato antigo (lista nua via _paginate page-based).
+    Default = 50, max = 200, `?include_total=1` opt-in pra COUNT(*).
+    """
+    from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
+
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _error("validation_error", str(exc), 422)
+
+    if legacy_mode:
+        # Compat path Sprint 1: lista nua paginada por ?page/?page_size.
+        page, page_size = _pagination_args()
+        appointments = list_appointments()
+        items, meta = _paginate(appointments, page, page_size)
+        return _success(bare_legacy_response(items), meta=meta)
+
+    result = list_appointments(limit=limit, offset=offset, include_total=include_total)
+    envelope = paginated_response(
+        result["items"],
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
+    return _success(envelope)
 
 
 @api_v1_bp.post("/appointments")
@@ -801,6 +854,18 @@ def admin_metrics():
 @api_v1_bp.get("/admin/ai-metrics")
 @api_role_required("Admin", "Medico")
 def ai_metrics():
+    """Sprint 2 Track Page: `recent_logs` aceita envelope canonico opt-in.
+
+    Default (Sprint 1 compat): `recent_logs` = lista nua, max=100 via ?limit.
+    `?paginated=1`: `recent_logs` vira `{items, total, limit, offset, has_more}`,
+        suporta `?offset`, `?include_total`, `?legacy=1` (forca compat).
+    """
+    from src.web.pagination import (
+        bare_legacy_response,
+        paginated_response,
+        parse_pagination,
+    )
+
     raw_status = (request.args.get("status") or "").strip()
     status = raw_status if raw_status and raw_status != "all" else None
 
@@ -813,20 +878,73 @@ def ai_metrics():
     elif days > 365:
         days = 365
 
-    try:
-        limit = int(request.args.get("limit", 10))
-    except (TypeError, ValueError):
-        limit = 10
-    limit = max(1, min(limit, 100))
+    paginated_flag = request.args.get("paginated") == "1"
 
+    if not paginated_flag:
+        # Compat path Sprint 1.
+        try:
+            limit = int(request.args.get("limit", 10))
+        except (TypeError, ValueError):
+            limit = 10
+        limit = max(1, min(limit, 100))
+
+        return _success(
+            {
+                "summary": get_ai_audit_summary_filtered(status=status, days=days),
+                "recent_logs": get_recent_ai_logs_filtered(
+                    limit=limit, status=status, days=days
+                ),
+                "filters": {
+                    "status": status,
+                    "days": days,
+                    "limit": limit,
+                },
+            }
+        )
+
+    # Sprint 2 envelope path (?paginated=1).
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _error("validation_error", str(exc), 422)
+
+    summary = get_ai_audit_summary_filtered(status=status, days=days)
+
+    if legacy_mode:
+        legacy_logs = get_recent_ai_logs_filtered(
+            limit=limit, status=status, days=days
+        )
+        return _success(
+            {
+                "summary": summary,
+                "recent_logs": bare_legacy_response(legacy_logs),
+                "filters": {
+                    "status": status,
+                    "days": days,
+                    "limit": limit,
+                },
+            }
+        )
+
+    result = get_recent_ai_logs_filtered(
+        limit=limit,
+        status=status,
+        days=days,
+        offset=offset,
+        include_total=include_total,
+        paginated=True,
+    )
+    envelope = paginated_response(
+        result["items"],
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
     return _success(
         {
-            "summary": get_ai_audit_summary_filtered(status=status, days=days),
-            "recent_logs": get_recent_ai_logs_filtered(limit=limit, status=status, days=days),
-            "filters": {
-                "status": status,
-                "days": days,
-                "limit": limit,
-            },
+            "summary": summary,
+            "recent_logs": envelope,
+            "filters": {"status": status, "days": days, "limit": limit, "offset": offset},
         }
     )

@@ -69,6 +69,12 @@ def _create_appointment(patient_name: str, dt: datetime) -> int:
     return appointment_id
 
 
-def list_appointments() -> list:
-    """Lista os agendamentos da clínica atual (clinic_id vem de g via repositório)."""
-    return appointment_repository.list_appointments()
+def list_appointments(*, limit=None, offset: int = 0, include_total: bool = False):
+    """Lista os agendamentos da clínica atual (clinic_id vem de g via repositório).
+
+    Sem args -> retorna lista nua (compat).
+    Com `limit` -> retorna dict paginado (Sprint 2 Track Page).
+    """
+    return appointment_repository.list_appointments(
+        limit=limit, offset=offset, include_total=include_total
+    )
