@@ -41,13 +41,10 @@ from src.ai.schemas import (
     TRIAGE_TOOL_DEFINITION,
     TRIAGE_GEMINI_SCHEMA,
 )
-from src.ai.prompts import (
-    ANAMNESIS_PROMPT,
-    SCIENTIFIC_REPORT_PROMPT,
-    SCIENTIFIC_REPORT_RAG_PROMPT,
-    TREATMENT_PLAN_PROMPT,
-    TRIAGE_AGENT_SYSTEM_PROMPT,
-)
+# Sprint 2 Track Reg: prompts vem do registry (DB-first com fallback
+# hardcoded). Imports diretos de src.ai.prompts permanecem disponiveis pra
+# tests e backward-compat, mas o caminho oficial agora e get_prompt().
+from src.ai.prompt_registry import get_prompt
 
 load_dotenv()
 logger = logging.getLogger("cannabia.ai")
@@ -242,7 +239,7 @@ def _run_and_validate(
 def run_clinical_analysis(**patient_data):
     for k, v in patient_data.items():
         patient_data[k] = "\n".join([f"- {x}" for x in v]) if isinstance(v, list) else str(v)
-    return _run_and_validate(ANAMNESIS_PROMPT, ClinicalAnalysis, **patient_data)
+    return _run_and_validate(get_prompt("anamnesis").text, ClinicalAnalysis, **patient_data)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -251,7 +248,7 @@ def run_clinical_analysis(**patient_data):
 
 def run_treatment_plan(clinical_analysis: ClinicalAnalysis):
     return _run_and_validate(
-        TREATMENT_PLAN_PROMPT,
+        get_prompt("treatment_plan").text,
         TreatmentPlan,
         clinical_analysis=clinical_analysis.model_dump_json(),
     )
@@ -264,7 +261,7 @@ def run_treatment_plan(clinical_analysis: ClinicalAnalysis):
 
 def run_scientific_report(treatment_plan: TreatmentPlan):
     return _run_and_validate(
-        SCIENTIFIC_REPORT_PROMPT,
+        get_prompt("scientific_report").text,
         ScientificReport,
         treatment_plan=treatment_plan.model_dump_json(),
     )
@@ -345,7 +342,7 @@ def run_scientific_report_rag(
     """
     scientific_context = _format_rag_context(rag_chunks)
 
-    prompt = SCIENTIFIC_REPORT_RAG_PROMPT.format(
+    prompt = get_prompt("scientific_report_rag").text.format(
         treatment_plan=treatment_plan.model_dump_json(),
         scientific_context=scientific_context,
     )
@@ -503,7 +500,7 @@ def run_triage_agent(
     Returns:
         Tuple[TriageResponse, dict]: Resposta validada + métricas de tokens.
     """
-    system_prompt = TRIAGE_AGENT_SYSTEM_PROMPT.format(
+    system_prompt = get_prompt("triage_agent").text.format(
         patient_name=patient_name,
         age=age,
         clinic_id=clinic_id,

@@ -7,6 +7,7 @@ from typing import Any, Dict, Protocol
 from src.ai.agents import AgenteAnamnese, AgenteCientifico, AgenteTratamento
 from src.ai.agents.prescritor import AgentePrescritor
 from src.ai.pipeline import CannabIAPipeline
+from src.ai.prompt_registry import get_prompt
 from src.ai.schemas import AnamnesisInput
 from src.infra.metrics import measure
 
@@ -150,6 +151,52 @@ class SpecialistClinicalFlow:
         # quando RAG ativo, gpt-4o-mini no fallback).
         report_model = cientifico_result.data.get("model", "gpt-4o-mini")
 
+        # Sprint 2 Track Reg: snapshot da versao+hash de cada prompt usado
+        # nesta execucao do flow. Substitui o placeholder eterno
+        # prompt_version="v1.0" + sha256("v1.0") em service.py.
+        #
+        # Simplificacao aprovada pelo coordenador: clinical_flow chama
+        # get_prompt direto em vez de propagar via AgentResult (evita
+        # invasao de 4 agentes). Limitacao consciente: se um agente futuro
+        # decidir nao usar registry, o snapshot mente — Sprint 3 endurece
+        # propagando via AgentResult.prompt_meta.
+        #
+        # Stage "scientific_report_rag" usa o prompt RAG quando ha chunks;
+        # snapshot pega ambas as variantes; a efetiva fica clara via
+        # rag_chunks_used no audit_log.
+        anamnesis_meta = get_prompt("anamnesis")
+        treatment_meta = get_prompt("treatment_plan")
+        prescriber_sys_meta = get_prompt("prescriber_system")
+        scientific_key = "scientific_report_rag" if cientifico_result.data.get("chunks_used") else "scientific_report"
+        scientific_meta = get_prompt(scientific_key)
+
+        prompts_used = {
+            "anamnese": {
+                "key": anamnesis_meta.key,
+                "version": anamnesis_meta.version,
+                "hash": anamnesis_meta.hash,
+                "source": anamnesis_meta.source,
+            },
+            "tratamento": {
+                "key": treatment_meta.key,
+                "version": treatment_meta.version,
+                "hash": treatment_meta.hash,
+                "source": treatment_meta.source,
+            },
+            "prescritor": {
+                "key": prescriber_sys_meta.key,
+                "version": prescriber_sys_meta.version,
+                "hash": prescriber_sys_meta.hash,
+                "source": prescriber_sys_meta.source,
+            },
+            "cientifico": {
+                "key": scientific_meta.key,
+                "version": scientific_meta.version,
+                "hash": scientific_meta.hash,
+                "source": scientific_meta.source,
+            },
+        }
+
         return {
             "clinical_analysis": clinical_analysis,
             "treatment_plan": treatment_plan,
@@ -195,6 +242,7 @@ class SpecialistClinicalFlow:
                 self.prescritor.agent_name,
                 self.cientifico.agent_name,
             ],
+            "prompts_used": prompts_used,
         }
 
 
