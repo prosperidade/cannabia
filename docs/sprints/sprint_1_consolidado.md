@@ -142,7 +142,7 @@ Decisão de produto pra definir janela. Memória: usuário tinha confirmado que 
 | Origem | Dívida | Doc/issue |
 |---|---|---|
 | C.1 | **AnamnesisInput não coleta `weight_kg`/`prior_cannabis_use`** → defaults em 100% dos atendimentos | `docs/BACKLOG_AGENTE_PRESCRITOR.md` Dívida 4 |
-| Anchor | ~~Plugar `prompt_registry` + tabela `ai_prompt_versions` em service.py~~ | ✅ **Resolvido em Sprint 2 Track Reg** (migration 044 + seed_prompts.py + chains/prescriber/clinical_flow plugados + service.py grava `prompt_version`+`prompt_hash` REAIS). Ver `docs/sprints/sprint_2_Reg.md` quando criado. |
+| Anchor | ~~Plugar `prompt_registry` + tabela `ai_prompt_versions` em service.py~~ | ✅ **Resolvido em Sprint 2 Track Reg** (migration 046 + seed_prompts.py + chains/prescriber/clinical_flow plugados + service.py grava `prompt_version`+`prompt_hash` REAIS). Ver `docs/sprints/sprint_2_Reg.md` quando criado. |
 | Anchor | Paginação LIMIT/OFFSET no banco | Sprint 2 explícito |
 | Anchor | Sentry / observabilidade básica | Sprint 2 explícito |
 | D.2.c | Auditar consumer frontend dos 8 endpoints com `FIXME(sprint-2)` e decidir 500 vs empty data | inline FIXME nos arquivos |

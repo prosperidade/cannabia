@@ -1,4 +1,4 @@
--- Migration 044: Reconciliacao do schema drift entre prompt_registry.py e
+-- Migration 046: Reconciliacao do schema drift entre prompt_registry.py e
 -- ai_prompt_versions (criada em 001_initial_schema.sql).
 --
 -- Sprint 2 Track Reg — Q3=b da Sprint 1 fechado (adiamento aprovado).

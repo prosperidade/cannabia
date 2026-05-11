@@ -1,4 +1,4 @@
--- Down de 044_prompt_registry_alignment.sql
+-- Down de 046_prompt_registry_alignment.sql
 
 DROP INDEX IF EXISTS idx_ai_prompt_versions_key_version;
 

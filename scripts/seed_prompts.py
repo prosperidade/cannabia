@@ -11,7 +11,7 @@ Uso:
     python -m scripts.seed_prompts                # dry-run (default)
     python -m scripts.seed_prompts --commit       # grava no DB
 
-Pre-requisito: migration 044_prompt_registry_alignment.sql aplicada.
+Pre-requisito: migration 046_prompt_registry_alignment.sql aplicada.
 """
 
 from __future__ import annotations
