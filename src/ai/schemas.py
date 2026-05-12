@@ -1,7 +1,7 @@
 from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 
 class AnamnesisInput(BaseModel):
@@ -36,6 +36,9 @@ class ScientificReport(BaseModel):
     summary: str
     supporting_evidence: List[str]
     references: List[str]
+    # Sprint 3 Track CFD — explicabilidade: qual input alimentou o query RAG.
+    # Optional pra back-compat com reports persistidos antes da Sprint 3.
+    based_on: Optional[Literal["final_dosage", "treatment_plan"]] = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

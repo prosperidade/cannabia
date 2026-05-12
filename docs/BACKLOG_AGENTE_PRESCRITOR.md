@@ -168,14 +168,23 @@ DOSAGE_DEFAULT_PRIOR_USE = False  # naive (halve initial dose)
 
 ## Dívida 6 — Cientifico não cita evidência da `final_dosage`
 
-**Sprint alvo:** 2 ou 3 (depende do feedback de uso).
+**✅ FECHADA na Sprint 3 (Track CFD — branch `feat/sprint-3-CFD-cientifico-final-dosagem`)**
 
-**Diagnóstico:** Cientifico continua consumindo `treatment_plan` (draft do Tratamento), não `prescription_result.final_dosage`. Isso significa que `scientific_report.references` pode citar evidência para o ratio do draft (10:1) enquanto `final_dosage.cannabinoid_ratio` foi clampado para outro (20:1). Inconsistência potencial.
+**Trabalho realizado:**
 
-**Trabalho Sprint 2/3:**
+1. ✅ `src/ai/agents/cientifico.py` — `execute()` aceita kwarg opcional `prescription_result`. `treatment_plan` continua required (back-compat). Helper `_build_query_from_prescription` prioriza `final_dosage.cannabinoid_ratio + administration_route + spectrum + clinical_rationale[:200]` (decisão Q-CFD-2). Helper `_build_query_from_treatment` mantém lógica legada. Orquestrador `_build_query(treatment_plan, prescription_result, kwargs)` usa prescription quando presente (decisão Q-CFD-1: priorizar SEMPRE, não só quando `safety_clamp_applied`), fallback no treatment_plan.
+2. ✅ `src/ai/clinical_flow.py:127-145` — passa AMBOS `treatment_plan=` E `prescription_result=` pra `Cientifico.run()`. `scientific_query` agora usa `final_dosage.cannabinoid_ratio` quando disponível (antes citava o ratio do draft).
+3. ✅ `src/ai/schemas.py` `ScientificReport` — campo opcional `based_on: Literal["final_dosage", "treatment_plan"]` adicionado para explicabilidade (decisão Q-CFD-4). `Optional` preserva back-compat com reports persistidos antes da Sprint 3.
+4. ✅ `chains.run_scientific_report` signature **INALTERADA** (decisão Q-CFD-3, Q-CFD-5: preserva `pipeline.py` legacy).
+5. ✅ Tests:
+   - `test_specialist_clinical_flow_composes_four_specialists` invertido: agora asserta que Cientifico **recebe** `prescription_result`.
+   - Novo `test_cientifico_uses_prescription_result_when_present` em `test_clinical_flow.py`.
+   - Novo `test_cientifico_back_compat_treatment_plan_only` valida fallback legacy.
+   - `test_cientifico_auto_ingest.py`: 3 tests existentes adaptados pra nova signature `_build_query(plan, prescription, kwargs)`; +3 tests novos validam priorização do `final_dosage`, truncamento de `clinical_rationale[:200]`, e fallback quando `prescription_result` vazio.
 
-- Estender Cientifico com kwarg opcional `prescription_result` e priorizá-lo sobre `treatment_plan` na construção do query RAG.
-- Manter `treatment_plan` como fallback para reports antigos (back-compat).
+**Resultado clínico:** quando o Prescritor clampa um ratio (ex: draft 10:1 → final 20:1 por interação CYP450), o Cientifico agora cita evidência alinhada com o ratio efetivamente prescrito. Inconsistência conceitual da Sprint 1 C.1 fechada. Campo `based_on` no `ScientificReport` permite auditoria forense.
+
+**Diagnóstico histórico (mantido para auditoria):** Cientifico consumia `treatment_plan` (draft do Tratamento), não `prescription_result.final_dosage`. Isso significava que `scientific_report.references` podia citar evidência para o ratio do draft (10:1) enquanto `final_dosage.cannabinoid_ratio` foi clampado para outro (20:1). Inconsistência potencial.
 
 ---
 

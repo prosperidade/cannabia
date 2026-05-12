@@ -124,17 +124,30 @@ class SpecialistClinicalFlow:
 
         prescription_result = prescritor_result.data["prescription_result"]
 
+        # Sprint 3 Track CFD: scientific_query agora reflete o ratio final
+        # (pos-clamp) quando disponivel — antes citava o ratio do draft do
+        # Tratamento, podendo divergir do final_dosage real.
+        final_dosage = prescription_result.get("final_dosage") if isinstance(prescription_result, dict) else None
+        scientific_ratio = (
+            str(final_dosage.get("cannabinoid_ratio", ""))
+            if isinstance(final_dosage, dict) and final_dosage.get("cannabinoid_ratio")
+            else str(treatment_plan.get("cannabinoid_ratio", ""))
+        )
         scientific_query = " | ".join(
             [
                 patient_data.get("main_complaint", ""),
-                str(treatment_plan.get("cannabinoid_ratio", "")),
+                scientific_ratio,
             ]
         ).strip(" |")
 
         t0 = time.perf_counter()
         with measure("ai.stage.report"):
+            # Sprint 3 Track CFD: passa AMBOS treatment_plan E prescription_result
+            # pro Cientifico. Agente prioriza final_dosage na construcao da
+            # query RAG (decisao Q-CFD-1), com fallback pro treatment_plan.
             cientifico_result = self.cientifico.run(
                 treatment_plan=treatment_plan,
+                prescription_result=prescription_result,
                 _memory_query=scientific_query or None,
             )
         report_ms = int((time.perf_counter() - t0) * 1000)
