@@ -15,7 +15,9 @@ def test_build_query_prefers_memory_context_query():
     plan = {"cannabinoid_ratio": "1:1", "monitoring_plan": "monthly"}
     kwargs = {"_memory_context": {"query": "epilepsy refractory CBD"}}
 
-    query = AgenteCientifico._build_query(plan, kwargs)
+    # Sprint 3 Track CFD: _build_query agora aceita prescription_result.
+    # Sem prescription_result, comportamento legacy preservado.
+    query = AgenteCientifico._build_query(plan, None, kwargs)
 
     assert query == "epilepsy refractory CBD"
 
@@ -26,7 +28,7 @@ def test_build_query_falls_back_to_plan_text_fields():
         "administration_route": "oral",
         "monitoring_plan": "weekly seizure log",
     }
-    query = AgenteCientifico._build_query(plan, {})
+    query = AgenteCientifico._build_query(plan, None, {})
 
     assert "20:1" in query
     assert "oral" in query
@@ -34,8 +36,77 @@ def test_build_query_falls_back_to_plan_text_fields():
 
 
 def test_build_query_default_when_plan_empty():
-    query = AgenteCientifico._build_query({}, {})
+    query = AgenteCientifico._build_query({}, None, {})
     assert query  # nao retorna string vazia
+
+
+# ── Sprint 3 Track CFD: _build_query prioriza prescription_result.final_dosage ──
+
+
+def test_build_query_prefers_final_dosage_over_treatment_plan():
+    """Decisao Q-CFD-1: sempre prioriza final_dosage quando presente."""
+    plan = {
+        "cannabinoid_ratio": "10:1",       # draft do Tratamento
+        "administration_route": "oral",
+        "monitoring_plan": "monthly",
+    }
+    prescription_result = {
+        "final_dosage": {
+            "cannabinoid_ratio": "20:1",   # pos-clamp do Prescritor
+            "administration_route": "sublingual",
+            "spectrum": "full_spectrum",
+            "clinical_rationale": "Protocolo conservador para idoso com varfarina.",
+        }
+    }
+
+    query = AgenteCientifico._build_query(plan, prescription_result, {})
+
+    # Usa ratio final, nao draft
+    assert "20:1" in query
+    assert "10:1" not in query
+    assert "sublingual" in query
+    assert "full_spectrum" in query
+    # clinical_rationale[:200] entra na query
+    assert "Protocolo conservador" in query
+
+
+def test_build_query_clinical_rationale_truncated_to_200_chars():
+    """Q-CFD-2: snippet textual rico mas limitado a 200 chars."""
+    long_rationale = "A" * 500
+    prescription_result = {
+        "final_dosage": {
+            "cannabinoid_ratio": "1:1",
+            "administration_route": "oral",
+            "spectrum": "broad_spectrum",
+            "clinical_rationale": long_rationale,
+        }
+    }
+
+    query = AgenteCientifico._build_query({}, prescription_result, {})
+
+    a_count = query.count("A")
+    assert a_count == 200
+
+
+def test_build_query_falls_back_to_treatment_plan_when_prescription_empty():
+    """prescription_result vazio/None — fallback pro treatment_plan."""
+    plan = {
+        "cannabinoid_ratio": "5:1",
+        "administration_route": "sublingual",
+        "monitoring_plan": "weekly",
+    }
+
+    # prescription_result=None
+    q1 = AgenteCientifico._build_query(plan, None, {})
+    assert "5:1" in q1
+
+    # prescription_result com final_dosage ausente
+    q2 = AgenteCientifico._build_query(plan, {"safety_clamp_applied": True}, {})
+    assert "5:1" in q2
+
+    # prescription_result com final_dosage sem campos uteis
+    q3 = AgenteCientifico._build_query(plan, {"final_dosage": {}}, {})
+    assert "5:1" in q3
 
 
 # ── execute() with chunks present ──

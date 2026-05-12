@@ -172,12 +172,32 @@ class AgenteCientifico(BaseAgent):
                     "tokens": tokens, "model": "gpt-4o-mini", "rag_used": False}
 
     @staticmethod
-    def _build_query(treatment_plan: dict, kwargs: dict) -> str:
+    def _build_query_from_prescription(prescription_result: dict) -> str:
         """
-        Monta um termo de busca util tanto para ChromaDB quanto para PubMed.
+        Sprint 3 Track CFD — query construido a partir de `final_dosage`
+        (output clampado do Prescritor), nao do draft do Tratamento.
 
-        Prioriza dicas explicitas (memory_query do clinical_flow) e cai para
-        os campos textuais do treatment_plan. Evita serializar o dict inteiro.
+        Estrategia minimalista + snippet textual rico:
+        cannabinoid_ratio + administration_route + spectrum + clinical_rationale[:200]
+        """
+        final_dosage = prescription_result.get("final_dosage") if isinstance(prescription_result, dict) else None
+        if not isinstance(final_dosage, dict):
+            return ""
+
+        ratio = str(final_dosage.get("cannabinoid_ratio", ""))
+        route = str(final_dosage.get("administration_route", ""))
+        spectrum = str(final_dosage.get("spectrum", ""))
+        rationale = str(final_dosage.get("clinical_rationale", ""))[:200]
+
+        parts = [ratio, route, spectrum, rationale]
+        return " ".join(p for p in parts if p).strip()
+
+    @staticmethod
+    def _build_query_from_treatment(treatment_plan: dict, kwargs: dict) -> str:
+        """
+        Logica legada (pre Sprint 3 CFD): prioriza memory_query, cai para
+        campos textuais do treatment_plan. Mantida intacta para preservar
+        back-compat com callers que so passam treatment_plan.
         """
         memory_ctx = kwargs.get("_memory_context") or {}
         diary_query = memory_ctx.get("query") if isinstance(memory_ctx, dict) else None
@@ -197,12 +217,49 @@ class AgenteCientifico(BaseAgent):
         import json
         return json.dumps(treatment_plan)[:500] if treatment_plan else "cannabis medicinal"
 
+    @classmethod
+    def _build_query(
+        cls,
+        treatment_plan: dict,
+        prescription_result: dict | None = None,
+        kwargs: dict | None = None,
+    ) -> str:
+        """
+        Orquestrador da query RAG. Sprint 3 Track CFD decisao Q-CFD-1:
+        priorizar `final_dosage` SEMPRE quando presente (nao so quando
+        safety_clamp_applied). Fallback pro treatment_plan se prescription
+        ausente ou se nao gerou query util.
+        """
+        kwargs = kwargs or {}
+
+        if prescription_result:
+            prescription_query = cls._build_query_from_prescription(prescription_result)
+            if prescription_query:
+                return prescription_query
+
+        return cls._build_query_from_treatment(treatment_plan, kwargs)
+
     def execute(self, **kwargs) -> AgentResult:
         treatment_plan = kwargs.get("treatment_plan", {})
         if not treatment_plan:
             return AgentResult(success=False, error="treatment_plan is required")
 
-        query_text = self._build_query(treatment_plan, kwargs)
+        # Sprint 3 Track CFD: prescription_result eh opcional (back-compat com
+        # legacy pipeline.py que ainda chama com so treatment_plan).
+        prescription_result = kwargs.get("prescription_result")
+
+        # Decide query source ANTES de chamar _build_query pra propagar based_on.
+        based_on: str | None = None
+        if prescription_result:
+            candidate = self._build_query_from_prescription(prescription_result)
+            if candidate:
+                query_text = candidate
+                based_on = "final_dosage"
+
+        if based_on is None:
+            query_text = self._build_query_from_treatment(treatment_plan, kwargs)
+            based_on = "treatment_plan"
+
         skills_used = ["search_evidence"]
 
         evidence = self.invoke_skill("search_evidence", query_text=query_text)
@@ -233,6 +290,10 @@ class AgenteCientifico(BaseAgent):
         skills_used.append("generate_report")
 
         report = report_result["report"]
+        # Sprint 3 Track CFD Q-CFD-5: propaga `based_on` para explicabilidade.
+        # Inclui mesmo quando ScientificReport ja foi serializado (dict-shaped).
+        if isinstance(report, dict):
+            report["based_on"] = based_on
         tokens = report_result.get("tokens", {})
 
         data = {
@@ -240,6 +301,7 @@ class AgenteCientifico(BaseAgent):
             "rag_used": report_result.get("rag_used", False),
             "model": report_result.get("model", "unknown"),
             "chunks_used": len(chunks),
+            "based_on": based_on,
         }
         if ingest_summary is not None:
             data["auto_ingest"] = ingest_summary

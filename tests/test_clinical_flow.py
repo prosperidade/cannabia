@@ -154,8 +154,8 @@ def _patch_all_agents(monkeypatch, anamnese, tratamento, prescritor, cientifico)
 
 def test_specialist_clinical_flow_composes_four_specialists(monkeypatch):
     """Sprint 1 Track C.1: Prescritor entra como 4o stage entre Tratamento
-    e Cientifico. Cientifico continua consumindo treatment_plan (nao
-    prescription_result) — contrato inalterado."""
+    e Cientifico. Sprint 3 Track CFD: Cientifico agora recebe AMBOS
+    treatment_plan E prescription_result (prioriza final_dosage no query RAG)."""
     Anamnese = _make_fake_anamnese()
     Tratamento = _make_fake_tratamento()
     Prescritor = _make_fake_prescritor()
@@ -190,9 +190,14 @@ def test_specialist_clinical_flow_composes_four_specialists(monkeypatch):
     assert "prescription_result" in result
     assert result["prescription_result"]["final_dosage"]["cannabinoid_ratio"] == "20:1"
 
-    # CRITICO: Cientifico recebe treatment_plan, NAO prescription_result
+    # Sprint 3 Track CFD: Cientifico recebe AMBOS treatment_plan E
+    # prescription_result (passa a citar evidencia da final_dosage clampada).
     assert Cientifico.calls[0]["treatment_plan"]["administration_route"] == "sublingual"
-    assert "prescription_result" not in Cientifico.calls[0]
+    assert "prescription_result" in Cientifico.calls[0]
+    assert (
+        Cientifico.calls[0]["prescription_result"]["final_dosage"]["cannabinoid_ratio"]
+        == "20:1"
+    )
 
     # Prescritor recebe dosage_input construido de patient_data + clinical_analysis
     pres_kwargs = Prescritor.calls[0]
@@ -431,3 +436,94 @@ def test_build_clinical_flow_prefers_specialists(monkeypatch):
 
     flow = build_clinical_flow()
     assert isinstance(flow, SpecialistClinicalFlow)
+
+
+def test_cientifico_uses_prescription_result_when_present(monkeypatch):
+    """Sprint 3 Track CFD: clinical_flow passa prescription_result pro
+    Cientifico, que prioriza final_dosage (cannabinoid_ratio + route +
+    spectrum + clinical_rationale) na construcao do query RAG."""
+    Anamnese = _make_fake_anamnese()
+    Tratamento = _make_fake_tratamento()
+    Prescritor = _make_fake_prescritor()
+    Cientifico = _make_fake_cientifico()
+    _patch_all_agents(monkeypatch, Anamnese, Tratamento, Prescritor, Cientifico)
+
+    flow = SpecialistClinicalFlow()
+    flow.run(
+        AnamnesisInput(
+            patient_name="Paciente CFD",
+            age=42,
+            main_complaint="Dor cronica",
+            symptoms=["dor"],
+        )
+    )
+
+    # Cientifico foi chamado UMA vez, com kwarg prescription_result populado
+    assert len(Cientifico.calls) == 1
+    call = Cientifico.calls[0]
+    assert "prescription_result" in call
+    pr = call["prescription_result"]
+
+    # final_dosage clampada (20:1) chega ao Cientifico — base pra query RAG
+    assert pr["final_dosage"]["cannabinoid_ratio"] == "20:1"
+    assert pr["final_dosage"]["administration_route"] == "sublingual"
+    assert pr["final_dosage"]["spectrum"] == "full_spectrum"
+
+    # treatment_plan continua sendo passado em paralelo (back-compat)
+    assert "treatment_plan" in call
+    # Ratio do draft do Tratamento (10:1) diferente do final (20:1) — exato
+    # cenario que motivou a Divida 6.
+    assert call["treatment_plan"]["cannabinoid_ratio"] == "10:1"
+
+
+def test_cientifico_back_compat_treatment_plan_only():
+    """Sprint 3 Track CFD: signature de cientifico.run() permanece back-compat
+    quando chamado SEM prescription_result (caso legacy pipeline.py).
+    based_on deve indicar 'treatment_plan' nesse caminho."""
+    from src.ai.agents.cientifico import AgenteCientifico
+    from unittest.mock import MagicMock, patch
+
+    fake_report = {
+        "report": {"summary": "Relatorio legacy", "supporting_evidence": [], "references": []},
+        "tokens": {},
+        "model": "gpt-4o-mini",
+        "rag_used": False,
+    }
+
+    agent = AgenteCientifico()
+    search_mock = MagicMock(return_value={"chunks": [], "has_evidence": False})
+    ingest_mock = MagicMock(return_value={"articles_seen": 0, "registered": 0, "chunks_added": 0})
+    report_mock = MagicMock(return_value=fake_report)
+
+    treatment_plan = {
+        "cannabinoid_ratio": "10:1",
+        "suggested_dosage": "2 gotas",
+        "administration_route": "sublingual",
+        "monitoring_plan": "Reavaliar 14 dias",
+        "precautions": [],
+    }
+
+    skill_patches = []
+    for name, handler in (
+        ("search_evidence", search_mock),
+        ("auto_ingest_evidence", ingest_mock),
+        ("generate_report", report_mock),
+    ):
+        skill_patches.append(patch.object(agent._skills[name], "handler", handler))
+
+    [p.start() for p in skill_patches]
+    try:
+        # NAO passa prescription_result — exercita fallback legacy
+        result = agent.execute(treatment_plan=treatment_plan)
+    finally:
+        for p in reversed(skill_patches):
+            p.stop()
+
+    assert result.success is True
+    # based_on sinaliza claramente que a query veio do treatment_plan
+    assert result.data["based_on"] == "treatment_plan"
+    # ScientificReport.based_on propagado para o dict de report
+    assert result.data["scientific_report"]["based_on"] == "treatment_plan"
+    # Query passada ao search_evidence montada via _build_query_from_treatment
+    query_used = search_mock.call_args.kwargs.get("query_text") or search_mock.call_args.args[0]
+    assert "10:1" in query_used or "sublingual" in query_used
