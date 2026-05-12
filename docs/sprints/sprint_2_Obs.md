@@ -105,3 +105,17 @@ nao quebram.
 - Hard-fail em prod se DSN ausente (decisao Q-Obs-1 deliberadamente
   soft Sprint 2 pra nao bloquear rollout).
 - Source maps / release tracking via `sentry_sdk.set_release()`.
+
+## ✅ Hardening Sprint 3 → ver [`sprint_3_Obs_Harden.md`](./sprint_3_Obs_Harden.md)
+
+Sprint 3 Track Obs-Harden fecha as 3 dividas principais herdadas:
+
+1. **Q-Obs-1 soft-fail → Q-OH-1 hard-fail**: SENTRY_DSN ausente em prod
+   agora raise (`_get_sentry_config`).
+2. **Q-Obs-3 traces=0.0 → Q-OH-2 traces=0.1**: 10% piloto via env
+   `SENTRY_TRACES_SAMPLE_RATE` com clamp 0..1.
+3. **Q-Obs-4 locals=False → Q-OH-3 locals=True**: sanitizacao em
+   `_sentry_before_send` (walk em `frames[].vars`) e' defesa suficiente.
+
+Detalhes completos, side-by-side diff, checklist pre-deploy e trade-offs
+de quota Sentry em [`sprint_3_Obs_Harden.md`](./sprint_3_Obs_Harden.md).

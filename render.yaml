@@ -72,12 +72,19 @@ services:
       - key: PAYMENT_WEBHOOK_SECRET_PAGSEGURO
         sync: false
       # Sprint 2 Track Obs — Sentry observabilidade (LGPD-safe via before_send)
+      # Sprint 3 Track Obs-Harden — SENTRY_DSN agora OBRIGATORIO em prod —
+      # raise se ausente (ver src/config.py::_get_sentry_config).
       - key: SENTRY_DSN
         sync: false
       - key: SENTRY_ENVIRONMENT
         value: production
       - key: SENTRY_SAMPLE_RATE
         value: "1.0"
+      # Sprint 3 Track Obs-Harden — performance traces piloto 10% (Q-OH-2).
+      # Aumentar/reduzir via Render dashboard conforme quota Sentry free tier
+      # (10k transactions/mes). Calibrar Sprint 4.
+      - key: SENTRY_TRACES_SAMPLE_RATE
+        value: "0.1"
 
   # Sprint 2 Track LGPD: retention policy automatizada para ai_audit_logs.
   # Roda diariamente as 04:00 UTC (01:00 BRT) — janela de baixo trafego.

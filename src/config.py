@@ -38,31 +38,33 @@ def _get_secret_key_or_fail() -> str:
 
 
 def _get_sentry_config() -> dict | None:
-    """Resolve config Sentry com pattern SOFT em prod (Sprint 2 Track Obs).
+    """Resolve config Sentry — pattern HARD em prod (Sprint 3 Track Obs-Harden).
 
-    Decisao do coordenador (Q-Obs-1): se SENTRY_DSN ausente em producao,
-    loga error mas NAO raise — app sobe sem Sentry vs quebrar deploy.
-    Sprint 3+ pode endurecer pra raise se quisermos garantia hard.
+    Decisao do coordenador (Q-OH-1, supersede Q-Obs-1): se SENTRY_DSN ausente
+    em producao, RAISE direto — alinhado ao pattern A.4 (`_get_secret_key_or_fail`).
+    Soft-fail Sprint 2 era pra nao bloquear rollout inicial; agora que
+    Sentry esta integrado e validado, observabilidade em prod e' MANDATORY.
 
-    Em dev (FLASK_ENV != production), DSN ausente e' silent (debug log) —
+    Em dev (FLASK_ENV != production), DSN ausente continua silent (debug log) —
     desenvolvedor local nao precisa configurar Sentry.
 
     Returns:
-        dict com {dsn, environment, sample_rate} ou None se DSN ausente
-        (sinaliza pra init_sentry pular o sentry_sdk.init).
+        dict com {dsn, environment, sample_rate, traces_sample_rate} ou
+        None se DSN ausente em dev (sinaliza pra init_sentry pular init).
+
+    Raises:
+        RuntimeError: se FLASK_ENV=production e SENTRY_DSN ausente.
     """
     dsn = os.getenv("SENTRY_DSN", "").strip()
     is_production = os.getenv("FLASK_ENV", "").lower() == "production"
 
     if not dsn:
         if is_production:
-            _logger.error(
-                "SENTRY_DSN ausente em producao — app sobe sem observabilidade "
-                "Sentry. Configurar variavel no Render dashboard pra ativar. "
-                "Soft-fail pattern (Q-Obs-1) — nao bloqueia deploy."
+            raise RuntimeError(
+                "SENTRY_DSN env var required in production. "
+                "Setar no Render dashboard antes do deploy."
             )
-        else:
-            _logger.debug("SENTRY_DSN ausente em dev — Sentry off (esperado).")
+        _logger.debug("SENTRY_DSN ausente em dev — Sentry off (esperado).")
         return None
 
     environment = os.getenv("SENTRY_ENVIRONMENT") or os.getenv("FLASK_ENV") or "development"
@@ -78,10 +80,25 @@ def _get_sentry_config() -> dict | None:
         )
         sample_rate = float(sample_rate_default)
 
+    # Q-OH-2: traces_sample_rate default 0.1 (10% — Sprint 3 piloto).
+    # Clamp 0.0..1.0 pra evitar valores absurdos quebrando o SDK.
+    traces_default = "0.1"
+    try:
+        traces_sample_rate = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", traces_default))
+    except ValueError:
+        _logger.warning(
+            "SENTRY_TRACES_SAMPLE_RATE invalido (%s) — usando default %s",
+            os.getenv("SENTRY_TRACES_SAMPLE_RATE"),
+            traces_default,
+        )
+        traces_sample_rate = float(traces_default)
+    traces_sample_rate = max(0.0, min(1.0, traces_sample_rate))
+
     return {
         "dsn": dsn,
         "environment": environment,
         "sample_rate": sample_rate,
+        "traces_sample_rate": traces_sample_rate,
     }
 
 
