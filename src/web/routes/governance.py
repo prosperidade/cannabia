@@ -157,19 +157,71 @@ def upsert_association():
 @governance_bp.get("/documents")
 @api_role_required("Admin", "Medico")
 def list_documents():
+    """Lista documentos institucionais do tenant.
+
+    Sprint 3 Page-Migration Tier-2:
+      - Default (compat): `{"documents": [...]}` (Sprint 1 shape).
+      - `?paginated=1`:   `{"documents": {items, total, limit, offset, has_more}}`
+        (envelope canonico). Suporta `?limit`, `?offset`, `?include_total`,
+        `?legacy=1` (DEPRECATED).
+    """
+    from flask import request  # local import mantem modulo enxuto
+
     tenant_id, err = _require_tenant_context()
     if err:
         return err
-    from flask import request  # local import mantem modulo enxuto
 
     document_type = request.args.get("type") or None
     active_only = request.args.get("active_only", "true").lower() != "false"
-    docs = repo.list_institutional_documents(
+    paginated_flag = request.args.get("paginated") == "1"
+
+    if not paginated_flag:
+        # Compat path Sprint 1 default.
+        docs = repo.list_institutional_documents(
+            tenant_id=tenant_id,
+            document_type=document_type,
+            active_only=active_only,
+        )
+        return _success({"documents": docs})
+
+    from src.web.pagination import (
+        bare_legacy_response,
+        paginated_response,
+        parse_pagination,
+    )
+    from src.web.routes.api_v1 import _apply_deprecation_headers, _pagination_error
+
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _pagination_error(exc)
+
+    if legacy_mode:
+        docs = repo.list_institutional_documents(
+            tenant_id=tenant_id,
+            document_type=document_type,
+            active_only=active_only,
+        )
+        return _apply_deprecation_headers(
+            _success({"documents": bare_legacy_response(docs)})
+        )
+
+    result = repo.list_institutional_documents(
         tenant_id=tenant_id,
         document_type=document_type,
         active_only=active_only,
+        limit=limit,
+        offset=offset,
+        include_total=include_total,
     )
-    return _success({"documents": docs})
+    envelope = paginated_response(
+        result["items"],
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
+    return _success({"documents": envelope})
 
 
 @governance_bp.post("/documents")
@@ -248,14 +300,60 @@ def deactivate_document(doc_id: int):
 @governance_bp.get("/rts")
 @api_role_required("Admin", "Medico")
 def list_rts():
+    """Lista RTs do tenant.
+
+    Sprint 3 Page-Migration Tier-2: `?paginated=1` ativa envelope canonico.
+    """
+    from flask import request
+
     tenant_id, err = _require_tenant_context()
     if err:
         return err
-    from flask import request
 
     active_only = request.args.get("active_only", "true").lower() != "false"
-    rts = repo.list_technical_responsibles(tenant_id=tenant_id, active_only=active_only)
-    return _success({"technical_responsibles": rts})
+    paginated_flag = request.args.get("paginated") == "1"
+
+    if not paginated_flag:
+        rts = repo.list_technical_responsibles(
+            tenant_id=tenant_id, active_only=active_only
+        )
+        return _success({"technical_responsibles": rts})
+
+    from src.web.pagination import (
+        bare_legacy_response,
+        paginated_response,
+        parse_pagination,
+    )
+    from src.web.routes.api_v1 import _apply_deprecation_headers, _pagination_error
+
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _pagination_error(exc)
+
+    if legacy_mode:
+        rts = repo.list_technical_responsibles(
+            tenant_id=tenant_id, active_only=active_only
+        )
+        return _apply_deprecation_headers(
+            _success({"technical_responsibles": bare_legacy_response(rts)})
+        )
+
+    result = repo.list_technical_responsibles(
+        tenant_id=tenant_id,
+        active_only=active_only,
+        limit=limit,
+        offset=offset,
+        include_total=include_total,
+    )
+    envelope = paginated_response(
+        result["items"],
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
+    return _success({"technical_responsibles": envelope})
 
 
 @governance_bp.post("/rts")

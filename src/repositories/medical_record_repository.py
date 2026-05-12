@@ -102,11 +102,43 @@ def get_medical_record_by_patient(clinic_id: int, patient_id: int) -> Optional[D
         return cursor.fetchone()
 
 
-def list_patient_record_entries(clinic_id: int, patient_id: int, limit: int = 10) -> List[Dict[str, Any]]:
+def list_patient_record_entries(
+    clinic_id: int,
+    patient_id: int,
+    limit: Optional[int] = 10,
+    *,
+    offset: int = 0,
+    include_total: bool = False,
+    paginated: bool = False,
+):
+    """Lista entries de prontuario do paciente.
+
+    Sprint 3 Page-Migration Tier-2 (compat path mandatorio):
+      - `paginated=False` (default) -> retorna `list[dict]` (compat).
+        Callers atuais (`atendimentos.py:47-48`, `api_v1.py:225`,
+        `_build_attendance_detail`) esperam esse shape.
+      - `paginated=True`            -> dict `{items, total, has_more}`.
+    """
     if not _medical_record_schema_enabled():
-        return []
+        return {"items": [], "total": 0, "has_more": False} if paginated else []
+
+    effective_limit = limit if limit is not None else 10
+    fetch_n = effective_limit if include_total else effective_limit + 1
 
     with db_cursor(dictionary=True) as (_, cursor):
+        if include_total and paginated:
+            cursor.execute(
+                """
+                SELECT COUNT(*) AS n
+                FROM medical_record_entries
+                WHERE clinic_id = %s AND patient_id = %s
+                """,
+                (clinic_id, patient_id),
+            )
+            total = int(cursor.fetchone()["n"])
+        else:
+            total = None
+
         cursor.execute(
             """
             SELECT
@@ -130,9 +162,9 @@ def list_patient_record_entries(clinic_id: int, patient_id: int, limit: int = 10
             WHERE clinic_id = %s
               AND patient_id = %s
             ORDER BY created_at DESC, id DESC
-            LIMIT %s
+            LIMIT %s OFFSET %s
             """,
-            (clinic_id, patient_id, limit),
+            (clinic_id, patient_id, fetch_n, offset),
         )
         rows = cursor.fetchall()
 
@@ -142,7 +174,18 @@ def list_patient_record_entries(clinic_id: int, patient_id: int, limit: int = 10
         if isinstance(row.get("metadata"), str):
             row["metadata"] = json.loads(row["metadata"])
 
-    return rows
+    if not paginated:
+        # Compat path: aplica corte simples sem expor envelope.
+        return rows[:effective_limit]
+
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, effective_limit)
+
+    return {"items": items, "total": total, "has_more": has_more}
 
 
 def upsert_consultation_entry(

@@ -148,6 +148,31 @@ def _json_payload() -> dict:
     return payload if isinstance(payload, dict) else {}
 
 
+def _pagination_error(exc: ValueError):
+    """Sprint 3 Page-Migration: mapeia ValueError de `parse_pagination`
+    pra HTTP 400 com codigo especifico — `invalid_limit` quando o cliente
+    excede o maximo, `validation_error` para o resto (limit/offset < 0).
+    """
+    msg = str(exc)
+    if "excede o maximo" in msg or "exceeds maximum" in msg.lower():
+        from src.web.pagination import INVALID_LIMIT_CODE
+        return _error(INVALID_LIMIT_CODE, msg, 400)
+    return _error("validation_error", msg, 422)
+
+
+def _apply_deprecation_headers(response_tuple):
+    """Aplica `Deprecation`/`Sunset` headers numa resposta `(body, status)`.
+
+    Usar em endpoints que servirem o compat path `?legacy=1`.
+    """
+    from src.web.pagination import deprecation_headers
+
+    body, status = response_tuple
+    for k, v in deprecation_headers().items():
+        body.headers[k] = v
+    return body, status
+
+
 def _resolve_triage_submission_clinic_id(payload: Optional[dict] = None) -> int:
     clinic_id = getattr(g, "clinic_id", None)
     if clinic_id:
@@ -431,7 +456,9 @@ def message_contacts():
 def attendances():
     """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
 
-    `?legacy=1` -> compat path Sprint 1 (lista nua + ?page/?page_size).
+    Sprint 3 Page-Migration:
+      - `limit > MAX_LIMIT` -> HTTP 400 `invalid_limit` (era clamp silencioso).
+      - `?legacy=1` -> DEPRECATED, retorna `Deprecation` + `Sunset` headers.
     """
     from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
 
@@ -440,13 +467,15 @@ def attendances():
     try:
         limit, offset, include_total, legacy_mode = parse_pagination(request)
     except ValueError as exc:
-        return _error("validation_error", str(exc), 422)
+        return _pagination_error(exc)
 
     if legacy_mode:
         page, page_size = _pagination_args()
         reports = list_reports(g.clinic_id, status=status)
         items, meta = _paginate(reports, page, page_size)
-        return _success(bare_legacy_response(items), meta=meta)
+        return _apply_deprecation_headers(
+            _success(bare_legacy_response(items), meta=meta)
+        )
 
     result = list_reports(
         g.clinic_id,
@@ -701,21 +730,114 @@ def attendance_medical_record(report_id: int):
 @api_v1_bp.get("/patients/<int:patient_id>/timeline")
 @api_role_required("Admin", "Medico")
 def patient_timeline(patient_id: int):
+    """Timeline do paciente (feed temporal).
+
+    Sprint 3 Page-Migration Tier-2 (CURSOR-BASED):
+      - Default (Sprint 1 compat): retorna lista nua de eventos.
+      - `?paginated=1` ou `?before_id=N`: envelope cursor-based
+        `{items, has_more, next_cursor}`. `next_cursor` e o `id` do
+        ultimo item da pagina; envie em `?before_id=<next_cursor>` pra
+        proxima.
+    """
     try:
         limit = int(request.args.get("limit", 20))
     except (TypeError, ValueError):
         limit = 20
     limit = max(1, min(limit, 100))
-    events = list_patient_events(g.clinic_id, patient_id, limit=limit)
-    return _success(events)
+
+    raw_before = request.args.get("before_id")
+    before_id: Optional[int] = None
+    if raw_before:
+        try:
+            before_id = int(raw_before)
+            if before_id < 1:
+                raise ValueError
+        except (TypeError, ValueError):
+            return _error(
+                "validation_error",
+                "before_id deve ser inteiro positivo.",
+                422,
+            )
+
+    paginated_flag = request.args.get("paginated") == "1" or before_id is not None
+
+    if not paginated_flag:
+        events = list_patient_events(g.clinic_id, patient_id, limit=limit)
+        return _success(events)
+
+    result = list_patient_events(
+        g.clinic_id,
+        patient_id,
+        limit=limit,
+        before_id=before_id,
+        paginated=True,
+    )
+    # Envelope cursor-based — espelha o tipo `Paginated<T>` com `next_cursor`.
+    envelope = {
+        "items": result["items"],
+        "limit": limit,
+        "offset": 0,  # cursor-based; offset eh sempre 0
+        "total": None,
+        "has_more": result["has_more"],
+        "next_cursor": result["next_cursor"],
+    }
+    return _success(envelope)
 
 
 @api_v1_bp.get("/patients/<int:patient_id>/medical-record")
 @api_role_required("Admin", "Medico")
 def patient_medical_record(patient_id: int):
+    """Prontuario do paciente com entries.
+
+    Sprint 3 Page-Migration Tier-2:
+      - Default (Sprint 1 compat): `entries` e `list[dict]`.
+      - `?paginated=1`: `entries` vira envelope `Paginated<MedicalRecordEntry>`.
+    """
     record = get_medical_record_by_patient(g.clinic_id, patient_id)
-    entries = list_patient_record_entries(g.clinic_id, patient_id, limit=50)
-    return _success({"medical_record": record, "entries": entries})
+    paginated_flag = request.args.get("paginated") == "1"
+
+    if not paginated_flag:
+        entries = list_patient_record_entries(g.clinic_id, patient_id, limit=50)
+        return _success({"medical_record": record, "entries": entries})
+
+    from src.web.pagination import (
+        bare_legacy_response,
+        paginated_response,
+        parse_pagination,
+    )
+
+    try:
+        limit, offset, include_total, legacy_mode = parse_pagination(request)
+    except ValueError as exc:
+        return _pagination_error(exc)
+
+    if legacy_mode:
+        entries = list_patient_record_entries(g.clinic_id, patient_id, limit=limit)
+        return _apply_deprecation_headers(
+            _success(
+                {
+                    "medical_record": record,
+                    "entries": bare_legacy_response(entries),
+                }
+            )
+        )
+
+    result = list_patient_record_entries(
+        g.clinic_id,
+        patient_id,
+        limit=limit,
+        offset=offset,
+        include_total=include_total,
+        paginated=True,
+    )
+    envelope = paginated_response(
+        result["items"],
+        limit=limit,
+        offset=offset,
+        total=result["total"],
+        has_more=result["has_more"],
+    )
+    return _success({"medical_record": record, "entries": envelope})
 
 
 @api_v1_bp.get("/appointments")
@@ -731,14 +853,17 @@ def appointments_list():
     try:
         limit, offset, include_total, legacy_mode = parse_pagination(request)
     except ValueError as exc:
-        return _error("validation_error", str(exc), 422)
+        return _pagination_error(exc)
 
     if legacy_mode:
         # Compat path Sprint 1: lista nua paginada por ?page/?page_size.
+        # DEPRECATED Sprint 3 — Sunset 2026-08-01.
         page, page_size = _pagination_args()
         appointments = list_appointments()
         items, meta = _paginate(appointments, page, page_size)
-        return _success(bare_legacy_response(items), meta=meta)
+        return _apply_deprecation_headers(
+            _success(bare_legacy_response(items), meta=meta)
+        )
 
     result = list_appointments(limit=limit, offset=offset, include_total=include_total)
     envelope = paginated_response(
@@ -906,7 +1031,7 @@ def ai_metrics():
     try:
         limit, offset, include_total, legacy_mode = parse_pagination(request)
     except ValueError as exc:
-        return _error("validation_error", str(exc), 422)
+        return _pagination_error(exc)
 
     summary = get_ai_audit_summary_filtered(status=status, days=days)
 
@@ -914,16 +1039,18 @@ def ai_metrics():
         legacy_logs = get_recent_ai_logs_filtered(
             limit=limit, status=status, days=days
         )
-        return _success(
-            {
-                "summary": summary,
-                "recent_logs": bare_legacy_response(legacy_logs),
-                "filters": {
-                    "status": status,
-                    "days": days,
-                    "limit": limit,
-                },
-            }
+        return _apply_deprecation_headers(
+            _success(
+                {
+                    "summary": summary,
+                    "recent_logs": bare_legacy_response(legacy_logs),
+                    "filters": {
+                        "status": status,
+                        "days": days,
+                        "limit": limit,
+                    },
+                }
+            )
         )
 
     result = get_recent_ai_logs_filtered(

@@ -391,8 +391,9 @@ export default function AgendamentosPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await listAppointments();
-      setAppointments(data);
+      // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
+      const env = await listAppointments({ limit: 200 });
+      setAppointments(env.items);
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Falha ao carregar agendamentos.",

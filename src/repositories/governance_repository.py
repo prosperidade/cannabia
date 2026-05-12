@@ -77,7 +77,17 @@ def list_institutional_documents(
     tenant_id: int,
     document_type: Optional[str] = None,
     active_only: bool = True,
-) -> list[dict[str, Any]]:
+    limit: Optional[int] = None,
+    offset: int = 0,
+    include_total: bool = False,
+):
+    """Lista documentos institucionais do tenant.
+
+    Sprint 3 Page-Migration Tier-2:
+      - `limit=None` -> compat path (retorna `list[dict]`, sem envelope).
+        Mantido para callers internos (governance_service, dossier).
+      - `limit=int`  -> retorna dict `{items, total, has_more}`.
+    """
     conditions = ["tenant_id = %s"]
     params: list[Any] = [tenant_id]
 
@@ -88,16 +98,39 @@ def list_institutional_documents(
         conditions.append("is_active = TRUE")
 
     where = " AND ".join(conditions)
+    base_sql = (
+        f"SELECT * FROM institutional_documents "
+        f"WHERE {where} "
+        f"ORDER BY valid_from DESC, id DESC"
+    )
+
     with db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            f"""
-            SELECT * FROM institutional_documents
-             WHERE {where}
-             ORDER BY valid_from DESC, id DESC
-            """,
-            tuple(params),
-        )
-        return list(cursor.fetchall())
+        if limit is None:
+            cursor.execute(base_sql, tuple(params))
+            return list(cursor.fetchall())
+
+        # Modo paginado.
+        total = None
+        if include_total:
+            count_sql = (
+                f"SELECT COUNT(*) AS n FROM institutional_documents WHERE {where}"
+            )
+            cursor.execute(count_sql, tuple(params))
+            total = int(cursor.fetchone()["n"])
+
+        fetch_n = limit if include_total else limit + 1
+        paged_sql = base_sql + " LIMIT %s OFFSET %s"
+        cursor.execute(paged_sql, tuple(params) + (fetch_n, offset))
+        rows = cursor.fetchall()
+
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}
 
 
 def deactivate_institutional_document(doc_id: int) -> None:
@@ -179,23 +212,54 @@ def list_technical_responsibles(
     *,
     tenant_id: int,
     active_only: bool = True,
-) -> list[dict[str, Any]]:
+    limit: Optional[int] = None,
+    offset: int = 0,
+    include_total: bool = False,
+):
+    """Lista RTs do tenant.
+
+    Sprint 3 Page-Migration Tier-2:
+      - `limit=None` -> compat path (`list[dict]`).
+      - `limit=int`  -> dict `{items, total, has_more}`.
+    """
     conditions = ["tenant_id = %s"]
     params: list[Any] = [tenant_id]
     if active_only:
         conditions.append("is_active = TRUE")
 
     where = " AND ".join(conditions)
+    base_sql = (
+        f"SELECT * FROM technical_responsibles WHERE {where} ORDER BY id ASC"
+    )
+
     with db_cursor(dictionary=True) as (_, cursor):
+        if limit is None:
+            cursor.execute(base_sql, tuple(params))
+            return list(cursor.fetchall())
+
+        total = None
+        if include_total:
+            count_sql = (
+                f"SELECT COUNT(*) AS n FROM technical_responsibles WHERE {where}"
+            )
+            cursor.execute(count_sql, tuple(params))
+            total = int(cursor.fetchone()["n"])
+
+        fetch_n = limit if include_total else limit + 1
         cursor.execute(
-            f"""
-            SELECT * FROM technical_responsibles
-             WHERE {where}
-             ORDER BY id ASC
-            """,
-            tuple(params),
+            base_sql + " LIMIT %s OFFSET %s",
+            tuple(params) + (fetch_n, offset),
         )
-        return list(cursor.fetchall())
+        rows = cursor.fetchall()
+
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}
 
 
 def update_technical_responsible(rt_id: int, **fields: Any) -> Optional[dict[str, Any]]:
@@ -397,14 +461,51 @@ def get_latest_capacity_assessment(tenant_id: int) -> Optional[dict[str, Any]]:
         return cursor.fetchone()
 
 
-def list_capacity_assessments(tenant_id: int) -> list[dict[str, Any]]:
+def list_capacity_assessments(
+    tenant_id: int,
+    *,
+    limit: Optional[int] = None,
+    offset: int = 0,
+    include_total: bool = False,
+):
+    """Lista assessments de capacidade tecnico-operacional.
+
+    Sprint 3 Page-Migration Tier-2:
+      - `limit=None` -> compat path (`list[dict]`).
+      - `limit=int`  -> dict `{items, total, has_more}`.
+    """
+    base_sql = (
+        "SELECT * FROM technical_operational_capacity "
+        "WHERE tenant_id = %s "
+        "ORDER BY assessment_date DESC, id DESC"
+    )
+
     with db_cursor(dictionary=True) as (_, cursor):
+        if limit is None:
+            cursor.execute(base_sql, (tenant_id,))
+            return list(cursor.fetchall())
+
+        total = None
+        if include_total:
+            cursor.execute(
+                "SELECT COUNT(*) AS n FROM technical_operational_capacity "
+                "WHERE tenant_id = %s",
+                (tenant_id,),
+            )
+            total = int(cursor.fetchone()["n"])
+
+        fetch_n = limit if include_total else limit + 1
         cursor.execute(
-            """
-            SELECT * FROM technical_operational_capacity
-             WHERE tenant_id = %s
-             ORDER BY assessment_date DESC, id DESC
-            """,
-            (tenant_id,),
+            base_sql + " LIMIT %s OFFSET %s",
+            (tenant_id, fetch_n, offset),
         )
-        return list(cursor.fetchall())
+        rows = cursor.fetchall()
+
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}

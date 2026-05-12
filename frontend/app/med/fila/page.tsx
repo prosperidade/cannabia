@@ -118,6 +118,8 @@ export default function FilaDeAtendimentoPage() {
   const session = useApiSession();
 
   const [attendances, setAttendances] = useState<AttendanceListItem[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
@@ -136,26 +138,36 @@ export default function FilaDeAtendimentoPage() {
     }
   }, [session.loading, session.data, router]);
 
-  // Fetch attendances
-  const fetchAttendances = useCallback(async () => {
+  // Fetch attendances — Sprint 3 Page-Migration: envelope `Paginated<T>`
+  const fetchAttendances = useCallback(async (opts?: { append?: boolean }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await listAttendances();
-      setAttendances(data);
+      const nextOffset = opts?.append ? offset : 0;
+      const env = await listAttendances({ limit: 50, offset: nextOffset });
+      setAttendances((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
+      setHasMore(env.has_more);
+      setOffset(nextOffset + env.items.length);
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Falha ao carregar a fila.";
       setError(msg);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [offset]);
+
+  const loadMore = useCallback(() => {
+    void fetchAttendances({ append: true });
+  }, [fetchAttendances]);
 
   useEffect(() => {
     if (session.data?.authenticated) {
       void fetchAttendances();
     }
-  }, [session.data?.authenticated, fetchAttendances]);
+    // Reload behavior: when auth flips. fetchAttendances tem offset na deps mas
+    // sempre reseta quando !append.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.data?.authenticated]);
 
   const handleGenerateTriageLink = useCallback(async () => {
     if (!session.data?.csrf_token) return;
@@ -347,7 +359,7 @@ export default function FilaDeAtendimentoPage() {
         <div className="glass-panel rounded-2xl p-8 text-center space-y-4">
           <MaterialIcon icon="error_outline" size="xl" className="text-error" />
           <p className="text-stone-400">{error}</p>
-          <Button variant="secondary" size="sm" icon="refresh" onClick={fetchAttendances}>
+          <Button variant="secondary" size="sm" icon="refresh" onClick={() => void fetchAttendances()}>
             Tentar novamente
           </Button>
         </div>
@@ -369,6 +381,19 @@ export default function FilaDeAtendimentoPage() {
           {filtered.map((item) => (
             <PatientQueueCard key={item.id} item={item} />
           ))}
+          {hasMore ? (
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="expand_more"
+                onClick={loadMore}
+                loading={loading}
+              >
+                Carregar mais
+              </Button>
+            </div>
+          ) : null}
         </div>
       )}
 

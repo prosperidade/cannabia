@@ -53,6 +53,8 @@ export default function InboxPage() {
   const csrf = session.data?.csrf_token ?? "";
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -67,28 +69,43 @@ export default function InboxPage() {
   const [sending, setSending] = useState(false);
   const threadEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch conversations
-  const fetchConversations = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await listConversations({
-        status: statusFilter === "all" ? undefined : statusFilter,
-        search: search || undefined,
-      });
-      setConversations(data);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Falha ao carregar conversas.");
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter, search]);
+  // Fetch conversations — Sprint 3 Page-Migration: envelope `Paginated<T>`.
+  const fetchConversations = useCallback(
+    async (opts?: { append?: boolean }) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const nextOffset = opts?.append ? offset : 0;
+        const env = await listConversations({
+          status: statusFilter === "all" ? undefined : statusFilter,
+          search: search || undefined,
+          limit: 50,
+          offset: nextOffset,
+        });
+        setConversations((prev) =>
+          opts?.append ? [...prev, ...env.items] : env.items,
+        );
+        setHasMore(env.has_more);
+        setOffset(nextOffset + env.items.length);
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "Falha ao carregar conversas.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [statusFilter, search, offset],
+  );
+
+  const loadMoreConvs = useCallback(() => {
+    void fetchConversations({ append: true });
+  }, [fetchConversations]);
 
   useEffect(() => {
     if (!session.loading && session.data?.authenticated) {
       void fetchConversations();
     }
-  }, [session.loading, session.data?.authenticated, fetchConversations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.loading, session.data?.authenticated, statusFilter, search]);
 
   // Open thread
   async function openThread(convId: number) {
@@ -201,6 +218,18 @@ export default function InboxPage() {
             </Card>
           ) : (
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+              {hasMore && (
+                <div className="flex justify-center py-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon="expand_more"
+                    onClick={loadMoreConvs}
+                  >
+                    Carregar mais
+                  </Button>
+                </div>
+              )}
               {conversations.map((conv) => {
                 const isActive = activeConvId === conv.id;
                 const sb = STATUS_BADGE[conv.status] ?? STATUS_BADGE.open;

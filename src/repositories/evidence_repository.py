@@ -172,10 +172,18 @@ def list_treatment_plans_by_condition(
     condition_name: str,
     *,
     only_active: bool = True,
-) -> list[dict[str, Any]]:
+    limit: Optional[int] = None,
+    offset: int = 0,
+    include_total: bool = False,
+):
     """
     Treatment_plans cujo plan_name OU plan_description contem
     `condition_name` (ILIKE). Inclui patient context.
+
+    Sprint 3 Page-Migration Tier-2:
+      - `limit=None` -> compat path (`list[dict]`). Mantido para
+        `evidence_service.aggregate_condition_outcomes` (caller interno).
+      - `limit=int`  -> dict `{items, total, has_more}`.
 
     Quando `only_active=True`, filtra status='ativo'.
     """
@@ -188,7 +196,7 @@ def list_treatment_plans_by_condition(
         sql_where.append("tp.status = 'ativo'")
 
     where_clause = " AND ".join(sql_where)
-    sql = f"""
+    base_sql = f"""
         SELECT
           tp.id            AS plan_id,
           tp.patient_id,
@@ -205,9 +213,37 @@ def list_treatment_plans_by_condition(
         WHERE {where_clause}
         ORDER BY tp.created_at DESC
     """
+
     with db_cursor(dictionary=True) as (_, cur):
-        cur.execute(sql, tuple(params))
-        return list(cur.fetchall())
+        if limit is None:
+            cur.execute(base_sql, tuple(params))
+            return list(cur.fetchall())
+
+        total = None
+        if include_total:
+            count_sql = f"""
+                SELECT COUNT(*) AS n
+                FROM treatment_plans tp
+                WHERE {where_clause}
+            """
+            cur.execute(count_sql, tuple(params))
+            total = int(cur.fetchone()["n"])
+
+        fetch_n = limit if include_total else limit + 1
+        cur.execute(
+            base_sql + " LIMIT %s OFFSET %s",
+            tuple(params) + (fetch_n, offset),
+        )
+        rows = cur.fetchall()
+
+    if include_total:
+        items = list(rows)
+        has_more = (offset + len(items)) < (total or 0)
+    else:
+        from src.web.pagination import apply_limit_plus_one
+        items, has_more = apply_limit_plus_one(rows, limit)
+
+    return {"items": items, "total": total, "has_more": has_more}
 
 
 # ---------------------------------------------------------------------------
