@@ -134,6 +134,20 @@ def _build_catalog_record(entry: dict, ingested_by: str, created_by: int | None 
         "norm_number": manifest_entry.get("norm_number") or metadata["norm_number"],
         "norm_body": manifest_entry.get("norm_body") or metadata["norm_body"],
     }
+    # Sprint 3 Leg.6 — popula norm_status do manifesto quando presente.
+    # NAO inventa default: se sources.json nao declarou o campo, deixa None
+    # para o catalogo (compatibilidade com normas ingeridas via outras
+    # superficies, ex. upload manual nao-manifestado).
+    #
+    # `revoked_by` e `publication_date` ficam disponiveis no record dict
+    # como metadados informativos (consumiveis por UI/auditoria), mas nao
+    # sao gravados no `knowledge_catalog` ainda — a coluna `published_date`
+    # existe na tabela mas o backfill amplo via manifest e' tarefa Sprint 4
+    # (Frente C5). Aqui apenas garantimos que o dado nao se perca durante
+    # a passagem pelo builder.
+    norm_status = manifest_entry.get("norm_status")
+    revoked_by = manifest_entry.get("revoked_by")
+    publication_date = manifest_entry.get("publication_date")
 
     mime_type = entry.get("mime_type")
     if not mime_type:
@@ -155,7 +169,9 @@ def _build_catalog_record(entry: dict, ingested_by: str, created_by: int | None 
         "language": "pt-BR",
         "norm_number": metadata["norm_number"],
         "norm_body": metadata["norm_body"],
-        "norm_status": None,
+        "norm_status": norm_status,
+        "revoked_by": revoked_by,
+        "publication_date": publication_date,
         "storage_type": "google_files",
         "google_file_uri": entry.get("uri"),
         "google_file_name": entry.get("name"),

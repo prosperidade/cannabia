@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "purpose": "Q&A canonicas para regression do endpoint /api/v1/regulatory/query (Sprint 3 Track Legislacao).",
+    "norms_in_scope": [
+      "RDC 327/2019",
+      "RDC 660/2022",
+      "Lei 11.343/2006",
+      "Resolucao CFM 2.113/2014"
+    ],
+    "answer_style": "respostas curtas com citacao da norma + artigo. Usado para asserts contains() e para mock do Gemini em smoke tests offline.",
+    "created_in_sprint": "Sprint 3 - Track Legislacao Real (Leg.5)",
+    "notes": "As respostas aqui sao referencias normativas humanas e podem nao bater 1:1 com o output do Gemini Files API; o uso primario e' verificar que os file URIs estao montando o contexto e que o pipeline /regulatory/query devolve estrutura esperada. Quando rodar online com GOOGLE_API_KEY, comparar a resposta real com `expected_keywords` (contains) ao inves de igualdade estrita."
+  },
+  "queries": [
+    {
+      "id": "q1-dose-thc-rdc-327",
+      "question": "Qual a dose maxima de THC diaria por kg de paciente segundo as RDCs da Anvisa?",
+      "primary_norm": "RDC 327/2019",
+      "expected_keywords": ["THC", "0,2%", "concentracao", "produto"],
+      "mock_answer": "A RDC 327/2019 nao define dose por kg; estabelece a concentracao maxima de THC <= 0,2% para produtos de cannabis comercializados sem receita especial. Doses individualizadas seguem prescricao medica.",
+      "applicable": true,
+      "files_hint": ["RDC_327_2019_ANVISA.pdf"]
+    },
+    {
+      "id": "q2-validade-prescricao-cfm",
+      "question": "Qual e a validade da prescricao de cannabis medicinal segundo o CFM e a RDC 660/2022?",
+      "primary_norm": "RDC 660/2022",
+      "expected_keywords": ["6 (seis) meses", "validade", "prescricao"],
+      "mock_answer": "Conforme o Art. 7, paragrafo 5, da RDC 660/2022, a prescricao para importacao de produto derivado de Cannabis tem validade de 6 (seis) meses a partir da data de emissao.",
+      "applicable": true,
+      "files_hint": ["RDC_660_2022_ANVISA.md"]
+    },
+    {
+      "id": "q3-produtos-isentos-registro-rdc-660",
+      "question": "Quais produtos derivados de cannabis estao isentos de registro segundo a RDC 660/2022?",
+      "primary_norm": "RDC 660/2022",
+      "expected_keywords": ["pessoa fisica", "uso proprio", "importacao", "prescricao"],
+      "mock_answer": "A RDC 660/2022 (Art. 1 e Art. 3) permite a importacao por pessoa fisica para uso proprio mediante prescricao de profissional legalmente habilitado, sem necessidade de registro previo na Anvisa do produto especifico, desde que ele seja regularizado no pais de origem (Art. 4).",
+      "applicable": true,
+      "files_hint": ["RDC_660_2022_ANVISA.md"]
+    },
+    {
+      "id": "q4-lei-11343-art-28-uso-pessoal",
+      "question": "O que estabelece a Lei 11.343/2006 sobre uso pessoal de drogas?",
+      "primary_norm": "Lei 11.343/2006",
+      "expected_keywords": ["Art. 28", "uso pessoal", "advertencia", "prestacao de servicos"],
+      "mock_answer": "A Lei 11.343/2006 (Art. 28) tipifica como conduta a quem adquirir, guardar, tiver em deposito, transportar ou trouxer consigo drogas para consumo pessoal, sujeitando o autor a advertencia, prestacao de servicos a comunidade e/ou medida educativa, sem privacao de liberdade. Para uso medicinal autorizado, aplica-se a regulacao sanitaria (RDC 327 e 660).",
+      "applicable": true,
+      "files_hint": ["Lei_11_343_2006_Planalto.md"]
+    },
+    {
+      "id": "q5-cadastro-rdc-660-prazo",
+      "question": "Qual o prazo de validade do cadastro de paciente para importacao de cannabis na Anvisa?",
+      "primary_norm": "RDC 660/2022",
+      "expected_keywords": ["2 (dois) anos", "cadastro", "Anvisa"],
+      "mock_answer": "Conforme Art. 8 da RDC 660/2022, o cadastro do paciente para importacao de produto derivado de Cannabis tem validade de 2 (dois) anos, renovavel mediante nova prescricao (Art. 9).",
+      "applicable": true,
+      "files_hint": ["RDC_660_2022_ANVISA.md"]
+    },
+    {
+      "id": "q6-cfm-indicacoes-canabidiol",
+      "question": "Para quais pacientes o CFM autoriza o uso compassivo do canabidiol?",
+      "primary_norm": "Resolucao CFM 2.113/2014",
+      "expected_keywords": ["criancas", "adolescentes", "epilepsia", "refrataria"],
+      "mock_answer": "A Resolucao CFM 2.113/2014 autoriza o uso compassivo do canabidiol (CBD) para criancas e adolescentes portadores de epilepsias refratarias aos tratamentos convencionais. A norma veda a prescricao da cannabis in natura para uso medicinal.",
+      "applicable": true,
+      "files_hint": ["Resolucao_CFM_2113_2014.md"]
+    },
+    {
+      "id": "q7-epilepsia-refrataria-elegibilidade",
+      "question": "Quais sao os criterios para considerar uma epilepsia refrataria elegivel a cannabis medicinal?",
+      "primary_norm": "Resolucao CFM 2.113/2014",
+      "expected_keywords": ["refrataria", "tratamentos convencionais", "compassivo"],
+      "mock_answer": "A Resolucao CFM 2.113/2014 define como elegivel ao uso compassivo do canabidiol o paciente pediatrico (crianca/adolescente) com epilepsia que nao apresentou resposta satisfatoria aos tratamentos convencionais disponiveis. A indicacao depende de avaliacao clinica documentada.",
+      "applicable": true,
+      "files_hint": ["Resolucao_CFM_2113_2014.md"]
+    },
+    {
+      "id": "q8-cannabis-gestante",
+      "question": "Existe contraindicacao explicita ao uso de cannabis em gestantes nas normas brasileiras?",
+      "primary_norm": "RDC 660/2022",
+      "expected_keywords": ["ausencia de comprovacao", "responsabilidade", "profissional prescritor"],
+      "mock_answer": "As normas analisadas (RDC 327/2019, RDC 660/2022 e Resolucao CFM 2.113/2014) nao trazem contraindicacao especifica para gestantes em texto literal. A RDC 660/2022 (Art. 18) determina que a prescricao implica ciencia da ausencia de comprovacao de qualidade, seguranca e eficacia dos produtos importados, transferindo ao profissional prescritor e ao paciente/responsavel a responsabilidade pelo uso. Recomenda-se avaliacao clinica criteriosa caso a caso.",
+      "applicable": true,
+      "files_hint": ["RDC_660_2022_ANVISA.md", "Resolucao_CFM_2113_2014.md"]
+    }
+  ]
+}
