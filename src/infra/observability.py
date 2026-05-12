@@ -1,18 +1,27 @@
 """
-Observabilidade Sentry — Sprint 2 Track Obs.
+Observabilidade Sentry — Sprint 2 Track Obs (init) + Sprint 3 Track Obs-Harden.
 
 Plug Sentry SDK em producao com sanitizacao rigorosa de PII (LGPD-critical
 em contexto clinico) e tags uteis pra forensics:
     - request_id, user_id, clinic_id, tenant_id (via tag_request).
 
-Decisoes do coordenador (Q-Obs-1..5):
-    - SOFT em prod: SENTRY_DSN ausente nao bloqueia deploy (config.py).
+Decisoes do coordenador Sprint 2 (Q-Obs-1..5):
+    - SOFT em prod: SENTRY_DSN ausente nao bloqueia deploy.  ⚠ SUPERSEDED.
     - DEFENSE IN DEPTH: send_default_pii=False (Sentry nativo) +
       before_send hook reusando sanitize_clinical_payload (Track A.3).
     - traces_sample_rate=0.0 — performance traces OFF Sprint 2 (caro).
-    - include_local_variables=False — locals em traceback podem vazar PII
-      (era with_locals em sentry-sdk 1.x; renomeado em 2.x).
+                                                           ⚠ SUPERSEDED.
+    - include_local_variables=False — locals em traceback podem vazar PII.
+                                                           ⚠ SUPERSEDED.
     - LoggingIntegration: ERROR vira event Sentry, WARNING vira breadcrumb.
+
+Decisoes Sprint 3 Track Obs-Harden (Q-OH-1..5), supersede Sprint 2:
+    - Q-OH-1: SENTRY_DSN obrigatorio em prod — raise direto (config.py).
+    - Q-OH-2: traces_sample_rate=0.1 (10% piloto pra calibrar Sprint 4),
+              override via SENTRY_TRACES_SAMPLE_RATE com clamp 0..1.
+    - Q-OH-3: include_local_variables=True SEMPRE — sanitizacao em
+              _sentry_before_send via walk recursivo em frames[].vars
+              (sanitize_clinical_payload) e' a defesa, nao FLASK_ENV.
 
 FAIL-SAFE: _sentry_before_send NUNCA raise. Se sanitization quebrar,
 DROPA o event (return None) — preferir perder telemetria do que vazar PII.
@@ -146,9 +155,17 @@ def init_sentry(config: dict[str, Any] | None) -> None:
             dsn=config["dsn"],
             environment=config.get("environment", "development"),
             sample_rate=config.get("sample_rate", 1.0),
-            traces_sample_rate=0.0,  # Q-Obs-3: performance off Sprint 2
+            # Q-OH-2 (Sprint 3 Obs-Harden): traces 10% piloto. Valor vem do
+            # config dict (env override SENTRY_TRACES_SAMPLE_RATE, default 0.1).
+            traces_sample_rate=config.get("traces_sample_rate", 0.1),
             send_default_pii=False,  # Q-Obs-2: denylist nativa
-            include_local_variables=False,  # Q-Obs-4: PII em locals = LGPD breach (era with_locals em SDK 1.x)
+            # Q-OH-3 (Sprint 3 Obs-Harden): TRUE sempre. Locals em traceback
+            # sao valiosos pra debug, e o walk recursivo em
+            # exception.values[].stacktrace.frames[].vars dentro de
+            # _sentry_before_send ja sanitiza PII via sanitize_clinical_payload
+            # (Track A.3). Defesa em sanitizacao, nao em FLASK_ENV.
+            # (Era with_locals em sentry-sdk 1.x; renomeado em 2.x.)
+            include_local_variables=True,
             before_send=_sentry_before_send,
             integrations=[
                 FlaskIntegration(),
@@ -159,9 +176,10 @@ def init_sentry(config: dict[str, Any] | None) -> None:
             ],
         )
         logger.info(
-            "Sentry inicializado — environment=%s sample_rate=%s",
+            "Sentry inicializado — environment=%s sample_rate=%s traces_sample_rate=%s",
             config.get("environment"),
             config.get("sample_rate"),
+            config.get("traces_sample_rate"),
         )
     except Exception as exc:  # noqa: BLE001 — Sentry init nao deve quebrar app
         logger.error("Falha ao inicializar Sentry: %r", exc)
