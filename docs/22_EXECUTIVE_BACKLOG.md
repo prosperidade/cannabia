@@ -93,8 +93,8 @@ Ele substitui a leitura isolada de backlogs históricos quando a pergunta é:
 
 | ID | Missão | Status | Prioridade | Resultado executivo esperado |
 |----|--------|--------|------------|------------------------------|
-| C1 | Popular `data/legislation/` com RDC 327, RDC 660, Lei 11.343 e normas CFM | Aberto | Alta | Regulatory utilizável em ambiente real |
-| C2 | Executar upload validado para Google Files API e persistir catálogo | Aberto | Alta | Legislação pronta para consulta com contexto completo |
+| C1 | Popular `data/legislation/` com RDC 327, RDC 660, Lei 11.343 e normas CFM. **Resolvido na Sprint 3** (track Legislacao-Real): 4 normas seedadas em `data/legislation/`, sanitizacao automatica de markdowns HTML (~68% reducao de bytes), schema do manifesto estendido com `norm_status`/`revoked_by`/`publication_date`. Ver `docs/sprints/sprint_3_Legislacao.md`. | ✅ Resolvido (Sprint 3) | — | Regulatory utilizável em ambiente real |
+| C2 | Executar upload validado para Google Files API e persistir catálogo. **Resolvido na Sprint 3** (track Legislacao-Real): uploader `src/knowledge/google_files.py` ja idempotente via SHA-256 + sync com `knowledge_catalog`, CLI `scripts/upload_legislation.py` (alternativa ao endpoint HTTP admin-only), fixture canonica `tests/fixtures/regulatory_queries.json` + smoke tests com mock Gemini. Ver `docs/sprints/sprint_3_Legislacao.md`. | ✅ Resolvido (Sprint 3) | — | Legislação pronta para consulta com contexto completo |
 | C3 | Validar operação do `AgenteExtrator` para busca PubMed, classificação e ingestão | Parcial | Alta | Knowledge base operável de ponta a ponta |
 | C4 | Ativar e validar monitores de conhecimento (`knowledge_monitors`) | Parcial | Média | Atualização contínua de fontes críticas |
 | C5 | Expor melhor no frontend os fluxos de upload, query regulatória e monitores | Parcial | Média | Operação não dependente de chamadas manuais/API bruta |

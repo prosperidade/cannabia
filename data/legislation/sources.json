@@ -7,6 +7,9 @@
     "source": "anvisa",
     "source_url": "https://bvs.saude.gov.br/bvs/saudelegis/anvisa/2019/rdc0327_09_12_2019.pdf",
     "download_mode": "binary",
+    "publication_date": "2019-12-09",
+    "norm_status": "vigente",
+    "revoked_by": null,
     "notes": "Inteiro teor em PDF publicado na BVS Saúde com cabeçalho Anvisa."
   },
   {
@@ -17,7 +20,11 @@
     "source": "anvisa",
     "source_url": "https://www.in.gov.br/en/web/dou/-/resolucao-rdc-n-660-de-30-de-marco-de-2022-389908959",
     "download_mode": "html",
-    "notes": "Inteiro teor disponível em HTML no DOU/Imprensa Nacional."
+    "publication_date": "2022-03-30",
+    "norm_status": "vigente",
+    "revoked_by": null,
+    "sanitized_filename": "RDC_660_2022_ANVISA_sanitized.md",
+    "notes": "Inteiro teor disponível em HTML no DOU/Imprensa Nacional. Revoga RDC 335/2020 e RDC 570/2021."
   },
   {
     "filename": "Lei_11_343_2006_Planalto.md",
@@ -27,7 +34,11 @@
     "source": "planalto",
     "source_url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11343.htm",
     "download_mode": "html",
-    "notes": "Texto compilado oficial do Planalto."
+    "publication_date": "2006-08-23",
+    "norm_status": "vigente",
+    "revoked_by": null,
+    "sanitized_filename": "Lei_11_343_2006_Planalto_sanitized.md",
+    "notes": "Texto compilado oficial do Planalto. Lei de Drogas — Sisnad. Vigente com alterações pontuais por Lei 13.840/2019."
   },
   {
     "filename": "Resolucao_CFM_2113_2014.md",
@@ -37,6 +48,10 @@
     "source": "cfm",
     "source_url": "https://portal.cfm.org.br/canabidiol/index.php",
     "download_mode": "html",
-    "notes": "Página oficial do CFM com a resolução e materiais correlatos."
+    "publication_date": "2014-12-16",
+    "norm_status": "vigente",
+    "revoked_by": null,
+    "sanitized_filename": "Resolucao_CFM_2113_2014_sanitized.md",
+    "notes": "Página oficial do CFM com a resolução e materiais correlatos. Vigente: Resolução CFM 2.324/2022 foi sustada pela 2.326/2022, portanto a 2.113/2014 permanece como base."
   }
 ]
