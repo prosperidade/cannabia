@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
-import { getAiMetrics, ApiError } from "@/lib/api";
-import type { AiAuditData, AiAuditLog, AiAuditSummary } from "@/lib/types";
+import { getAiAudit, type AiAuditPaginatedData, ApiError } from "@/lib/api";
+import type { AiAuditLog, AiAuditSummary } from "@/lib/types";
 import {
   Card,
   Badge,
@@ -130,41 +130,63 @@ export default function AuditoriaPage() {
   /* ── State ── */
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<AiAuditData | null>(null);
+  const [data, setData] = useState<AiAuditPaginatedData | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState("");
   const [daysFilter, setDaysFilter] = useState(30);
   const [limitFilter, setLimitFilter] = useState(25);
 
-  /* ── Fetch ── */
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await getAiMetrics({
-        status: statusFilter || undefined,
-        days: daysFilter || undefined,
-        limit: limitFilter,
-      });
-      setData(result);
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao carregar metricas de IA.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter, daysFilter, limitFilter]);
+  /* ── Fetch ── Sprint 3 Page-Migration: usa envelope `Paginated<AiAuditLog>` */
+  const fetchData = useCallback(
+    async (opts?: { append?: boolean }) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const nextOffset = opts?.append ? offset : 0;
+        const result = await getAiAudit({
+          status: statusFilter || undefined,
+          days: daysFilter || undefined,
+          limit: limitFilter,
+          offset: nextOffset,
+        });
+        if (opts?.append && data) {
+          // Anexa ao paginated envelope dos recent_logs
+          setData({
+            ...result,
+            recent_logs: {
+              ...result.recent_logs,
+              items: [...data.recent_logs.items, ...result.recent_logs.items],
+            },
+          });
+        } else {
+          setData(result);
+        }
+        setHasMore(result.recent_logs.has_more);
+        setOffset(nextOffset + result.recent_logs.items.length);
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : "Falha ao carregar metricas de IA.";
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [statusFilter, daysFilter, limitFilter, offset, data],
+  );
 
+  // Filtros resetam paginacao (fetchData(opts=undefined) zera offset).
   useEffect(() => {
     void fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, daysFilter, limitFilter]);
 
   /* ── Derived values ── */
   const summary: AiAuditSummary | null = data?.summary ?? null;
-  const logs: AiAuditLog[] = data?.recent_logs ?? [];
+  const logs: AiAuditLog[] = data?.recent_logs.items ?? [];
 
   const successRate = summary
     ? summary.total_execucoes > 0
@@ -748,6 +770,7 @@ export default function AuditoriaPage() {
           </h3>
           <span className="text-xs text-stone-500">
             {logs.length} registro{logs.length !== 1 ? "s" : ""}
+            {hasMore ? " (+)" : ""}
           </span>
         </div>
 
@@ -830,6 +853,20 @@ export default function AuditoriaPage() {
             </Card>
           ))}
         </div>
+
+        {hasMore && (
+          <div className="mt-4 flex justify-center">
+            <Button
+              variant="secondary"
+              size="sm"
+              icon="expand_more"
+              loading={loading}
+              onClick={() => void fetchData({ append: true })}
+            >
+              Carregar mais
+            </Button>
+          </div>
+        )}
       </section>
     </div>
   );

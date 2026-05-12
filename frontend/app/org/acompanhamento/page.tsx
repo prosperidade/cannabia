@@ -38,7 +38,10 @@ export default function AcompanhamentoPage() {
     Promise.all([
       getAcompanhamentoOverview(),
       // Agenda do dia — falha aqui nao bloqueia os KPIs
-      listAppointments().catch(() => [] as AppointmentItem[]),
+      // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
+      listAppointments({ limit: 200 })
+        .then((env) => env.items)
+        .catch(() => [] as AppointmentItem[]),
       // Lista de pacientes em acompanhamento — falha nao bloqueia o resto
       getAcompanhamentoActivePatients(20).catch(() => ({ items: [], count: 0 })),
     ])

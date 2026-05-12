@@ -50,10 +50,12 @@ export default function MedDashboardPage() {
     setLoading(true);
     setErrorMsg(null);
 
-    Promise.all([listAppointments(), listReturns()])
+    Promise.all([listAppointments({ limit: 200 }), listReturns()])
       .then(([appts, retsRaw]) => {
         if (!alive) return;
-        setAppointments(Array.isArray(appts) ? (appts as AppointmentItem[]) : []);
+        // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
+        const items = appts?.items ?? [];
+        setAppointments(items as AppointmentItem[]);
         // /returns retorna lista, mas api.ts tipa como Record. Cast via unknown.
         const retsArr = (retsRaw.data as unknown) as PendingReturn[] | undefined;
         setReturns(Array.isArray(retsArr) ? retsArr : []);

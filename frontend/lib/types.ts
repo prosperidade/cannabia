@@ -46,17 +46,6 @@ export type DashboardMessage = {
 
 export type MessageItem = DashboardMessage;
 
-export type ApiListMeta = {
-  page: number;
-  page_size: number;
-  total: number;
-};
-
-export type PaginatedResult<T> = {
-  items: T[];
-  meta: ApiListMeta;
-};
-
 export type MessageContactOption = {
   sender: string;
   label: string;
@@ -333,27 +322,36 @@ export type ConversationDetail = {
 };
 
 /**
- * Envelope canonico de paginacao (Sprint 2 Track Page).
+ * Envelope canonico de paginacao (Sprint 2 Track Page + Sprint 3 Tier-2).
+ *
+ * Tipo CANONICO unico (Sprint 3 Page-Migration: removeu o concorrente
+ * `PaginatedResult<T>` + `ApiListMeta`, que nao tinha consumers reais).
  *
  * Contrato backend: src/web/pagination.py::paginated_response
- * Endpoints atuais (Tier-1, Sprint 2):
+ *
+ * Endpoints Tier-1 (Sprint 2):
  *   - GET /api/v1/appointments
  *   - GET /api/v1/attendances    (relatorios de anamnese)
  *   - GET /api/v1/conversations
  *   - GET /api/v1/admin/ai-metrics?paginated=1   (recent_logs vira envelope)
  *
+ * Endpoints Tier-2 (Sprint 3):
+ *   - GET /api/v1/governance/documents?paginated=1
+ *   - GET /api/v1/governance/rts?paginated=1
+ *   - GET /api/v1/governance/capacity?paginated=1
+ *   - GET /api/v1/patients/<id>/medical-record    (entries envelope opt-in)
+ *   - GET /api/v1/patients/<id>/timeline          (cursor-based: ?before_id)
+ *
  * Query params suportados:
- *   - ?limit=50         (default; max=200; >200 -> clamp + warning server-side)
- *   - ?offset=0         (default; offset-based; cursor existe so em messages)
+ *   - ?limit=50         (default; max=200; >200 -> HTTP 400 invalid_limit)
+ *   - ?offset=0         (default; offset-based)
  *   - ?include_total=1  (opt-in pra COUNT(*); custa)
- *   - ?legacy=1         (escape hatch 1 sprint -> retorna lista nua)
+ *   - ?legacy=1         (DEPRECATED, removal 2026-08-01 — Sprint 4)
+ *   - ?before_id=N      (cursor-based; so em timeline e messages)
  *
  * has_more:
  *   - Quando total e conhecido: (offset + items.length) < total
  *   - Senao: heuristica LIMIT_PLUS_ONE_TRICK (true se backend trouxe limit+1)
- *
- * DIVIDA Sprint 3: migrar consumers existentes (hoje ainda esperam Type[]
- * cru; Sprint 2 so adicionou o tipo, nao mudou nenhum fetch).
  */
 export type Paginated<T> = {
   items: T[];
@@ -361,4 +359,6 @@ export type Paginated<T> = {
   limit: number;
   offset: number;
   has_more: boolean;
+  /** Cursor-based feeds (ex.: patient_timeline). Sprint 3. */
+  next_cursor?: number | null;
 };

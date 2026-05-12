@@ -35,13 +35,18 @@ def list_convs():
     try:
         limit, offset, include_total, legacy_mode = parse_pagination(request)
     except ValueError as exc:
-        return _error("validation_error", str(exc), 422)
+        from src.web.routes.api_v1 import _pagination_error
+        return _pagination_error(exc)
 
     if legacy_mode:
         # Compat path: lista nua com cap antigo (max=100).
+        # DEPRECATED Sprint 3 — Sunset 2026-08-01.
+        from src.web.routes.api_v1 import _apply_deprecation_headers
         legacy_limit = max(1, min(limit, 100))
         convs = list_conversations(status=status, search=search, limit=legacy_limit)
-        return _success(bare_legacy_response(_serialize(convs)))
+        return _apply_deprecation_headers(
+            _success(bare_legacy_response(_serialize(convs)))
+        )
 
     result = list_conversations(
         status=status,

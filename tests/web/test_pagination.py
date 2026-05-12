@@ -48,12 +48,34 @@ def test_parse_pagination_legacy_flag():
     assert legacy is True
 
 
-def test_parse_pagination_clamp_above_max(caplog):
+def test_parse_pagination_limit_above_max_raises(caplog):
+    """Sprint 3 Page-Migration: `limit > MAX_LIMIT` agora levanta
+    ValueError (era clamp silencioso na Sprint 2). Caller mapeia para
+    HTTP 400 `invalid_limit`.
+    """
     req = _fake_request({"limit": "5000"})
     with caplog.at_level(logging.WARNING, logger="cannabia.web.pagination"):
-        limit, _, _, _ = parse_pagination(req)
-    assert limit == MAX_LIMIT == 200
-    assert any("limit_clamped" in rec.message for rec in caplog.records)
+        with pytest.raises(ValueError, match="excede o maximo"):
+            parse_pagination(req)
+    assert any("limit_exceeded" in rec.message for rec in caplog.records)
+    # Sanity: MAX_LIMIT continua sendo 200
+    assert MAX_LIMIT == 200
+
+
+def test_parse_pagination_at_max_limit_ok(caplog):
+    """Limit == MAX_LIMIT eh aceito (somente >MAX_LIMIT levanta)."""
+    req = _fake_request({"limit": str(MAX_LIMIT)})
+    limit, _, _, _ = parse_pagination(req)
+    assert limit == MAX_LIMIT
+
+
+def test_parse_pagination_legacy_logs_warning(caplog):
+    """Sprint 3 Page-Migration: ?legacy=1 server-side emite warning."""
+    req = _fake_request({"legacy": "1"})
+    with caplog.at_level(logging.WARNING, logger="cannabia.web.pagination"):
+        _, _, _, legacy = parse_pagination(req)
+    assert legacy is True
+    assert any("legacy_used" in rec.message for rec in caplog.records)
 
 
 def test_parse_pagination_invalid_strings_fall_back_to_defaults():

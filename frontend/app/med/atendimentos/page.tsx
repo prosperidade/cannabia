@@ -61,6 +61,8 @@ export default function AtendimentosPage() {
   const session = useApiSession();
 
   const [attendances, setAttendances] = useState<AttendanceListItem[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,12 +75,16 @@ export default function AtendimentosPage() {
     }
   }, [session.loading, session.data, router]);
 
-  const fetchAttendances = useCallback(async () => {
+  // Sprint 3 Page-Migration: envelope `Paginated<AttendanceListItem>`.
+  const fetchAttendances = useCallback(async (opts?: { append?: boolean }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await listAttendances();
-      setAttendances(data);
+      const nextOffset = opts?.append ? offset : 0;
+      const env = await listAttendances({ limit: 50, offset: nextOffset });
+      setAttendances((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
+      setHasMore(env.has_more);
+      setOffset(nextOffset + env.items.length);
     } catch (err) {
       const msg =
         err instanceof ApiError
@@ -88,13 +94,18 @@ export default function AtendimentosPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [offset]);
+
+  const loadMore = useCallback(() => {
+    void fetchAttendances({ append: true });
+  }, [fetchAttendances]);
 
   useEffect(() => {
     if (session.data?.authenticated) {
       void fetchAttendances();
     }
-  }, [session.data?.authenticated, fetchAttendances]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.data?.authenticated]);
 
   const filtered = useMemo(() => {
     let items = [...attendances];
@@ -183,7 +194,7 @@ export default function AtendimentosPage() {
             variant="secondary"
             size="sm"
             icon="refresh"
-            onClick={fetchAttendances}
+            onClick={() => void fetchAttendances()}
           >
             Tentar novamente
           </Button>
@@ -320,6 +331,14 @@ export default function AtendimentosPage() {
           </div>
         </div>
       )}
+
+      {!loading && !error && hasMore ? (
+        <div className="flex justify-center pt-2">
+          <Button variant="secondary" size="sm" icon="expand_more" onClick={loadMore}>
+            Carregar mais
+          </Button>
+        </div>
+      ) : null}
 
       {/* Bottom padding for mobile nav */}
       <div className="h-20 lg:h-0" />

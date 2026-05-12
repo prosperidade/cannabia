@@ -1,17 +1,18 @@
 import type {
   AiAuditData,
-  ApiListMeta,
+  AiAuditLog,
   ApiSessionResponse,
   AppointmentItem,
   AppointmentPayload,
   AttendanceDetail,
   AttendanceListItem,
+  Conversation,
   DashboardData,
   DashboardMessage,
   MessageContactOption,
   MessageItem,
   MedicalRecordPayload,
-  PaginatedResult,
+  Paginated,
   TriageSubmissionResult,
   TriageLinkContext,
   TriageLinkIssueResult,
@@ -46,6 +47,24 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Sprint 3 Page-Migration: detecta header `Deprecation: true` da response
+ * e avisa via console.warn pra incentivar migracao antes do Sunset
+ * (2026-08-01, Sprint 4).
+ */
+function warnIfDeprecated(path: string, response: Response): void {
+  const dep = response.headers.get("Deprecation");
+  if (!dep) return;
+  const sunset = response.headers.get("Sunset") ?? "Sprint 4";
+  // Reduz ruido em runtime de testes (jsdom).
+  if (typeof console !== "undefined" && typeof console.warn === "function") {
+    console.warn(
+      `[API] endpoint ${path} marcado como deprecated ` +
+        `(?legacy=1) — migrar antes de ${sunset}.`,
+    );
+  }
+}
+
 export async function request<T>(
   path: string,
   init: RequestInit = {},
@@ -63,6 +82,8 @@ export async function request<T>(
     credentials: "include",
     cache: "no-store",
   });
+
+  warnIfDeprecated(path, response);
 
   const raw = response.headers.get("content-type")?.includes("application/json")
     ? ((await response.json()) as ApiEnvelope<T> | ApiFailure)
@@ -134,7 +155,7 @@ export async function listMessages(
   page = 1,
   pageSize = 50,
   filters: MessageFilters = {},
-): Promise<PaginatedResult<MessageItem>> {
+): Promise<{ items: MessageItem[]; total: number }> {
   const params = new URLSearchParams({
     page: String(page),
     page_size: String(pageSize),
@@ -146,13 +167,12 @@ export async function listMessages(
     params.set("search", filters.search.trim());
   }
   const response = await request<MessageItem[]>(`/messages?${params.toString()}`);
+  const metaTotal =
+    (response.meta as { total?: number } | undefined)?.total ??
+    response.data.length;
   return {
     items: response.data,
-    meta: (response.meta as ApiListMeta | undefined) ?? {
-      page,
-      page_size: pageSize,
-      total: response.data.length,
-    },
+    total: metaTotal,
   };
 }
 
@@ -165,14 +185,36 @@ export async function listMessageContacts(search?: string) {
   return response.data;
 }
 
-export async function listAttendances(status?: string) {
+/**
+ * Sprint 3 Page-Migration: envelope `Paginated<AttendanceListItem>` (default
+ * a partir do contrato canonico). Sem args = primeira pagina (limit=50).
+ *
+ * Use `listAttendancesAll()` se quiser o array nu (compat path Sprint 1).
+ */
+export async function listAttendances(opts?: {
+  status?: string;
+  limit?: number;
+  offset?: number;
+  include_total?: boolean;
+}): Promise<Paginated<AttendanceListItem>> {
   const params = new URLSearchParams();
-  if (status && status !== "all") {
-    params.set("status", status);
-  }
+  if (opts?.status && opts.status !== "all") params.set("status", opts.status);
+  if (opts?.limit != null) params.set("limit", String(opts.limit));
+  if (opts?.offset != null) params.set("offset", String(opts.offset));
+  if (opts?.include_total) params.set("include_total", "1");
   const query = params.toString() ? `?${params}` : "";
-  const response = await request<AttendanceListItem[]>(`/attendances${query}`);
+  const response = await request<Paginated<AttendanceListItem>>(
+    `/attendances${query}`,
+  );
   return response.data;
+}
+
+/** Convenience: extrai items diretos do envelope (substituicao drop-in). */
+export async function listAttendancesItems(
+  status?: string,
+): Promise<AttendanceListItem[]> {
+  const env = await listAttendances({ status, limit: 200 });
+  return env.items;
 }
 
 export async function getAttendance(id: string) {
@@ -214,8 +256,22 @@ export async function saveMedicalRecord(
   return response.data;
 }
 
-export async function listAppointments() {
-  const response = await request<AppointmentItem[]>("/appointments");
+/**
+ * Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
+ */
+export async function listAppointments(opts?: {
+  limit?: number;
+  offset?: number;
+  include_total?: boolean;
+}): Promise<Paginated<AppointmentItem>> {
+  const params = new URLSearchParams();
+  if (opts?.limit != null) params.set("limit", String(opts.limit));
+  if (opts?.offset != null) params.set("offset", String(opts.offset));
+  if (opts?.include_total) params.set("include_total", "1");
+  const query = params.toString() ? `?${params}` : "";
+  const response = await request<Paginated<AppointmentItem>>(
+    `/appointments${query}`,
+  );
   return response.data;
 }
 
@@ -425,6 +481,34 @@ export async function getAiMetrics(filters: AiMetricsFilters = {}) {
   }
   const query = params.toString() ? `?${params.toString()}` : "";
   const response = await request<AiAuditData>(`/admin/ai-metrics${query}`);
+  return response.data;
+}
+
+/**
+ * Sprint 3 Page-Migration: `?paginated=1` route — `recent_logs` vira
+ * envelope `Paginated<AiAuditLog>`. Sumario continua no shape original.
+ */
+export type AiAuditPaginatedData = {
+  summary: AiAuditData["summary"];
+  recent_logs: Paginated<AiAuditLog>;
+  filters?: AiAuditData["filters"] & { offset?: number };
+};
+
+export async function getAiAudit(filters: AiMetricsFilters & {
+  offset?: number;
+  include_total?: boolean;
+} = {}): Promise<AiAuditPaginatedData> {
+  const params = new URLSearchParams();
+  params.set("paginated", "1");
+  if (filters.status?.trim()) params.set("status", filters.status.trim());
+  if (typeof filters.days === "number") params.set("days", String(filters.days));
+  if (typeof filters.limit === "number") params.set("limit", String(filters.limit));
+  if (typeof filters.offset === "number")
+    params.set("offset", String(filters.offset));
+  if (filters.include_total) params.set("include_total", "1");
+  const response = await request<AiAuditPaginatedData>(
+    `/admin/ai-metrics?${params.toString()}`,
+  );
   return response.data;
 }
 
@@ -744,13 +828,27 @@ export async function runKnowledgeMonitors(csrfToken: string) {
 }
 
 // ── Conversations (Inbox) ──
-export async function listConversations(params?: { status?: string; search?: string; limit?: number }) {
+/**
+ * Sprint 3 Page-Migration: envelope `Paginated<Conversation>`. Use
+ * `.items` no consumer e `.has_more` para "carregar mais".
+ */
+export async function listConversations(params?: {
+  status?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+  include_total?: boolean;
+}): Promise<Paginated<Conversation>> {
   const qs = new URLSearchParams();
   if (params?.status) qs.set("status", params.status);
   if (params?.search) qs.set("search", params.search);
-  if (params?.limit) qs.set("limit", String(params.limit));
+  if (params?.limit != null) qs.set("limit", String(params.limit));
+  if (params?.offset != null) qs.set("offset", String(params.offset));
+  if (params?.include_total) qs.set("include_total", "1");
   const q = qs.toString();
-  const response = await request<import("@/lib/types").Conversation[]>(`/conversations${q ? `?${q}` : ""}`);
+  const response = await request<Paginated<Conversation>>(
+    `/conversations${q ? `?${q}` : ""}`,
+  );
   return response.data;
 }
 export async function getConversation(id: number, limit?: number) {

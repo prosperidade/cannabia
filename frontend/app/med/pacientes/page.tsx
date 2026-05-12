@@ -82,8 +82,9 @@ export default function PacientesPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await listAttendances();
-      setAttendances(data);
+      // Sprint 3 Page-Migration: envelope `Paginated<AttendanceListItem>`.
+      const env = await listAttendances({ limit: 200 });
+      setAttendances(env.items);
     } catch (err) {
       const msg =
         err instanceof ApiError

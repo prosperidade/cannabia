@@ -98,15 +98,47 @@ def parse_pagination(
         raise ValueError(f"offset deve ser >= 0 (recebido {offset})")
 
     if limit > max_limit:
+        # Sprint 3 Page-Migration: deixou de ser clamp silencioso; agora
+        # ValueError -> as rotas mapeiam para HTTP 400 `invalid_limit` no
+        # helper `_pagination_error` (api_v1.py).
         logger.warning(
-            "pagination.limit_clamped requested=%s max=%s endpoint=%s",
+            "pagination.limit_exceeded requested=%s max=%s endpoint=%s",
             limit,
             max_limit,
             getattr(request, "path", "?"),
         )
-        limit = max_limit
+        raise ValueError(
+            f"limit {limit} excede o maximo permitido ({max_limit})"
+        )
+
+    if legacy_mode:
+        logger.warning(
+            "pagination.legacy_used endpoint=%s",
+            getattr(request, "path", "?"),
+        )
 
     return limit, offset, include_total, legacy_mode
+
+
+# Sprint 3 Page-Migration: cabecalhos pra sinalizar deprecation do
+# escape-hatch `?legacy=1`. Removal planejada Sprint 4 (Sunset abaixo).
+DEPRECATION_HEADER = "true"
+SUNSET_HEADER = "Sun, 01 Aug 2026 00:00:00 GMT"
+
+
+def deprecation_headers() -> dict[str, str]:
+    """Headers a serem aplicados em respostas de endpoints servidos via
+    `?legacy=1`. Retorna copia mutavel pra rotas combinarem com outros
+    headers (ex.: CORS).
+    """
+    return {
+        "Deprecation": DEPRECATION_HEADER,
+        "Sunset": SUNSET_HEADER,
+    }
+
+
+# Codigo de erro publico (frontend pode tratar via ApiError.code).
+INVALID_LIMIT_CODE = "invalid_limit"
 
 
 def paginated_response(
