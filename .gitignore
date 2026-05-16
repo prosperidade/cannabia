@@ -79,3 +79,16 @@ yarn-error.log
 .mempalace/
 entities.json
 data/file_catalog.json
+
+# ──────────────────────────────────────────────
+# Backups Postgres (binarios e temp; CHECKSUMS.txt e snapshots .txt commitam)
+# ──────────────────────────────────────────────
+backups/postgres/*.dump
+backups/postgres/*.d
+backups/postgres/.tmp/
+backups/postgres/incident_*/
+
+# ──────────────────────────────────────────────
+# Claude Code config local
+# ──────────────────────────────────────────────
+.claude/
