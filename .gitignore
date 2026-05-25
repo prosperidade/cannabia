@@ -41,6 +41,8 @@ chroma_db/
 *.err
 cannabia.log
 .pytest_tmp/
+pytest_tmp_local/
+tmppytest-cannabia/
 pytest-cache-files-*/
 .coverage
 .coverage.*

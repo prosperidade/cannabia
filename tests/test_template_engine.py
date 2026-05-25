@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import copy
 from datetime import date, datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -262,11 +263,9 @@ class TestRegistryLoader:
         assert reg1 == reg2
         assert reg1 is not reg2
 
-    def test_registry_ausente_levanta_template_engine_error(
-        self, monkeypatch, tmp_path
-    ):
+    def test_registry_ausente_levanta_template_engine_error(self, monkeypatch):
         te._invalidate_registry_cache()
-        ghost = tmp_path / "nao_existe.yaml"
+        ghost = Path(__file__).resolve().parent / "fixtures" / "nao_existe.yaml"
         monkeypatch.setattr(te, "REGISTRY_FILE", ghost)
         with pytest.raises(te.TemplateEngineError, match="nao encontrado"):
             te._load_registry()
