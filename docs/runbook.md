@@ -113,6 +113,14 @@ python -m src.infra.run_migrations
 
 **Rollback de migrations**: `migrations/down/` guarda scripts manuais de reversão (política obrigatória a partir da 022). Ver `migrations/down/README.md` para o procedimento; sempre precedido de backup validado (`docs/BACKUP_AND_DISASTER_RECOVERY.md`)
 
+**Backup lógico validado**:
+```bash
+python scripts/backup_postgres_validated.py
+```
+
+Valida tamanho, `pg_restore --list` e SHA-256 em `backups/postgres/CHECKSUMS.txt`.
+Use antes de manutenção sensível e mensalmente para export off-site.
+
 ### Health Check
 
 **Endpoint**: `GET /api/v1/health`
@@ -202,7 +210,14 @@ python -c "from src.infra.crypto import generate_key; print(generate_key())"
 
 **Uso**: `encrypt_value(plaintext) -> ciphertext` e `decrypt_value(ciphertext) -> plaintext`
 
-**Colunas protegidas** (tabela `tenant_integrations`): `meta_whatsapp_key_encrypted`, `email_password_encrypted`, `ai_api_key_encrypted`
+**Colunas protegidas** (tabela `tenant_integrations`): `meta_whatsapp_key_encrypted`, `whatsapp_app_secret_encrypted`, `verify_token_encrypted`, `email_password_encrypted`, `ai_api_key_encrypted`, `openai_api_key_encrypted`
+
+**Regra operacional de segredos por tenant**:
+- `tenant_integrations` eh a fonte para segredos criptografados.
+- `tenant_settings.settings` nao deve receber novo segredo em claro.
+- Placeholders mascarados enviados pela UI (`***` ou `********`) sao ignorados pelo backend e nao substituem o segredo real.
+- String vazia em campo sensivel continua sendo limpeza explicita do segredo.
+- Antes de limpar legado em `tenant_settings.settings`, rode backup validado e confirme que a copia criptografada em `tenant_integrations` foi gravada.
 
 **Rotação de chave**: não suportada automaticamente. Alterar `ENCRYPTION_KEY` invalida todos os valores criptografados existentes. Procedimento: descriptografar com chave antiga, re-criptografar com nova.
 
@@ -231,14 +246,20 @@ python -c "from src.infra.crypto import generate_key; print(generate_key())"
 
 **Modelo**: permissões granulares no formato `recurso:ação`, mapeadas a roles
 
-**Hierarquia**:
+**Hierarquia legada do decorator granular**:
 ```
-Atendente (8 perms):  session:*, dashboard:read, message:read, appointment:*, timeline:read
+Recepcao/Atendente legado (8 perms): session:*, dashboard:read, message:read, appointment:*, timeline:read
     ↓
 Medico (13 perms):    + attendance:review, medical_record:*, ai:execute, ai:metrics_read
     ↓
 Admin (16 perms):     + admin:metrics, admin:users, admin:tenants, admin:knowledge, admin:prompts, admin:audit
 ```
+
+Roles refinadas usadas por `api_role_required()` e pela navegação:
+`Admin`, `AdminClinica`, `Medico`, `Recepcao`, `Financeiro`, `Paciente`.
+Superfícies financeiras (`/payments`, estoque, faturamento, financeiro e
+campanhas) permitem `Admin`, `AdminClinica`/dono da clinica e `Financeiro`.
+`Medico` comum e `Recepcao` não acessam financeiro.
 
 **Decorators disponíveis**:
 - `@api_permission_required("attendance:read")` — semântica OR
@@ -331,13 +352,13 @@ curl -X POST http://localhost:5000/api/v1/admin/tenants/2/users \
 
 | Método | Rota | Ação | Autenticação |
 |--------|------|------|--------------|
-| `POST` | `/api/v1/campaigns/templates` | Cria template | Admin/Medico |
-| `GET` | `/api/v1/campaigns/templates` | Lista templates (filtros: status, channel) | Admin/Medico |
-| `GET` | `/api/v1/campaigns/templates/<id>` | Detalhes do template | Admin/Medico |
-| `PATCH` | `/api/v1/campaigns/templates/<id>/status` | Ativa/arquiva template | Admin/Medico |
-| `POST` | `/api/v1/campaigns/templates/<id>/send` | Dispara campanha (202 Accepted) | Admin/Medico |
-| `GET` | `/api/v1/campaigns/executions` | Lista execuções | Admin/Medico |
-| `GET` | `/api/v1/campaigns/executions/<id>` | Status detalhado | Admin/Medico |
+| `POST` | `/api/v1/campaigns/templates` | Cria template | Admin/AdminClinica/Financeiro |
+| `GET` | `/api/v1/campaigns/templates` | Lista templates (filtros: status, channel) | Admin/AdminClinica/Financeiro |
+| `GET` | `/api/v1/campaigns/templates/<id>` | Detalhes do template | Admin/AdminClinica/Financeiro |
+| `PATCH` | `/api/v1/campaigns/templates/<id>/status` | Ativa/arquiva template | Admin/AdminClinica/Financeiro |
+| `POST` | `/api/v1/campaigns/templates/<id>/send` | Dispara campanha (202 Accepted) | Admin/AdminClinica/Financeiro |
+| `GET` | `/api/v1/campaigns/executions` | Lista execuções | Admin/AdminClinica/Financeiro |
+| `GET` | `/api/v1/campaigns/executions/<id>` | Status detalhado | Admin/AdminClinica/Financeiro |
 
 **Ciclo de vida de uma campanha**:
 1. **Criar template** (`POST /templates`) — status `draft`, corpo com variáveis `{{patient_name}}`
@@ -583,7 +604,7 @@ python scripts/setup_local.py
 
 **O que faz**:
 1. Roda todas as migrations (`000-017`) via `src/infra/run_migrations.py`
-2. Cria usuarios base via `scripts/seed_users.py` (admin, medico, atendente, paciente)
+2. Cria usuarios base via `scripts/seed_users.py` (admin, medico, dono, recepcao, financeiro, admin_clinica, paciente)
 3. Popula dados demo via `scripts/seed_comprehensive.py` (~200 registros em 39 tabelas)
 
 **Validação real mais recente**:
@@ -596,7 +617,10 @@ python scripts/setup_local.py
 |-------|-------|------|--------|
 | `admin` | `admin123` | Admin | `/admin` |
 | `medico` | `medico123` | Medico | `/med/dashboard` |
-| `atendente` | `atendente123` | Atendente | `/org/dashboard` |
+| `dono` | `dono123` | Medico + is_clinic_admin | `/org/dashboard` |
+| `recepcao` | `recepcao123` | Recepcao | `/org/acompanhamento` |
+| `financeiro` | `financeiro123` | Financeiro | `/org/financeiro` |
+| `admin_clinica` | `adminclinica123` | AdminClinica | `/org/dashboard` |
 | `paciente` | `paciente123` | Paciente | `/p/dashboard` |
 
 **Iniciar sistema**:

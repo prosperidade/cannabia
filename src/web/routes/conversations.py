@@ -17,10 +17,11 @@ from src.web.routes.api_v1 import (
 )
 
 conversations_bp = Blueprint("conversations", __name__, url_prefix="/api/v1")
+CONVERSATION_ROLES = ("Admin", "AdminClinica", "Medico", "Recepcao")
 
 
 @conversations_bp.get("/conversations")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*CONVERSATION_ROLES)
 def list_convs():
     """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
 
@@ -67,7 +68,7 @@ def list_convs():
 
 
 @conversations_bp.get("/conversations/unread")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*CONVERSATION_ROLES)
 def unread_count():
     from src.repositories.conversation_repository import get_unread_count
 
@@ -75,7 +76,7 @@ def unread_count():
 
 
 @conversations_bp.get("/conversations/<int:conversation_id>")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*CONVERSATION_ROLES)
 def conv_detail(conversation_id: int):
     from src.repositories.conversation_repository import get_conversation, list_messages
 
@@ -98,7 +99,7 @@ def conv_detail(conversation_id: int):
 
 
 @conversations_bp.post("/conversations/<int:conversation_id>/messages")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*CONVERSATION_ROLES)
 def send_message(conversation_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -125,7 +126,7 @@ def send_message(conversation_id: int):
 
 
 @conversations_bp.patch("/conversations/<int:conversation_id>/read")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*CONVERSATION_ROLES)
 def mark_read(conversation_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -138,7 +139,7 @@ def mark_read(conversation_id: int):
 
 
 @conversations_bp.patch("/conversations/<int:conversation_id>/close")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*CONVERSATION_ROLES)
 def close_conv(conversation_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -151,7 +152,7 @@ def close_conv(conversation_id: int):
 
 
 @conversations_bp.patch("/conversations/<int:conversation_id>/assign")
-@api_role_required("Admin", "Medico")
+@api_role_required("Admin", "AdminClinica", "Medico")
 def assign_conv(conversation_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:

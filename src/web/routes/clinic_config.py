@@ -41,6 +41,7 @@ logger = logging.getLogger("cannabia.clinic_config")
 clinic_config_bp = Blueprint("clinic_config", __name__, url_prefix="/api/v1/org")
 
 _MASKED_SECRET = "********"
+_MASKED_SECRET_VALUES = {_MASKED_SECRET, "***"}
 
 
 # ---------------------------------------------------------------------------
@@ -204,7 +205,7 @@ def _split_secret_payload(payload: dict[str, Any]) -> dict[str, Any]:
         if ui_field not in payload:
             continue
         value = payload.get(ui_field)
-        if value is None or value == _MASKED_SECRET:
+        if value is None or value in _MASKED_SECRET_VALUES:
             continue
         updates[integration_field] = str(value)
     return updates
@@ -407,6 +408,12 @@ def update_clinic_config():
                 for key, value in _legacy_secret_updates(existing).items():
                     secret_updates.setdefault(key, value)
 
+                # Grava a copia criptografada antes de limpar legados em JSONB.
+                # Se a criptografia/persistencia falhar, o segredo legado ainda
+                # permanece disponivel para nova tentativa de migracao.
+                if secret_updates:
+                    upsert_integrations(tenant_id, **secret_updates)
+
                 settings_changed = False
                 for category, fields in settings_updates.items():
                     cat = existing.get(category)
@@ -441,9 +448,6 @@ def update_clinic_config():
                     )
 
             conn.commit()
-
-            if secret_updates:
-                upsert_integrations(tenant_id, **secret_updates)
 
             # Retornar o shape achatado atualizado.
             cur.execute(

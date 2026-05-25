@@ -180,6 +180,6 @@ def socket_connect():
 
 
 @realtime_bp.route("/")
-@role_required("Admin", "Medico", "Atendente")
+@role_required("Admin", "AdminClinica", "Medico", "Recepcao")
 def realtime_dashboard():
     return render_template("realtime_dashboard.html")

@@ -103,7 +103,7 @@ def create_user():
     payload = _json_payload()
     username = (payload.get("username") or "").strip()
     password = (payload.get("password") or "").strip()
-    role = (payload.get("role") or "Atendente").strip()
+    role = (payload.get("role") or "Recepcao").strip()
     full_name = (payload.get("full_name") or "").strip()
     email = (payload.get("email") or "").strip()
     clinic_id = payload.get("clinic_id")
@@ -114,7 +114,7 @@ def create_user():
     if len(password) < 6:
         return _error("validation_error", "password deve ter no minimo 6 caracteres.", 422)
 
-    valid_roles = ("Admin", "Medico", "Atendente", "Paciente")
+    valid_roles = ("Admin", "AdminClinica", "Medico", "Recepcao", "Financeiro", "Paciente")
     if role not in valid_roles:
         return _error("validation_error", f"role deve ser um de: {', '.join(valid_roles)}", 422)
 
@@ -170,7 +170,7 @@ def update_user(user_id: int):
     params: list = []
 
     if "role" in payload:
-        valid_roles = ("Admin", "Medico", "Atendente", "Paciente")
+        valid_roles = ("Admin", "AdminClinica", "Medico", "Recepcao", "Financeiro", "Paciente")
         if payload["role"] not in valid_roles:
             return _error("validation_error", f"role deve ser um de: {', '.join(valid_roles)}", 422)
         updates.append("role = %s")

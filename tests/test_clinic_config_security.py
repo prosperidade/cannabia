@@ -65,6 +65,18 @@ def test_split_secret_payload_ignores_masks_and_maps_real_values():
     }
 
 
+def test_split_secret_payload_ignores_admin_mask_variant():
+    from src.web.routes.clinic_config import _split_secret_payload
+
+    updates = _split_secret_payload({
+        "apiKeyMeta": "***",
+        "apiKeyOpenAI": "********",
+        "apiKeyGemini": "AIza-real",
+    })
+
+    assert updates == {"ai_api_key": "AIza-real"}
+
+
 def test_legacy_secret_updates_maps_plaintext_before_scrub():
     from src.web.routes.clinic_config import _legacy_secret_updates
 
@@ -81,3 +93,12 @@ def test_legacy_secret_updates_maps_plaintext_before_scrub():
         "openai_api_key": "legacy-openai",
         "email_password": "legacy-pass",
     }
+
+
+def test_tenant_admin_secret_update_ignores_masked_values():
+    from src.web.routes.tenant_admin import _secret_update
+
+    assert _secret_update({"ai_api_key": "***"}, "ai_api_key") is None
+    assert _secret_update({"ai_api_key": "********"}, "ai_api_key") is None
+    assert _secret_update({"ai_api_key": ""}, "ai_api_key") == ""
+    assert _secret_update({"ai_api_key": "real-secret"}, "ai_api_key") == "real-secret"

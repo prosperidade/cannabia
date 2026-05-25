@@ -23,6 +23,16 @@ from src.web.routes.auth import validate_csrf_value
 
 tenant_admin_bp = Blueprint("tenant_admin", __name__, url_prefix="/api/v1/admin/tenants")
 
+_MASKED_SECRET_VALUES = {"***", "********"}
+_SECRET_FIELDS = {
+    "meta_whatsapp_key",
+    "whatsapp_app_secret",
+    "verify_token",
+    "email_password",
+    "ai_api_key",
+    "openai_api_key",
+}
+
 
 def _require_csrf():
     """Valida CSRF via header X-CSRF-Token ou body csrf_token."""
@@ -33,6 +43,13 @@ def _require_csrf():
     if not validate_csrf_value(sent):
         return _error("csrf_invalid", "CSRF invalido.", 400)
     return None
+
+
+def _secret_update(payload: dict[str, Any], field: str) -> Any:
+    value = payload.get(field)
+    if value in _MASKED_SECRET_VALUES:
+        return None
+    return value
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -354,17 +371,17 @@ def update_tenant_integrations(tenant_id: int):
             tenant_id,
             whatsapp_phone_number_id=payload.get("whatsapp_phone_number_id"),
             whatsapp_business_account_id=payload.get("whatsapp_business_account_id"),
-            meta_whatsapp_key=payload.get("meta_whatsapp_key"),
-            whatsapp_app_secret=payload.get("whatsapp_app_secret"),
-            verify_token=payload.get("verify_token"),
+            meta_whatsapp_key=_secret_update(payload, "meta_whatsapp_key"),
+            whatsapp_app_secret=_secret_update(payload, "whatsapp_app_secret"),
+            verify_token=_secret_update(payload, "verify_token"),
             email_from=payload.get("email_from"),
             smtp_server=payload.get("smtp_server"),
             smtp_port=smtp_port,
-            email_password=payload.get("email_password"),
+            email_password=_secret_update(payload, "email_password"),
             doctor_email=payload.get("doctor_email"),
             ai_provider=payload.get("ai_provider"),
-            ai_api_key=payload.get("ai_api_key"),
-            openai_api_key=payload.get("openai_api_key"),
+            ai_api_key=_secret_update(payload, "ai_api_key"),
+            openai_api_key=_secret_update(payload, "openai_api_key"),
         )
         from src.infra.audit import log_audit_event
         log_audit_event(
@@ -375,6 +392,7 @@ def update_tenant_integrations(tenant_id: int):
                 "fields": sorted(
                     k for k in payload.keys()
                     if payload.get(k) not in (None, "")
+                    and not (k in _SECRET_FIELDS and payload.get(k) in _MASKED_SECRET_VALUES)
                 )
             },
         )
@@ -447,7 +465,7 @@ def invite_user(tenant_id: int):
     Body JSON:
         username  (str, obrigatório) — Nome de usuário (único global)
         password  (str, obrigatório) — Senha (mín. 6 caracteres)
-        role      (str, opcional)    — Role: Admin, Medico, Atendente (default: Medico)
+        role      (str, opcional)    — Role: Admin, AdminClinica, Medico, Recepcao, Financeiro (default: Medico)
 
     Resposta 201:
         { data: { user_id, tenant_id, clinic_id, username, role, is_new_user } }

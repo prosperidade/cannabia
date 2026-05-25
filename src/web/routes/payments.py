@@ -4,7 +4,7 @@ Endpoints do dominio financeiro: emissao de cobrancas, consulta, confirmacao
 manual e webhook de provedor externo.
 
 Autenticacao:
-  - Endpoints operacionais exigem sessao autenticada (Admin, Medico, Atendente).
+  - Endpoints operacionais exigem sessao autenticada (Admin, AdminClinica, Financeiro).
   - Webhook externo nao exige autenticacao; valida assinatura por provedor.
 """
 
@@ -31,13 +31,15 @@ logger = logging.getLogger("cannabia.payments.routes")
 
 payments_bp = Blueprint("payments", __name__, url_prefix="/api/v1")
 
+FINANCIAL_ROLES = ("Admin", "AdminClinica", "Financeiro")
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Leitura: lista + detalhe + totais
 # ═══════════════════════════════════════════════════════════════════════════
 
 @payments_bp.get("/payments")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def list_payments():
     from src.services.payment_service import list_payments as svc_list
 
@@ -68,7 +70,7 @@ def list_payments():
 
 
 @payments_bp.get("/payments/summary")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def payment_summary():
     from src.services.payment_service import tenant_totals
 
@@ -76,7 +78,7 @@ def payment_summary():
 
 
 @payments_bp.get("/payments/<int:request_id>")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def payment_detail(request_id: int):
     from src.services.payment_service import get_payment_detail
 
@@ -91,7 +93,7 @@ def payment_detail(request_id: int):
 # ═══════════════════════════════════════════════════════════════════════════
 
 @payments_bp.post("/payments/pix")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def issue_pix():
     """
     POST /api/v1/payments/pix
@@ -145,7 +147,7 @@ def issue_pix():
 # ═══════════════════════════════════════════════════════════════════════════
 
 @payments_bp.post("/payments/<int:request_id>/confirm")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def confirm_payment(request_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -172,7 +174,7 @@ def confirm_payment(request_id: int):
 
 
 @payments_bp.post("/payments/<int:request_id>/cancel")
-@api_role_required("Admin", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def cancel_payment(request_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:

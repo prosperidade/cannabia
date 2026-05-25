@@ -13,7 +13,7 @@ scheduling_bp = Blueprint("scheduling", __name__, template_folder="templates")
 
 
 @scheduling_bp.route("/scheduling", methods=["GET", "POST"])
-@role_required("Admin", "Medico", "Atendente")
+@role_required("Admin", "AdminClinica", "Medico", "Recepcao")
 def scheduling():
     if request.method == "POST":
         if not validate_csrf_from_form():

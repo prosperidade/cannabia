@@ -6,7 +6,7 @@ local rodando (`docker start cannabia-postgis`) e `migrations` aplicadas.
 ## Ordem de execução recomendada
 
 ```bash
-# 1. Cria os 4 users dev (admin/medico/atendente/paciente) + clinic 1
+# 1. Cria users dev refinados (admin/medico/dono/recepcao/financeiro/admin_clinica/paciente) + clinic 1
 env/Scripts/python.exe scripts/seed_users.py
 
 # 2. Popula a base clínica (15 patients, prescriptions, treatment plans,
@@ -21,10 +21,11 @@ Todos os seeds são **idempotentes** — pode rodar 2x sem duplicar dados.
 
 ## O que cada seed cria
 
-### `seed_users.py` (~85 linhas)
+### `seed_users.py`
 - Clinic id=1 ("Clínica Cannabia")
-- 4 users dev: `admin/admin123`, `medico/medico123`, `atendente/atendente123`,
-  `paciente/paciente123`
+- Users dev: `admin/admin123`, `medico/medico123`, `dono/dono123`,
+  `recepcao/recepcao123`, `financeiro/financeiro123`,
+  `admin_clinica/adminclinica123`, `paciente/paciente123`
 - Vínculos `user_clinics` (membership) para cada user
 
 ### `seed_comprehensive.py` (~1730 linhas)
