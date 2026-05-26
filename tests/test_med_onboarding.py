@@ -12,7 +12,7 @@ Garante:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from flask import Flask, g
 from flask_login import LoginManager
@@ -231,4 +231,130 @@ def test_complete_blocks_recepcao_role():
 def test_get_blocks_financeiro_role():
     app = _build_app(role="Financeiro")
     resp = _client(app).get("/api/v1/med/onboarding")
+    assert resp.status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/med/onboarding/upload/<field>  (Sprint D M1)
+# ---------------------------------------------------------------------------
+
+import io
+
+
+def _upload(client, field: str, *, csrf: str | None = CSRF_TOKEN, data: bytes = b"PDFDATA",
+            mime: str = "application/pdf", filename: str = "doc.pdf"):
+    headers = {}
+    if csrf is not None:
+        headers["X-CSRF-Token"] = csrf
+    return client.post(
+        f"/api/v1/med/onboarding/upload/{field}",
+        data={"file": (io.BytesIO(data), filename, mime)},
+        content_type="multipart/form-data",
+        headers=headers,
+    )
+
+
+def test_upload_rejects_invalid_field():
+    app = _build_app()
+    resp = _upload(_client(app), "invalido")
+    assert resp.status_code == 422
+    assert resp.get_json()["error"]["code"] == "validation_error"
+
+
+def test_upload_rejects_without_csrf():
+    app = _build_app()
+    resp = _upload(_client(app), "crm_doc", csrf=None)
+    assert resp.status_code == 400
+    assert resp.get_json()["error"]["code"] == "csrf_invalid"
+
+
+def test_upload_rejects_when_file_field_missing():
+    app = _build_app()
+    resp = _client(app).post(
+        "/api/v1/med/onboarding/upload/crm_doc",
+        data={},
+        content_type="multipart/form-data",
+        headers={"X-CSRF-Token": CSRF_TOKEN},
+    )
+    assert resp.status_code == 422
+
+
+def test_upload_rejects_empty_file():
+    app = _build_app()
+    resp = _upload(_client(app), "crm_doc", data=b"")
+    assert resp.status_code == 422
+
+
+def test_upload_rejects_oversized_file():
+    app = _build_app()
+    # 6MB > MAX_FILE_SIZE (5MB)
+    big = b"x" * (6 * 1024 * 1024)
+    resp = _upload(_client(app), "crm_doc", data=big)
+    assert resp.status_code == 413
+    assert resp.get_json()["error"]["code"] == "file_too_large"
+
+
+def test_upload_rejects_disallowed_mime():
+    app = _build_app()
+    resp = _upload(_client(app), "crm_doc", data=b"text", mime="text/plain", filename="doc.txt")
+    assert resp.status_code == 422
+
+
+def test_upload_returns_503_when_storage_not_configured(monkeypatch):
+    """Default sem STORAGE_PROVIDER: NoopStorage retorna 503 com mensagem."""
+    monkeypatch.delenv("STORAGE_PROVIDER", raising=False)
+    app = _build_app()
+    with patch(
+        "src.web.routes.med_onboarding.profile_repo.upsert",
+        return_value={},
+    ):
+        resp = _upload(_client(app), "crm_doc")
+    assert resp.status_code == 503
+    assert resp.get_json()["error"]["code"] == "storage_not_configured"
+
+
+def test_upload_happy_path_persists_url(monkeypatch):
+    """Stub do storage backend: verifica que upload e chamado com a key
+    esperada e que profile_repo.upsert recebe a URL."""
+    fake_backend = MagicMock()
+    fake_backend.upload.return_value = "https://cdn.local/onboarding/42/crm_doc.pdf"
+
+    app = _build_app()
+    with patch("src.web.routes.med_onboarding.storage.get_backend", return_value=fake_backend), \
+         patch("src.web.routes.med_onboarding.profile_repo.upsert") as upsert_mock:
+        resp = _upload(_client(app), "crm_doc", data=b"PDF1.4")
+
+    assert resp.status_code == 200
+    body = resp.get_json()["data"]
+    assert body == {
+        "field": "crm_doc",
+        "url": "https://cdn.local/onboarding/42/crm_doc.pdf",
+    }
+
+    fake_backend.upload.assert_called_once()
+    call_kwargs = fake_backend.upload.call_args.kwargs
+    assert call_kwargs["key"] == f"onboarding/{USER_ID}/crm_doc.pdf"
+    assert call_kwargs["content"] == b"PDF1.4"
+    assert call_kwargs["content_type"] == "application/pdf"
+
+    upsert_mock.assert_called_once_with(USER_ID, {"crm_doc_url": "https://cdn.local/onboarding/42/crm_doc.pdf"})
+
+
+def test_upload_picks_extension_from_mime():
+    """PNG mime -> .png extension na key."""
+    fake_backend = MagicMock()
+    fake_backend.upload.return_value = "/uploads/onboarding/42/photo.png"
+    app = _build_app()
+    with patch("src.web.routes.med_onboarding.storage.get_backend", return_value=fake_backend), \
+         patch("src.web.routes.med_onboarding.profile_repo.upsert"):
+        resp = _upload(_client(app), "photo", data=b"PNG", mime="image/png", filename="me.png")
+
+    assert resp.status_code == 200
+    key = fake_backend.upload.call_args.kwargs["key"]
+    assert key == f"onboarding/{USER_ID}/photo.png"
+
+
+def test_upload_blocks_paciente_role():
+    app = _build_app(role="Paciente")
+    resp = _upload(_client(app), "crm_doc")
     assert resp.status_code == 403

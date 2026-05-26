@@ -983,3 +983,48 @@ export async function completeMedicalOnboarding(
   });
   return response.data;
 }
+
+export type OnboardingUploadField = "photo" | "crm_doc" | "diploma";
+
+/**
+ * Sprint D M1: upload multipart de documento de credenciamento medico.
+ * Backend grava em src/infra/storage (provider configurado por
+ * STORAGE_PROVIDER) e persiste a URL em medical_profiles.<field>_url.
+ */
+export async function uploadOnboardingDocument(
+  field: OnboardingUploadField,
+  file: File,
+  csrfToken: string,
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  // Nao usar request<T> aqui — FormData precisa que browser defina o
+  // boundary do Content-Type sozinho. request<T> seta application/json.
+  const response = await fetch(
+    `${API_BASE_URL}/med/onboarding/upload/${field}`,
+    {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: formData,
+      credentials: "include",
+      cache: "no-store",
+    },
+  );
+
+  const raw = response.headers.get("content-type")?.includes("application/json")
+    ? ((await response.json()) as ApiEnvelope<{ field: string; url: string }> | ApiFailure)
+    : null;
+
+  if (!response.ok) {
+    const failure = raw as ApiFailure | null;
+    throw new ApiError(
+      response.status,
+      failure?.error?.code ?? "upload_failed",
+      failure?.error?.message ?? "Falha ao enviar o arquivo.",
+      failure?.error?.details,
+    );
+  }
+
+  return (raw as ApiEnvelope<{ field: string; url: string }>).data;
+}
