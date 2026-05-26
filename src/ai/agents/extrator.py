@@ -197,7 +197,8 @@ class AgenteExtrator(BaseAgent):
             logger.info("PubMed search '%s': %d results (of %d total)", query, len(articles), total_found)
             return {"articles": articles, "total_found": total_found, "query": query}
 
-        except Exception as e:
+        except (requests.exceptions.RequestException, ValueError, KeyError) as e:
+            # RequestException: rede/timeout/HTTP error; ValueError: resp.json() parse; KeyError: shape inesperado
             logger.warning("PubMed search failed: %s", e)
             return {"articles": [], "total_found": 0, "query": query, "error": str(e)}
 
@@ -219,7 +220,7 @@ class AgenteExtrator(BaseAgent):
             abstract_text = resp.text.strip()
 
             return {"pmid": pmid, "abstract": abstract_text, "success": True}
-        except Exception as e:
+        except (requests.exceptions.RequestException, ValueError) as e:
             return {"pmid": pmid, "abstract": "", "success": False, "error": str(e)}
 
     # ── Legislation Search ──
@@ -254,7 +255,7 @@ class AgenteExtrator(BaseAgent):
                         "status": "portal_available",
                         "note": "Portal ANVISA Cannabis disponivel para consulta manual",
                     })
-            except Exception:
+            except requests.exceptions.RequestException:
                 logger.warning(
                     "Falha ao montar fallback de legislacao ANVISA (nao critico)",
                     exc_info=True,
@@ -548,7 +549,8 @@ class AgenteExtrator(BaseAgent):
                             "change_detected": True,
                         })
 
-        except Exception as e:
+        except (requests.exceptions.RequestException, ValueError) as e:
+            # RequestException: rede/timeout/HTTP em html_page; ValueError: json em sub-fluxos
             logger.warning("Monitor check failed for '%s': %s", monitor.get("name"), e)
             return {"checked": False, "error": str(e), "new_items": [], "hash": current_hash}
 
@@ -679,7 +681,8 @@ class AgenteExtrator(BaseAgent):
                 try:
                     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
-                except Exception:
+                except OSError:
+                    # OSError cobre FileNotFoundError, PermissionError, IsADirectoryError, etc.
                     logger.warning(
                         "Falha ao ler arquivo %s para ingest no ChromaDB; "
                         "ingerindo conteudo vazio",

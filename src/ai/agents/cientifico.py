@@ -145,7 +145,9 @@ class AgenteCientifico(BaseAgent):
                     },
                 )
                 chunks_added += 1
-            except Exception as e:
+            except (ImportError, ConnectionError, RuntimeError, ValueError) as e:
+                # ImportError: EmbeddingClient/KnowledgeStore opcionais;
+                # Connection/RuntimeError: ChromaDB offline; ValueError: shape do embedding
                 logger.warning("ChromaDB ingest of PubMed abstract failed: %s", e)
 
             time.sleep(0.4)  # PubMed rate limit (3 req/s max).

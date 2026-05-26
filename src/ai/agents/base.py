@@ -125,6 +125,8 @@ class BaseAgent(ABC):
 
             return register_article_in_catalog(payload)
         except Exception as e:
+            # Fire-and-forget por contrato (docstring + test_register_to_kb_is_fire_and_forget_on_exception):
+            # qualquer excecao do auto_ingest e absorvida com log para nao quebrar o atendimento.
             logger.warning(
                 "Agent '%s' failed to register article in knowledge base: %s",
                 self.agent_name,
