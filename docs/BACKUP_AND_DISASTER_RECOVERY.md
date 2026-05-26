@@ -36,14 +36,23 @@ Metas conservadoras para a fase atual. Quando o SCC (Fase 5 de imutabilidade + a
 - **Ponto-em-tempo (PITR)**: depende do tier do plano Postgres contratado. Produção **deve** rodar em um tier que suporte PITR, com retenção mínima de 7 dias.
 - **Snapshots on-demand**: exigidos antes de qualquer janela de manutenção agendada. Registrar em `docs/progressoN.md` do dia com o ID do snapshot.
 
-### 3.2. Export lógico mensal (responsabilidade do operador)
+### 3.2. Export lógico mensal validado (responsabilidade do operador)
 
-Adicional ao backup físico gerenciado, uma vez por mês o operador deve fazer dump lógico e armazenar off-site (outro provedor, fora do Render):
+Adicional ao backup físico gerenciado, uma vez por mês o operador deve fazer dump lógico validado e armazenar off-site (outro provedor, fora do Render). O comando canônico é:
 
 ```bash
-pg_dump --format=custom --no-owner --no-acl "$DATABASE_URL" \
-  -f "backups/cannabia-$(date +%Y%m%d).dump"
+python scripts/backup_postgres_validated.py
 ```
+
+O script lê `DATABASE_URL` do ambiente ou `.env`, gera dump custom em `backups/postgres/`, valida tamanho, valida estrutura com `pg_restore --list` e registra SHA-256 em `backups/postgres/CHECKSUMS.txt`.
+
+Para validar um dump existente sem criar novo arquivo:
+
+```bash
+python scripts/backup_postgres_validated.py --validate-only backups/postgres/<arquivo>.dump
+```
+
+Se `pg_dump`/`pg_restore` não estiverem no `PATH`, informe `--pg-bin "C:\Program Files\PostgreSQL\18\bin"` ou configure `PG_BIN`.
 
 Retenção recomendada do dump off-site: 12 meses. Quando o SCC entrar, avaliar retenção regulatória mais longa (ANVISA historicamente exige 5 anos para registros farmacêuticos).
 
