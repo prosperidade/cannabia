@@ -15,7 +15,6 @@ import {
 const QUICK_ACTIONS = [
   { label: "Meu Tratamento", icon: "medication", href: "/p/tratamento", color: "text-secondary" },
   { label: "Diario de Sintomas", icon: "edit_note", href: "/p/diario", color: "text-tertiary" },
-  { label: "Meus Documentos", icon: "folder", href: "/p/documentos", color: "text-primary" },
   { label: "Falar com Medico", icon: "chat", href: "/p/consultas", color: "text-primary" },
 ];
 

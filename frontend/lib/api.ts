@@ -950,3 +950,36 @@ export async function executeAgent(agentName: string, csrfToken: string, payload
     body: JSON.stringify(payload),
   });
 }
+
+/* ---------------------------------------------------------------------------
+ * Medical onboarding (Sprint C MVP)
+ * ------------------------------------------------------------------------- */
+
+export interface MedicalProfileData {
+  full_name: string;
+  crm: string;
+  specialty: string;
+  photo_url: string | null;
+  crm_doc_url: string | null;
+  diploma_url: string | null;
+  prefs_notifications: boolean;
+  prefs_ai_level: string;
+  onboarding_completed_at: string | null;
+}
+
+export async function getMedicalOnboarding() {
+  const response = await request<MedicalProfileData>("/med/onboarding");
+  return response.data;
+}
+
+export async function completeMedicalOnboarding(
+  csrfToken: string,
+  payload: Partial<MedicalProfileData>,
+) {
+  const response = await request<MedicalProfileData>("/med/onboarding/complete", {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+  return response.data;
+}

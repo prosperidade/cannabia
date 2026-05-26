@@ -245,8 +245,6 @@ export default function ConsultaAoVivoPage() {
   const [highlightedCondition, setHighlightedCondition] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
-  // Chat input (cosmetic -- no real WebSocket yet)
-  const [chatInput, setChatInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Medical record form
@@ -409,13 +407,6 @@ export default function ConsultaAoVivoPage() {
     }
   };
 
-  // Handle mock chat send (cosmetic)
-  const handleSendMessage = () => {
-    if (!chatInput.trim()) return;
-    // TODO: Implement WebSocket/real-time messaging
-    setChatInput("");
-  };
-
   /* -----------------------------------------------------------------------
    * Loading / Error / Auth states
    * ----------------------------------------------------------------------- */
@@ -552,36 +543,16 @@ export default function ConsultaAoVivoPage() {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Chat Input */}
+      {/* Async-only notice (real-time chat virá em sprint futura) */}
       <div className="shrink-0 p-3 lg:p-4 border-t border-white/5">
-        <div className="flex items-end gap-2">
-          <textarea
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            placeholder="Digite uma mensagem..."
-            rows={1}
-            className="flex-1 bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-stone-600 focus:border-primary-container focus:outline-none transition-colors resize-none"
-          />
-          <Button
-            size="sm"
-            icon="send"
-            onClick={handleSendMessage}
-            disabled={!chatInput.trim()}
-            className="shrink-0"
-          >
-            <span className="hidden lg:inline">Enviar</span>
-          </Button>
+        <div className="flex items-start gap-3 rounded-xl bg-surface-container-low/60 px-4 py-3 border border-outline-variant/20">
+          <MaterialIcon icon="info" size="sm" className="text-stone-400 shrink-0 mt-0.5" />
+          <p className="text-[11px] text-stone-400 leading-relaxed">
+            Comunicação com o paciente é assíncrona via WhatsApp. Acima você vê
+            o histórico real da anamnese e dos eventos do atendimento. Chat em
+            tempo real virá em sprint futura.
+          </p>
         </div>
-        <p className="text-[10px] text-stone-600 mt-1.5 text-center">
-          {/* TODO: Implement real-time messaging via WebSocket */}
-          Mensagens da anamnese WhatsApp. Chat ao vivo em breve.
-        </p>
       </div>
     </div>
   );
