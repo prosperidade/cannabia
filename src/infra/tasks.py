@@ -99,6 +99,10 @@ def redis_available() -> bool:
     try:
         return _get_redis().ping()
     except Exception:
+        # Health check é borda: qualquer falha (ImportError do pacote, rede,
+        # auth, config) significa "Redis indisponivel agora". Log em debug
+        # para investigacao sem poluir logs em dev sem Redis local.
+        logger.debug("Redis indisponivel para ping (health check)", exc_info=True)
         return False
 
 

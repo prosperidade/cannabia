@@ -323,7 +323,9 @@ def knowledge_stats():
             store = KnowledgeStore()
             chromadb_chunks = store.count()
         except Exception:
-            pass
+            # Sub-feature opcional: ChromaDB pode estar offline/nao instalado.
+            # Stats degradam para 0 sem quebrar a rota.
+            logger.debug("ChromaDB stats indisponivel (KnowledgeStore.count falhou)", exc_info=True)
 
         # Google Files stats
         google_files = 0
@@ -332,7 +334,8 @@ def knowledge_stats():
 
             google_files = len(list_uploaded_files())
         except Exception:
-            pass
+            # Sub-feature opcional: Google Files pode estar sem credencial/offline.
+            logger.debug("Google Files stats indisponivel (list_uploaded_files falhou)", exc_info=True)
 
         return _success({
             "total_documents": total,

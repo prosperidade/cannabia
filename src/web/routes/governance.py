@@ -518,8 +518,9 @@ def create_capacity():
     try:
         from flask_login import current_user  # type: ignore
         assessed_by = int(current_user.id) if current_user.is_authenticated else None
-    except Exception:
-        pass
+    except RuntimeError:
+        # flask_login levanta RuntimeError fora do request context
+        assessed_by = None
 
     assessment = repo.create_capacity_assessment(
         tenant_id=tenant_id,

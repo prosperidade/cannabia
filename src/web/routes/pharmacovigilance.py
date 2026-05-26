@@ -84,8 +84,9 @@ def _current_user_id() -> Optional[int]:
 
         if current_user.is_authenticated:
             return int(current_user.id)
-    except Exception:
-        pass
+    except RuntimeError:
+        # flask_login levanta RuntimeError fora do request context (jobs, CLI)
+        return None
     return None
 
 
