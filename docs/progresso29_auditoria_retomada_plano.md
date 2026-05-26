@@ -592,3 +592,82 @@ Mesma lista da secao 8.5, mas M2 agora parcialmente quitado. As 90 occs
 restantes seguem como divida tecnica P2.1 a ser fechada em ondas
 subsequentes (M2.3 AI agents recomendado; depois infra/services
 conforme valor).
+
+## 10. Atualizacao 2026-05-26 (noite) — M2.3 agentes IA
+
+### 10.1 PR #53 merged: narrow em agentes IA
+
+Continuacao do M2 com foco em chamadas externas dos agentes.
+
+| PR | Merge | Arquivos | Mudanca |
+|----|-------|----------|---------|
+| #53 `feat/sprint-D-m2-ai-agents` | `95ec3c5` | extrator (5), regulatorio (1), cientifico (1) + boundary documentado em base | -7 occs |
+
+### 10.2 Narrows aplicados
+
+Chamadas externas com tipo conhecido:
+
+| Arquivo / linha | Antes | Depois |
+|-----------------|-------|--------|
+| extrator.py:200 _search_pubmed | except Exception | `(requests.exceptions.RequestException, ValueError, KeyError)` |
+| extrator.py:223 _fetch_pubmed_article | except Exception | `(requests.exceptions.RequestException, ValueError)` |
+| extrator.py:258 ANVISA fallback | except Exception | `requests.exceptions.RequestException` |
+| extrator.py:552 _check_monitor | except Exception | `(requests.exceptions.RequestException, ValueError)` |
+| extrator.py:684 file read | except Exception | `OSError` |
+| regulatorio.py:202 governance_service import guard | except Exception | `ImportError` |
+| cientifico.py:148 ChromaDB ingest loop | except Exception | `(ImportError, ConnectionError, RuntimeError, ValueError)` |
+
+### 10.3 Boundary mantido com documentacao
+
+`base.py:127 register_to_knowledge_base` foi inicialmente narrowed para
+`(ImportError, DatabaseError, TypeError, KeyError, ValueError)` mas o
+teste `test_register_to_kb_is_fire_and_forget_on_exception` quebrou com
+`RuntimeError`. A docstring do metodo declara explicitamente
+**"Fire-and-forget: nunca levanta excecao"**. Boundary genuino — retornou
+para `except Exception` com comentario explicando o contrato (docstring +
+teste).
+
+Isso valida a guidance da secao 7.5/8.5 do progresso29: "Manter Exception
+apenas em bordas com log estruturado e teste".
+
+### 10.4 Boundaries NAO tocadas em ai/agents (decisao explicita)
+
+Estas seguem sendo cobertas pela diretriz de boundary defensivo:
+
+- `chains.py` (4 wrappers de circuit breaker): chamadas LLM com
+  `cb.record_failure() + raise`. Catch amplo necessario porque a libreria
+  pode levantar qualquer tipo (openai.*, httpx.*, ConnectionError, etc.).
+- `base.py:164 run` (top-level agent wrapper): registra `result.error` +
+  `logger.error(..., exc_info=True)`. Contrato do agent runtime.
+- `extrator.py` wrappers top-level (362, 367, 381, 620): ingest/upload
+  com retorno estruturado dict.
+- `regulatorio.py:167` (Gemini wrapper), `:398` (persist guard com
+  `pragma no cover`).
+- `cientifico.py:52` RAG search com graceful degradation.
+
+### 10.5 Baseline atual em main
+
+- HEAD: `95ec3c5`
+- pytest -q: 1830 passed, 1 skipped, 0 errors
+- Coverage: 58.61% (gate 55% atendido)
+- tsc --noEmit: verde
+- 83 occs except Exception em 45 arquivos (-7 desde inicio da sessao tarde,
+  -63 desde inicio do M2 ontem)
+
+### 10.6 Distribuicao residual atualizada
+
+| Dominio | Antes (90) | Agora (83) | Restantes |
+|---------|------------|------------|-----------|
+| AI agents/pipeline | 26 | 19 | base (2), chains (4), extrator (4), regulatorio (2), cientifico (1), service/prompt_registry/prescriber/pipeline/guardrails (1 cada) |
+| Web routes | 21 | 21 | inalterado — proxima onda candidata |
+| Infra | 14 | 14 | inalterado (bordas defensivas, baixa prioridade) |
+| Services | 13 | 13 | inalterado |
+| Knowledge | 9 | 9 | inalterado |
+| Integrations | 4 | 4 | inalterado (ja sao bordas) |
+| Outros | 4 | 4 | inalterado |
+
+Proxima onda recomendada: **M2.4 web routes restantes** (21 occs em
+`regulatory.py` 4, `system.py` 3, `prescriptions.py` 3, `admin_agents.py`
+3, `governance.py` 2, `telemetry.py` 2, outros 4). Padrao ja conhecido
+do M2.2: `OperationalError → 503`, `DatabaseError → 500`, demais como
+boundary defensivo.
