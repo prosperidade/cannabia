@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import {
   Card,
-  Badge,
   Button,
   MaterialIcon,
   ProgressBar,
@@ -14,14 +13,18 @@ import {
   ApiError,
   completeMedicalOnboarding,
   getMedicalOnboarding,
+  uploadOnboardingDocument,
+  type OnboardingUploadField,
 } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 
 /* ────────────────────────────────────────────
    Onboarding Wizard - Doctor credentialing flow.
    Sprint C MVP: dados textuais persistem em medical_profiles via
-   POST /api/v1/med/onboarding/complete. Uploads (foto, CRM, diploma)
-   ainda nao tem storage backend e ficam marcados como "Em breve".
+   POST /api/v1/med/onboarding/complete.
+   Sprint D M1: uploads de CRM/diploma vao para storage configurado por
+   STORAGE_PROVIDER (noop|local|r2). Sem provider, UI mostra erro amigavel
+   e o medico pode prosseguir sem os arquivos.
    ──────────────────────────────────────────── */
 
 const STEPS = [
@@ -116,6 +119,78 @@ export default function OnboardingPage() {
     aiLevel: "avancado",
   });
 
+  // Sprint D M1: estado por campo de upload (foto, CRM, diploma).
+  type UploadStatus = "idle" | "uploading" | "uploaded" | "error";
+  type UploadEntry = { status: UploadStatus; url: string | null; error: string | null };
+  const [uploads, setUploads] = useState<Record<OnboardingUploadField, UploadEntry>>({
+    photo: { status: "idle", url: null, error: null },
+    crm_doc: { status: "idle", url: null, error: null },
+    diploma: { status: "idle", url: null, error: null },
+  });
+
+  const ALLOWED_UPLOAD_MIMES = new Set([
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "application/pdf",
+  ]);
+  const UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
+
+  const handleUploadChange = async (
+    field: OnboardingUploadField,
+    fileList: FileList | null,
+  ) => {
+    const file = fileList?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_UPLOAD_MIMES.has(file.type)) {
+      setUploads((prev) => ({
+        ...prev,
+        [field]: { status: "error", url: null, error: "Use PDF, JPG ou PNG." },
+      }));
+      return;
+    }
+    if (file.size > UPLOAD_MAX_BYTES) {
+      setUploads((prev) => ({
+        ...prev,
+        [field]: { status: "error", url: null, error: "Arquivo excede 5MB." },
+      }));
+      return;
+    }
+
+    const csrfToken = session.data?.csrf_token;
+    if (!csrfToken) {
+      setUploads((prev) => ({
+        ...prev,
+        [field]: { status: "error", url: null, error: "Sessão expirada." },
+      }));
+      return;
+    }
+
+    setUploads((prev) => ({
+      ...prev,
+      [field]: { status: "uploading", url: null, error: null },
+    }));
+
+    try {
+      const result = await uploadOnboardingDocument(field, file, csrfToken);
+      setUploads((prev) => ({
+        ...prev,
+        [field]: { status: "uploaded", url: result.url, error: null },
+      }));
+    } catch (err) {
+      const message = err instanceof ApiError
+        ? (err.code === "storage_not_configured"
+            ? "Upload indisponível no servidor (storage não configurado). Pule por enquanto."
+            : err.message)
+        : "Falha ao enviar o arquivo.";
+      setUploads((prev) => ({
+        ...prev,
+        [field]: { status: "error", url: null, error: message },
+      }));
+    }
+  };
+
   // Carrega o perfil existente (se houver) para pre-fill no re-onboarding.
   useEffect(() => {
     if (!session.data?.authenticated) return;
@@ -132,6 +207,15 @@ export default function OnboardingPage() {
         setPrefs({
           notifications: data.prefs_notifications,
           aiLevel: data.prefs_ai_level || "avancado",
+        });
+        const toEntry = (url: string | null) =>
+          url
+            ? ({ status: "uploaded" as const, url, error: null })
+            : ({ status: "idle" as const, url: null, error: null });
+        setUploads({
+          photo: toEntry(data.photo_url),
+          crm_doc: toEntry(data.crm_doc_url),
+          diploma: toEntry(data.diploma_url),
         });
       } catch {
         // Sem perfil ainda — mantém defaults.
@@ -394,38 +478,32 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                {/* Document uploads (Em breve — onda 2 com storage real) */}
+                {/* Document uploads */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-widest">
-                      Upload de Documentos
-                    </h4>
-                    <Badge tone="warning">Em breve</Badge>
-                  </div>
+                  <h4 className="text-sm font-bold text-stone-400 uppercase tracking-widest">
+                    Upload de Documentos
+                  </h4>
                   <p className="text-xs text-stone-500 leading-relaxed">
-                    O envio de arquivos será habilitado em uma próxima atualização.
-                    Por enquanto, mantenha os documentos consigo — o validador da
-                    plataforma fará contato para conferi-los.
+                    PDF, JPG ou PNG, máximo 5MB. Os arquivos ficam acessíveis
+                    apenas ao próprio médico e aos validadores da plataforma.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="border-2 border-dashed border-outline-variant/30 bg-surface-container-low/40 p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
-                      <div className="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center text-stone-500">
-                        <MaterialIcon icon="upload_file" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-on-surface">Copia do CRM</p>
-                        <p className="text-xs text-stone-500 mt-1">PDF, JPG (Max. 5MB)</p>
-                      </div>
-                    </div>
-                    <div className="border-2 border-dashed border-outline-variant/30 bg-surface-container-low/40 p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
-                      <div className="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center text-stone-500">
-                        <MaterialIcon icon="school" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-on-surface">Diploma de Graduacao</p>
-                        <p className="text-xs text-stone-500 mt-1">Certificado reconhecido (PDF)</p>
-                      </div>
-                    </div>
+                    <UploadZone
+                      field="crm_doc"
+                      icon="upload_file"
+                      label="Copia do CRM"
+                      hint="PDF, JPG (Max. 5MB)"
+                      entry={uploads.crm_doc}
+                      onFile={(files) => handleUploadChange("crm_doc", files)}
+                    />
+                    <UploadZone
+                      field="diploma"
+                      icon="school"
+                      label="Diploma de Graduacao"
+                      hint="Certificado reconhecido (PDF)"
+                      entry={uploads.diploma}
+                      onFile={(files) => handleUploadChange("diploma", files)}
+                    />
                   </div>
                 </div>
               </div>
@@ -721,5 +799,89 @@ export default function OnboardingPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ────────────────────────────────────────────
+   UploadZone — drop zone clicavel para upload de documento.
+   Sprint D M1: integra com POST /api/v1/med/onboarding/upload/<field>.
+   ──────────────────────────────────────────── */
+
+type UploadZoneProps = {
+  field: OnboardingUploadField;
+  icon: string;
+  label: string;
+  hint: string;
+  entry: {
+    status: "idle" | "uploading" | "uploaded" | "error";
+    url: string | null;
+    error: string | null;
+  };
+  onFile: (files: FileList | null) => void;
+};
+
+function UploadZone({ field, icon, label, hint, entry, onFile }: UploadZoneProps) {
+  const { status, error } = entry;
+  const isUploading = status === "uploading";
+  const isUploaded = status === "uploaded";
+
+  return (
+    <label
+      className={cn(
+        "block border-2 border-dashed transition-all p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3",
+        isUploading
+          ? "border-primary/40 bg-primary/5 cursor-wait"
+          : isUploaded
+            ? "border-emerald-500/40 bg-emerald-500/5 cursor-pointer hover:border-emerald-500/60"
+            : status === "error"
+              ? "border-red-500/40 bg-red-950/20 cursor-pointer hover:border-red-500/60"
+              : "border-outline-variant bg-surface-container-low cursor-pointer hover:border-primary/50",
+      )}
+    >
+      <input
+        type="file"
+        className="hidden"
+        accept="application/pdf,image/jpeg,image/png"
+        disabled={isUploading}
+        onChange={(e) => onFile(e.target.files)}
+      />
+      <div
+        className={cn(
+          "h-12 w-12 rounded-full flex items-center justify-center",
+          isUploaded
+            ? "bg-emerald-500/20 text-emerald-400"
+            : status === "error"
+              ? "bg-red-500/20 text-red-400"
+              : "bg-surface-container-highest text-primary",
+        )}
+      >
+        <MaterialIcon
+          icon={
+            isUploading
+              ? "hourglass_empty"
+              : isUploaded
+                ? "check_circle"
+                : status === "error"
+                  ? "error"
+                  : icon
+          }
+        />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-on-surface">{label}</p>
+        <p className="text-xs text-stone-500 mt-1">
+          {isUploading
+            ? "Enviando..."
+            : isUploaded
+              ? "Enviado. Clique para substituir."
+              : hint}
+        </p>
+        {status === "error" && error && (
+          <p className="text-xs text-red-400 mt-2 leading-relaxed max-w-xs mx-auto">
+            {error}
+          </p>
+        )}
+      </div>
+    </label>
   );
 }
