@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from flask import Blueprint, g, request
 from flask_login import current_user
-from psycopg2 import OperationalError
+from psycopg2 import DatabaseError, OperationalError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -378,7 +378,7 @@ def org_dashboard():
     except OperationalError:
         logger.error("DB unavailable on org_management.org_dashboard", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError, AttributeError):
         logger.error("Unexpected error on org_management.org_dashboard", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -426,7 +426,7 @@ def org_patients():
     except OperationalError:
         logger.error("DB unavailable on org_management.org_patients", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on org_management.org_patients", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -458,7 +458,7 @@ def org_doctors():
     except OperationalError:
         logger.error("DB unavailable on org_management.org_doctors", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on org_management.org_doctors", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -494,7 +494,7 @@ def org_stock():
     except OperationalError:
         logger.error("DB unavailable on org_management.org_stock", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on org_management.org_stock", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -551,7 +551,10 @@ def org_stock_entry():
             row = cursor.fetchone()
             conn.commit()
             return _success({"id": row["id"], "created_at": row["created_at"]}, status=201)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_stock_entry", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Failed to insert stock entry", exc_info=True)
         return _error("internal_error", "Falha ao registrar entrada de estoque.", 500)
 
@@ -625,7 +628,10 @@ def org_stock_dispensation():
                 "remaining_quantity": updated["quantity"],
                 "created_at": disp["created_at"],
             }, status=201)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on org_management.org_stock_dispensation", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Failed to register dispensation", exc_info=True)
         return _error("internal_error", "Falha ao registrar dispensacao.", 500)
 
@@ -675,7 +681,7 @@ def org_billing():
     except OperationalError:
         logger.error("DB unavailable on org_management.org_billing", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on org_management.org_billing", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -720,6 +726,6 @@ def org_financial():
     except OperationalError:
         logger.error("DB unavailable on org_management.org_financial", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on org_management.org_financial", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
