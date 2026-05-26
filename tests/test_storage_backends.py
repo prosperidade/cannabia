@@ -14,6 +14,8 @@ import pytest
 
 from src.infra import storage
 
+_LOCAL_STORAGE_TEST_ROOT = Path("pytest-cache-files-storage/storage_backends").resolve()
+
 
 def test_noop_is_default(monkeypatch):
     monkeypatch.delenv("STORAGE_PROVIDER", raising=False)
@@ -30,9 +32,10 @@ def test_unknown_provider_falls_back_to_noop(monkeypatch):
         backend.upload(key="x", content=b"a", content_type="application/pdf")
 
 
-def test_local_writes_file_and_returns_public_url(monkeypatch, tmp_path: Path):
+def test_local_writes_file_and_returns_public_url(monkeypatch):
+    local_root = _LOCAL_STORAGE_TEST_ROOT / "public_url"
     monkeypatch.setenv("STORAGE_PROVIDER", "local")
-    monkeypatch.setenv("STORAGE_LOCAL_ROOT", str(tmp_path))
+    monkeypatch.setenv("STORAGE_LOCAL_ROOT", str(local_root))
     monkeypatch.setenv("STORAGE_LOCAL_PUBLIC_BASE", "/uploads")
 
     backend = storage.get_backend()
@@ -43,16 +46,17 @@ def test_local_writes_file_and_returns_public_url(monkeypatch, tmp_path: Path):
     )
 
     assert url == "/uploads/onboarding/42/crm_doc.pdf"
-    written = tmp_path / "onboarding" / "42" / "crm_doc.pdf"
+    written = local_root / "onboarding" / "42" / "crm_doc.pdf"
     assert written.read_bytes() == b"hello"
 
 
-def test_local_creates_nested_directories(monkeypatch, tmp_path: Path):
+def test_local_creates_nested_directories(monkeypatch):
+    local_root = _LOCAL_STORAGE_TEST_ROOT / "nested_dirs"
     monkeypatch.setenv("STORAGE_PROVIDER", "local")
-    monkeypatch.setenv("STORAGE_LOCAL_ROOT", str(tmp_path))
+    monkeypatch.setenv("STORAGE_LOCAL_ROOT", str(local_root))
     backend = storage.get_backend()
     backend.upload(key="a/b/c/d/file.png", content=b"x", content_type="image/png")
-    assert (tmp_path / "a" / "b" / "c" / "d" / "file.png").exists()
+    assert (local_root / "a" / "b" / "c" / "d" / "file.png").exists()
 
 
 def test_r2_requires_all_credentials(monkeypatch):
