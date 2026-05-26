@@ -31,6 +31,7 @@ from src.web.auth_identity import AppUser
 from src.web.routes.auth import is_rate_allowed, issue_csrf_token, validate_csrf_value
 
 api_v1_bp = Blueprint("api_v1", __name__, url_prefix="/api/v1")
+OPERATION_ROLES = ("Admin", "AdminClinica", "Medico", "Recepcao")
 
 
 @api_v1_bp.after_request
@@ -428,7 +429,7 @@ def dashboard_messages():
 
 
 @api_v1_bp.get("/messages")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def messages():
     sender = request.args.get("sender")
     search = request.args.get("search")
@@ -439,7 +440,7 @@ def messages():
 
 
 @api_v1_bp.get("/messages/contacts")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def message_contacts():
     search = request.args.get("search")
     try:
@@ -509,7 +510,7 @@ def intake_triage_link_context():
 
 
 @api_v1_bp.post("/intake/triage-link")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def intake_triage_link_create():
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -841,7 +842,7 @@ def patient_medical_record(patient_id: int):
 
 
 @api_v1_bp.get("/appointments")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def appointments_list():
     """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
 
@@ -877,7 +878,7 @@ def appointments_list():
 
 
 @api_v1_bp.post("/appointments")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def appointments_create():
     csrf_error = _require_json_csrf()
     if csrf_error:
@@ -899,7 +900,7 @@ def appointments_create():
 
 
 @api_v1_bp.get("/appointments/<int:appointment_id>")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def appointment_detail(appointment_id: int):
     from src.repositories.appointment_repository import get_appointment
 
@@ -910,7 +911,7 @@ def appointment_detail(appointment_id: int):
 
 
 @api_v1_bp.post("/appointments/<int:appointment_id>/triage-link")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def appointment_triage_link(appointment_id: int):
     csrf_error = _require_json_csrf()
     if csrf_error:

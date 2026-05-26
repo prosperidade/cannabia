@@ -5,7 +5,7 @@ Blueprint da API de Campanhas Ativas.
 Endpoints REST para gerenciar templates, disparar execuções e
 consultar status de campanhas. Escopado por clinic_id do contexto.
 
-Todos os endpoints exigem autenticação e role Admin ou Medico.
+Todos os endpoints exigem autenticação e role Admin, AdminClinica ou Financeiro.
 """
 
 from __future__ import annotations
@@ -60,14 +60,14 @@ def _json_payload() -> dict:
 
 
 def _campaign_auth_required(fn):
-    """Exige autenticação e role Admin ou Medico + clinic_id no contexto."""
+    """Exige autenticação e role financeira + clinic_id no contexto."""
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if not current_user.is_authenticated:
             return _error("unauthenticated", "Autenticação necessária.", 401)
 
         effective = get_effective_roles()
-        if not {"Admin", "Medico"}.intersection(effective):
+        if not {"Admin", "AdminClinica", "Financeiro"}.intersection(effective):
             return _error("forbidden", "Sem permissão para gerenciar campanhas.", 403)
 
         if not getattr(g, "clinic_id", None):

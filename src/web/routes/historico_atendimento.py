@@ -6,7 +6,7 @@ historico_bp = Blueprint('historico', __name__, template_folder='templates')
 
 
 @historico_bp.route('/historico', methods=['GET'])
-@role_required('Admin', 'Medico', 'Atendente')
+@role_required('Admin', 'AdminClinica', 'Medico', 'Recepcao')
 def historico():
     try:
         messages = message_repository.list_messages(g.clinic_id)

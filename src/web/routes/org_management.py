@@ -25,6 +25,8 @@ from src.web.routes.api_v1 import (
 logger = logging.getLogger("cannabia.org_management")
 
 org_management_bp = Blueprint("org_management", __name__, url_prefix="/api/v1/org")
+FINANCIAL_ROLES = ("Admin", "AdminClinica", "Financeiro")
+OPERATION_ROLES = ("Admin", "AdminClinica", "Medico", "Recepcao")
 
 
 # ==================================================================
@@ -386,7 +388,7 @@ def org_dashboard():
 # ==================================================================
 
 @org_management_bp.get("/patients")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def org_patients():
     """List all patients for the organization with search and pagination."""
     page, page_size = _pagination_args()
@@ -434,7 +436,7 @@ def org_patients():
 # ==================================================================
 
 @org_management_bp.get("/doctors")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*OPERATION_ROLES)
 def org_doctors():
     """List doctors for the organization."""
     try:
@@ -466,7 +468,7 @@ def org_doctors():
 # ==================================================================
 
 @org_management_bp.get("/stock")
-@api_role_required("Admin", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def org_stock():
     """Stock inventory listing."""
     page, page_size = _pagination_args()
@@ -502,7 +504,7 @@ def org_stock():
 # ==================================================================
 
 @org_management_bp.post("/stock/entry")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def org_stock_entry():
     """Register a stock entry."""
     csrf_error = _require_json_csrf()
@@ -559,7 +561,7 @@ def org_stock_entry():
 # ==================================================================
 
 @org_management_bp.post("/stock/dispensation")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def org_stock_dispensation():
     """Register a stock dispensation to a patient."""
     csrf_error = _require_json_csrf()
@@ -633,7 +635,7 @@ def org_stock_dispensation():
 # ==================================================================
 
 @org_management_bp.get("/billing")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def org_billing():
     """Billing records for the organization."""
     page, page_size = _pagination_args()
@@ -683,7 +685,7 @@ def org_billing():
 # ==================================================================
 
 @org_management_bp.get("/financial")
-@api_role_required("Admin", "Medico", "Atendente")
+@api_role_required(*FINANCIAL_ROLES)
 def org_financial():
     """Financial summary for the organization."""
     try:
