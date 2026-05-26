@@ -30,9 +30,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from flask import Blueprint, g
+from psycopg2 import DatabaseError, OperationalError
 
 from src.infra.database import db_cursor
-from src.web.routes.api_v1 import _success, api_role_required
+from src.web.routes.api_v1 import _error, _success, api_role_required
 
 logger = logging.getLogger("cannabia.compliance")
 compliance_bp = Blueprint("compliance", __name__, url_prefix="/api/v1/org")
@@ -614,7 +615,10 @@ def get_compliance():
                 "total_checks": len(checks),
                 "passed": ok_count,
             })
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on compliance.get_compliance_report", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error generating compliance report", exc_info=True)
         return _success({"score": 0, "checks": [], "total_checks": 0, "passed": 0})
 
@@ -646,7 +650,7 @@ def get_compliance_overview():
             result = fn(tenant_id)
             submodules[name] = result
             scores.append(int(result.get("score", 0)))
-        except Exception:
+        except (DatabaseError, TypeError, ValueError, KeyError):
             logger.error("compliance_submodule_failed name=%s", name, exc_info=True)
             submodules[name] = {
                 "score": 0,
@@ -678,7 +682,10 @@ def get_compliance_submodule(name: str):
 
     try:
         result = fn(tenant_id)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on compliance.get_compliance_submodule name=%s", name, exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("compliance_submodule_failed name=%s", name, exc_info=True)
         return _success({
             "score": 0, "checks": [], "error": "falha ao calcular submodulo",

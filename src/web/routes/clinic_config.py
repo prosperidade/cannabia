@@ -26,6 +26,7 @@ from typing import Any
 
 from flask import Blueprint, g
 from flask_login import current_user
+from psycopg2 import DatabaseError, OperationalError
 
 from src.infra.database import db_cursor
 from src.repositories.tenant_settings_repository import get_integrations, upsert_integrations
@@ -188,7 +189,7 @@ def _masked_secret_fields(
 
     try:
         encrypted_integrations = get_integrations(tenant_id, decrypted=False) or {}
-    except Exception:
+    except (DatabaseError, RuntimeError, ValueError):
         logger.warning("Falha ao carregar tenant_integrations mascarado", exc_info=True)
         encrypted_integrations = {}
 
@@ -314,7 +315,10 @@ def get_clinic_config():
             response = _flatten_payload(clinic, branding, settings_obj)
             response.update(_masked_secret_fields(tenant_id, settings_obj))
             return _success(response)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on clinic_config.get_config", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Erro ao buscar config do tenant", exc_info=True)
         # Fallback minimo
         return _success({"name": ""})
@@ -472,6 +476,9 @@ def update_clinic_config():
             response = _flatten_payload(clinic, branding, settings_obj)
             response.update(_masked_secret_fields(tenant_id, settings_obj))
             return _success(response)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on clinic_config.update_config", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Erro ao atualizar config do tenant", exc_info=True)
         return _error("internal_error", "Falha ao salvar configuracao.", 500)
