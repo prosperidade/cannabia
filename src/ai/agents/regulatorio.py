@@ -199,7 +199,7 @@ class AgenteRegulatorio(BaseAgent):
 
         try:
             from src.services.governance_service import check_sandbox_eligibility
-        except Exception as exc:  # pragma: no cover
+        except ImportError as exc:  # pragma: no cover
             return {"ok": False, "error": f"Servico indisponivel: {exc}"}
 
         try:
