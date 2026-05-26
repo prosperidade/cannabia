@@ -6,7 +6,7 @@ Prefix: /api/v1/clinical
 from __future__ import annotations
 import logging
 from flask import Blueprint, g, request
-from psycopg2 import OperationalError
+from psycopg2 import DatabaseError, OperationalError
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import _error, _success, api_role_required
 
@@ -72,7 +72,7 @@ def intelligence_dashboard():
     except OperationalError:
         logger.error("DB unavailable on clinical_intelligence.intelligence_dashboard", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on clinical_intelligence.intelligence_dashboard", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -125,7 +125,7 @@ def botanical_analysis():
     except OperationalError:
         logger.error("DB unavailable on clinical_intelligence.botanical_analysis", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on clinical_intelligence.botanical_analysis", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -186,7 +186,7 @@ def lab_analysis():
     except OperationalError:
         logger.error("DB unavailable on clinical_intelligence.lab_analysis", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on clinical_intelligence.lab_analysis", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -230,6 +230,6 @@ def clinical_trials():
     except OperationalError:
         logger.error("DB unavailable on clinical_intelligence.clinical_trials", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on clinical_intelligence.clinical_trials", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)

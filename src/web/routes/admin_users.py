@@ -11,7 +11,7 @@ import logging
 import bcrypt
 from flask import Blueprint, g, request
 from flask_login import current_user
-from psycopg2 import OperationalError
+from psycopg2 import DatabaseError, OperationalError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -87,7 +87,7 @@ def list_users():
     except OperationalError:
         logger.error("DB unavailable on admin_users.list_users", exc_info=True)
         return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
-    except Exception:
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Unexpected error on admin_users.list_users", exc_info=True)
         return _error("internal_error", "Erro interno ao processar requisicao.", 500)
 
@@ -151,7 +151,10 @@ def create_user():
 
             conn.commit()
             return _success({"id": user["id"], "created_at": user["created_at"]}, status=201)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on admin_users.create_user", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Failed to create user", exc_info=True)
         return _error("internal_error", "Falha ao criar usuario.", 500)
 
@@ -205,6 +208,9 @@ def update_user(user_id: int):
                 return _error("not_found", "Usuario nao encontrado.", 404)
             conn.commit()
             return _success(row)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on admin_users.update_user", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, RuntimeError, TypeError, ValueError, KeyError):
         logger.error("Failed to update user", exc_info=True)
         return _error("internal_error", "Falha ao atualizar usuario.", 500)
