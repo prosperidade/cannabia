@@ -346,8 +346,8 @@ export type ConversationDetail = {
  *   - ?limit=50         (default; max=200; >200 -> HTTP 400 invalid_limit)
  *   - ?offset=0         (default; offset-based)
  *   - ?include_total=1  (opt-in pra COUNT(*); custa)
- *   - ?legacy=1         (DEPRECATED, removal 2026-08-01 — Sprint 4)
  *   - ?before_id=N      (cursor-based; so em timeline e messages)
+ *   (`?legacy=1` removido em Sprint D Q2; honra antecipada do Sunset 2026-08-01)
  *
  * has_more:
  *   - Quando total e conhecido: (offset + items.length) < total

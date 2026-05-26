@@ -184,27 +184,13 @@ def list_documents():
         )
         return _success({"documents": docs})
 
-    from src.web.pagination import (
-        bare_legacy_response,
-        paginated_response,
-        parse_pagination,
-    )
-    from src.web.routes.api_v1 import _apply_deprecation_headers, _pagination_error
+    from src.web.pagination import paginated_response, parse_pagination
+    from src.web.routes.api_v1 import _pagination_error
 
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         return _pagination_error(exc)
-
-    if legacy_mode:
-        docs = repo.list_institutional_documents(
-            tenant_id=tenant_id,
-            document_type=document_type,
-            active_only=active_only,
-        )
-        return _apply_deprecation_headers(
-            _success({"documents": bare_legacy_response(docs)})
-        )
 
     result = repo.list_institutional_documents(
         tenant_id=tenant_id,
@@ -319,25 +305,13 @@ def list_rts():
         )
         return _success({"technical_responsibles": rts})
 
-    from src.web.pagination import (
-        bare_legacy_response,
-        paginated_response,
-        parse_pagination,
-    )
-    from src.web.routes.api_v1 import _apply_deprecation_headers, _pagination_error
+    from src.web.pagination import paginated_response, parse_pagination
+    from src.web.routes.api_v1 import _pagination_error
 
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         return _pagination_error(exc)
-
-    if legacy_mode:
-        rts = repo.list_technical_responsibles(
-            tenant_id=tenant_id, active_only=active_only
-        )
-        return _apply_deprecation_headers(
-            _success({"technical_responsibles": bare_legacy_response(rts)})
-        )
 
     result = repo.list_technical_responsibles(
         tenant_id=tenant_id,

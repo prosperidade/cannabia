@@ -23,31 +23,21 @@ CONVERSATION_ROLES = ("Admin", "AdminClinica", "Medico", "Recepcao")
 @conversations_bp.get("/conversations")
 @api_role_required(*CONVERSATION_ROLES)
 def list_convs():
-    """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
+    """Envelope canonico {items, total, limit, offset, has_more}.
 
-    `?legacy=1` -> compat path (lista nua, max=100).
+    Sprint D Q2: removido `?legacy=1` (Sunset 2026-08-01).
     """
     from src.repositories.conversation_repository import list_conversations
-    from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
+    from src.web.pagination import paginated_response, parse_pagination
 
     status = request.args.get("status") or None
     search = request.args.get("search") or None
 
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         from src.web.routes.api_v1 import _pagination_error
         return _pagination_error(exc)
-
-    if legacy_mode:
-        # Compat path: lista nua com cap antigo (max=100).
-        # DEPRECATED Sprint 3 — Sunset 2026-08-01.
-        from src.web.routes.api_v1 import _apply_deprecation_headers
-        legacy_limit = max(1, min(limit, 100))
-        convs = list_conversations(status=status, search=search, limit=legacy_limit)
-        return _apply_deprecation_headers(
-            _success(bare_legacy_response(_serialize(convs)))
-        )
 
     result = list_conversations(
         status=status,

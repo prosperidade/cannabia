@@ -47,24 +47,6 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Sprint 3 Page-Migration: detecta header `Deprecation: true` da response
- * e avisa via console.warn pra incentivar migracao antes do Sunset
- * (2026-08-01, Sprint 4).
- */
-function warnIfDeprecated(path: string, response: Response): void {
-  const dep = response.headers.get("Deprecation");
-  if (!dep) return;
-  const sunset = response.headers.get("Sunset") ?? "Sprint 4";
-  // Reduz ruido em runtime de testes (jsdom).
-  if (typeof console !== "undefined" && typeof console.warn === "function") {
-    console.warn(
-      `[API] endpoint ${path} marcado como deprecated ` +
-        `(?legacy=1) — migrar antes de ${sunset}.`,
-    );
-  }
-}
-
 export async function request<T>(
   path: string,
   init: RequestInit = {},
@@ -82,8 +64,6 @@ export async function request<T>(
     credentials: "include",
     cache: "no-store",
   });
-
-  warnIfDeprecated(path, response);
 
   const raw = response.headers.get("content-type")?.includes("application/json")
     ? ((await response.json()) as ApiEnvelope<T> | ApiFailure)

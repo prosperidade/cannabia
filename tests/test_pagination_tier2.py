@@ -5,7 +5,7 @@ Cobre:
     medical-record entries, patient timeline cursor-based).
   - Compat path (`limit=None` -> list[dict]).
   - `limit > MAX_LIMIT` -> HTTP 400 `invalid_limit`.
-  - `?legacy=1` -> headers `Deprecation` + `Sunset` + logger.warning.
+  - `?legacy=1` -> param removido em Sprint D Q2; silenciosamente ignorado.
   - Cursor-based `before_id` em patient_timeline.
 """
 
@@ -258,19 +258,20 @@ class TestPaginationCrossCutting:
         assert body["error"]["code"] == "invalid_limit"
         assert "200" in body["error"]["message"]
 
-    def test_legacy_mode_emits_deprecation_headers(
-        self, app_client, monkeypatch
-    ):
-        """`?legacy=1` -> headers `Deprecation: true` + `Sunset: 2026-08-01`."""
+    def test_legacy_param_silently_ignored(self, app_client, monkeypatch):
+        """Sprint D Q2: `?legacy=1` foi removido (honra antecipada do Sunset
+        2026-08-01). O param e silenciosamente ignorado; resposta usa o
+        envelope canonico normal sem headers de Deprecation."""
         monkeypatch.setattr(
             "src.web.routes.api_v1.list_reports",
-            lambda *a, **k: [{"id": 1, "patient_name": "X"}],
+            lambda *a, **k: {"items": [], "total": None, "has_more": False},
         )
         response = app_client.get("/api/v1/attendances?legacy=1")
         assert response.status_code == 200
-        assert response.headers.get("Deprecation") == "true"
-        sunset = response.headers.get("Sunset", "")
-        assert "2026" in sunset and "Aug" in sunset
+        assert "Deprecation" not in response.headers
+        assert "Sunset" not in response.headers
+        body = response.get_json()["data"]
+        assert set(body.keys()) == {"items", "total", "limit", "offset", "has_more"}
 
     def test_at_max_limit_is_accepted(self, app_client, monkeypatch):
         """`limit == MAX_LIMIT` deve passar (somente >MAX rejeita)."""
