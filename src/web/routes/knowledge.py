@@ -25,6 +25,7 @@ from typing import Optional
 
 from flask import Blueprint, request
 from flask_login import current_user
+from psycopg2 import DatabaseError, OperationalError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -51,7 +52,7 @@ def _current_user_id() -> Optional[int]:
     try:
         if current_user.is_authenticated:
             return int(current_user.id)
-    except Exception:  # pragma: no cover — flask_login fora do request context
+    except (RuntimeError, AttributeError):  # pragma: no cover — flask_login fora do request context
         pass
     return None
 
@@ -130,7 +131,10 @@ def list_catalog():
             items, page_meta = _paginate(rows, page, page_size)
             meta = {**page_meta, "type_stats": type_stats, "storage_stats": storage_stats}
             return _success(items, meta=meta)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.list_catalog", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error listing catalog", exc_info=True)
         return _success([], meta={"page": page, "page_size": page_size, "total": 0})
 
@@ -146,7 +150,10 @@ def get_catalog_item(doc_id: int):
             if not row:
                 return _error("not_found", "Documento nao encontrado.", 404)
             return _success(row)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.get_catalog_item", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except DatabaseError:
         logger.error("Error fetching catalog item", exc_info=True)
         return _error("internal_error", "Falha ao buscar documento.", 500)
 
@@ -183,7 +190,10 @@ def delete_catalog_item(doc_id: int):
             cursor.execute("DELETE FROM knowledge_catalog WHERE id = %s", (doc_id,))
             conn.commit()
             return _success({"deleted": True, "id": doc_id})
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.delete_catalog_item", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError):
         logger.error("Error deleting catalog item", exc_info=True)
         return _error("internal_error", "Falha ao deletar documento.", 500)
 
@@ -223,7 +233,7 @@ def trigger_auto_search():
             "details": result.data.get("details", []),
             "duration_ms": result.duration_ms,
         })
-    except Exception:
+    except (RuntimeError, ValueError, KeyError, AttributeError):
         logger.error("Auto-search failed", exc_info=True)
         return _error("internal_error", "Falha na busca automatica.", 500)
 
@@ -252,7 +262,7 @@ def search_pubmed():
             created_by=_current_user_id(),
         )
         return _success(result.data)
-    except Exception:
+    except (RuntimeError, ValueError, KeyError, AttributeError):
         logger.error("PubMed search failed", exc_info=True)
         return _error("internal_error", "Falha na busca PubMed.", 500)
 
@@ -277,7 +287,7 @@ def classify_document():
             filename=payload.get("filename", ""),
         )
         return _success(result.data)
-    except Exception:
+    except (RuntimeError, ValueError, KeyError, AttributeError):
         logger.error("Classification failed", exc_info=True)
         return _error("internal_error", "Falha na classificacao.", 500)
 
@@ -322,7 +332,7 @@ def knowledge_stats():
 
             store = KnowledgeStore()
             chromadb_chunks = store.count()
-        except Exception:
+        except (ImportError, RuntimeError, OSError, ValueError, AttributeError):
             # Sub-feature opcional: ChromaDB pode estar offline/nao instalado.
             # Stats degradam para 0 sem quebrar a rota.
             logger.debug("ChromaDB stats indisponivel (KnowledgeStore.count falhou)", exc_info=True)
@@ -333,7 +343,7 @@ def knowledge_stats():
             from src.knowledge.google_files import list_uploaded_files
 
             google_files = len(list_uploaded_files())
-        except Exception:
+        except (ImportError, RuntimeError, OSError, ValueError, AttributeError):
             # Sub-feature opcional: Google Files pode estar sem credencial/offline.
             logger.debug("Google Files stats indisponivel (list_uploaded_files falhou)", exc_info=True)
 
@@ -346,7 +356,10 @@ def knowledge_stats():
             "chromadb_chunks": chromadb_chunks,
             "google_files_count": google_files,
         })
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.knowledge_stats", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error fetching knowledge stats", exc_info=True)
         return _success({
             "total_documents": 0,
@@ -379,7 +392,10 @@ def list_monitors():
             )
             monitors = cursor.fetchall()
             return _success(monitors)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.list_monitors", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error listing monitors", exc_info=True)
         return _success([])
 
@@ -421,7 +437,10 @@ def create_monitor():
             row = cursor.fetchone()
             conn.commit()
             return _success({"id": row["id"], "created_at": row["created_at"]}, status=201)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.create_monitor", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error creating monitor", exc_info=True)
         return _error("internal_error", "Falha ao criar monitor.", 500)
 
@@ -448,7 +467,10 @@ def toggle_monitor(monitor_id: int):
                 return _error("not_found", "Monitor nao encontrado.", 404)
             conn.commit()
             return _success(row)
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.toggle_monitor", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error toggling monitor", exc_info=True)
         return _error("internal_error", "Falha ao atualizar monitor.", 500)
 
@@ -485,7 +507,10 @@ def delete_monitor(monitor_id: int):
             cursor.execute("DELETE FROM knowledge_monitors WHERE id = %s", (monitor_id,))
             conn.commit()
             return _success({"deleted": True, "id": monitor_id})
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on knowledge.delete_monitor", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError):
         logger.error("Error deleting monitor", exc_info=True)
         return _error("internal_error", "Falha ao deletar monitor.", 500)
 
@@ -503,6 +528,6 @@ def run_monitors():
         agent = AgenteExtrator()
         result = agent.run(action="run_monitors", created_by=_current_user_id())
         return _success(result.data)
-    except Exception:
+    except (RuntimeError, ValueError, KeyError, AttributeError):
         logger.error("Monitor run failed", exc_info=True)
         return _error("internal_error", "Falha ao executar monitores.", 500)
