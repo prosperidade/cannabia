@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 from flask import Blueprint, g, request
 from flask_login import current_user
+from psycopg2 import DatabaseError, OperationalError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -48,7 +49,7 @@ def _get_patient_id_for_user() -> Optional[int]:
             )
             row = cursor.fetchone()
             return row["id"] if row else None
-    except Exception:
+    except DatabaseError:
         logger.debug("patients table may lack user_id column; falling back to None")
         return None
 
@@ -254,7 +255,10 @@ def patient_profile():
                 "appointment": _format_appointment(next_appt),
                 "treatment": _format_treatment(plan),
             })
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on patient_portal.get_profile", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError, AttributeError, IndexError):
         logger.warning("Error fetching patient profile from DB", exc_info=True)
         return _success(_empty_profile_envelope(fallback_name))
 
@@ -377,7 +381,10 @@ def patient_treatment():
                 plan = cursor.fetchone()
                 if plan:
                     return _success(_format_treatment_envelope(plan))
-        except Exception:
+        except OperationalError:
+            logger.error("DB unavailable on patient_portal.get_treatment", exc_info=True)
+            return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+        except (DatabaseError, TypeError, ValueError, KeyError, AttributeError):
             logger.warning("Error fetching treatment plan from DB", exc_info=True)
 
     # No treatment plan found
@@ -447,7 +454,10 @@ def patient_appointments():
             past = [_format_appointment_row(r) for r in cursor.fetchall()]
 
             return _success({"upcoming": upcoming, "past": past})
-    except Exception:
+    except OperationalError:
+        logger.error("DB unavailable on patient_portal.get_appointments", exc_info=True)
+        return _error("database_unavailable", "Servico temporariamente indisponivel.", 503)
+    except (DatabaseError, TypeError, ValueError, KeyError, AttributeError, IndexError):
         logger.warning("Error fetching patient appointments from DB", exc_info=True)
         return _success({"upcoming": [], "past": []})
 
@@ -506,7 +516,7 @@ def patient_diary_create():
             row = cursor.fetchone()
             conn.commit()
             return _success({"id": row["id"], "created_at": row["created_at"]}, status=201)
-    except Exception:
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Failed to insert diary entry", exc_info=True)
         return _error("internal_error", "Falha ao salvar registro no diario.", 500)
 
@@ -577,7 +587,7 @@ def patient_diary_list():
                 }
 
                 return _success({"entries": formatted_entries, "weekly_avg": weekly_avg})
-        except Exception:
+        except (DatabaseError, TypeError, ValueError, KeyError):
             logger.warning("Error fetching diary entries from DB", exc_info=True)
 
     # No patient linked or no entries
@@ -665,6 +675,6 @@ def patient_evolution():
                     "mood": _metric("Humor", "avg_mood"),
                 }
             })
-    except Exception:
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.warning("Error fetching evolution metrics from DB", exc_info=True)
         return _success(_empty_evolution_envelope())

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 from flask import Blueprint, g, request
+from psycopg2 import DatabaseError
 
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import (
@@ -103,7 +104,7 @@ def list_returns():
             }
             return _success(items, meta=meta)
 
-    except Exception:
+    except DatabaseError:
         logger.warning("Error fetching returns from DB", exc_info=True)
 
     return _success([], meta={"page": page, "page_size": page_size, "total": 0, "total_returns": 0, "pending": 0, "scheduled": 0})

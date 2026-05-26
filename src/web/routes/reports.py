@@ -6,6 +6,8 @@ Prefix: /api/v1/org
 from __future__ import annotations
 import logging
 from flask import Blueprint, g, request
+from psycopg2 import DatabaseError
+
 from src.infra.database import db_cursor
 from src.web.routes.api_v1 import _success, api_role_required
 
@@ -112,7 +114,7 @@ def get_reports():
                 "patients_by_month": patients_by_month,
                 "ai_by_month": ai_by_month,
             })
-    except Exception:
+    except (DatabaseError, TypeError, ValueError, KeyError):
         logger.error("Error generating reports", exc_info=True)
         return _success({
             "summary": {"total_patients": 0, "total_attendances": 0, "total_revenue": 0},
