@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import {
@@ -10,11 +10,18 @@ import {
   MaterialIcon,
   ProgressBar,
 } from "@/components/ui-tw";
+import {
+  ApiError,
+  completeMedicalOnboarding,
+  getMedicalOnboarding,
+} from "@/lib/api";
+import { useApiSession } from "@/lib/use-api-session";
 
 /* ────────────────────────────────────────────
    Onboarding Wizard - Doctor credentialing flow.
-   All data is mock/UI only.
-   TODO: connect to backend API for real persistence.
+   Sprint C MVP: dados textuais persistem em medical_profiles via
+   POST /api/v1/med/onboarding/complete. Uploads (foto, CRM, diploma)
+   ainda nao tem storage backend e ficam marcados como "Em breve".
    ──────────────────────────────────────────── */
 
 const STEPS = [
@@ -92,9 +99,12 @@ const TUTORIAL_CARDS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const session = useApiSession();
   const [step, setStep] = useState(0);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // TODO: replace with real form state management
   const [profile, setProfile] = useState({
     name: "",
     crm: "",
@@ -105,6 +115,34 @@ export default function OnboardingPage() {
     notifications: true,
     aiLevel: "avancado",
   });
+
+  // Carrega o perfil existente (se houver) para pre-fill no re-onboarding.
+  useEffect(() => {
+    if (!session.data?.authenticated) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getMedicalOnboarding();
+        if (cancelled) return;
+        setProfile({
+          name: data.full_name ?? "",
+          crm: data.crm ?? "",
+          specialty: data.specialty ?? "",
+        });
+        setPrefs({
+          notifications: data.prefs_notifications,
+          aiLevel: data.prefs_ai_level || "avancado",
+        });
+      } catch {
+        // Sem perfil ainda — mantém defaults.
+      } finally {
+        if (!cancelled) setLoadingProfile(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [session.data?.authenticated]);
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
@@ -120,9 +158,49 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleComplete = () => {
-    // TODO: POST onboarding data to API
-    router.push("/med/dashboard");
+  const handleComplete = async () => {
+    setError(null);
+
+    if (!profile.name.trim()) {
+      setError("Nome completo é obrigatório.");
+      setStep(1);
+      return;
+    }
+    if (!profile.crm.trim()) {
+      setError("Número do CRM é obrigatório.");
+      setStep(1);
+      return;
+    }
+    if (!profile.specialty.trim()) {
+      setError("Especialidade é obrigatória.");
+      setStep(1);
+      return;
+    }
+
+    const csrfToken = session.data?.csrf_token;
+    if (!csrfToken) {
+      setError("Sessão expirada. Faça login novamente.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await completeMedicalOnboarding(csrfToken, {
+        full_name: profile.name.trim(),
+        crm: profile.crm.trim(),
+        specialty: profile.specialty.trim(),
+        prefs_notifications: prefs.notifications,
+        prefs_ai_level: prefs.aiLevel,
+      });
+      router.push("/med/dashboard");
+    } catch (err) {
+      const message = err instanceof ApiError
+        ? err.message
+        : "Não foi possível salvar o onboarding. Tente novamente.";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -316,14 +394,22 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                {/* Document uploads */}
+                {/* Document uploads (Em breve — onda 2 com storage real) */}
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-stone-400 uppercase tracking-widest">
-                    Upload de Documentos
-                  </h4>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-widest">
+                      Upload de Documentos
+                    </h4>
+                    <Badge tone="warning">Em breve</Badge>
+                  </div>
+                  <p className="text-xs text-stone-500 leading-relaxed">
+                    O envio de arquivos será habilitado em uma próxima atualização.
+                    Por enquanto, mantenha os documentos consigo — o validador da
+                    plataforma fará contato para conferi-los.
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="group cursor-pointer border-2 border-dashed border-outline-variant hover:border-primary/50 bg-surface-container-low transition-all p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <div className="border-2 border-dashed border-outline-variant/30 bg-surface-container-low/40 p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
+                      <div className="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center text-stone-500">
                         <MaterialIcon icon="upload_file" />
                       </div>
                       <div>
@@ -331,8 +417,8 @@ export default function OnboardingPage() {
                         <p className="text-xs text-stone-500 mt-1">PDF, JPG (Max. 5MB)</p>
                       </div>
                     </div>
-                    <div className="group cursor-pointer border-2 border-dashed border-outline-variant hover:border-primary/50 bg-surface-container-low transition-all p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <div className="border-2 border-dashed border-outline-variant/30 bg-surface-container-low/40 p-6 rounded-xl text-center flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
+                      <div className="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center text-stone-500">
                         <MaterialIcon icon="school" />
                       </div>
                       <div>
@@ -511,9 +597,20 @@ export default function OnboardingPage() {
                     Seu perfil esta configurado. Voce pode comecar a usar a plataforma agora
                     ou ajustar suas configuracoes a qualquer momento.
                   </p>
-                  <Button onClick={handleComplete} className="mx-auto">
-                    <MaterialIcon icon="dashboard" size="sm" />
-                    <span className="ml-1">Ir para o Dashboard</span>
+                  {error && (
+                    <div className="max-w-md mx-auto rounded-xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+                      {error}
+                    </div>
+                  )}
+                  <Button
+                    onClick={handleComplete}
+                    disabled={submitting || loadingProfile}
+                    className="mx-auto"
+                  >
+                    <MaterialIcon icon={submitting ? "hourglass_empty" : "dashboard"} size="sm" />
+                    <span className="ml-1">
+                      {submitting ? "Salvando..." : "Ir para o Dashboard"}
+                    </span>
                   </Button>
                 </div>
               </Card>

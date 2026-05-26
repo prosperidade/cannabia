@@ -11,7 +11,6 @@ const patientNavItems: MobileNavItem[] = [
   { label: "Inicio", icon: "home", href: "/p/dashboard" },
   { label: "Tratamento", icon: "medication", href: "/p/tratamento" },
   { label: "Diario", icon: "edit_note", href: "/p/diario" },
-  { label: "Documentos", icon: "folder", href: "/p/documentos" },
   { label: "Consultas", icon: "chat", href: "/p/consultas" },
 ];
 

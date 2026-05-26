@@ -78,6 +78,7 @@ from src.web.routes.knowledge import knowledge_bp
 from src.web.routes.admin_agents import admin_agents_bp
 from src.web.routes.conversations import conversations_bp
 from src.web.routes.payments import payments_bp
+from src.web.routes.med_onboarding import med_onboarding_bp
 
 from src.ai.service import CannabIAService
 from src.repositories.user_repository import (
@@ -259,6 +260,7 @@ def create_app() -> Flask:
     app.register_blueprint(admin_agents_bp)
     app.register_blueprint(conversations_bp)
     app.register_blueprint(payments_bp)
+    app.register_blueprint(med_onboarding_bp)
 
     # ==============================
     # CSRF HELPERS

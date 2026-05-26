@@ -161,86 +161,87 @@ export default function RelatoriosPage() {
       {/* ---------- ATENDIMENTOS ---------- */}
       {activeTab === "atendimentos" && (
         <div className="space-y-8">
-          {/* KPI row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {atendKpis.length > 0 ? atendKpis.map((k) => (
-              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
-            )) : (
-              <>
-                <StatCard icon="event_note" label="Total Consultas" value="—" delta="—" deltaType="up" />
-                <StatCard icon="avg_pace" label="Media/dia" value="—" delta="—" deltaType="up" />
-                <StatCard icon="timer" label="Tempo Medio" value="—" delta="—" deltaType="up" />
-                <StatCard icon="task_alt" label="Taxa Conclusao" value="—" delta="—" deltaType="up" />
-              </>
-            )}
-          </div>
+          {atendKpis.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {atendKpis.map((k) => (
+                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+              ))}
+            </div>
+          )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2" padding="lg">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h4 className="text-lg font-headline font-bold text-on-surface">Consultas por Periodo</h4>
-                  <p className="text-xs text-stone-500">Atendimentos vs Retornos ({period})</p>
-                </div>
-                <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary" /> Atendimentos</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Retornos</span>
-                </div>
-              </div>
-              <BarChart data={atendimentosChart} />
-            </Card>
-
-            <Card padding="lg">
-              <h4 className="text-lg font-headline font-bold text-on-surface mb-4">Ranking Medicos</h4>
-              <div className="space-y-4">
-                {doctorRanking.map((doc) => (
-                  <div key={doc.name} className="group">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-stone-300 font-medium">{doc.name}</span>
-                      <span className="text-xs text-stone-500">{doc.count} consultas</span>
+          {(atendimentosChart.length > 0 || doctorRanking.length > 0) && (
+            <div className={cn("grid grid-cols-1 gap-6", doctorRanking.length > 0 && atendimentosChart.length > 0 && "lg:grid-cols-3")}>
+              {atendimentosChart.length > 0 && (
+                <Card className={cn(doctorRanking.length > 0 && "lg:col-span-2")} padding="lg">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h4 className="text-lg font-headline font-bold text-on-surface">Consultas por Periodo</h4>
+                      <p className="text-xs text-stone-500">Atendimentos vs Retornos ({period})</p>
                     </div>
-                    <ProgressBar value={doc.pct} size="sm" />
+                    <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+                      <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary" /> Atendimentos</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Retornos</span>
+                    </div>
+                  </div>
+                  <BarChart data={atendimentosChart} />
+                </Card>
+              )}
+
+              {doctorRanking.length > 0 && (
+                <Card padding="lg">
+                  <h4 className="text-lg font-headline font-bold text-on-surface mb-4">Ranking Medicos</h4>
+                  <div className="space-y-4">
+                    {doctorRanking.map((doc) => (
+                      <div key={doc.name} className="group">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-stone-300 font-medium">{doc.name}</span>
+                          <span className="text-xs text-stone-500">{doc.count} consultas</span>
+                        </div>
+                        <ProgressBar value={doc.pct} size="sm" />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {statusDist.length > 0 && (
+            <Card padding="lg">
+              <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Distribuicao por Status</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {statusDist.map((s) => (
+                  <div key={s.label} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-stone-300">{s.label}</span>
+                      <Badge tone={s.tone}>{s.pct}%</Badge>
+                    </div>
+                    <ProgressBar value={s.pct} variant={s.tone === "primary" ? "primary" : s.tone === "warning" ? "warning" : "danger"} />
                   </div>
                 ))}
               </div>
             </Card>
-          </div>
+          )}
 
-          <Card padding="lg">
-            <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Distribuicao por Status</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {statusDist.map((s) => (
-                <div key={s.label} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-stone-300">{s.label}</span>
-                    <Badge tone={s.tone}>{s.pct}%</Badge>
-                  </div>
-                  <ProgressBar value={s.pct} variant={s.tone === "primary" ? "primary" : s.tone === "warning" ? "warning" : "danger"} />
-                </div>
-              ))}
-            </div>
-          </Card>
+          {atendKpis.length === 0 && atendimentosChart.length === 0 && doctorRanking.length === 0 && statusDist.length === 0 && (
+            <EmptyState period={period} />
+          )}
         </div>
       )}
 
       {/* ---------- FINANCEIRO ---------- */}
       {activeTab === "financeiro" && (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {finKpis.length > 0 ? finKpis.map((k) => (
-              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
-            )) : (
-              <>
-                <StatCard icon="payments" label="Receita Total" value="—" delta="—" deltaType="up" />
-                <StatCard icon="account_balance" label="Custos" value="—" delta="—" deltaType="down" />
-                <StatCard icon="trending_up" label="Margem Liquida" value="—" delta="—" deltaType="up" />
-                <StatCard icon="receipt_long" label="Ticket Medio" value="—" delta="—" deltaType="up" />
-              </>
-            )}
-          </div>
+          {finKpis.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {finKpis.map((k) => (
+                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+              ))}
+            </div>
+          )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2" padding="lg">
+          {financeiroChart.length > 0 && (
+            <Card padding="lg">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h4 className="text-lg font-headline font-bold text-on-surface">Receita vs Custo</h4>
@@ -253,140 +254,77 @@ export default function RelatoriosPage() {
               </div>
               <BarChart data={financeiroChart} />
             </Card>
+          )}
 
-            <Card padding="lg">
-              <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Composicao de Custos</h4>
-              <div className="space-y-4">
-                {[
-                  { label: "Pessoal", pct: 45 },
-                  { label: "Insumos", pct: 25 },
-                  { label: "Tecnologia", pct: 15 },
-                  { label: "Administrativo", pct: 10 },
-                  { label: "Outros", pct: 5 },
-                ].map((item) => (
-                  <div key={item.label} className="group">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-stone-300">{item.label}</span>
-                      <span className="text-xs text-stone-500">{item.pct}%</span>
-                    </div>
-                    <ProgressBar value={item.pct} size="sm" />
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              { icon: "savings", title: "Economia Projetada", value: "R$ 12.400/mes", desc: "Otimizacao de processos com IA" },
-              { icon: "trending_up", title: "Crescimento MoM", value: "+14.2%", desc: "Comparado ao mes anterior" },
-              { icon: "account_balance_wallet", title: "Previsao Trimestral", value: "R$ 780.000", desc: "Baseado na tendencia atual" },
-            ].map((card) => (
-              <Card key={card.title} padding="md" className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-xl shrink-0">
-                  <MaterialIcon icon={card.icon} className="text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-stone-500 uppercase tracking-widest font-bold">{card.title}</p>
-                  <p className="text-xl font-headline font-extrabold text-on-surface mt-1">{card.value}</p>
-                  <p className="text-xs text-stone-500 mt-1">{card.desc}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
+          {finKpis.length === 0 && financeiroChart.length === 0 && (
+            <EmptyState period={period} />
+          )}
         </div>
       )}
 
       {/* ---------- PACIENTES ---------- */}
       {activeTab === "pacientes" && (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {patKpis.length > 0 ? patKpis.map((k) => (
-              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
-            )) : (
-              <>
-                <StatCard icon="person_add" label="Novos/Mes" value="—" delta="—" deltaType="up" />
-                <StatCard icon="group" label="Ativos Total" value="—" delta="—" deltaType="up" />
-                <StatCard icon="sync" label="Taxa Retencao" value="—" delta="—" deltaType="up" />
-                <StatCard icon="diversity_3" label="NPS" value="—" delta="—" deltaType="up" />
-              </>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2" padding="lg">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h4 className="text-lg font-headline font-bold text-on-surface">Novos Pacientes/Mes</h4>
-                  <p className="text-xs text-stone-500">Evolucao de cadastros ({period})</p>
-                </div>
-              </div>
-              <BarChart data={pacientesChart} singleColor />
-            </Card>
-
-            <Card padding="lg">
-              <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Condicoes Clinicas</h4>
-              <div className="space-y-4">
-                {conditions.map((c) => (
-                  <div key={c.label} className="group">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-stone-300">{c.label}</span>
-                      <span className="text-xs text-stone-500">{c.pct}%</span>
-                    </div>
-                    <ProgressBar value={c.pct} size="sm" />
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <Card padding="lg" className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-secondary/10 rounded-2xl">
-                <MaterialIcon icon="trending_up" className="text-secondary" size="lg" />
-              </div>
-              <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Taxa de Retencao</p>
-                <h5 className="text-2xl font-headline font-extrabold text-on-surface">
-                  {patKpis.find((k) => k.label.includes("Retencao"))?.value ?? "—"}
-                </h5>
-                <p className="text-xs text-stone-500 mt-1">Pacientes que retornam em ate 90 dias</p>
-              </div>
-            </div>
-            <div className="flex gap-8">
-              {[
-                { label: "Retorno medio", value: "--" },
-                { label: "Satisfacao", value: "--" },
-                { label: "Indicacoes", value: "--" },
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold mb-1">{s.label}</p>
-                  <p className="text-lg font-headline font-extrabold text-on-surface">{s.value}</p>
-                </div>
+          {patKpis.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {patKpis.map((k) => (
+                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
               ))}
             </div>
-          </Card>
+          )}
+
+          {(pacientesChart.length > 0 || conditions.length > 0) && (
+            <div className={cn("grid grid-cols-1 gap-6", pacientesChart.length > 0 && conditions.length > 0 && "lg:grid-cols-3")}>
+              {pacientesChart.length > 0 && (
+                <Card className={cn(conditions.length > 0 && "lg:col-span-2")} padding="lg">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h4 className="text-lg font-headline font-bold text-on-surface">Novos Pacientes/Mes</h4>
+                      <p className="text-xs text-stone-500">Evolucao de cadastros ({period})</p>
+                    </div>
+                  </div>
+                  <BarChart data={pacientesChart} singleColor />
+                </Card>
+              )}
+
+              {conditions.length > 0 && (
+                <Card padding="lg">
+                  <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Condicoes Clinicas</h4>
+                  <div className="space-y-4">
+                    {conditions.map((c) => (
+                      <div key={c.label} className="group">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-stone-300">{c.label}</span>
+                          <span className="text-xs text-stone-500">{c.pct}%</span>
+                        </div>
+                        <ProgressBar value={c.pct} size="sm" />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {patKpis.length === 0 && pacientesChart.length === 0 && conditions.length === 0 && (
+            <EmptyState period={period} />
+          )}
         </div>
       )}
 
       {/* ---------- IA ---------- */}
       {activeTab === "ia" && (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {iaKpis.length > 0 ? iaKpis.map((k) => (
-              <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
-            )) : (
-              <>
-                <StatCard icon="auto_awesome" label="Analises Realizadas" value="—" delta="—" deltaType="up" />
-                <StatCard icon="verified" label="Precisao" value="—" delta="—" deltaType="up" />
-                <StatCard icon="paid" label="Custo Total" value="—" delta="—" deltaType="up" />
-                <StatCard icon="speed" label="Tempo de Resposta" value="—" delta="—" deltaType="up" />
-              </>
-            )}
-          </div>
+          {iaKpis.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {iaKpis.map((k) => (
+                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+              ))}
+            </div>
+          )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2" padding="lg">
+          {iaChart.length > 0 && (
+            <Card padding="lg">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h4 className="text-lg font-headline font-bold text-on-surface">Analises Realizadas</h4>
@@ -399,50 +337,11 @@ export default function RelatoriosPage() {
               </div>
               <BarChart data={iaChart} />
             </Card>
+          )}
 
-            <Card padding="lg">
-              <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Uso por Modelo de Analise</h4>
-              <div className="space-y-4">
-                {[
-                  { label: "GPT-4", pct: 55, tokens: "2.1M creditos" },
-                  { label: "Gemini Pro", pct: 30, tokens: "1.2M creditos" },
-                  { label: "GPT-3.5", pct: 10, tokens: "380K creditos" },
-                  { label: "Busca Cientifica", pct: 5, tokens: "150K creditos" },
-                ].map((m) => (
-                  <div key={m.label} className="group">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-stone-300">{m.label}</span>
-                      <span className="text-xs text-stone-500">{m.tokens}</span>
-                    </div>
-                    <ProgressBar value={m.pct} size="sm" />
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <Card padding="lg" className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20 relative overflow-hidden">
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 blur-3xl" />
-            <div className="flex items-center gap-2 text-primary mb-4">
-              <MaterialIcon icon="auto_awesome" size="sm" filled />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Previsao Estrategica</span>
-            </div>
-            <h4 className="text-xl font-headline font-bold text-on-surface leading-tight mb-4">
-              Otimizacao do Fluxo Clinico
-            </h4>
-            <p className="text-stone-300 text-sm leading-relaxed">
-              Com base na tendencia atual, recomendamos aumentar a{" "}
-              <span className="text-primary font-bold">capacidade de analise em 15%</span>{" "}
-              para o proximo trimestre. O modelo GPT-4 apresenta melhor custo-beneficio para anamneses complexas.
-            </p>
-            <div className="mt-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">Score de Confianca</span>
-                <span className="text-xs font-bold text-primary">98%</span>
-              </div>
-              <ProgressBar value={98} glow />
-            </div>
-          </Card>
+          {iaKpis.length === 0 && iaChart.length === 0 && (
+            <EmptyState period={period} />
+          )}
         </div>
       )}
     </div>
@@ -452,6 +351,21 @@ export default function RelatoriosPage() {
 /* ------------------------------------------------------------------ */
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
+
+function EmptyState({ period }: { period: string }) {
+  return (
+    <Card padding="lg" className="border-dashed border-outline-variant/30">
+      <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+        <MaterialIcon icon="insights" size="lg" className="text-stone-600" />
+        <h4 className="text-sm font-bold text-stone-400">Sem dados para o periodo selecionado</h4>
+        <p className="text-xs text-stone-500 max-w-md">
+          Nao ha metricas disponiveis para o periodo {period}. Tente outro intervalo
+          ou aguarde novos atendimentos serem registrados.
+        </p>
+      </div>
+    </Card>
+  );
+}
 
 function BarChart({
   data,
