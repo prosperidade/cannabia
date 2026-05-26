@@ -516,3 +516,79 @@ nao bug do produto. Adicionar ao backlog M2/qualidade para reproduzir com
 - Backlog residual permanece como na secao 7.5: M2 except cleanup,
   auditoria SQL P0.5, backup off-site, credenciais R2, BUG-001 dumps,
   C6/C7 validacao operacional, Sprint E integracoes externas, P5 agentes IA.
+
+## 9. Atualizacao 2026-05-26 (tarde) — M2 except cleanup (parcial)
+
+### 9.1 Ataque ao P2.1 em 7 PRs paralelas
+
+O cleanup do antipadrao `except Exception` (P2.1) foi atacado em 7 PRs
+sequenciais ao longo de 2026-05-26, com trabalho coordenado entre Claude
+e Codex. Estado inicial: 146 occs em 59 arquivos. Estado final: 90 occs
+em 45 arquivos. **Reducao de 56 occs (-38%)** e 14 arquivos limpos.
+
+| PR | Merge | Branch | Cobre |
+|----|-------|--------|-------|
+| #46 | `97f8f6a` | `feat/sprint-D-m2-silent-swallows` | M2.1: 9 silent swallows (app/validators/legislation_catalog/tasks/pharmacovigilance/governance/payments/knowledge x2) → narrow `(TypeError, ValueError)`, `OSError`+`JSONDecodeError`, `RuntimeError` para auth-ctx, log.debug/warning |
+| #47 | `3336c03` | `feat/sprint-D-m2-web-routes-narrow` | M2.2 base: clinic_config + knowledge (3) + compliance (2) + patient_portal (1) — add `OperationalError → 503` antes do catch-all em 7 rotas |
+| #48 | `a040e46` | `feat/sprint-D-m2-knowledge-config` | M2.2 extensao: knowledge_routes (15 → 7) + clinic_config narrow para `(DatabaseError, ValueError, RuntimeError)` |
+| #49 | `3d485b7` | `feat/sprint-D-m2-payments` | M2.2: payments.py (4 → 0) — webhooks com `(DatabaseError, ValueError)` |
+| #50 | `e4be485` | `feat/sprint-D-m2-api-v1` | M2.2: api_v1.py (2 → 0) narrow para excecoes tipadas + `RuntimeError` |
+| #51 | `9ed30ac` | `feat/sprint-D-m2-org-management` | M2.2: org_management.py (8 → 0) — todos os endpoints admin org com `OperationalError → 503` + `DatabaseError → 500` |
+| #52 | `22b4a22` | `feat/sprint-D-m2-admin-clinical` | M2.2: admin_users.py + clinical_intelligence.py — 4 endpoints, mantem 503 para OperationalError, 500 para esperadas |
+
+### 9.2 Padroes aplicados
+
+O cleanup adotou tres padroes consistentes (em ordem do mais especifico
+para o mais amplo):
+
+1. **Narrow para excecao tipada esperada** quando o erro tem causa unica:
+   - Parsing/conversao de tipos → `(TypeError, ValueError)`
+   - IO de arquivo → `OSError`, `json.JSONDecodeError`
+   - DB connection/timeout → `psycopg2.OperationalError → 503`
+   - DB query/integrity → `psycopg2.DatabaseError → 500`
+   - Auth context fora do request → `RuntimeError`
+
+2. **Catch-all em borda com log estruturado**: preservado nas funcoes que
+   sao genuinamente boundary (route handlers que tem que devolver algo)
+   ou em integracoes externas. Sempre com `logger.error(..., exc_info=True)`.
+
+3. **Add 503 antes do catch-all**: padrao mais comum em rotas frontend-facing.
+   `OperationalError` (DB indisponivel) vira 503 com mensagem "Servico
+   temporariamente indisponivel". Catch-all permanece como ultima rede,
+   mas agora so cobre erros nao-DB.
+
+### 9.3 Trabalho ainda em aberto
+
+90 occs restantes em 45 arquivos, distribuidas:
+
+| Dominio | Occs | Top arquivos | Prioridade M2 |
+|---------|------|--------------|---------------|
+| **AI agents/pipeline** | 26 | `agents/extrator.py` (9), `ai/chains.py` (4), `agents/regulatorio.py` (3), `agents/cientifico.py` (2), `agents/base.py` (2) | Alta (M2.3 candidato) |
+| **Web routes restantes** | 21 | `regulatory.py` (4), `system.py` (3), `prescriptions.py` (3), `admin_agents.py` (3), `governance.py` (2), `telemetry.py` (2) | Media |
+| **Infra** | 14 | `health.py` (5), `observability.py` (3), `tasks.py` (2), `database.py` (2) | Baixa (bordas defensivas OK) |
+| **Services** | 13 | `anchor_upgrade_service.py` (2), `billing_service.py` (2), `campaign_service.py` (2), `message_service.py` (2) | Media |
+| **Knowledge** | 9 | `google_files.py` (6), `pubmed.py` (2), `auto_ingest.py` (1) | Media (concentrado em google_files) |
+| **Integrations** | 4 | vigimed, polygon_anchor, opentimestamps, email (1 cada) | Baixa (ja sao bordas) |
+| **Outros** | 4 | `app.py` (1), `tenancy.py` (2), `repositories/anamnesis_repository.py` (1) | Baixa |
+
+Recomendacao: proxima rodada (M2.3) atacar **AI agents/pipeline** porque
+- Concentracao em 5 arquivos (chains, extrator, regulatorio, cientifico, base)
+- Agentes IA sao core do produto e tem alto valor de observabilidade
+- Padroes ja conhecidos: graceful degradation de chamadas externas (PubMed, Gemini, OpenAI) — narrow para `requests.exceptions.RequestException`, `httpx.HTTPError`, `google.api_core.exceptions.*`, etc.
+
+### 9.4 Baseline em main pos-7-PRs
+
+- HEAD: `22b4a22`
+- pytest -q: 1830 passed, 1 skipped (mesmo baseline pre-M2)
+- Coverage: 58.84% (gate 55% atendido)
+- tsc --noEmit: verde
+- 6 branches sprint-D-m2-* deletadas remoto+local
+- Comportamento publico API: inalterado para sucesso; rotas DB-touching agora
+  retornam 503 em vez de 200-vazio quando Postgres cai
+
+### 9.5 Pendencias residuais inalteradas
+
+Mesma lista da secao 8.5, mas M2 agora parcialmente quitado. As 90 occs
+restantes seguem como divida tecnica P2.1 a ser fechada em ondas
+subsequentes (M2.3 AI agents recomendado; depois infra/services
+conforme valor).
