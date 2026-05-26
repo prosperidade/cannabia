@@ -379,3 +379,80 @@ operacional proprio.
   `ANVISA_NOTIFICATION_PROVIDER=vigimed|notivisa`) em producao ate os clients
   reais deixarem de ser stubs.
 - Nao habilitar `LGPD_PURGE_ENABLED=true` sem OK juridico e dry-run revisado.
+
+## 7. Atualizacao 2026-05-25 (noite) — execucao das Sprints A, B, C e D
+
+Esta secao foi adicionada apos a execucao das sprints planejadas neste
+documento, para refletir o estado final do dia.
+
+### 7.1 Sprints A, B, C — MERGED em main
+
+| PR | Merge | Cobre |
+|----|-------|-------|
+| #39 `feat/sprint-A-baseline-recoverability` | `9f4eb3b` | P0.1, P0.2, P0.3 + bootstrap (`.env.example` parcial, `docs/LOCAL_DEV.md`) |
+| #40 `feat/sprint-B-secrets-financial` | `ab91c6e` | P0.4, P0.5 + alias Atendente->Recepcao/AdminClinica + `tests/test_financial_role_access.py` |
+| #41 `feat/sprint-C-mvp-pilot` | `0fe9112` (HEAD main) | C.1 esconder `/p/documentos` + C.2 chat input desativado + C.3 `/org/relatorios` sem mocks + C.4-base `/med/onboarding` persistido (migration 047_medical_profiles + endpoint POST + 10 tests) |
+
+### 7.2 Sprint D - "Quitar dividas tecnicas" - 3 PRs abertas
+
+A "Sprint D - Integracoes externas" descrita na secao 4 foi adiada
+(renomeada `Sprint E` abaixo). Em seu lugar foi executada uma Sprint D
+focada em quitar as dividas tecnicas P1.2, P1.4, P2.2, P2.3 e fechar a
+onda 2 do Sprint C (upload real).
+
+| PR branch | HEAD | Cobre |
+|-----------|------|-------|
+| `feat/sprint-D-quick-wins` | `dbe461b` | Q1 P2.2 marcado como falso positivo + Q2 P1.4 remove `?legacy=1` honrando antecipadamente Sunset 2026-08-01 + Q3 P1.2 `tests/test_env_docs_alignment.py` (capturou 7 envs SENTRY/LEGISLATION/CASE_AGGREGATE/FF_PROMPT que Sprint A deixou faltar; adicionadas em `.env.example`) |
+| `feat/sprint-D-storage-r2` | `200db61` | M1 onda 2 da Sprint C: `src/infra/storage.py` com providers plugaveis (noop/local/r2) + endpoint POST `/api/v1/med/onboarding/upload/<field>` multipart (5MB, pdf/jpg/png) + `boto3>=1.34.0` opcional + 7 tests storage + 10 tests upload + frontend `uploadOnboardingDocument()` + `UploadZone` reativado |
+| `feat/sprint-D-coverage-baseline` | `76d7cc9` | M3 P2.3: gate global `--cov-fail-under=55` em `pytest.ini` + baseline documentado por trilha (12 maduras >=80%, 8 estaveis 60-79%, 14 pendentes <50%) |
+
+Validacao local na sessao:
+- Sprint A+B+C juntas (relatado pelo usuario): `pytest -q` 1804 passed, 1 skipped + `tsc --noEmit` verde
+- Sprint D Quick Wins: 1813 passed, 1 skipped + tsc verde
+- Sprint D Storage R2: 1831 passed, 1 skipped (+17 testes novos) + tsc verde
+- Sprint D Coverage Gate: 1814 passed, 1 skipped, cobertura 58.56% > 55%
+
+### 7.3 Status atualizado por achado
+
+| Achado | Status apos sessao | PR de origem |
+|--------|---------------------|--------------|
+| P0.1 Backup validado triplo | concluido + script canonico | Sprint A #39 |
+| P0.2 Gate Gemini smoke | concluido | Sprint A #39 |
+| P0.3 tmp_path windows | concluido | Sprint A #39 |
+| P0.4 Roles financeiras | concluido + 17 tests regressao | Sprint B #40 |
+| P0.5 Segredos defensivos | concluido (residual: auditoria SQL em prod) | Sprint B #40 |
+| P1.1 Integracoes reais (Polygon/OTS/ANVISA/SMS) | nao atacado — depende de credenciais externas | (Sprint E) |
+| P1.2 `.env.example` alinhado | concluido + test automatico | Sprint D quick-wins |
+| P1.3 Frontend placeholders | concluido (3 escondidos + 1 implementado + uploads reais) | Sprint C #41 + Sprint D storage |
+| P1.4 Paginacao legacy Sunset | concluido (removido antecipadamente) | Sprint D quick-wins |
+| P2.1 `except Exception` amplo | adiado para sessao dedicada (~2h) | (Sprint D-2 M2 futura) |
+| P2.2 `print` em telemetry.py | falso positivo (era docstring) | Sprint D quick-wins |
+| P2.3 Coverage gate | concluido (gate 55% global + baseline por trilha) | Sprint D coverage-baseline |
+
+### 7.4 Sprint E - Integracoes externas (renomeada da Sprint D original)
+
+A Sprint D originalmente planejada nesta secao 4 foi renumerada para
+Sprint E, ja que o nome "Sprint D" passou a referenciar o trabalho de
+quitar dividas tecnicas acima. Escopo inalterado:
+
+- ANVISA/VigiMed se o piloto regulatorio exigir notificacao real.
+- Polygon/OTS se a prioridade for prova publica de integridade.
+- SMS se campanhas multicanal forem requisito comercial.
+
+### 7.5 Pendencias residuais apos hoje
+
+- **M2 / P2.1 except Exception cleanup** — 146 occs em 59 arquivos.
+  Atacar em rotas frontend-facing (api_v1, clinic_config, payments,
+  patient_portal, knowledge). Adiado por escolha de escopo da sessao.
+- **Auditoria SQL P0.5 historico** — operacional, precisa acesso bancos
+  reais (Render/staging).
+- **Backup off-site agendado (P0.1 onda 2)** — operacional.
+- **Credenciais Cloudflare R2** — codigo Sprint D storage-r2 esta pronto,
+  esperando `R2_ACCOUNT_ID`/`KEY`/`SECRET`/`BUCKET` para ativar storage real
+  em prod (default `noop` ate la).
+- **BUG-001 dumps zerados** — investigacao pendente (memoria
+  `project_bug_001_dumps_zerados.md`).
+- **C6 / C7** (agentes ingerindo + agregacao anonimizada) — fechados no
+  codigo, pendente validacao operacional.
+- **P5 refatoracao agentes IA** — por ultimo (decisao 2026-04-27 +
+  cautela secao 6).
