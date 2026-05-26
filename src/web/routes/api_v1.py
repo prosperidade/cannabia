@@ -8,6 +8,7 @@ from typing import Any, Iterable, Optional
 
 from flask import Blueprint, g, jsonify, request, session
 from flask_login import current_user, login_user, logout_user
+from psycopg2 import DatabaseError
 
 logger = logging.getLogger("cannabia.api_v1")
 
@@ -547,7 +548,7 @@ def intake_triage_submit():
         return _error("validation_error", str(exc), 422)
     except RuntimeError as exc:
         return _error("internal_error", str(exc), 500)
-    except Exception:
+    except (DatabaseError, TypeError, KeyError):
         logger.exception("Erro inesperado em submit_triage_intake")
         return _error("internal_error", "Erro ao processar triagem.", 500)
 
@@ -898,7 +899,7 @@ def appointment_triage_link(appointment_id: int):
     if link.get("link_id"):
         try:
             update_appointment_triage_link(appointment_id, link["link_id"])
-        except Exception:
+        except (DatabaseError, RuntimeError):
             logger.warning(
                 "Falha ao atualizar appointment.triage_link_id (appointment_id=%s, link_id=%s)",
                 appointment_id,
