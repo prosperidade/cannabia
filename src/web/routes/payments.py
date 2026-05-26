@@ -16,6 +16,7 @@ from typing import Any
 
 from flask import Blueprint, g, request
 from flask_login import current_user
+from psycopg2 import DatabaseError
 
 from src.web.routes.api_v1 import (
     _error,
@@ -137,7 +138,7 @@ def issue_pix():
         return _success(_serialize(created), status=201)
     except ValueError as exc:
         return _error("validation_error", str(exc), 422)
-    except Exception as exc:
+    except (DatabaseError, RuntimeError, TypeError, KeyError) as exc:
         logger.error("Erro ao emitir Pix: %s", exc, exc_info=True)
         return _error("internal_error", "Falha ao emitir cobranca.", 500)
 
@@ -284,7 +285,7 @@ def payment_webhook(provider: str):
                 headers=dict(request.headers),
                 error_message=sig_error,
             )
-        except Exception:
+        except DatabaseError:
             # Falha de auditoria nao deve impedir resposta 401 ao webhook;
             # mas precisamos saber se a tabela de audit log esta quebrada.
             logger.warning(
@@ -325,7 +326,7 @@ def payment_webhook(provider: str):
         status_code = 404
         error_message = str(exc)
         return _error("not_found", error_message, 404)
-    except Exception as exc:
+    except (DatabaseError, RuntimeError, TypeError, KeyError) as exc:
         status_code = 500
         error_message = str(exc)
         logger.error("Erro ao processar webhook %s: %s", provider_slug, exc, exc_info=True)
@@ -340,5 +341,5 @@ def payment_webhook(provider: str):
                 headers=dict(request.headers),
                 error_message=error_message or sig_error,
             )
-        except Exception as log_err:
+        except DatabaseError as log_err:
             logger.warning("Falha ao registrar webhook log: %s", log_err)
