@@ -1,9 +1,12 @@
 """Helpers de paginacao canonica (Sprint 2 Track Page).
 
+Sprint D Q2: `?legacy=1` foi removido honrando antecipadamente o Sunset
+2026-08-01. Zero consumidores no frontend; deprecation tracking nao tem
+mais funcao. Quem precisar de envelope sempre recebe `paginated_response`.
+
 Contrato:
-    parse_pagination(request) -> (limit, offset, include_total, legacy_mode)
+    parse_pagination(request) -> (limit, offset, include_total)
     paginated_response(items, limit, offset, total=None, has_more=None) -> envelope
-    bare_legacy_response(items) -> lista nua (escape hatch ?legacy=1)
 
 Envelope canonico:
     {
@@ -14,13 +17,11 @@ Envelope canonico:
         "has_more": bool,      # heuristico (limit+1 trick) ou exato com total
     }
 
-Politicas (decisoes coordenador Sprint 2):
+Politicas:
     - default_limit = 50; max_limit = 200
-    - limit > max_limit -> clamp + logger.warning (Sprint 2 silencia, Sprint 3
-      vira HTTP 400)
+    - limit > max_limit -> ValueError (caller mapeia para HTTP 400 `invalid_limit`)
     - limit < 1 ou offset < 0 -> ValueError
     - ?include_total=1 -> COUNT(*) opt-in (custa)
-    - ?legacy=1 -> retorna lista nua, escape hatch por 1 sprint
 
 Helpers de query:
     apply_limit_plus_one(rows, limit) -> (items, has_more) — descarta o
@@ -34,7 +35,7 @@ Uso pelos repositorios:
 from __future__ import annotations
 
 import logging
-from typing import Any, Iterable, Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence, Tuple
 
 logger = logging.getLogger("cannabia.web.pagination")
 
@@ -65,32 +66,23 @@ def parse_pagination(
     *,
     default_limit: int = DEFAULT_LIMIT,
     max_limit: int = MAX_LIMIT,
-) -> Tuple[int, int, bool, bool]:
+) -> Tuple[int, int, bool]:
     """Parseia query params de paginacao da request Flask.
 
-    Retorna (limit, offset, include_total, legacy_mode).
+    Retorna (limit, offset, include_total).
 
     Raises:
-        ValueError: se limit < 1 ou offset < 0 (apos coercao).
-
-    Notas:
-        - Sem `?limit` -> usa default (50).
-        - `?limit > max_limit` -> clamp + logger.warning. Sprint 2 silencia
-          o cliente; Sprint 3 vai retornar HTTP 400.
-        - `?include_total=1` -> opt-in pra COUNT(*).
-        - `?legacy=1` -> escape hatch (cliente quer lista nua).
+        ValueError: se limit < 1, offset < 0 ou limit > max_limit.
     """
     args = request.args if hasattr(request, "args") else request
 
     raw_limit = args.get("limit") if hasattr(args, "get") else None
     raw_offset = args.get("offset") if hasattr(args, "get") else None
     raw_total = args.get("include_total") if hasattr(args, "get") else None
-    raw_legacy = args.get("legacy") if hasattr(args, "get") else None
 
     limit = _coerce_int(raw_limit, default_limit)
     offset = _coerce_int(raw_offset, 0)
     include_total = _truthy_flag(raw_total)
-    legacy_mode = _truthy_flag(raw_legacy)
 
     if limit < 1:
         raise ValueError(f"limit deve ser >= 1 (recebido {limit})")
@@ -98,9 +90,6 @@ def parse_pagination(
         raise ValueError(f"offset deve ser >= 0 (recebido {offset})")
 
     if limit > max_limit:
-        # Sprint 3 Page-Migration: deixou de ser clamp silencioso; agora
-        # ValueError -> as rotas mapeiam para HTTP 400 `invalid_limit` no
-        # helper `_pagination_error` (api_v1.py).
         logger.warning(
             "pagination.limit_exceeded requested=%s max=%s endpoint=%s",
             limit,
@@ -111,30 +100,7 @@ def parse_pagination(
             f"limit {limit} excede o maximo permitido ({max_limit})"
         )
 
-    if legacy_mode:
-        logger.warning(
-            "pagination.legacy_used endpoint=%s",
-            getattr(request, "path", "?"),
-        )
-
-    return limit, offset, include_total, legacy_mode
-
-
-# Sprint 3 Page-Migration: cabecalhos pra sinalizar deprecation do
-# escape-hatch `?legacy=1`. Removal planejada Sprint 4 (Sunset abaixo).
-DEPRECATION_HEADER = "true"
-SUNSET_HEADER = "Sun, 01 Aug 2026 00:00:00 GMT"
-
-
-def deprecation_headers() -> dict[str, str]:
-    """Headers a serem aplicados em respostas de endpoints servidos via
-    `?legacy=1`. Retorna copia mutavel pra rotas combinarem com outros
-    headers (ex.: CORS).
-    """
-    return {
-        "Deprecation": DEPRECATION_HEADER,
-        "Sunset": SUNSET_HEADER,
-    }
+    return limit, offset, include_total
 
 
 # Codigo de erro publico (frontend pode tratar via ApiError.code).
@@ -171,11 +137,6 @@ def paginated_response(
         "offset": offset,
         "has_more": bool(has_more),
     }
-
-
-def bare_legacy_response(items: Iterable[Any]) -> list:
-    """Compat path: retorna lista nua (sem envelope) pro `?legacy=1`."""
-    return list(items)
 
 
 def apply_limit_plus_one(rows: Sequence[Any], limit: int) -> Tuple[list, bool]:

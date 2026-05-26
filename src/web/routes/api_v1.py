@@ -161,19 +161,6 @@ def _pagination_error(exc: ValueError):
     return _error("validation_error", msg, 422)
 
 
-def _apply_deprecation_headers(response_tuple):
-    """Aplica `Deprecation`/`Sunset` headers numa resposta `(body, status)`.
-
-    Usar em endpoints que servirem o compat path `?legacy=1`.
-    """
-    from src.web.pagination import deprecation_headers
-
-    body, status = response_tuple
-    for k, v in deprecation_headers().items():
-        body.headers[k] = v
-    return body, status
-
-
 def _resolve_triage_submission_clinic_id(payload: Optional[dict] = None) -> int:
     clinic_id = getattr(g, "clinic_id", None)
     if clinic_id:
@@ -455,28 +442,19 @@ def message_contacts():
 @api_v1_bp.get("/attendances")
 @api_role_required("Admin", "Medico")
 def attendances():
-    """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
+    """Envelope canonico {items, total, limit, offset, has_more}.
 
-    Sprint 3 Page-Migration:
-      - `limit > MAX_LIMIT` -> HTTP 400 `invalid_limit` (era clamp silencioso).
-      - `?legacy=1` -> DEPRECATED, retorna `Deprecation` + `Sunset` headers.
+    Sprint D Q2: removido suporte a `?legacy=1` (Sunset 2026-08-01).
+    `limit > MAX_LIMIT` -> HTTP 400 `invalid_limit`.
     """
-    from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
+    from src.web.pagination import paginated_response, parse_pagination
 
     status = request.args.get("status") or None
 
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         return _pagination_error(exc)
-
-    if legacy_mode:
-        page, page_size = _pagination_args()
-        reports = list_reports(g.clinic_id, status=status)
-        items, meta = _paginate(reports, page, page_size)
-        return _apply_deprecation_headers(
-            _success(bare_legacy_response(items), meta=meta)
-        )
 
     result = list_reports(
         g.clinic_id,
@@ -801,27 +779,12 @@ def patient_medical_record(patient_id: int):
         entries = list_patient_record_entries(g.clinic_id, patient_id, limit=50)
         return _success({"medical_record": record, "entries": entries})
 
-    from src.web.pagination import (
-        bare_legacy_response,
-        paginated_response,
-        parse_pagination,
-    )
+    from src.web.pagination import paginated_response, parse_pagination
 
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         return _pagination_error(exc)
-
-    if legacy_mode:
-        entries = list_patient_record_entries(g.clinic_id, patient_id, limit=limit)
-        return _apply_deprecation_headers(
-            _success(
-                {
-                    "medical_record": record,
-                    "entries": bare_legacy_response(entries),
-                }
-            )
-        )
 
     result = list_patient_record_entries(
         g.clinic_id,
@@ -844,27 +807,17 @@ def patient_medical_record(patient_id: int):
 @api_v1_bp.get("/appointments")
 @api_role_required(*OPERATION_ROLES)
 def appointments_list():
-    """Sprint 2 Track Page: envelope canonico {items, total, limit, offset, has_more}.
+    """Envelope canonico {items, total, limit, offset, has_more}.
 
-    `?legacy=1` preserva contrato antigo (lista nua via _paginate page-based).
+    Sprint D Q2: removido `?legacy=1` (Sunset 2026-08-01).
     Default = 50, max = 200, `?include_total=1` opt-in pra COUNT(*).
     """
-    from src.web.pagination import bare_legacy_response, paginated_response, parse_pagination
+    from src.web.pagination import paginated_response, parse_pagination
 
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         return _pagination_error(exc)
-
-    if legacy_mode:
-        # Compat path Sprint 1: lista nua paginada por ?page/?page_size.
-        # DEPRECATED Sprint 3 — Sunset 2026-08-01.
-        page, page_size = _pagination_args()
-        appointments = list_appointments()
-        items, meta = _paginate(appointments, page, page_size)
-        return _apply_deprecation_headers(
-            _success(bare_legacy_response(items), meta=meta)
-        )
 
     result = list_appointments(limit=limit, offset=offset, include_total=include_total)
     envelope = paginated_response(
@@ -984,13 +937,9 @@ def ai_metrics():
 
     Default (Sprint 1 compat): `recent_logs` = lista nua, max=100 via ?limit.
     `?paginated=1`: `recent_logs` vira `{items, total, limit, offset, has_more}`,
-        suporta `?offset`, `?include_total`, `?legacy=1` (forca compat).
+        suporta `?offset` e `?include_total`. Sprint D Q2: removido `?legacy=1`.
     """
-    from src.web.pagination import (
-        bare_legacy_response,
-        paginated_response,
-        parse_pagination,
-    )
+    from src.web.pagination import paginated_response, parse_pagination
 
     raw_status = (request.args.get("status") or "").strip()
     status = raw_status if raw_status and raw_status != "all" else None
@@ -1030,29 +979,11 @@ def ai_metrics():
 
     # Sprint 2 envelope path (?paginated=1).
     try:
-        limit, offset, include_total, legacy_mode = parse_pagination(request)
+        limit, offset, include_total = parse_pagination(request)
     except ValueError as exc:
         return _pagination_error(exc)
 
     summary = get_ai_audit_summary_filtered(status=status, days=days)
-
-    if legacy_mode:
-        legacy_logs = get_recent_ai_logs_filtered(
-            limit=limit, status=status, days=days
-        )
-        return _apply_deprecation_headers(
-            _success(
-                {
-                    "summary": summary,
-                    "recent_logs": bare_legacy_response(legacy_logs),
-                    "filters": {
-                        "status": status,
-                        "days": days,
-                        "limit": limit,
-                    },
-                }
-            )
-        )
 
     result = get_recent_ai_logs_filtered(
         limit=limit,

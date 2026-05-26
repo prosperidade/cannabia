@@ -12,7 +12,6 @@ from src.web.pagination import (
     LIMIT_PLUS_ONE_TRICK,
     MAX_LIMIT,
     apply_limit_plus_one,
-    bare_legacy_response,
     paginated_response,
     parse_pagination,
 )
@@ -29,58 +28,46 @@ def _fake_request(args: dict | None = None, path: str = "/api/v1/x") -> SimpleNa
 
 def test_parse_pagination_defaults_when_no_args():
     req = _fake_request()
-    limit, offset, include_total, legacy = parse_pagination(req)
+    limit, offset, include_total = parse_pagination(req)
     assert limit == DEFAULT_LIMIT == 50
     assert offset == 0
     assert include_total is False
-    assert legacy is False
 
 
 def test_parse_pagination_explicit_values():
     req = _fake_request({"limit": "30", "offset": "60", "include_total": "1"})
-    limit, offset, include_total, legacy = parse_pagination(req)
-    assert (limit, offset, include_total, legacy) == (30, 60, True, False)
+    assert parse_pagination(req) == (30, 60, True)
 
 
-def test_parse_pagination_legacy_flag():
+def test_parse_pagination_legacy_flag_is_ignored():
+    """Sprint D Q2: `?legacy=1` foi removido. O param e silenciosamente
+    ignorado (nao mais retornado e nao mais loga warning)."""
     req = _fake_request({"legacy": "1"})
-    _, _, _, legacy = parse_pagination(req)
-    assert legacy is True
+    limit, offset, include_total = parse_pagination(req)
+    assert (limit, offset, include_total) == (DEFAULT_LIMIT, 0, False)
 
 
 def test_parse_pagination_limit_above_max_raises(caplog):
-    """Sprint 3 Page-Migration: `limit > MAX_LIMIT` agora levanta
-    ValueError (era clamp silencioso na Sprint 2). Caller mapeia para
-    HTTP 400 `invalid_limit`.
-    """
+    """`limit > MAX_LIMIT` levanta ValueError. Caller mapeia para HTTP 400
+    `invalid_limit`."""
     req = _fake_request({"limit": "5000"})
     with caplog.at_level(logging.WARNING, logger="cannabia.web.pagination"):
         with pytest.raises(ValueError, match="excede o maximo"):
             parse_pagination(req)
     assert any("limit_exceeded" in rec.message for rec in caplog.records)
-    # Sanity: MAX_LIMIT continua sendo 200
     assert MAX_LIMIT == 200
 
 
-def test_parse_pagination_at_max_limit_ok(caplog):
+def test_parse_pagination_at_max_limit_ok():
     """Limit == MAX_LIMIT eh aceito (somente >MAX_LIMIT levanta)."""
     req = _fake_request({"limit": str(MAX_LIMIT)})
-    limit, _, _, _ = parse_pagination(req)
+    limit, _, _ = parse_pagination(req)
     assert limit == MAX_LIMIT
-
-
-def test_parse_pagination_legacy_logs_warning(caplog):
-    """Sprint 3 Page-Migration: ?legacy=1 server-side emite warning."""
-    req = _fake_request({"legacy": "1"})
-    with caplog.at_level(logging.WARNING, logger="cannabia.web.pagination"):
-        _, _, _, legacy = parse_pagination(req)
-    assert legacy is True
-    assert any("legacy_used" in rec.message for rec in caplog.records)
 
 
 def test_parse_pagination_invalid_strings_fall_back_to_defaults():
     req = _fake_request({"limit": "abc", "offset": "xyz"})
-    limit, offset, _, _ = parse_pagination(req)
+    limit, offset, _ = parse_pagination(req)
     assert limit == DEFAULT_LIMIT
     assert offset == 0
 
@@ -106,11 +93,11 @@ def test_parse_pagination_zero_limit_raises():
 def test_parse_pagination_truthy_variants():
     for raw in ("1", "true", "TRUE", "Yes", "on"):
         req = _fake_request({"include_total": raw})
-        _, _, inc, _ = parse_pagination(req)
+        _, _, inc = parse_pagination(req)
         assert inc is True, f"falhou pra {raw!r}"
     for raw in ("0", "false", "no", "off", ""):
         req = _fake_request({"include_total": raw})
-        _, _, inc, _ = parse_pagination(req)
+        _, _, inc = parse_pagination(req)
         assert inc is False, f"falhou pra {raw!r}"
 
 
@@ -157,20 +144,6 @@ def test_paginated_response_empty_items():
     env = paginated_response([], limit=50, offset=200, total=100)
     assert env["items"] == []
     assert env["has_more"] is False
-
-
-# ---------------------------------------------------------------------------
-# bare_legacy_response
-# ---------------------------------------------------------------------------
-
-def test_bare_legacy_response_returns_list():
-    out = bare_legacy_response(({"id": 1}, {"id": 2}))
-    assert isinstance(out, list)
-    assert out == [{"id": 1}, {"id": 2}]
-
-
-def test_bare_legacy_response_empty():
-    assert bare_legacy_response([]) == []
 
 
 # ---------------------------------------------------------------------------
