@@ -456,3 +456,63 @@ quitar dividas tecnicas acima. Escopo inalterado:
   codigo, pendente validacao operacional.
 - **P5 refatoracao agentes IA** — por ultimo (decisao 2026-04-27 +
   cautela secao 6).
+
+## 8. Atualizacao 2026-05-26 (manha) — fechamento da Sprint D
+
+### 8.1 Sprint D 100% merged em main
+
+As 3 PRs Sprint D que ainda estavam abertas foram fechadas nesta sessao,
+completando o ciclo iniciado em 2026-05-25.
+
+| PR | Merge | Cobre |
+|----|-------|-------|
+| #43 `feat/sprint-D-quick-wins` | `c040d3f` | Q1 P2.2 + Q2 P1.4 + Q3 P1.2 |
+| #44 `feat/sprint-D-coverage-baseline` | `d86e112` | M3 P2.3 (gate global 55%) |
+| #45 `feat/sprint-D-docs-update` | `2388fd0` | secao 7 do progresso29 + arquivo sprint_1_D_PR |
+
+PR adicional unrelated mergeada na mesma janela:
+- #18 `feat/cannabia-docs-4821243085080745684` — 4 docs novos em `docs/`
+  (CANNABIA_README, DATABASE_MAPPING, TECHNICAL_CONTEXT, WHATSAPP_FLOW).
+  Sem impacto em codigo, fora do escopo Sprint D.
+
+### 8.2 Resolucao de conflito em quick-wins
+
+`feat/sprint-D-quick-wins` foi criada antes do merge de `feat/sprint-D-storage-r2`
+(PR #42). Ambas alteravam `.env.example` em regioes proximas, o que produziu
+conflito real (nao corrupcao de historico).
+
+Resolucao aplicada em `56424ca`:
+- Mantidos os dois blocos sem perda.
+- Bloco STORAGE/R2 ficou primeiro (chegou em main antes via #42).
+- Bloco SENTRY/KNOWLEDGE/FF_PROMPT_REGISTRY_ADMIN ficou em seguida (P1.2).
+- Validacao local pos-resolucao: `pytest 1830 passed, 1 skipped` +
+  `tsc --noEmit` verde.
+
+### 8.3 Baseline atual em main
+
+Suite completa em main pos-merges:
+- `pytest -q`: 1830 passed, 1 skipped, 0 errors.
+- Coverage global: 58.84% (gate 55% atendido).
+- `npx tsc --noEmit`: verde.
+
+### 8.4 Anomalia observada (nao bloqueante)
+
+Em uma das execucoes locais durante a sessao apareceu:
+`ERROR tests/test_evidence_service.py::TestSummarizeFollowupResponses::test_empty_period_returns_zeros`
+
+Caracteristicas:
+- Apareceu apenas em uma execucao da suite completa.
+- Reexecucao isolada do mesmo teste: PASSED.
+- Reexecucao da suite completa imediatamente em seguida: 1830 passed, sem error.
+
+Diagnostico provisorio: pollution de estado entre testes (ordem-dependente),
+nao bug do produto. Adicionar ao backlog M2/qualidade para reproduzir com
+`pytest --randomly-seed=last` ou isolar fixtures se reaparecer no CI.
+
+### 8.5 Estado de cleanup
+
+- 4 branches `feat/sprint-D-*` deletadas no remoto e local.
+- `main` em `8d3fde2` (HEAD pos-merges).
+- Backlog residual permanece como na secao 7.5: M2 except cleanup,
+  auditoria SQL P0.5, backup off-site, credenciais R2, BUG-001 dumps,
+  C6/C7 validacao operacional, Sprint E integracoes externas, P5 agentes IA.
