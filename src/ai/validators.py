@@ -75,7 +75,7 @@ def normalize_anamnesis_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
     # int seguro
     try:
         normalized["age"] = int(normalized.get("age", 0))
-    except Exception:
+    except (TypeError, ValueError):
         normalized["age"] = 0
 
     normalized["symptoms"] = _norm_list(normalized.get("symptoms"))

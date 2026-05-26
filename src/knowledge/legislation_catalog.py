@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import mimetypes
 import os
 import re
@@ -8,6 +9,8 @@ from pathlib import Path
 from typing import Iterable
 
 from src.infra.database import db_cursor
+
+logger = logging.getLogger("cannabia.knowledge.legislation_catalog")
 
 
 def _manifest_map() -> dict[str, dict]:
@@ -17,7 +20,8 @@ def _manifest_map() -> dict[str, dict]:
 
     try:
         payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except Exception:
+    except (OSError, json.JSONDecodeError):
+        logger.warning("Failed to load legislation manifest at %s", manifest_path, exc_info=True)
         return {}
 
     if not isinstance(payload, list):

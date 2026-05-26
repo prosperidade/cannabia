@@ -285,7 +285,13 @@ def payment_webhook(provider: str):
                 error_message=sig_error,
             )
         except Exception:
-            pass
+            # Falha de auditoria nao deve impedir resposta 401 ao webhook;
+            # mas precisamos saber se a tabela de audit log esta quebrada.
+            logger.warning(
+                "Falha ao registrar webhook inválido em audit log (provider=%s)",
+                provider_slug,
+                exc_info=True,
+            )
         return _error("invalid_signature", sig_error or "Assinatura invalida.", 401)
 
     body = request.get_json(silent=True) or {}

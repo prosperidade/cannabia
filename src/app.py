@@ -156,7 +156,7 @@ def create_app() -> Flask:
     def load_user(user_id: str):
         try:
             uid = int(user_id)
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
         user = get_user_by_id(uid)
