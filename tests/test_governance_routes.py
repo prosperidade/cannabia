@@ -307,8 +307,10 @@ class TestRtEndpoints:
         assert "council_state" in response.get_json()["error"]["message"]
 
     def test_create_rt_surfaces_unique_conflict(self, app_client, monkeypatch):
+        from psycopg2 import IntegrityError
+
         def fake_create(**_kwargs):
-            raise RuntimeError('duplicate key value violates unique constraint "uq_tr_council"')
+            raise IntegrityError('duplicate key value violates unique constraint "uq_tr_council"')
 
         monkeypatch.setattr(
             "src.web.routes.governance.repo.create_technical_responsible", fake_create

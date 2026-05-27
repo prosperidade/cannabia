@@ -312,7 +312,9 @@ def update_tenant_branding(tenant_id: int):
             details={"fields": sorted(k for k in payload.keys() if payload.get(k) is not None)},
         )
         return _success(result)
-    except Exception as exc:
+    except (ValueError, TypeError, KeyError) as exc:
+        # ValueError/TypeError: upsert_branding rejeita payload invalido;
+        # KeyError: chave esperada ausente. Demais erros (DB) sobem para 500.
         return _error("validation_error", str(exc), 422)
 
 
