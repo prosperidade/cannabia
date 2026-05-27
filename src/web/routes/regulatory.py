@@ -30,7 +30,8 @@ def list_files():
         from src.knowledge.google_files import list_uploaded_files
         files = list_uploaded_files()
         return _success(files)
-    except Exception:
+    except (ImportError, OSError, RuntimeError):
+        # ImportError: google_files opcional; OSError: cache fs; RuntimeError: Google API
         logger.error("Error listing legislation files", exc_info=True)
         return _success([])
 
@@ -50,7 +51,8 @@ def upload_files():
         from flask_login import current_user
         try:
             created_by = int(current_user.id) if current_user.is_authenticated else None
-        except Exception:
+        except RuntimeError:
+            # flask_login fora do request context
             created_by = None
         catalog_summary = sync_legislation_catalog(
             results,

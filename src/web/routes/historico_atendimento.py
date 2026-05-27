@@ -1,7 +1,12 @@
+import logging
+
 from flask import Blueprint, render_template, g
+from psycopg2 import DatabaseError
+
 from src.infra.security import role_required
 from src.repositories import message_repository
 
+logger = logging.getLogger("cannabia.historico")
 historico_bp = Blueprint('historico', __name__, template_folder='templates')
 
 
@@ -11,8 +16,9 @@ def historico():
     try:
         messages = message_repository.list_messages(g.clinic_id)
         return render_template('historico_atendimento.html', messages=messages)
-    except Exception as e:
-        return f'Erro ao acessar o histórico: {e}', 500
+    except DatabaseError:
+        logger.error("DB error on historico", exc_info=True)
+        return 'Erro ao acessar o histórico: banco temporariamente indisponível.', 503
 
 
 if __name__ == '__main__':

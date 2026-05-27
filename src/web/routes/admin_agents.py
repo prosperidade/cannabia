@@ -52,7 +52,9 @@ def list_agents():
                 "diary_entries": 0,
                 "status": "active",
             })
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, KeyError) as e:
+            # ImportError: agente em desenvolvimento; AttributeError: agent_name/description ausente;
+            # TypeError: signature mismatch; KeyError: config opcional.
             agents_list.append({
                 "name": cls.__name__,
                 "class": cls.__name__,
@@ -137,7 +139,7 @@ def get_agent_skills(agent_name: str):
             "skills": skills,
         })
     except Exception as e:
-        logger.error("Error fetching skills for %s: %s", agent_name, e)
+        logger.error("Error fetching skills for %s: %s", agent_name, e, exc_info=True)
         return _error("internal_error", str(e), 500)
 
 

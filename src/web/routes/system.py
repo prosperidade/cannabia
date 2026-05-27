@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
 from flask import Blueprint, jsonify, g, request
+from psycopg2 import DatabaseError
 
 from src.web.routes.api_v1 import api_role_required
 
@@ -213,8 +214,9 @@ class FeatureFlagRegistry:
                     return row["is_enabled"]
                 return None
 
-        except Exception:
-            # DB indisponível ou tabela não existe — silencioso
+        except DatabaseError:
+            # DB indisponivel ou tabela nao existe — silencioso (feature flag falha = default-off)
+            logger.debug("Feature flag DB lookup failed for '%s'", flag_name, exc_info=True)
             return None
 
 
@@ -279,7 +281,9 @@ def evaluate_degradation() -> Dict[str, DegradationStatus]:
                     strategy="normal",
                     message="Operacional.",
                 )
-        except Exception:
+        except (ImportError, AttributeError, KeyError):
+            # ImportError: chains module ausente; AttributeError: get_circuit_breaker_status
+            # nao implementado; KeyError: shape do cb_status mudou. Degrada para "normal".
             statuses["ai_pipeline"] = DegradationStatus(
                 component="ai_pipeline",
                 operational=True,
@@ -312,7 +316,9 @@ def evaluate_degradation() -> Dict[str, DegradationStatus]:
                     strategy="disabled",
                     message="Redis indisponível. Fallback para processamento síncrono.",
                 )
-        except Exception:
+        except (ImportError, ConnectionError, OSError):
+            # ImportError: redis package ou tasks module ausente;
+            # Connection/OSError: Redis nao alcancavel.
             statuses["async_queue"] = DegradationStatus(
                 component="async_queue",
                 operational=False,

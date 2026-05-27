@@ -19,6 +19,7 @@ from datetime import date
 from typing import Any, Optional
 
 from flask import Blueprint, g
+from psycopg2 import IntegrityError
 
 from src.repositories import governance_repository as repo
 from src.services.governance_dossier import (
@@ -245,7 +246,8 @@ def create_document():
         try:
             from flask_login import current_user  # type: ignore
             uploaded_by = int(current_user.id) if current_user.is_authenticated else None
-        except Exception:
+        except RuntimeError:
+            # flask_login fora do request context
             uploaded_by = None
 
     doc = repo.create_institutional_document(
@@ -380,7 +382,7 @@ def create_rt():
             habilitation_valid_until=habilitation_valid_until,
             document_ids=document_ids,
         )
-    except Exception as exc:
+    except IntegrityError as exc:
         # IntegrityError do UNIQUE (conselho/numero/estado)
         if "uq_tr_council" in str(exc):
             return _error(
