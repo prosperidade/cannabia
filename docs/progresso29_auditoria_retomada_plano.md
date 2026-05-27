@@ -671,3 +671,134 @@ Proxima onda recomendada: **M2.4 web routes restantes** (21 occs em
 3, `governance.py` 2, `telemetry.py` 2, outros 4). Padrao ja conhecido
 do M2.2: `OperationalError → 503`, `DatabaseError → 500`, demais como
 boundary defensivo.
+
+## 11. Fechamento do dia 2026-05-26 (noite final)
+
+### 11.1 Sumario executivo do dia
+
+O dia abriu com 146 ocorrencias de `except Exception` em 59 arquivos
+(P2.1 do progresso29). O dia fecha com **70 occs em 41 arquivos** —
+uma reducao de **76 occs (-52%)** e 18 arquivos (-31%) totalmente
+limpos ou reduzidos. Foram 10 PRs mergeadas em main mais 2 doc-updates
+diretos em main.
+
+### 11.2 PRs mergeadas hoje
+
+| Ordem | PR | Merge | Wave | Conteudo |
+|-------|----|-------|------|----------|
+| 1 | #46 | `97f8f6a` | M2.1 | 9 silent swallows |
+| 2 | #47 | `3336c03` | M2.2a | rotas base (clinic_config + knowledge + compliance + patient_portal) |
+| 3 | #48 | `a040e46` | M2.2b | knowledge-config (codex) |
+| 4 | #49 | `3d485b7` | M2.2c | payments (codex) |
+| 5 | #50 | `e4be485` | M2.2d | api-v1 (codex) |
+| 6 | #51 | `9ed30ac` | M2.2e | org-management (codex) |
+| 7 | #52 | `22b4a22` | M2.2f | admin-clinical (codex) |
+| 8 | #53 | `95ec3c5` | M2.3 | agentes IA (extrator + regulatorio + cientifico) |
+| 9 | #54 | `87cc1cd` | M2.4 | rotas restantes (admin_agents + tenant_admin + historico + regulatory + system + governance) |
+| 10 | #55 | `9347ede` | M2.5 | knowledge/google_files (3 narrows + 3 boundaries documentadas) |
+
+Doc updates diretos em main:
+- `e26bf23` secao 9 (M2.1+M2.2 fechamento)
+- `2a493ad` secao 10 (M2.3 fechamento)
+- `[este commit]` secao 11 (fechamento do dia + pendencias vivas)
+
+### 11.3 Padroes consolidados (vale para amanha)
+
+Tres padroes provaram funcionar bem nesta cadencia:
+
+1. **Narrow para excecao tipada** (parsing, IO, DB, network):
+   - Parsing: `(TypeError, ValueError)`, `json.JSONDecodeError`
+   - IO: `OSError` (cobre FileNotFoundError, PermissionError, ConnectionError)
+   - DB connection: `psycopg2.OperationalError → 503`
+   - DB integridade: `psycopg2.IntegrityError` (UNIQUE/FK)
+   - DB query generico: `psycopg2.DatabaseError → 500`
+   - Auth flask_login fora request: `RuntimeError`
+   - HTTP request: `requests.exceptions.RequestException`
+   - Import opcional: `ImportError`
+
+2. **Boundary defensivo mantido + `# noqa: BLE001` + comentario**: para
+   retry loops, batch loops, fire-and-forget. O comentario justifica
+   o catch amplo para futuros revisores.
+
+3. **503 antes do catch-all em rotas DB-touching**: `except OperationalError`
+   ANTES do `except Exception`, retorna `_error("database_unavailable", ..., 503)`
+   preservando fallback do catch-all para outros tipos.
+
+### 11.4 Lessons learned no dia
+
+- **Codex coordenado em paralelo funcionou**: 5 PRs (#48-#52) entraram
+  enquanto Claude trabalhava em #47. Padroes pre-estabelecidos
+  (M2.1 + M2.2-base) ajudaram a manter consistencia.
+- **Testes pegaram 2 boundaries genuinas**:
+  - `base.py:127 register_to_kb` (M2.3): test_register_to_kb_is_fire_and_forget_on_exception
+    quebrou com RuntimeError; docstring explicita "Fire-and-forget: nunca levanta
+    excecao". Restaurado para `except Exception` com comentario.
+  - `governance.py:383 create_rt` (M2.4): teste mockava RuntimeError em vez de
+    IntegrityError. Atualizei tanto a rota (narrow para IntegrityError) quanto
+    o teste (mock fiel ao tipo real). Melhoria de qualidade no teste tambem.
+- **Conflito `.env.example` repetido**: PR #43 vs #42 deu conflito (Sprint D)
+  mesma janela; PR de codex tambem teve conflito; sempre que multiplos PRs
+  mexem em `.env.example` o merge precisa preservar ambos blocos.
+- **Anomalia flaky `test_evidence_service`**: reapareceu 2 vezes hoje, sempre
+  some na reexecucao. Diagnostico de pollution mantido (vide §8.4). Adicionar
+  ao backlog para reproduzir com `pytest --randomly-seed=last`.
+
+### 11.5 Baseline atual em main (fim do dia)
+
+- HEAD: `9347ede`
+- pytest -q: 1830 passed, 1 skipped, 0 errors (com 1 ERROR flaky esporadico documentado)
+- Coverage global: 58.62% (gate 55% atendido)
+- tsc --noEmit: verde
+- Branches sprint-D-m2-* todas deletadas (11 PRs limpas)
+- 70 occs `except Exception` em 41 arquivos
+
+### 11.6 Distribuicao residual (70 occs — base para amanha)
+
+| Dominio | Occs | Top arquivos | Recomendacao M2.6+ |
+|---------|------|--------------|---------------------|
+| AI agents/pipeline | 19 | chains.py (4), extrator.py (4), base.py (2), regulatorio.py (2), cientifico (1), service/prompt_registry/prescriber/pipeline/guardrails (1 cada) | **KEEP a maioria** — chains sao circuit breakers, base.py:164 e agent boundary, etc. Talvez 2-3 narrows possiveis. |
+| Web routes | 19 | regulatory.py (2), telemetry.py (2), prescriptions.py (3), admin_agents.py (2), realtime_notifications (1), public_anchors (1) | **KEEP a maioria** — todas sao bordas com logger.exception ja narrowed antes. |
+| Infra | 14 | health.py (5), observability.py (3), tasks.py (2), database.py (2), audit (1), telemetry_tasks (1) | **KEEP a maioria** — bordas de health/obs. Talvez 1-2 narrows. |
+| Services | 13 | 9 files (2 cada em alguns, 1 em outros) | **NARROW possivel** — varias chamadas WhatsApp/email/SMS que podem narrow para network. |
+| Knowledge | 6 | google_files (3 boundaries doc'd), pubmed.py (2), auto_ingest (1) | **NARROW possivel** em pubmed.py + auto_ingest. |
+| Integrations | 4 | vigimed, polygon, ots, email (1 cada) | **KEEP** — sao bordas por design (raise tipo customizado depois). |
+| Outros | 4 | app.py (1), tenancy.py (2), anamnesis_repository.py (1) | **KEEP** — bordas top-level. |
+
+### 11.7 Pendencias vivas para amanha (e alem)
+
+Priorizadas por valor:
+
+1. **M2.6 (opcional) — services + knowledge** — ~19 occs com bom ROI
+   esperado (chamadas externas em services + pubmed). Pode atacar amanha
+   se quiser continuar M2.
+2. **BUG-001 dumps zerados** — investigacao tecnica, nao depende de
+   credenciais externas. Pode salvar proxima crise operacional. ~1-2h.
+3. **Verify produto na pratica** — subir backend+frontend, rodar onboarding
+   medico, testar 503 quando DB cai. Acumulamos ~10 PRs sem teste manual
+   integrado. ~30-45min.
+4. **Sprint E integracoes externas** — depende de credenciais (Polygon/OTS/
+   ANVISA/SMS). Pode-se preparar o codigo aguardando secrets.
+5. **Auditoria SQL P0.5 historico** — operacional, banco real (Render).
+6. **Backup off-site agendado (P0.1 onda 2)** — operacional.
+7. **Credenciais Cloudflare R2** — codigo pronto, aguardando R2_ACCOUNT_ID
+   e cia para sair de `noop`.
+8. **C6/C7 validacao operacional** — agentes ingerindo + agregacao
+   anonimizada; codigo fechado, falta rodar em prod.
+9. **Anomalia flaky test_evidence_service** — reproduzir com
+   `pytest --randomly-seed=last` e isolar fixture culpada.
+10. **P5 refatoracao agentes IA** — por ultimo (decisao 2026-04-27 +
+    cautela secao 6).
+
+### 11.8 Recomendacao para amanha
+
+Sugestao de ordem ao retomar:
+
+1. **Verify produto na pratica** (30-45min): valida que as 10 PRs do dia
+   nao quebraram nada visivel.
+2. **Decidir entre M2.6 vs BUG-001 vs Sprint E**: depende do apetite.
+   M2.6 fecha mais divida tecnica mas com ROI decrescente (a maioria sao
+   bordas legitimas). BUG-001 e investigacao pontual com alto valor
+   defensivo. Sprint E e feature nova mas depende de secrets.
+
+Para retomar: ler progresso29 secoes 8-11 + memoria
+[[sprint-progress-2026-05-26-m2-parcial]].
