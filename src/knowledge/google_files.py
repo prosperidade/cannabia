@@ -65,7 +65,7 @@ def _load_manifest_entries() -> List[Dict]:
 
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
+    except (OSError, json.JSONDecodeError):
         logger.warning("Failed to load legislation manifest: %s", path, exc_info=True)
         return []
 
@@ -180,7 +180,7 @@ def _load_catalog() -> Dict[str, Dict]:
                 if _file_cache != raw_cache:
                     _save_catalog()
                 logger.info("Loaded file catalog: %d entries", len(_file_cache))
-    except Exception:
+    except (OSError, json.JSONDecodeError):
         logger.warning("Failed to load file catalog", exc_info=True)
     return _file_cache
 
@@ -191,7 +191,8 @@ def _save_catalog() -> None:
         os.makedirs(os.path.dirname(_CATALOG_PATH), exist_ok=True)
         with open(_CATALOG_PATH, "w", encoding="utf-8") as f:
             json.dump(_file_cache, f, indent=2, ensure_ascii=False)
-    except Exception:
+    except (OSError, TypeError):
+        # OSError: disco cheio/permissao; TypeError: entry com tipo nao-serializavel
         logger.warning("Failed to save file catalog", exc_info=True)
 
 
@@ -291,7 +292,10 @@ def upload_all_legislation() -> List[Dict]:
         try:
             entry = upload_file(str(fpath))
             results.append(entry)
-        except Exception:
+        except Exception:  # noqa: BLE001 — boundary do loop de upload
+            # Google Files API pode levantar qualquer tipo (genai.errors, httpx, OSError,
+            # RuntimeError). Capturamos amplo para nao quebrar o batch inteiro por um
+            # arquivo bichado; cada falha vai com exc_info=True para diagnostico.
             logger.error("Failed to upload '%s'", fpath.name, exc_info=True)
 
     logger.info("Legislation upload complete: %d files", len(results))
@@ -359,7 +363,9 @@ def query_legislation(
                 ),
             )
             break
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 — boundary do retry de Gemini
+            # genai.errors / httpx.* / quota exceeded / network — qualquer tipo eh transient.
+            # Captura ampla intencional: o else: do for re-eleva como RuntimeError apos 3 tentativas.
             last_error = exc
             wait = 2 ** attempt
             logger.warning("Gemini query attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
@@ -440,7 +446,8 @@ def query_legislation_structured(
                 ),
             )
             break
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 — boundary do retry de Gemini structured
+            # Mesma justificativa do query nao-structured acima: tipos variados sao transient.
             last_error = exc
             wait = 2 ** attempt
             logger.warning("Gemini structured query attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
