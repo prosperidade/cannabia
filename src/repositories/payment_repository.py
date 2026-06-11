@@ -175,6 +175,13 @@ def record_transaction(
     payer_account: Optional[str] = None,
     raw_payload: Optional[dict] = None,
 ) -> dict[str, Any]:
+    # FIN-2 (doc 30 R2): mascara CPF/CNPJ na gravacao — nenhum documento
+    # completo persiste no trilho de pagamento (defesa no unico ponto de
+    # escrita de payer_document).
+    from src.infra.security import mask_document
+
+    payer_document = mask_document(payer_document)
+
     with db_cursor(dictionary=True) as (conn, cursor):
         cursor.execute(
             """
