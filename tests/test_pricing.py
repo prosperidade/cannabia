@@ -25,6 +25,20 @@ def test_gemini_15_flash_cost_known_baseline():
     assert cost == 0.000375
 
 
+def test_gemini_25_flash_cost_known_baseline():
+    # Modelo ATIVO (substitui 1.5/2.0 descontinuados). 1000 input + 1000 output:
+    # 1k * 0.00030 + 1k * 0.00250 = 0.00030 + 0.00250 = 0.00280
+    cost = calculate_cost("gemini-2.5-flash", 1000, 1000)
+    assert cost == 0.0028
+
+
+def test_active_gemini_model_priced_no_silent_zero():
+    # Regressao M1 (doc 30): o modelo Gemini ativo do pipeline NAO pode retornar
+    # custo 0.0 silencioso por ausencia em MODEL_PRICING.
+    assert "gemini-2.5-flash" in MODEL_PRICING
+    assert calculate_cost("gemini-2.5-flash", 1000, 500) > 0
+
+
 def test_gemini_15_flash_cheaper_than_gpt4o_mini():
     # Sanity: para o mesmo numero de tokens, Gemini 1.5 Flash deve ser mais
     # barato que gpt-4o-mini (input: $0.075/1M vs $0.15/1M; output: $0.30/1M
@@ -53,7 +67,8 @@ def test_none_tokens_treated_as_zero():
 
 def test_pricing_table_includes_both_models():
     assert "gpt-4o-mini" in MODEL_PRICING
-    assert "gemini-1.5-flash" in MODEL_PRICING
+    assert "gemini-2.5-flash" in MODEL_PRICING  # ativo
+    assert "gemini-1.5-flash" in MODEL_PRICING  # legacy (audit logs historicos)
     for model, rates in MODEL_PRICING.items():
         assert "input_per_1k" in rates, f"{model} sem input_per_1k"
         assert "output_per_1k" in rates, f"{model} sem output_per_1k"

@@ -206,7 +206,7 @@ class CannabIAService:
             total_tokens = token_usage.get("total")
 
             # Cost honesto: cada stage pode usar modelo diferente (ex.: report
-            # usa gemini-1.5-flash quando RAG ativo). Soma calculate_cost por
+            # usa gemini-2.5-flash quando RAG ativo). Soma calculate_cost por
             # stage com seu proprio modelo. Fallback para o calculo agregado
             # antigo caso tokens_per_stage nao venha (compat).
             tokens_per_stage = result.get("tokens_per_stage") or {}
@@ -223,7 +223,7 @@ class CannabIAService:
                     6,
                 )
                 # ai_audit_logs.model VARCHAR(50): concat ordenado deduplicado
-                # dos modelos efetivamente usados. Ex.: "gpt-4o-mini+gemini-1.5-flash".
+                # dos modelos efetivamente usados. Ex.: "gemini-2.5-flash+gpt-4o-mini".
                 effective_model = "+".join(
                     sorted({info.get("model", model_name) for info in tokens_per_stage.values()})
                 )
