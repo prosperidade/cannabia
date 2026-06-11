@@ -85,6 +85,60 @@ services:
       # (10k transactions/mes). Calibrar Sprint 4.
       - key: SENTRY_TRACES_SAMPLE_RATE
         value: "0.1"
+      # INFRA-1 (doc 30 Onda 1): URL da fila assincrona (Redis). O web so
+      # ENFILEIRA; o processamento e do worker abaixo. Cutover sincrono->async
+      # e Onda 2 (INFRA-2) — por ora a fila fica provisionada e ociosa.
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cannabia-redis
+          property: connectionString
+
+  # INFRA-1: Redis (Key Value) — backend da fila RQ.
+  # NOTA: o Render renomeou "Redis" para "Key Value"; se o blueprint recusar
+  # `type: redis`, troque para `type: keyvalue` (mesmos campos).
+  - type: redis
+    name: cannabia-redis
+    region: ohio
+    plan: starter
+    maxmemoryPolicy: noeviction   # fila: nunca despejar jobs por pressao de memoria
+    ipAllowList: []               # acesso apenas interno (rede privada do Render)
+
+  # INFRA-1: worker RQ que consome a fila cannabia-ai (src/infra/tasks.py).
+  # Roda o pipeline de IA em background quando o cutover (Onda 2) ligar os
+  # call-sites. Provisionado agora para validar a infra ponta-a-ponta.
+  - type: worker
+    name: cannabia-ai-worker
+    runtime: python
+    region: ohio
+    plan: starter
+    autoDeployTrigger: commit
+    buildCommand: pip install -r requirements.txt
+    startCommand: rq worker cannabia-ai --url $REDIS_URL
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cannabia-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cannabia-redis
+          property: connectionString
+      - key: FLASK_ENV
+        value: "production"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        value: production
 
   # Sprint 2 Track LGPD: retention policy automatizada para ai_audit_logs.
   # Roda diariamente as 04:00 UTC (01:00 BRT) — janela de baixo trafego.

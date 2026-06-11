@@ -1,0 +1,62 @@
+# docker-compose.yml — INFRA-1 (doc 30 Onda 1): app + Redis + worker RQ.
+#
+# Para o host alternativo (enjoyfun) e dev local. Sobe a fila assincrona
+# (Redis + worker `rq`) que hoje existe em codigo (src/infra/tasks.py) mas nao
+# estava deployada. NAO troca nenhum call-site sincrono->assincrono (cutover e
+# Onda 2 / INFRA-2) — apenas disponibiliza a infra.
+#
+# Uso:
+#   docker compose up -d redis        # so a fila (suficiente para validar enqueue)
+#   docker compose up --build         # stack completo (app + redis + worker)
+#
+# DB: por padrao aponta para o Postgres do host (cannabia-postgis em :5434) via
+# host.docker.internal. Sobrescreva DATABASE_URL conforme o ambiente.
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: cannabia-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    container_name: cannabia-app
+    command: gunicorn -c gunicorn.conf.py src.app:app
+    ports:
+      - "5000:5000"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:5434/cannabia}
+      FLASK_ENV: ${FLASK_ENV:-development}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  worker:
+    build: .
+    container_name: cannabia-ai-worker
+    command: rq worker cannabia-ai --url redis://redis:6379/0
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:5434/cannabia}
+      FLASK_ENV: ${FLASK_ENV:-development}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
