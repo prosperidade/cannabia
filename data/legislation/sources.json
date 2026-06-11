@@ -10,7 +10,7 @@
     "publication_date": "2019-12-09",
     "norm_status": "vigente",
     "revoked_by": null,
-    "notes": "Inteiro teor em PDF publicado na BVS Saúde com cabeçalho Anvisa."
+    "notes": "Inteiro teor em PDF publicado na BVS Saúde com cabeçalho Anvisa. Revisar relação com o marco de fev/2026 (RDC 1.011–1.015) via RAG — ver A5."
   },
   {
     "filename": "RDC_660_2022_ANVISA.md",
@@ -24,7 +24,7 @@
     "norm_status": "vigente",
     "revoked_by": null,
     "sanitized_filename": "RDC_660_2022_ANVISA_sanitized.md",
-    "notes": "Inteiro teor disponível em HTML no DOU/Imprensa Nacional. Revoga RDC 335/2020 e RDC 570/2021."
+    "notes": "Inteiro teor disponível em HTML no DOU/Imprensa Nacional. Revoga RDC 335/2020 e RDC 570/2021. Revisar relação com o marco de fev/2026 (RDC 1.011–1.015) via RAG — ver A5."
   },
   {
     "filename": "Lei_11_343_2006_Planalto.md",
@@ -53,5 +53,70 @@
     "revoked_by": null,
     "sanitized_filename": "Resolucao_CFM_2113_2014_sanitized.md",
     "notes": "Página oficial do CFM com a resolução e materiais correlatos. Vigente: Resolução CFM 2.324/2022 foi sustada pela 2.326/2022, portanto a 2.113/2014 permanece como base."
+  },
+  {
+    "filename": "RDC_1011_2026_ANVISA.pdf",
+    "title": "RDC nº 1.011/2026",
+    "norm_number": "RDC 1.011/2026",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": null,
+    "download_mode": "binary",
+    "publication_date": "2026-02-03",
+    "norm_status": "vigencia_futura",
+    "revoked_by": null,
+    "notes": "Marco regulatório de fev/2026. PDF escaneado (imagem, sem camada de texto) do DOU — OCR feito pelo Gemini na ingestão. Resolução datada de 02/02/2026, publicada no DOU em 03/02/2026, vigência a partir de 04/08/2026. Ementa e relações de revogação (incl. impacto sobre RDC 327/2019 e 660/2022) A CONFIRMAR via RAG — consulta bloqueada por quota Gemini free-tier na data da ingestão (ver A5/SCC-1). Binário arquivado fora do repo (tamanho)."
+  },
+  {
+    "filename": "RDC_1012_2026_ANVISA.pdf",
+    "title": "RDC nº 1.012/2026 (pesquisa)",
+    "norm_number": "RDC 1.012/2026",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": null,
+    "download_mode": "binary",
+    "publication_date": "2026-02-03",
+    "norm_status": "vigencia_futura",
+    "revoked_by": null,
+    "notes": "Marco regulatório de fev/2026 — trilha de pesquisa. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa A CONFIRMAR via RAG (consulta bloqueada por quota Gemini free-tier na data). Binário arquivado fora do repo."
+  },
+  {
+    "filename": "RDC_1013_2026_ANVISA.pdf",
+    "title": "RDC nº 1.013/2026",
+    "norm_number": "RDC 1.013/2026",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": null,
+    "download_mode": "binary",
+    "publication_date": "2026-02-03",
+    "norm_status": "vigencia_futura",
+    "revoked_by": null,
+    "notes": "Marco regulatório de fev/2026. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa A CONFIRMAR via RAG (consulta bloqueada por quota Gemini free-tier na data). Binário arquivado fora do repo."
+  },
+  {
+    "filename": "RDC_1014_2026_ANVISA.pdf",
+    "title": "RDC nº 1.014/2026 (associações + sandbox regulatório)",
+    "norm_number": "RDC 1.014/2026",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": null,
+    "download_mode": "binary",
+    "publication_date": "2026-02-03",
+    "norm_status": "vigencia_futura",
+    "revoked_by": null,
+    "notes": "Marco regulatório de fev/2026 — cria o sandbox regulatório para associações (implementação depende de EDITAL próprio, sem data). PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa A CONFIRMAR via RAG (consulta bloqueada por quota Gemini free-tier na data). Binário arquivado fora do repo."
+  },
+  {
+    "filename": "RDC_1015_2026_ANVISA.pdf",
+    "title": "RDC nº 1.015/2026",
+    "norm_number": "RDC 1.015/2026",
+    "norm_body": "ANVISA",
+    "source": "anvisa",
+    "source_url": null,
+    "download_mode": "binary",
+    "publication_date": "2026-02-03",
+    "norm_status": "vigencia_futura",
+    "revoked_by": null,
+    "notes": "Marco regulatório de fev/2026. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa A CONFIRMAR via RAG (consulta bloqueada por quota Gemini free-tier na data). Binário arquivado fora do repo."
   }
 ]

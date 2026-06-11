@@ -2,6 +2,11 @@
 # CannabIA — .gitignore
 # =============================================================
 
+# RDCs ANVISA 2026 (1.011–1.015): PDFs escaneados grandes (~30MB no total),
+# ingeridos no RAG (Google Files API) e arquivados fora do repo. Proveniencia
+# em data/legislation/sources.json. Ver A5/SCC-1.
+data/legislation/RDC_101*_2026_ANVISA.pdf
+
 # ──────────────────────────────────────────────
 # SEGURANÇA — Variáveis de Ambiente (NUNCA commitar)
 # ──────────────────────────────────────────────
