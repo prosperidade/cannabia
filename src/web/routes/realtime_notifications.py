@@ -20,7 +20,7 @@ from src.config import (
 from src.services.message_service import (
     handle_message_event,
     handle_status_event,
-    parse_change,
+    iter_message_changes,
 )
 
 logger = logging.getLogger("cannabia.webhook")
@@ -84,16 +84,20 @@ def _strict_meta_webhook_hmac() -> bool:
 
 
 def _process_meta_payload(data: dict, clinic_id: int) -> None:
-    """Despacha eventos Meta para os handlers de negócio."""
-    field, _ = parse_change(data)
+    """
+    Despacha eventos Meta para os handlers de negócio, varrendo TODOS os
+    entry[].changes[] do payload (COM-2). `clinic_id` é o fallback padrão da
+    request; a resolução de tenant por `phone_number_id` é feita por mensagem
+    no handler quando aplicável (COM-3).
+    """
+    for field, value in iter_message_changes(data):
+        if field == "messages":
+            handle_message_event(value, clinic_id)
+            socketio.emit("new_message", redact_dict(value))
 
-    if field == "messages":
-        handle_message_event(data, clinic_id)
-        socketio.emit("new_message", redact_dict(data))
-
-    elif field == "message_template_status_update":
-        handle_status_event(data, clinic_id)
-        socketio.emit("status_update", redact_dict(data))
+        elif field == "message_template_status_update":
+            handle_status_event(value, clinic_id)
+            socketio.emit("status_update", redact_dict(value))
 
 
 # ──────────────────────────────────────────────
