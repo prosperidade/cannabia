@@ -57,7 +57,9 @@ openai_client = OpenAI(
 gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 OPENAI_MODEL = "gpt-4o-mini"
-GEMINI_MODEL = "gemini-1.5-flash"
+# IA-1 / 29.4 R2: Gemini 1.5/2.0 foram descontinuados pelo Google (deadline
+# jun/2026). Default migrado para 2.5 Flash; ainda overridable por env.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_TIMEOUT = float(os.getenv("GEMINI_TIMEOUT", "45"))
 
 
@@ -381,7 +383,7 @@ def run_scientific_report_rag(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 TRIAGE_MODEL_OPENAI = os.getenv("TRIAGE_MODEL_OPENAI", "gpt-4o-mini")
-TRIAGE_MODEL_GEMINI = os.getenv("TRIAGE_MODEL_GEMINI", "gemini-1.5-flash")
+TRIAGE_MODEL_GEMINI = os.getenv("TRIAGE_MODEL_GEMINI", "gemini-2.5-flash")  # IA-1 / 29.4 R2
 
 
 @retry(
