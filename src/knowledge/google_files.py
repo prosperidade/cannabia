@@ -161,10 +161,9 @@ def _selected_catalog_entries(file_names: Optional[List[str]] = None) -> List[Di
 
 
 def _get_client() -> genai.Client:
-    """Lazy init Google GenAI client."""
-    if not GOOGLE_API_KEY:
-        raise RuntimeError("GOOGLE_API_KEY not set. Required for Google Files API.")
-    return genai.Client(api_key=GOOGLE_API_KEY)
+    """Lazy init do client GenAI (AI Studio ou Vertex AI — ver src/infra/genai_client)."""
+    from src.infra.genai_client import make_genai_client
+    return make_genai_client()
 
 
 def _file_checksum(filepath: str) -> str:

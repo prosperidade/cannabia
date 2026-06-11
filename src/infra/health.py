@@ -77,14 +77,13 @@ def _probe_openai() -> ProbeResult:
 
 def _probe_gemini() -> ProbeResult:
     from src.config import GOOGLE_API_KEY
+    from src.infra.genai_client import make_genai_client, use_vertex
 
     start = time.perf_counter()
-    if not GOOGLE_API_KEY:
+    if not use_vertex() and not GOOGLE_API_KEY:
         return ProbeResult(status="error", latency_ms=0, detail="GOOGLE_API_KEY not configured")
     try:
-        import google.genai as genai
-
-        client = genai.Client(api_key=GOOGLE_API_KEY)
+        client = make_genai_client()
         client.models.list(config={"page_size": 1})
         elapsed = int((time.perf_counter() - start) * 1000)
         return ProbeResult(status="ok", latency_ms=elapsed)

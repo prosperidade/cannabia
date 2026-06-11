@@ -33,13 +33,15 @@ class EmbeddingClient:
     """
 
     def __init__(self) -> None:
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
+        from src.infra.genai_client import make_genai_client, use_vertex
+
+        if not use_vertex() and not os.getenv("GOOGLE_API_KEY"):
             raise RuntimeError(
-                "GOOGLE_API_KEY não configurada. "
+                "GOOGLE_API_KEY não configurada (ou habilite Vertex via "
+                "GOOGLE_GENAI_USE_VERTEXAI=true + GOOGLE_CLOUD_PROJECT). "
                 "Adicione ao .env antes de usar o módulo de conhecimento."
             )
-        self._client = genai.Client(api_key=api_key)
+        self._client = make_genai_client()
         logger.info("EmbeddingClient inicializado com modelo '%s'.", EMBEDDING_MODEL)
 
     def embed_document(self, text: str) -> List[float]:

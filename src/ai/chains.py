@@ -54,7 +54,8 @@ openai_client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     timeout=float(os.getenv("OPENAI_TIMEOUT", "30")),
 )
-gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+from src.infra.genai_client import make_genai_client
+gemini_client = make_genai_client()  # AI Studio (api_key) ou Vertex AI (creditos GCP)
 
 OPENAI_MODEL = "gpt-4o-mini"
 # gemini-1.5-flash e gemini-2.0-flash foram DESCONTINUADOS (404). Default migrado
