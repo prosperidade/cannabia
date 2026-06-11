@@ -1,6 +1,6 @@
 # 30 — Plano de Remediação Consolidado (CannabIA)
 
-**Versão:** v1.1 | **Data:** 2026-06-10 | **Commit base:** `76cabe4`
+**Versão:** v1.2 | **Data:** 2026-06-10 | **Commit base:** `76cabe4`
 **Entrada:** os 7 relatórios da Onda 1 (`docs/29.1`–`29.7`), todos mergeados na `main` (PRs #57–#63).
 **Método:** cruzamento dos 7 backlogs, reconciliação de dependências contra o **alicerce (29.1 Tenancy)**, sequenciamento em ondas de 30/60/90 dias.
 **Natureza:** plano. Nada implementado aqui. Cada item aponta o relatório-fonte e seu ID original.
@@ -122,6 +122,7 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
 | **OBS-1** | Causa-raiz do BUG-001 (dumps zerados) + verificação tripla automática de backups | 29.5 R12 / MEMORY | M | P0 |
 | **FE-1** | Quick wins de a11y: `aria-hidden` default no `MaterialIcon` (347 usos) + skip-link + `aria-current` | 29.7 FE-02 | P | P1 |
 | **FE-2** | CI do frontend (`npm ci`+lint+format:check+build em PR) + política de versionamento documentada | 29.7 FE-03 | P | P1 |
+| **SEC-1** | HTTP security headers globais no `after_request` (X-Frame-Options, CSP, HSTS, X-Content-Type-Options, Referrer-Policy) — a `main` hoje **não tem nenhum** (`app.py:192-216` só faz métrica/log); código de referência pronto na ex-branch `codex/…-v00nsf` (achado da faxina de branches, `docs/FAXINA_BRANCHES.md`) | Faxina C | P | P1 |
 
 **Saída da Onda 1:** infra de fila provada; zero perda de dados conhecida no canal; zero vazamento cross-tenant no webhook; modelo Gemini saneado; canais do paciente auditados/cobrados; textos das RDCs no RAG; backup confiável. **Toda mudança de schema com down-migration e rito `schema_migrations` (29.G).**
 
@@ -193,7 +194,7 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
    - **Track A — Raízes:** INFRA-1 + TEN-1 + SCC-1 + TEN-2.
    - **Track B — Comunicação P0:** COM-1, COM-2, COM-3.
    - **Track C — Clínico/IA P0:** CLI-1, CLI-2, CLI-3, IA-1, IA-2.
-   - **Track D — Financeiro/LGPD/Obs:** FIN-1, FIN-2, OBS-1, SCC-2.
+   - **Track D — Financeiro/LGPD/Obs:** FIN-1, FIN-2, OBS-1, SEC-1, SCC-2.
    - **Track E — Frontend quick wins:** FE-1, FE-2.
 
    Regra (rito 29.G): **1 track = 1 branch**, com PRs pequenos sequenciais dentro do track; merge exclusivo do Andre em **janela diária de triagem**.
@@ -208,5 +209,6 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
 
 ## Changelog
 
+- **v1.2 (2026-06-10):** adiciona **SEC-1** à Onda 1 (Track D) — HTTP security headers globais. Achado da faxina de branches (`docs/FAXINA_BRANCHES.md`): a `main` não define nenhum header de segurança no `after_request`; a ex-branch `codex/…-v00nsf` (fev/2026, não mergeada) já tinha o bloco pronto com CSP. Extração de valor antes de descartar a branch. Sem outras alterações.
 - **v1.1 (2026-06-10):** correção de *framing* do sandbox (decisões do Andre, 10/06/2026). O sandbox da CannabIA passa a ser tratado como **produto privado de prontidão** ("Sandbox Ready") que prepara as associações clientes para concorrerem ao edital da Anvisa — **quem submete/concorre é cada associação, por decisão própria (P1); a CannabIA nunca é proponente nem tem prazo/obrigação perante a Anvisa**. Separados os dois marcos: (a) vigência 04/08/2026 = prazo operacional dos *tenants clínicos* (compromisso de produto, bloco REG-1..8); (b) edital do sandbox = sem data, **gatilho comercial** (pico de demanda do plano Sandbox Ready), não deadline de compliance. Edições em §1.4, §3 (T6), §5 (Onda 1 tema; abertura e saída da Onda 2 — REG-1..8 como 1º sprint, alvo ~25/07), §6 (linhas de vigência e edital) e §8.2 (estrutura de tracks A–E). Sem re-priorização nem alteração de itens das ondas. v1.0 preservada no histórico git (branch `consolidacao/30-plano-remediacao`); `docs/29.5` permanece como registro diagnóstico, intocado.
 - **v1.0 (2026-06-10):** versão inicial — consolidação dos 7 relatórios da Onda 1 em plano de remediação por ondas (30/60/90 dias).
