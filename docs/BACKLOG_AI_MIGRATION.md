@@ -83,15 +83,24 @@ As consultas de legislação ([src/knowledge/google_files.py](src/knowledge/goog
 
 Um cron mascara o problema e tem janela de quebra; além disso exige manter os PDFs-fonte acessíveis ao app (hoje arquivados fora do repo, no Desktop). É band-aid, não cura.
 
-### Conserto recomendado (decisão de arquitetura pendente)
+### Conserto (store DECIDIDO: ChromaDB) — implementação na próxima rodada de dívidas
 
 **Extrair o texto UMA vez e persistir num store durável**, eliminando a dependência da Files API:
 1. OCR dos PDFs escaneados via Gemini **uma vez** (na ingestão), salvando o texto normativo (`.md`) ao lado do binário.
-2. Indexar esse texto no store durável já existente (**ChromaDB** ou tabela Postgres), com proveniência (`knowledge_catalog`).
-3. `query_legislation` passa a consultar o texto durável — **funciona com Gemini E com OpenAi** (o fallback fica 100%, não mais parcial) e **não expira**.
-4. A Files API some do caminho crítico (no máximo, cache opcional de performance).
+2. Indexar esse texto no **ChromaDB** (✅ decisão do Andre, 2026-06-11) — reúsa o store de conhecimento já existente (`KnowledgeStore`), em coleção própria (ex.: `cannabis_legislation`), com proveniência via `knowledge_catalog`.
+3. `query_legislation` passa a recuperar chunks do ChromaDB e responder via Gemini OU OpenAI — **fallback fica 100%** (não mais parcial) e **não expira**.
+4. A Files API sai do caminho crítico (no máximo, cache opcional de OCR na ingestão).
 
-**Decisão necessária (Andre):** store de destino (ChromaDB vs Postgres) e onde guardar os PDFs-fonte de forma estável (não no git por tamanho; não no Desktop). Estimativa: M (1 sprint).
+**Status:** store decidido (ChromaDB); **implementação adiada para a próxima rodada de dívidas** (batch), por decisão do Andre (2026-06-11). Estimativa: M (1 sprint).
+
+### Sub-dívida ABERTA — onde guardar os PDFs-fonte (decidir na próxima rodada)
+
+Os PDFs-fonte das RDCs (necessários para o OCR inicial e re-OCR futuro) hoje estão **fora do repo, no Desktop do Andre** (grandes demais para git: ~30MB). Para a ingestão durável funcionar de forma reproduzível (CI/outra máquina), eles precisam de um lar estável. Opções a decidir **junto com as outras dívidas na próxima rodada**:
+- **Object storage** (S3/GCS/Render disk) acessível ao app — reproduzível, exige configurar bucket.
+- **Pasta estável no servidor** (fora do git) — simples, atada à máquina.
+- **Git LFS** — versiona no repo sem inchar o git padrão.
+
+Enquanto não decidido, o OCR inicial usa os PDFs do Desktop (one-time).
 
 ### Conexão com o doc 30
 
