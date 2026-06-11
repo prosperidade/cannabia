@@ -1,6 +1,6 @@
 # 30 — Plano de Remediação Consolidado (CannabIA)
 
-**Versão:** v1.0 | **Data:** 2026-06-10 | **Commit base:** `76cabe4`
+**Versão:** v1.1 | **Data:** 2026-06-10 | **Commit base:** `76cabe4`
 **Entrada:** os 7 relatórios da Onda 1 (`docs/29.1`–`29.7`), todos mergeados na `main` (PRs #57–#63).
 **Método:** cruzamento dos 7 backlogs, reconciliação de dependências contra o **alicerce (29.1 Tenancy)**, sequenciamento em ondas de 30/60/90 dias.
 **Natureza:** plano. Nada implementado aqui. Cada item aponta o relatório-fonte e seu ID original.
@@ -19,7 +19,9 @@ A Onda 1 confirmou o veredicto da auditoria de abr/2026 com precisão de código
 
 3. **Há perda de dados e vazamento cross-tenant acontecendo agora.** Mensagens duplicadas/descartadas (29.3 P1/P3), respostas de follow-up clínico jogadas fora (29.2 C1), webhook caindo sempre na clínica default (29.3 P4). São P0 baratos — entram na Onda 1.
 
-4. **Há um prazo externo que não controlamos: 04/08/2026 (vigência das RDCs).** Faltam ~55 dias. A prontidão regulatória clínica (29.2 REG-1..8) e a ingestão dos textos das RDCs (29.5 F8.1, que também destrava o RAG regulatório e o 29.2 REG-5) precisam aterrissar dentro das Ondas 1–2. O **edital do sandbox** (29.5) não tem data e fura a fila quando sair.
+4. **Há dois marcos regulatórios externos — distintos, e nenhum deles é obrigação da CannabIA perante a Anvisa.**
+   - **(a) Vigência das RDCs em 04/08/2026 (~55 dias) — prazo operacional real, mas dos *tenants clínicos*, não nosso.** A partir dessa data as clínicas/associações que usam a plataforma passam a operar sob as novas regras (novas vias de administração, THC>0,2% condicionado etc.). Para que a plataforma os atenda em dia, a prontidão regulatória clínica (29.2 REG-1..8) e a ingestão dos textos das RDCs (29.5 F8.1, que também destrava o RAG regulatório e o 29.2 REG-5) precisam aterrissar dentro das Ondas 1–2. É um compromisso de produto com os clientes, não um compromisso da CannabIA com o regulador.
+   - **(b) Edital do sandbox da Anvisa — sem data, sem obrigação nossa, gatilho *comercial*.** Quem submete e concorre ao sandbox da Anvisa é **cada associação cliente**, por decisão própria (P1); a CannabIA nunca é proponente. O sandbox da CannabIA é um **produto privado de prontidão** (plano "Sandbox Ready") que prepara o cliente para concorrer. Quando o edital sair, a **demanda dos clientes** pelo Sandbox Ready dispara — nossa vantagem é estar pronto **antes**, no nosso ritmo, não correr atrás de um prazo de compliance que não é da CannabIA.
 
 **Ordem inviolável (decisão 10/06/2026, MEMORIA_VIVA §4):** diagnóstico → **remediação** → expansão. Este documento é a remediação. Nenhum hub novo (Agro/Jurídico/Farmácia/Pesquisa) antes do fim da Onda 3.
 
@@ -47,7 +49,7 @@ Cada tema agrupa achados de múltiplos relatórios que devem ser remediados junt
 - **T3 — Resiliência do pipeline de mensagens (perda de dados P0).** 29.3 R1/R2/R3 · 29.2 C1 (loop de follow-up).
 - **T4 — Governança de IA nos canais do paciente.** 29.4 C1 (sem guardrails/billing/audit no WhatsApp+Triagem) · 29.3 (mesmo ponto de entrada).
 - **T5 — LGPD de dados sensíveis em repouso.** 29.3 R5 (mensagens clínicas em texto claro) · 29.6 C2 (CPF sem máscara) · 29.4 (citações/retenção) · 29.5 (retenção tabelas SCC).
-- **T6 — Prontidão regulatória (prazo externo 04/08/2026).** 29.5 C2/F8.1 (textos RDCs — dependência compartilhada) · 29.2 REG-1..8 · 29.4 (RAG regulatório).
+- **T6 — Prontidão regulatória (vigência 04/08/2026 = prazo operacional dos tenants clínicos).** 29.5 C2/F8.1 (textos RDCs — dependência compartilhada) · 29.2 REG-1..8 · 29.4 (RAG regulatório).
 - **T7 — Safety Clamp / segurança de prescrição.** 29.2 C3 (THC não clampado) · 29.4 (estender clamp ao texto do relatório).
 - **T8 — Integridade e confiança da trilha (backup/observabilidade).** 29.5 A8 / BUG-001 · 29.1 A2 (métricas voláteis) · heartbeat de jobs (29.6/29.5).
 - **T9 — Conciliação e integridade financeira.** 29.6 C1/C3/A1.
@@ -98,7 +100,7 @@ Datas-alvo (a partir de 2026-06-10): **Onda 1 → ~10/07** · **Onda 2 → ~09/0
 Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). Prioridade clínica/segurança em **P0/P1**.
 
 ### 🌊 Onda 1 (0–30 dias) — Fundação + estancar perdas
-*Tema: ligar a chave-de-abóbada, parar perda de dados e vazamento cross-tenant, fechar os itens baratos de prazo externo. Risco baixo, valor alto.*
+*Tema: ligar a chave-de-abóbada, parar perda de dados e vazamento cross-tenant, fechar os itens baratos de prontidão regulatória. Risco baixo, valor alto.*
 
 | ID | Item | Fonte | Esforço | Prior. |
 |----|------|-------|---------|--------|
@@ -126,6 +128,8 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
 ### 🌊 Onda 2 (30–60 dias) — Assíncrono real, tenant-aware, prontidão regulatória
 *Tema: fazer os cutovers que a Onda 1 destravou; tornar o RBAC tenant-aware; aterrissar a prontidão regulatória clínica antes da vigência 04/08. Risco médio.*
 
+> **Sequenciamento interno da onda:** **REG-CLÍNICO (REG-1..8) é o PRIMEIRO sprint da Onda 2**, com conclusão-alvo **~25/07/2026** — folga deliberada antes da vigência 04/08/2026, que é o prazo operacional dos tenants clínicos. Os demais itens da onda seguem após.
+
 | ID | Item | Fonte | Esforço | Dep. |
 |----|------|-------|---------|------|
 | **INFRA-2** | Cutover do pipeline de IA para assíncrono: `flow.run()` inline → `enqueue_ai_task` + polling/notificação | 29.4 R4 / 29.1 R3-f2 / 29.3 RM3 | G | INFRA-1 |
@@ -138,7 +142,7 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
 | **LGPD-1** | Retenção/criptografia de mensagens clínicas (`whatsapp_sessions.data`) + consentimento no gatilho da anamnese | 29.3 #9 | M | — |
 | **COM-5** | Campanhas: corrigir bug `clinic_name`, propagar `tenant_id` no envio, filtro opt-out LGPD em `_resolve_recipients` | 29.3 #10 | P | TEN-3 |
 
-**Saída da Onda 2:** pipeline de IA fora do request; tenancy com papéis reais por tenant; **prontidão regulatória clínica em produção antes de 04/08/2026**; primeiro PSP Pix dinâmico recebendo via webhook; mensagens clínicas cifradas em repouso.
+**Saída da Onda 2:** **prontidão regulatória clínica (REG-1..8) em produção até ~25/07/2026 — com folga antes da vigência 04/08 dos tenants**; pipeline de IA fora do request; tenancy com papéis reais por tenant; primeiro PSP Pix dinâmico recebendo via webhook; mensagens clínicas cifradas em repouso.
 
 ### 🌊 Onda 3 (60–90 dias) — Migração transacional, profundidade, expansão controlada
 *Tema: a migração estrutural de tenancy, os módulos que destravam o checklist do sandbox, billing SaaS e a dívida de frontend. Risco alto, faseado.*
@@ -164,8 +168,8 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
 
 | Risco | Natureza | Mitigação no plano |
 |-------|----------|--------------------|
-| **Vigência das RDCs em 04/08/2026** (~55 dias) | Externo, data fixa | REG-CLÍNICO front-loaded na Onda 2; SCC-1 (textos) na Onda 1. Se a Onda 1 atrasar, SCC-1 e CLI-2/IA-1 têm prioridade absoluta. |
-| **Edital do sandbox sem data** | Externo, gatilho imprevisível | SCC-2 (monitor + responsável) na Onda 1. **Risco residual:** o checklist só fica majoritariamente PRONTO após SCC-3/4 (Onda 3); se o edital sair antes, submete-se com gaps assumidos e linguagem de prontidão. |
+| **Vigência das RDCs em 04/08/2026** (~55 dias) | Externo, data fixa — prazo operacional dos **tenants clínicos** (compromisso de produto), não da CannabIA perante a Anvisa | REG-CLÍNICO front-loaded na Onda 2 (primeiro sprint, alvo ~25/07); SCC-1 (textos) na Onda 1. Se a Onda 1 atrasar, SCC-1 e CLI-2/IA-1 têm prioridade absoluta. |
+| **Edital do sandbox sem data** | Externo, gatilho **comercial** (não obrigação da CannabIA) | SCC-2 (monitor + responsável) na Onda 1: ao primeiro sinal do edital, **avisar os clientes primeiro** (vantagem de antecipação do plano Sandbox Ready). A decisão de submeter com gaps é de **cada associação cliente** (P1), não nossa. **Risco para a CannabIA é comercial:** clientes não-prontos no pico de demanda — mitigado pela progressão SCC-3/4 (Onda 3) que amadurece o checklist e pela antecedência do monitor. |
 | **INFRA-1 escorrega** | Interno, chave-de-abóbada | É o primeiro item da Onda 1. Todo o valor da Onda 2 (5 hubs) está atrás dele — não pode deslizar. |
 | **BUG-001 sem causa-raiz** | Interno, confiança da trilha | OBS-1 é P0 na Onda 1; trilha regulatória imutável sem backup confiável é inaceitável para auditoria. |
 | **Modelo Gemini desligado pelo Google** | Externo, deadline jun/2026 vencido | IA-1 é P0 na Onda 1; hoje já em risco de fallback silencioso. |
@@ -185,10 +189,24 @@ Esforço: **P** (≤1 dia–2 dias) · **M** (2–5 dias) · **G** (>1 sprint). 
 ## 8. Próximos passos
 
 1. **Aprovação deste plano por Andre** (mergear o PR da consolidação).
-2. Converter a Onda 1 em sprint executável (tracks por hub, mantendo o rito 29.G: 1 track = 1 branch = 1 PR, merge só por Andre).
+2. Converter a Onda 1 em sprint executável na estrutura de tracks aprovada:
+   - **Track A — Raízes:** INFRA-1 + TEN-1 + SCC-1 + TEN-2.
+   - **Track B — Comunicação P0:** COM-1, COM-2, COM-3.
+   - **Track C — Clínico/IA P0:** CLI-1, CLI-2, CLI-3, IA-1, IA-2.
+   - **Track D — Financeiro/LGPD/Obs:** FIN-1, FIN-2, OBS-1, SCC-2.
+   - **Track E — Frontend quick wins:** FE-1, FE-2.
+
+   Regra (rito 29.G): **1 track = 1 branch**, com PRs pequenos sequenciais dentro do track; merge exclusivo do Andre em **janela diária de triagem**.
 3. Atualizar `docs/MEMORIA_VIVA.md` com o marco "Onda 1 de mergulhos concluída + doc 30 aprovado" (changelog incrementado — governança §9, prerrogativa do Estrategista).
 4. Iniciar a execução por **INFRA-1 + TEN-1 + SCC-1** (as três raízes do grafo §4).
 
 > Reconciliação concluída: os 6 backlogs de hub foram sequenciados contra o alicerce 29.1 sem conflito residual. Onde dois hubs tocavam o mesmo eixo (tenant, fila, RDCs), a dependência foi explicitada (§2/§4) e a ordem resolvida (§5).
 
 *Fim do documento 30. Este é o gate entre diagnóstico e implementação: nenhuma linha de remediação começa antes da aprovação dele.*
+
+---
+
+## Changelog
+
+- **v1.1 (2026-06-10):** correção de *framing* do sandbox (decisões do Andre, 10/06/2026). O sandbox da CannabIA passa a ser tratado como **produto privado de prontidão** ("Sandbox Ready") que prepara as associações clientes para concorrerem ao edital da Anvisa — **quem submete/concorre é cada associação, por decisão própria (P1); a CannabIA nunca é proponente nem tem prazo/obrigação perante a Anvisa**. Separados os dois marcos: (a) vigência 04/08/2026 = prazo operacional dos *tenants clínicos* (compromisso de produto, bloco REG-1..8); (b) edital do sandbox = sem data, **gatilho comercial** (pico de demanda do plano Sandbox Ready), não deadline de compliance. Edições em §1.4, §3 (T6), §5 (Onda 1 tema; abertura e saída da Onda 2 — REG-1..8 como 1º sprint, alvo ~25/07), §6 (linhas de vigência e edital) e §8.2 (estrutura de tracks A–E). Sem re-priorização nem alteração de itens das ondas. v1.0 preservada no histórico git (branch `consolidacao/30-plano-remediacao`); `docs/29.5` permanece como registro diagnóstico, intocado.
+- **v1.0 (2026-06-10):** versão inicial — consolidação dos 7 relatórios da Onda 1 em plano de remediação por ondas (30/60/90 dias).
