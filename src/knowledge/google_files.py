@@ -35,8 +35,19 @@ from google.genai import types as genai_types
 load_dotenv()
 logger = logging.getLogger("cannabia.knowledge.google_files")
 
-GEMINI_MODEL = os.getenv("GEMINI_FILES_MODEL", "gemini-2.0-flash")
+# gemini-2.0-flash foi DESCONTINUADO (404 "no longer available") — doc 30 C3.
+# Default migrado para gemini-2.5-flash (29.4 R2). Override via GEMINI_FILES_MODEL.
+GEMINI_MODEL = os.getenv("GEMINI_FILES_MODEL", "gemini-2.5-flash")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+# Fallback OpenAI para consultas de legislacao quando o Gemini falha (quota/erro).
+# IMPORTANTE: o Gemini le PDFs escaneados (multimodal); o OpenAI so enxerga TEXTO,
+# entao o fallback cobre as normas com arquivo textual (.md/.txt). Normas so-imagem
+# (PDFs escaneados, ex.: RDCs de 2026) ficam indisponiveis no modo fallback — isso
+# e sinalizado explicitamente na resposta e no usage (image_only_skipped).
+LEGISLATION_FALLBACK_MODEL = os.getenv("LEGISLATION_FALLBACK_MODEL", "gpt-4.1-mini")
+_TEXT_EXTENSIONS = {".md", ".txt"}
+_openai_client = None
 
 # Directory where legislation PDFs/texts are stored
 LEGISLATION_DIR = os.getenv(
@@ -307,6 +318,103 @@ def list_uploaded_files() -> List[Dict]:
     return _selected_catalog_entries()
 
 
+def _get_openai_client():
+    global _openai_client
+    if _openai_client is None:
+        from openai import OpenAI
+        _openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    return _openai_client
+
+
+def _load_legislation_texts() -> Tuple[List[Tuple[str, str]], List[str]]:
+    """Carrega o texto das normas com arquivo textual (.md/.txt) do manifesto.
+
+    Retorna (textos, so_imagem):
+      - textos     = [(titulo, conteudo)] das normas com texto disponivel.
+      - so_imagem  = titulos das normas sem texto (PDFs escaneados) — fora do fallback.
+    """
+    texts: List[Tuple[str, str]] = []
+    image_only: List[str] = []
+    for entry in _load_manifest_entries():
+        title = entry.get("title") or entry.get("norm_number") or entry.get("filename")
+        # Prefere a versao sanitizada (texto limpo) quando declarada no manifesto.
+        candidates = []
+        if entry.get("sanitized_filename"):
+            candidates.append(entry["sanitized_filename"])
+        candidates.append(entry.get("filename"))
+        text_path = None
+        for name in candidates:
+            if name and Path(name).suffix.lower() in _TEXT_EXTENSIONS:
+                candidate = Path(LEGISLATION_DIR) / name
+                if candidate.exists():
+                    text_path = candidate
+                    break
+        if text_path is None:
+            image_only.append(title)
+            continue
+        try:
+            texts.append((title, text_path.read_text(encoding="utf-8")))
+        except OSError:
+            image_only.append(title)
+    return texts, image_only
+
+
+def _query_legislation_openai_fallback(question: str, temperature: float) -> Tuple[str, Dict]:
+    """Fallback de query_legislation: responde via OpenAI sobre o TEXTO das normas.
+
+    Acionado quando o Gemini esgota as tentativas. Cobre normas textuais; normas
+    so-imagem ficam de fora (sinalizado). Levanta RuntimeError se nao houver
+    OPENAI_API_KEY ou corpus textual.
+    """
+    if not os.getenv("OPENAI_API_KEY"):
+        raise RuntimeError("Fallback OpenAI indisponivel: OPENAI_API_KEY ausente.")
+    texts, image_only = _load_legislation_texts()
+    if not texts:
+        raise RuntimeError("Fallback OpenAI sem corpus textual de legislacao disponivel.")
+
+    corpus = "\n\n".join(f"===== {title} =====\n{content}" for title, content in texts)
+    disclaimer = ""
+    if image_only:
+        disclaimer = (
+            " ATENCAO: modo de contingencia (Gemini indisponivel) — cobre apenas "
+            "normas com texto. NAO consultadas neste modo (PDF escaneado): "
+            + ", ".join(image_only) + "."
+        )
+    system_instruction = (
+        "Voce e um especialista em legislacao regulatoria brasileira de cannabis medicinal. "
+        "Responda com precisao usando SOMENTE os documentos fornecidos, citando numero da norma, "
+        "artigo, paragrafo e inciso quando aplicavel. Se a resposta nao estiver nos documentos, "
+        "diga explicitamente. Responda em portugues brasileiro." + disclaimer
+    )
+    client = _get_openai_client()
+    response = client.chat.completions.create(
+        model=LEGISLATION_FALLBACK_MODEL,
+        messages=[
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": f"DOCUMENTOS:\n{corpus}\n\nPERGUNTA: {question}"},
+        ],
+        temperature=temperature,
+        max_tokens=4096,
+    )
+    answer = (response.choices[0].message.content or "") if response.choices else ""
+    u = getattr(response, "usage", None)
+    usage = {
+        "input_tokens": getattr(u, "prompt_tokens", 0) if u else 0,
+        "output_tokens": getattr(u, "completion_tokens", 0) if u else 0,
+        "total_tokens": getattr(u, "total_tokens", 0) if u else 0,
+        "files_used": [t for t, _ in texts],
+        "model": LEGISLATION_FALLBACK_MODEL,
+        "fallback": True,
+        "fallback_reason": "gemini_unavailable",
+        "image_only_skipped": image_only,
+    }
+    logger.warning(
+        "Legislation query via FALLBACK OpenAI (%s). Normas so-imagem puladas: %s",
+        LEGISLATION_FALLBACK_MODEL, image_only,
+    )
+    return answer, usage
+
+
 def query_legislation(
     question: str,
     file_names: Optional[List[str]] = None,
@@ -371,9 +479,16 @@ def query_legislation(
             logger.warning("Gemini query attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
             time.sleep(wait)
     else:
-        raise RuntimeError(
-            f"Consulta regulatoria indisponivel apos 3 tentativas. Tente novamente em alguns minutos. ({last_error})"
-        )
+        # Gemini esgotou as 3 tentativas (quota/erro): tenta o fallback OpenAI
+        # sobre o corpus textual antes de desistir (resiliencia — doc 30 C3).
+        logger.error("Gemini indisponivel apos 3 tentativas; acionando fallback OpenAI. (%s)", last_error)
+        try:
+            return _query_legislation_openai_fallback(question, temperature)
+        except Exception as fb_exc:  # noqa: BLE001 — boundary: agrega os dois erros
+            raise RuntimeError(
+                f"Consulta regulatoria indisponivel: Gemini falhou ({last_error}) "
+                f"e fallback OpenAI falhou ({fb_exc})."
+            )
 
     # Extract token usage
     usage = {}
