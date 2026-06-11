@@ -10,7 +10,8 @@
     "publication_date": "2019-12-09",
     "norm_status": "revogada",
     "revoked_by": "RDC 1.015/2026",
-    "notes": "Inteiro teor em PDF na BVS Saúde. REVOGADA pela RDC 1.015/2026 (Art. 76) a partir de 04/08/2026, conforme leitura do inteiro teor da RDC 1.015 via RAG (gemini-2.5-flash, A5/SCC-1)."
+    "notes": "Inteiro teor em PDF na BVS Saúde. REVOGADA pela RDC 1.015/2026 (Art. 76) a partir de 04/08/2026, conforme leitura do inteiro teor da RDC 1.015 via RAG (gemini-2.5-flash, A5/SCC-1).",
+    "sanitized_filename": "RDC_327_2019_ANVISA_sanitized.md"
   },
   {
     "filename": "RDC_660_2022_ANVISA.md",
@@ -66,7 +67,8 @@
     "norm_status": "vigencia_futura",
     "revoked_by": null,
     "ementa": "Atualiza o Anexo I (Listas de Substâncias Entorpecentes, Psicotrópicas, Precursoras e Outras sob Controle Especial) da Portaria SVS/MS nº 344/1998.",
-    "notes": "Marco de fev/2026. PDF escaneado do DOU (OCR via Gemini na ingestão). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash, A5/SCC-1); sem revogação expressa de 327/660. Binário arquivado fora do repo."
+    "notes": "Marco de fev/2026. PDF escaneado do DOU (OCR via Gemini na ingestão). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash, A5/SCC-1); sem revogação expressa de 327/660. Binário arquivado fora do repo.",
+    "sanitized_filename": "RDC_1011_2026_ANVISA_sanitized.md"
   },
   {
     "filename": "RDC_1012_2026_ANVISA.pdf",
@@ -80,7 +82,8 @@
     "norm_status": "vigencia_futura",
     "revoked_by": null,
     "ementa": "Dispõe sobre os requisitos para o cultivo da espécie vegetal Cannabis sativa L. destinado exclusivamente a fins de pesquisa.",
-    "notes": "Marco de fev/2026 — trilha de pesquisa. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash); sem revogação expressa de 327/660. Binário arquivado fora do repo."
+    "notes": "Marco de fev/2026 — trilha de pesquisa. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash); sem revogação expressa de 327/660. Binário arquivado fora do repo.",
+    "sanitized_filename": "RDC_1012_2026_ANVISA_sanitized.md"
   },
   {
     "filename": "RDC_1013_2026_ANVISA.pdf",
@@ -94,7 +97,8 @@
     "norm_status": "vigencia_futura",
     "revoked_by": null,
     "ementa": "Dispõe sobre os requisitos para o cultivo da espécie vegetal Cannabis sativa L. com teor de THC ≤ 0,3% destinado exclusivamente a fins medicinais e/ou farmacêuticos.",
-    "notes": "Marco de fev/2026. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash); sem revogação expressa de 327/660. Binário arquivado fora do repo."
+    "notes": "Marco de fev/2026. PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash); sem revogação expressa de 327/660. Binário arquivado fora do repo.",
+    "sanitized_filename": "RDC_1013_2026_ANVISA_sanitized.md"
   },
   {
     "filename": "RDC_1014_2026_ANVISA.pdf",
@@ -108,7 +112,8 @@
     "norm_status": "vigencia_futura",
     "revoked_by": null,
     "ementa": "Institui Ambiente Regulatório Experimental (Sandbox Regulatório) para testagem controlada de atividades relacionadas à Cannabis para fins medicinais.",
-    "notes": "Marco de fev/2026 — institui o sandbox regulatório (implementação depende de EDITAL próprio, sem data; ver A6/monitor). PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash); sem revogação expressa de 327/660. Binário arquivado fora do repo."
+    "notes": "Marco de fev/2026 — institui o sandbox regulatório (implementação depende de EDITAL próprio, sem data; ver A6/monitor). PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Ementa confirmada via RAG (gemini-2.5-flash); sem revogação expressa de 327/660. Binário arquivado fora do repo.",
+    "sanitized_filename": "RDC_1014_2026_ANVISA_sanitized.md"
   },
   {
     "filename": "RDC_1015_2026_ANVISA.pdf",
@@ -121,8 +126,11 @@
     "publication_date": "2026-02-03",
     "norm_status": "vigencia_futura",
     "revoked_by": null,
-    "revokes": ["RDC 327/2019"],
+    "revokes": [
+      "RDC 327/2019"
+    ],
     "ementa": "Dispõe sobre a Autorização Sanitária para fabricação e importação de produtos de Cannabis para uso medicinal humano e estabelece requisitos de comercialização.",
-    "notes": "Marco de fev/2026 — sucessora regulatória da RDC 327/2019. REVOGA a RDC 327/2019 (Art. 76), conforme leitura do inteiro teor via RAG (gemini-2.5-flash, A5/SCC-1). PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Binário arquivado fora do repo."
+    "notes": "Marco de fev/2026 — sucessora regulatória da RDC 327/2019. REVOGA a RDC 327/2019 (Art. 76), conforme leitura do inteiro teor via RAG (gemini-2.5-flash, A5/SCC-1). PDF escaneado (OCR via Gemini). Datada 02/02/2026, DOU 03/02/2026, vigência 04/08/2026. Binário arquivado fora do repo.",
+    "sanitized_filename": "RDC_1015_2026_ANVISA_sanitized.md"
   }
 ]
