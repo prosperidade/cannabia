@@ -137,6 +137,27 @@ def check_anvisa(prescription: dict) -> dict:
     }
 
 
+def validate_prescriber_habilitation(
+    doctor_crm: Optional[str], doctor_user_id: Optional[int] = None
+) -> dict:
+    """
+    Validação MÍNIMA de prescritor habilitado para a RDC 1.015/2026 (já em vigor)
+    — REG-1015. Mínimo vigente verificável no fluxo atual: CRM presente.
+
+    A validação plena (conselho/UF, situação ativa no CFM, vínculo do prescritor)
+    fica como PENDÊNCIA DE REVALIDAÇÃO contra o inteiro teor da RDC 1.015 (PDF
+    escaneado lido via RAG). Não bloqueia a emissão — é prontidão auditada.
+    """
+    crm = (doctor_crm or "").strip()
+    habilitado = bool(crm)
+    return {
+        "habilitado": habilitado,
+        "reason": "CRM do prescritor presente" if habilitado else "CRM do prescritor ausente",
+        "norm_ref": "RDC 1.015/2026",
+        "pending_revalidation": True,
+    }
+
+
 class AgenteRegulatorio(BaseAgent):
     agent_name = "regulatorio"
     description = "Verifica compliance regulatoria ANVISA/CFM + elegibilidade Sandbox"
