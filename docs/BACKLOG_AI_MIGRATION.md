@@ -1,12 +1,21 @@
 # AI Migration Backlog
 
-**Status:** dívida explícita registrada na **Sprint 1 Track B.2**.
-**Última atualização:** 2026-05-09.
-**Owner:** indefinido — re-priorizar antes de junho/2026.
+**Status:** item 1 ✅ **RESOLVIDO em 2026-06-11** (migração executada). Item 2 (Google Files efêmero) **ABERTO**.
+**Última atualização:** 2026-06-11.
+**Owner:** indefinido.
 
 ---
 
-## 1. Migrar `gemini-1.5-flash` → `gemini-2.5-flash` (ou `-flash-lite`)
+## 1. ✅ RESOLVIDO — Migrar `gemini-1.5-flash`/`2.0-flash` → `gemini-2.5-flash`
+
+> **Executado em 2026-06-11** (PR Track A gemini-2.5-migration). Gatilho real: os modelos
+> 1.5 e 2.0 já retornavam **404 "no longer available"** em produção (não era mais "previsto"
+> para jun/2026 — já aconteceu). `GEMINI_MODEL` (antes hardcoded) e `TRIAGE_MODEL_GEMINI`
+> migrados para `gemini-2.5-flash` (env-overridável p/ rollback); `gemini-2.5-flash` adicionado
+> ao `MODEL_PRICING` (input $0.30/1M, output $2.50/1M); `gemini-1.5-flash` mantido em
+> `MODEL_PRICING` só para reanálise de audit logs históricos; labels de modelo (cientifico/
+> pipeline) tornados dinâmicos (`GEMINI_MODEL`); `.env.example` atualizado; testes de pricing
+> do modelo ativo. Critérios de sucesso abaixo: todos atendidos.
 
 ### Contexto
 
@@ -58,11 +67,44 @@ Hoje [src/ai/chains.py](src/ai/chains.py) usa `gemini-1.5-flash` em dois caminho
 
 ---
 
-## 2. Outras dívidas relacionadas (futuras)
+## 2. 🔴 ABERTO — Durabilidade do RAG de legislação (Google Files API é efêmera)
+
+### Contexto
+
+As consultas de legislação ([src/knowledge/google_files.py](src/knowledge/google_files.py)) usam a **Gemini Files API** como armazenamento dos documentos normativos. **Descasamento arquitetural:** a Files API é uma área de *staging temporária para inferência*, não um repositório — todo arquivo é **auto-deletado em ~48h** e é **escopado por projeto/chave** (arquivos subidos com uma chave dão `403 PERMISSION_DENIED` sob outra).
+
+### Sintomas observados (2026-06-11)
+
+- `403 PERMISSION_DENIED` ao consultar arquivos subidos no dia anterior com chave diferente (free-tier → billing).
+- A citação do RAG **quebra sozinha em ~48h** quando os arquivos expiram, sem nenhuma mudança de código.
+- Mitigação atual: re-upload manual (`scripts/upload_legislation.py --commit`) + cache local `data/file_catalog.json`.
+
+### Por que o "cron de re-upload" NÃO é o conserto certo
+
+Um cron mascara o problema e tem janela de quebra; além disso exige manter os PDFs-fonte acessíveis ao app (hoje arquivados fora do repo, no Desktop). É band-aid, não cura.
+
+### Conserto recomendado (decisão de arquitetura pendente)
+
+**Extrair o texto UMA vez e persistir num store durável**, eliminando a dependência da Files API:
+1. OCR dos PDFs escaneados via Gemini **uma vez** (na ingestão), salvando o texto normativo (`.md`) ao lado do binário.
+2. Indexar esse texto no store durável já existente (**ChromaDB** ou tabela Postgres), com proveniência (`knowledge_catalog`).
+3. `query_legislation` passa a consultar o texto durável — **funciona com Gemini E com OpenAi** (o fallback fica 100%, não mais parcial) e **não expira**.
+4. A Files API some do caminho crítico (no máximo, cache opcional de performance).
+
+**Decisão necessária (Andre):** store de destino (ChromaDB vs Postgres) e onde guardar os PDFs-fonte de forma estável (não no git por tamanho; não no Desktop). Estimativa: M (1 sprint).
+
+### Conexão com o doc 30
+
+Reforça **IA & Conhecimento (29.4)**: governança/versionamento da base. Candidato a item da remediação (Onda 2/3).
+
+---
+
+## 3. Outras dívidas relacionadas (futuras)
 
 - **Gateway central de LLM** ([Sprint 3 transformacional](../auditoria/RELATORIO_AGENTES_IA.md#81-gateway-central-de-llm-srcaillm_gatewaypy)) — quando ele existir, esta migração vira um patch único no gateway em vez de mudar `chains.py` + `pricing.py` + envs.
 - **Provider abstraction** — adicionar suporte a Anthropic Claude / Mistral. Permite testar mesmo prompt em N providers e escolher por custo/qualidade. Junta bem com 1.
 
-## 3. Histórico
+## 4. Histórico
 
 - **2026-05-09 (Sprint 1 Track B.2):** dívida documentada após adicionar `gemini-1.5-flash` ao `MODEL_PRICING` para corrigir bug de cost mixing em [src/ai/service.py](src/ai/service.py). Decisão: não migrar agora, apenas registrar.
+- **2026-06-11 (Track A):** item 1 RESOLVIDO — migração `1.5/2.0 → 2.5-flash` executada (modelos já davam 404 em produção). Item 2 (Google Files efêmero) ABERTO, descoberto ao validar a ingestão das RDCs 2026 sob a chave billing.
