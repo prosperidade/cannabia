@@ -165,6 +165,17 @@ f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first
         )
         return
 
+    # ── Sessão concluída: NÃO deletar (CLI-1 / 29.2 R1) ──────────────────────
+    # Respostas de follow-up já foram interceptadas em message_service; aqui só
+    # restam mensagens avulsas de quem já concluiu — oferece reinício sem perder
+    # a sessão (antes caíam em "estado desconhecido" e eram deletadas).
+    if current_step == "completed":
+        _reply(
+            "Sua anamnese já foi concluída ✅.\n"
+            "Para iniciar uma nova avaliação, envie *Oi* ou *Iniciar*."
+        )
+        return
+
     # ── Coleta da resposta e avanço de etapa ─────────────────────────────────
     if current_step not in STEP_NAMES:
         logger.warning("Estado desconhecido '%s' para %s — resetando.", current_step, phone)

@@ -237,22 +237,24 @@ class TelemetryCRMService:
         clinic_id: int,
         phone: str,
         response_text: str,
-    ) -> Optional[int]:
+    ) -> Optional[Dict[str, Any]]:
         """
-        Registra a resposta do paciente no follow-up mais recente.
-        Chamado pelo webhook do WhatsApp quando a mensagem é recebida.
+        Registra a resposta do paciente no follow-up 'sent' mais recente.
+        Chamado pelo webhook do WhatsApp quando a mensagem é recebida (CLI-1).
+        Retorna {id, patient_id, followup_type} ou None se não havia follow-up
+        aguardando resposta.
         """
         from src.repositories.telemetry_repository import record_patient_response
 
-        followup_id = record_patient_response(
+        followup = record_patient_response(
             clinic_id=clinic_id,
             phone=phone,
             response_text=response_text,
         )
 
-        if followup_id:
+        if followup:
             logger.info(
-                "Resposta registrada: followup_id=%s, clinic=%s, phone=%s",
-                followup_id, clinic_id, phone,
+                "Resposta de follow-up registrada: followup_id=%s, type=%s, clinic=%s, phone=%s",
+                followup["id"], followup.get("followup_type"), clinic_id, phone,
             )
-        return followup_id
+        return followup
