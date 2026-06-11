@@ -23,8 +23,10 @@ durante a execucao nunca sao afetados.
 Idempotente: re-rodar so re-zera campos ja vazios (no-op efetivo).
 Registra evento em payment_data_purge_events (executor_host='cron').
 
-Kill switch: PAYMENT_PURGE_ENABLED (default false) — cron agendado mas no-op
-ate liberacao (OK juridico do prazo, alinhado a Q-LGPD-2).
+Retencao de 90d APROVADA (decisao do Andre, 2026-06-11) — sem gate juridico/
+comercial na Onda 1. PAYMENT_PURGE_ENABLED e apenas o desligamento operacional
+de emergencia; no Render fica "true". Default "false" quando a env nao existe,
+para que execucoes manuais avulsas nao expurguem sem intencao.
 """
 from __future__ import annotations
 
@@ -205,8 +207,8 @@ def main() -> int:
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
-    # Kill switch — production run espera OK juridico do prazo (Q-LGPD-2).
-    # Default false; vira true no Render dashboard quando liberado.
+    # Toggle operacional (emergency off). No Render fica "true" (retencao de 90d
+    # aprovada, Andre 2026-06-11). Default "false" quando a env nao existe.
     enabled = os.getenv("PAYMENT_PURGE_ENABLED", "false").strip().lower()
     if enabled not in {"true", "1", "yes"}:
         logger.info(

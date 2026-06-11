@@ -170,8 +170,9 @@ services:
   # FIN-2 (doc 30 R2): retencao/expurgo LGPD do trilho de pagamento.
   # Zera raw_payload (payment_transactions) e body/headers (payment_webhook_log)
   # apos a janela de retencao. Roda 04:30 UTC (offset do audit-retention).
-  # AVISO: prazo precisa de OK juridico antes do primeiro production run
-  # (mesma porteira Q-LGPD-2 do audit-retention).
+  # Retencao de 90d APROVADA (decisao do Andre, 2026-06-11) — sem gate juridico/
+  # comercial na Onda 1. Ligado em producao; PAYMENT_PURGE_ENABLED e apenas o
+  # desligamento operacional de emergencia.
   - type: cron
     name: cannabia-payment-retention
     env: python
@@ -184,10 +185,9 @@ services:
         fromDatabase:
           name: cannabia-db
           property: connectionString
-      # Kill switch: cron agendado mas no-op enquanto false.
-      # Vire "true" no Render dashboard apos OK juridico.
+      # Toggle operacional (emergency off). Default ligado: retencao aprovada.
       - key: PAYMENT_PURGE_ENABLED
-        value: "false"
+        value: "true"
       - key: PAYMENT_DATA_RETENTION_DAYS
         value: "90"
 
