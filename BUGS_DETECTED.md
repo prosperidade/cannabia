@@ -24,7 +24,8 @@
 
 ### Investigação
 
-- **Pendente** — candidata a Sprint 3 (Obs-Harden) ou follow-up dedicado.
+- **FECHADA em 2026-06-11** (Track C / OBS-1, doc 30). Causa-raiz e correção em `docs/rca/2026-06-11-bug-001-dumps-zerados.md`: ausência de verificação do resultado do `pg_dump` (arquivo vazio por redirect de shell + exit code não checado, provável gatilho de disco cheio). Correção: verificação tripla **automática** (`scripts/backup_verify.py`, cron `cannabia-backup-verify`) com heartbeat em `backup_verification_events` (migration 053) e alerta em falha.
+- Histórico da investigação original (mantido para contexto):
 - Itens a apurar:
   - Onde está o script/cron que gerou esses dumps (procurar `scripts/backup*`, `tasks/backup*`, scheduled tasks do Windows)
   - Por que `pg_dump` retornou sucesso (?) deixando arquivo vazio

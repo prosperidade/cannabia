@@ -103,9 +103,13 @@ Qualquer incidente que exija acionar esta política (restauração, rollback de 
 2. RCA (root cause analysis) curto (1 página) em `docs/rca/YYYY-MM-DD-<slug>.md` até 72 h após a mitigação.
 3. Atualização desta política se algum procedimento se mostrar insuficiente.
 
+## 6.1. Verificação automática (OBS-1)
+
+Desde a remediação OBS-1 (doc 30), `scripts/backup_verify.py` roda como cron (`cannabia-backup-verify` no `render.yaml`, kill-switched) e executa a **verificação tripla automática**: tamanho > limiar, integridade (`pg_restore --list`) e **restauração de amostra** (`pg_restore --schema-only`). Cada execução — sucesso **ou falha** — grava uma linha em `backup_verification_events` (migration 053), e qualquer falha dispara alerta (Sentry + log + exit ≠ 0). Ver o runbook de ativação e a causa-raiz do BUG-001 em `docs/rca/2026-06-11-bug-001-dumps-zerados.md`. O `scripts/backup_postgres_validated.py` (dump off-site manual) também passou a rodar os 3 gates.
+
 ## 7. Pontos em aberto
 
-- Automatizar o dump lógico mensal via cron no Render ou GitHub Actions (hoje é manual).
+- ~~Automatizar o dump lógico mensal via cron~~ — **feito** (OBS-1): cron `cannabia-backup-verify` + heartbeat em `backup_verification_events`. Resta apenas virar `BACKUP_VERIFY_ENABLED=true` e definir o storage off-site (abaixo).
 - Avaliar cadência de backup quando Fase 5 do SCC (ancoragem blockchain) entrar — RPO de 1 h provavelmente exige tier Pro do Postgres Render ou migração para gerenciamento próprio.
 - Definir fornecedor e bucket do armazenamento off-site para o dump mensal (atualmente não designado).
 - Definir política formal de retenção regulatória para dados do SCC (decisão humana pendente no `docs/BACKLOG_SCC.md` §4, item 5).

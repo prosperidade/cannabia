@@ -191,6 +191,31 @@ services:
       - key: PAYMENT_DATA_RETENTION_DAYS
         value: "90"
 
+  # OBS-1 (doc 30): verificacao tripla AUTOMATICA de backup + heartbeat.
+  # Cria um dump, valida (tamanho / pg_restore --list / restauracao de amostra)
+  # e grava o resultado em backup_verification_events. Falha => alerta (Sentry)
+  # + exit != 0. Antidoto ao BUG-001 (dump 0 bytes silencioso de 11/05).
+  # Roda 03:00 UTC (antes das janelas de retencao). Kill switch ate validar
+  # pg_dump/PG_BIN no ambiente do cron.
+  - type: cron
+    name: cannabia-backup-verify
+    env: python
+    region: ohio
+    schedule: "0 3 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m scripts.backup_verify
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cannabia-db
+          property: connectionString
+      - key: SENTRY_DSN
+        sync: false
+      # Kill switch: cron agendado mas no-op enquanto false. Vire "true" no
+      # Render dashboard apos confirmar pg_dump/pg_restore disponiveis no cron.
+      - key: BACKUP_VERIFY_ENABLED
+        value: "false"
+
   - type: web
     name: cannabia-frontend
     runtime: node
