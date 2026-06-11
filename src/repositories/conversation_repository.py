@@ -240,6 +240,7 @@ def add_message(
                 (conversation_id, clinic_id, direction, sender_type, sender_name,
                  message_text, message_type, external_id, metadata)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (external_id) WHERE external_id IS NOT NULL DO NOTHING
             RETURNING *
             """,
             (
@@ -248,8 +249,17 @@ def add_message(
                 __import__("json").dumps(metadata) if metadata else None,
             ),
         )
+        row = cur.fetchone()
+        # Idempotencia (COM-1 / 29.3 RM1): reentrega Meta com o mesmo external_id
+        # nao insere de novo; retorna a linha ja existente para manter o contrato.
+        if row is None and external_id is not None:
+            cur.execute(
+                "SELECT * FROM conversation_messages WHERE external_id = %s LIMIT 1",
+                (external_id,),
+            )
+            row = cur.fetchone()
         conn.commit()
-        return dict(cur.fetchone())
+        return dict(row)
 
 
 def list_messages(

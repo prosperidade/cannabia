@@ -81,12 +81,20 @@ def _process_single_message(msg: dict, contacts: list, clinic_id: int) -> None:
     sender       = msg.get("from", "desconhecido")
     message_text = msg.get("text", {}).get("body", "")
     timestamp    = msg.get("timestamp", "")
+    wamid        = msg.get("id")
     contact_name = _resolve_contact_name(msg, contacts)
 
-    # Salva mensagem recebida para auditoria (mantido)
-    message_repository.save_incoming_message(
-        clinic_id, sender, contact_name, message_text, timestamp
+    # Salva mensagem recebida para auditoria; idempotente por (clinic_id, wamid).
+    inserted_id = message_repository.save_incoming_message(
+        clinic_id, sender, contact_name, message_text, timestamp, wamid=wamid
     )
+
+    # Curto-circuito de idempotencia (COM-1 / 29.3 RM1): wamid ja visto -> a
+    # reentrega da Meta nao reprocessa (sem duplicar conversa nem avancar 2x a
+    # maquina de estados da anamnese).
+    if wamid and inserted_id is None:
+        logger.info("Mensagem Meta duplicada ignorada (wamid=%s)", wamid)
+        return
 
     # Registrar na conversa (threading)
     try:

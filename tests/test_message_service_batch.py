@@ -12,7 +12,9 @@ def _patch_sideeffects(monkeypatch):
     monkeypatch.setattr(
         ms.message_repository,
         "save_incoming_message",
-        lambda clinic_id, sender, name, text, ts: saved.append((clinic_id, sender, text)),
+        lambda clinic_id, sender, name, text, ts, wamid=None: (
+            saved.append((clinic_id, sender, text)) or len(saved)
+        ),
     )
     monkeypatch.setattr(ms, "send_email_notification", lambda *a, **k: True)
     monkeypatch.setattr(ms, "process_message", lambda *a, **k: processed.append(a))

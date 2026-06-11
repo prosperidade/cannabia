@@ -5,20 +5,28 @@ from src.infra.database import db_cursor
 # WRITE OPERATIONS
 # ==========================================
 
-def save_incoming_message(clinic_id, sender, contact_name, message_text, timestamp):
+def save_incoming_message(clinic_id, sender, contact_name, message_text, timestamp, wamid=None):
+    """Insere a mensagem inbound (auditoria).
+
+    Idempotente por (clinic_id, wamid): reentrega da Meta com o mesmo wamid nao
+    duplica (COM-1 / 29.3 RM1). Retorna o id inserido, ou ``None`` quando a
+    mensagem ja existia — sinal de curto-circuito para o handler. Mensagens sem
+    wamid (legado) nunca conflitam e sempre retornam o id novo.
+    """
     with db_cursor() as (connection, cursor):
         cursor.execute(
             """
             INSERT INTO incoming_messages
-                (clinic_id, sender, contact_name, message_text, timestamp)
-            VALUES (%s, %s, %s, %s, %s)
+                (clinic_id, sender, contact_name, message_text, timestamp, wamid)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (clinic_id, wamid) WHERE wamid IS NOT NULL DO NOTHING
             RETURNING id
             """,
-            (clinic_id, sender, contact_name, message_text, timestamp),
+            (clinic_id, sender, contact_name, message_text, timestamp, wamid),
         )
+        row = cursor.fetchone()
         connection.commit()
-        msg_id = cursor.fetchone()[0]
-        return msg_id
+        return row[0] if row else None
 
 
 def save_status_update(clinic_id, message_id, status, timestamp):
