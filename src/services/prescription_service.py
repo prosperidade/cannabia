@@ -399,10 +399,51 @@ class PrescriptionService:
             payload.dosage_recommendation.cannabinoid_ratio,
         )
 
+        # CLI-3 / 29.2 R3 — verificação ANVISA no caminho de emissão.
+        # Decisão registrada: *warning auditado*, NÃO bloqueante (o médico é o
+        # decisor; a aprovação regulatória é prerrogativa da Anvisa). Alertas são
+        # auditados e devolvidos no payload para exibição.
+        rec = payload.dosage_recommendation
+        anvisa_compliance = {"compliant": True, "issues": [], "checked_norms": []}
+        try:
+            from src.ai.agents.regulatorio import check_anvisa
+
+            anvisa_compliance = check_anvisa({
+                "cannabinoid_ratio": rec.cannabinoid_ratio,
+                "administration_route": rec.administration_route.value,
+                "max_daily_mg": rec.max_daily_mg,
+            })
+            if not anvisa_compliance["compliant"]:
+                logger.warning(
+                    "Prescrição #%d emitida com alertas ANVISA: %s",
+                    prescription_id, anvisa_compliance["issues"],
+                )
+                from src.infra.audit import log_audit_event
+
+                log_audit_event(
+                    action="prescription_anvisa_warning",
+                    resource_type="prescription",
+                    resource_id=str(prescription_id),
+                    details={
+                        "issues": anvisa_compliance["issues"],
+                        "checked_norms": anvisa_compliance["checked_norms"],
+                        "cannabinoid_ratio": rec.cannabinoid_ratio,
+                        "administration_route": rec.administration_route.value,
+                        "max_daily_mg": rec.max_daily_mg,
+                    },
+                    clinic_id=clinic_id,
+                )
+        except Exception:
+            logger.exception(
+                "Falha no check ANVISA da prescrição #%d (emissão não bloqueada)",
+                prescription_id,
+            )
+
         return {
             "prescription_id": prescription_id,
             "dosage_summary": dosage_summary,
             "status": "active",
+            "anvisa_compliance": anvisa_compliance,
         }
 
     def create_b2b_order(
