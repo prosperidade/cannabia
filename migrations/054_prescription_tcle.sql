@@ -1,12 +1,13 @@
--- migrations/052_prescription_tcle.sql
+-- migrations/054_prescription_tcle.sql
 -- Track B / REG-1015 (doc 30 Onda 1; RDC 1.015/2026 — JÁ EM VIGOR)
+-- (numerada 054 para evitar colisão com 052/053 do Track C / PR #78)
 -- Prontidão mínima vigente no fluxo de prescrição: registro de TCLE (termo de
 -- consentimento livre e esclarecido) vinculado à prescrição + snapshot da
 -- validação de prescritor habilitado. Schema mínimo + ponto de captura; a UI
 -- completa e a validação plena do conselho ficam para depois (pendência de
 -- revalidação contra o inteiro teor da RDC 1.015 — PDF escaneado lido via RAG).
 -- Linguagem: PRONTIDÃO regulatória, nunca aprovação.
--- Aditiva e idempotente. Down em migrations/down/052_prescription_tcle_down.sql
+-- Aditiva e idempotente. Down em migrations/down/054_prescription_tcle_down.sql
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS prescription_consents (
