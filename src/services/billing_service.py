@@ -268,6 +268,17 @@ def _set_limit_flag(clinic_id: int, flag: str) -> None:
         conn.commit()
 
 
+def emit_billing_event(clinic_id: int, event_type: str, details: Dict[str, Any]) -> None:
+    """
+    Emite um evento imutável em billing_events (trilha financeira transversal).
+
+    Wrapper público de `_log_billing_event` para uso por outros serviços
+    (ex.: payment_service emite payment_received/payment_failed — doc 30 R10).
+    Nunca derruba a operação principal por falha de logging.
+    """
+    _log_billing_event(clinic_id, event_type, details)
+
+
 def _log_billing_event(clinic_id: int, event_type: str, details: Dict[str, Any]) -> None:
     """Registra evento imutável no log de billing."""
     from src.infra.database import db_cursor

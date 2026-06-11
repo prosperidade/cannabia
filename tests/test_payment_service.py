@@ -91,6 +91,7 @@ def test_confirm_payment_marks_paid_and_records_transaction():
     with patch.object(payment_service.repo, "get_payment_request", return_value=payment), \
          patch.object(payment_service.repo, "mark_payment_paid", side_effect=fake_mark), \
          patch.object(payment_service.repo, "record_transaction", side_effect=fake_record), \
+         patch.object(payment_service, "_emit_payment_billing_event"), \
          patch.object(payment_service, "log_audit_event"):
         result = payment_service.confirm_payment(
             payment["id"], amount_cents=2500, payer_name="Joao",
@@ -131,6 +132,7 @@ def test_process_webhook_event_reconciles_pending_to_paid():
     with patch.object(payment_service.repo, "get_payment_request_by_external_id", return_value=payment), \
          patch.object(payment_service.repo, "record_transaction", side_effect=fake_record) as rec, \
          patch.object(payment_service.repo, "mark_payment_paid", return_value={**payment, "status": "paid"}) as mark, \
+         patch.object(payment_service, "_emit_payment_billing_event"), \
          patch.object(payment_service, "log_audit_event"):
         result = payment_service.process_webhook_event(
             provider="mercado_pago",
@@ -144,8 +146,123 @@ def test_process_webhook_event_reconciles_pending_to_paid():
 
     assert result["payment_request_id"] == 1
     assert result["transaction_id"] == 99
+    assert result["reconciled"] is True
+    assert result["underpaid"] is False
     rec.assert_called_once()
     mark.assert_called_once()
+
+
+def test_process_webhook_event_underpayment_does_not_mark_paid():
+    """FIN-1: valor menor que o devido nao quita; vira charge.underpaid."""
+    from src.services import payment_service
+
+    payment = _base_payment(amount_cents=50000)  # cobranca de R$ 500,00
+
+    captured_tx = {}
+
+    def fake_record(**kwargs):
+        captured_tx.update(kwargs)
+        return {"id": 100, **kwargs}
+
+    with patch.object(payment_service.repo, "get_payment_request_by_external_id", return_value=payment), \
+         patch.object(payment_service.repo, "record_transaction", side_effect=fake_record), \
+         patch.object(payment_service.repo, "mark_payment_paid") as mark, \
+         patch.object(payment_service, "_emit_payment_billing_event"), \
+         patch.object(payment_service, "log_audit_event"):
+        result = payment_service.process_webhook_event(
+            provider="mercado_pago",
+            event_type="charge.paid",
+            provider_event_id="evt-under",
+            external_id=payment["external_id"],
+            amount_cents=1,  # R$ 0,01 — underpayment grosseiro
+            status="succeeded",
+        )
+
+    mark.assert_not_called()
+    assert result["reconciled"] is False
+    assert result["underpaid"] is True
+    assert captured_tx["event_type"] == "charge.underpaid"
+    assert captured_tx["status"] == "needs_review"
+    assert captured_tx["amount_cents"] == 1
+
+
+def test_process_webhook_event_overpayment_marks_paid():
+    """FIN-1: valor maior ou igual ao devido quita normalmente."""
+    from src.services import payment_service
+
+    payment = _base_payment(amount_cents=2500)
+
+    with patch.object(payment_service.repo, "get_payment_request_by_external_id", return_value=payment), \
+         patch.object(payment_service.repo, "record_transaction", return_value={"id": 101}), \
+         patch.object(payment_service.repo, "mark_payment_paid", return_value={**payment, "status": "paid"}) as mark, \
+         patch.object(payment_service, "_emit_payment_billing_event"), \
+         patch.object(payment_service, "log_audit_event"):
+        result = payment_service.process_webhook_event(
+            provider="mercado_pago",
+            event_type="charge.paid",
+            provider_event_id="evt-over",
+            external_id=payment["external_id"],
+            amount_cents=3000,  # pagou a mais
+            status="succeeded",
+        )
+
+    mark.assert_called_once()
+    assert mark.call_args.kwargs["paid_amount_cents"] == 3000
+    assert result["reconciled"] is True
+    assert result["underpaid"] is False
+
+
+def test_process_webhook_event_emits_payment_received_on_success():
+    """R10: reconciliacao bem-sucedida emite billing_events.payment_received."""
+    from src.services import payment_service
+
+    payment = _base_payment(amount_cents=2500, clinic_id=7)
+
+    with patch.object(payment_service.repo, "get_payment_request_by_external_id", return_value=payment), \
+         patch.object(payment_service.repo, "record_transaction", return_value={"id": 1}), \
+         patch.object(payment_service.repo, "mark_payment_paid", return_value={**payment, "status": "paid"}), \
+         patch.object(payment_service, "log_audit_event"), \
+         patch("src.services.billing_service.emit_billing_event") as emit:
+        payment_service.process_webhook_event(
+            provider="mercado_pago",
+            event_type="charge.paid",
+            provider_event_id="evt-r10",
+            external_id=payment["external_id"],
+            amount_cents=2500,
+            status="succeeded",
+        )
+
+    emit.assert_called_once()
+    clinic_id, event_type, details = emit.call_args.args
+    assert clinic_id == 7
+    assert event_type == "payment_received"
+    assert details["payment_request_id"] == payment["id"]
+
+
+def test_process_webhook_event_underpaid_emits_payment_failed():
+    """R10: underpayment emite billing_events.payment_failed (reason=underpaid)."""
+    from src.services import payment_service
+
+    payment = _base_payment(amount_cents=50000, clinic_id=7)
+
+    with patch.object(payment_service.repo, "get_payment_request_by_external_id", return_value=payment), \
+         patch.object(payment_service.repo, "record_transaction", return_value={"id": 1}), \
+         patch.object(payment_service.repo, "mark_payment_paid"), \
+         patch.object(payment_service, "log_audit_event"), \
+         patch("src.services.billing_service.emit_billing_event") as emit:
+        payment_service.process_webhook_event(
+            provider="mercado_pago",
+            event_type="charge.paid",
+            provider_event_id="evt-under2",
+            external_id=payment["external_id"],
+            amount_cents=100,
+            status="succeeded",
+        )
+
+    emit.assert_called_once()
+    _, event_type, details = emit.call_args.args
+    assert event_type == "payment_failed"
+    assert details["reason"] == "underpaid"
 
 
 def test_process_webhook_event_missing_payment_raises():
