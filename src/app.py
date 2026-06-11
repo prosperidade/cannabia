@@ -38,8 +38,12 @@ from src.config import (
     LOGIN_RATE_LIMIT,
     LOGIN_RATE_WINDOW_S,
     FRONTEND_ORIGINS,
+    SECURITY_HEADERS_ENABLED,
+    CSP_REPORT_ONLY,
+    CONTENT_SECURITY_POLICY,
     _get_sentry_config,
 )
+from src.web.security_headers import apply_security_headers, DEFAULT_CSP
 
 from src.web.routes.auth import limit_or_429, generate_csrf_token, validate_csrf_from_form
 from src.web.auth_identity import AppUser
@@ -212,6 +216,16 @@ def create_app() -> Flask:
                 "status_code": response.status_code,
                 "elapsed_ms": elapsed_ms,
             },
+        )
+
+        # SEC-1: cabecalhos de seguranca (HSTS so sobre HTTPS/producao;
+        # CSP em report-only por default — ver src/web/security_headers.py)
+        apply_security_headers(
+            response,
+            is_secure=request.is_secure or SESSION_COOKIE_SECURE,
+            enabled=SECURITY_HEADERS_ENABLED,
+            csp_report_only=CSP_REPORT_ONLY,
+            csp_policy=CONTENT_SECURITY_POLICY or DEFAULT_CSP,
         )
         return response
 
