@@ -139,18 +139,46 @@ def _probe_circuit_breakers() -> ProbeResult:
         return ProbeResult(status="ok", latency_ms=elapsed, detail=f"não disponível: {exc}")
 
 
+def _probe_redis() -> ProbeResult:
+    """Probe da fila assincrona (Redis/RQ) — INFRA-1 / 29.1 R8.
+
+    Nao-critico: enquanto o pipeline ainda roda sincrono (cutover e Onda 2),
+    Redis indisponivel degrada (nao derruba) o sistema.
+    """
+    start = time.perf_counter()
+    try:
+        from src.infra.tasks import redis_available, REDIS_URL
+
+        ok = redis_available()
+        elapsed = int((time.perf_counter() - start) * 1000)
+        if ok:
+            return ProbeResult(status="ok", latency_ms=elapsed, detail=f"fila: {QUEUE_HINT}")
+        return ProbeResult(
+            status="error", latency_ms=elapsed,
+            detail=f"Redis indisponivel ({REDIS_URL}) — fila assincrona offline",
+        )
+    except Exception as exc:
+        elapsed = int((time.perf_counter() - start) * 1000)
+        logger.warning("Health probe Redis falhou: %s", exc)
+        return ProbeResult(status="error", latency_ms=elapsed, detail=str(exc))
+
+
+QUEUE_HINT = "cannabia-ai"
+
+
 def run_health_check() -> HealthReport:
     """
     Executa todos os probes e retorna um HealthReport.
 
     - DB down -> unhealthy (503)
-    - AI providers down -> degraded (200)
+    - AI providers / Redis down -> degraded (200)
     - Tudo ok -> healthy (200)
     """
     report = HealthReport()
 
     probes = {
         "db": _probe_db,
+        "redis": _probe_redis,
         "openai": _probe_openai,
         "gemini": _probe_gemini,
         "chromadb": _probe_chromadb,

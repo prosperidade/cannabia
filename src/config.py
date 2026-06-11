@@ -141,6 +141,13 @@ _check_encryption_key_or_fail()
 SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
+
+# SEC-1 (doc 30 Onda 1): cabecalhos HTTP de seguranca no after_request.
+# CSP arranca em report-only para nao quebrar paginas Jinja legadas; promover a
+# enforcing (CSP_REPORT_ONLY=false) apos validacao. Ver src/web/security_headers.py.
+SECURITY_HEADERS_ENABLED = os.getenv("SECURITY_HEADERS_ENABLED", "true").lower() == "true"
+CSP_REPORT_ONLY = os.getenv("CSP_REPORT_ONLY", "true").lower() == "true"
+CONTENT_SECURITY_POLICY = os.getenv("CONTENT_SECURITY_POLICY", "").strip()
 FRONTEND_ORIGINS = [
     origin.strip()
     for origin in os.getenv("FRONTEND_ORIGIN", "http://localhost:3000").split(",")
