@@ -64,6 +64,32 @@ ROLE_ALIASES = {
 }
 
 
+def mask_document(value):
+    """
+    Mascara CPF/CNPJ preservando apenas 3 primeiros + 2 ultimos digitos (LGPD).
+
+    FIN-2 (doc 30 R2 / 29.6 R2): nenhum documento completo deve persistir no
+    trilho de pagamento. Aplicado na gravacao de payment_transactions.
+
+    Exemplos:
+      "123.456.789-01"  -> "123******01"   (CPF, 11 digitos)
+      "12345678000199"  -> "123*********99" (CNPJ, 14 digitos)
+      None / ""          -> inalterado
+    Valores com <= 5 digitos sao mascarados deixando so os 2 ultimos visiveis.
+    Idempotente: re-mascarar um valor ja mascarado nao revela nada (sem digitos
+    no meio).
+    """
+    if not value:
+        return value
+    digits = re.sub(r"\D", "", str(value))
+    if not digits:
+        return value
+    if len(digits) <= 5:
+        tail = digits[-2:] if len(digits) > 2 else ""
+        return "*" * (len(digits) - len(tail)) + tail
+    return digits[:3] + "*" * (len(digits) - 5) + digits[-2:]
+
+
 def redact_text(value: str) -> str:
     if not value:
         return value

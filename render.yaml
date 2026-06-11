@@ -167,6 +167,30 @@ services:
       - key: LGPD_AUDIT_ARCHIVE_RETENTION_DAYS
         value: "1825"
 
+  # FIN-2 (doc 30 R2): retencao/expurgo LGPD do trilho de pagamento.
+  # Zera raw_payload (payment_transactions) e body/headers (payment_webhook_log)
+  # apos a janela de retencao. Roda 04:30 UTC (offset do audit-retention).
+  # AVISO: prazo precisa de OK juridico antes do primeiro production run
+  # (mesma porteira Q-LGPD-2 do audit-retention).
+  - type: cron
+    name: cannabia-payment-retention
+    env: python
+    region: ohio
+    schedule: "30 4 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m scripts.retention_payment_data
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cannabia-db
+          property: connectionString
+      # Kill switch: cron agendado mas no-op enquanto false.
+      # Vire "true" no Render dashboard apos OK juridico.
+      - key: PAYMENT_PURGE_ENABLED
+        value: "false"
+      - key: PAYMENT_DATA_RETENTION_DAYS
+        value: "90"
+
   - type: web
     name: cannabia-frontend
     runtime: node
