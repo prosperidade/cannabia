@@ -117,12 +117,24 @@ Revise e valide todas as informações antes de prescrever.
     logger.info("Notificação enviada ao médico para paciente '%s' (%s).", patient_name, phone)
 
 
-def process_message(clinic_id: int, phone: str, contact_name: str, text: str) -> None:
+def process_message(
+    clinic_id: int,
+    phone: str,
+    contact_name: str,
+    text: str,
+    tenant_id: Optional[int] = None,
+) -> None:
     """
     Ponto de entrada principal do fluxo de anamnese.
     Recebe cada mensagem do paciente, avança a máquina de estados
     e dispara o pipeline ao completar todas as perguntas.
+
+    `tenant_id` (COM-3 / 29.3 RM5) é repassado ao outbound para usar a credencial
+    WhatsApp do tenant resolvido; quando None, cai no fallback global.
     """
+    def _reply(message: str) -> dict:
+        return send_whatsapp_text(phone, message, tenant_id=tenant_id)
+
     text_clean = (text or "").strip()
     text_lower = text_clean.lower()
 
@@ -134,25 +146,22 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
     if current_step in ("idle", "completed") and any(t in text_lower for t in TRIGGER_WORDS):
         first_step, first_question = STEPS[0]
         upsert_session(clinic_id, phone, first_step, {})
-        send_whatsapp_text(
-            phone,
-            f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first_question}",
+        _reply(
+f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first_question}",
         )
         return
 
     # ── Paciente inativo fora do fluxo ────────────────────────────────────────
     if current_step == "idle":
-        send_whatsapp_text(
-            phone,
-            "Olá! 👋 Para iniciar sua avaliação médica, envie *Oi* ou *Iniciar*.",
+        _reply(
+"Olá! 👋 Para iniciar sua avaliação médica, envie *Oi* ou *Iniciar*.",
         )
         return
 
     # ── Pipeline em andamento (aguarda processamento) ─────────────────────────
     if current_step == "processing":
-        send_whatsapp_text(
-            phone,
-            "⏳ Sua anamnese está sendo processada. Por favor, aguarde alguns instantes.",
+        _reply(
+"⏳ Sua anamnese está sendo processada. Por favor, aguarde alguns instantes.",
         )
         return
 
@@ -168,13 +177,13 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
     # Pós-processamento por tipo de campo
     if field_name == "patient_name":
         if not text_clean:
-            send_whatsapp_text(phone, "Por favor, informe seu nome completo para continuar.")
+            _reply("Por favor, informe seu nome completo para continuar.")
             return
         data[field_name] = text_clean
     elif field_name == "age":
         digits = "".join(filter(str.isdigit, text_clean))
         if not digits:
-            send_whatsapp_text(phone, "Por favor, informe sua idade em números. Ex: *35*")
+            _reply("Por favor, informe sua idade em números. Ex: *35*")
             return
         data[field_name] = int(digits)
     elif field_name in ("symptoms", "current_medications", "allergies"):
@@ -204,9 +213,8 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
     if next_step is None:
         upsert_session(clinic_id, phone, "processing", data)
 
-        send_whatsapp_text(
-            phone,
-            "✅ Anamnese concluída! Nossa IA médica está analisando suas informações.\n\n"
+        _reply(
+"✅ Anamnese concluída! Nossa IA médica está analisando suas informações.\n\n"
             "Seu médico receberá o relatório completo em instantes. 🌿\n\n"
             "_Não compartilhamos seus dados clínicos via WhatsApp por segurança._",
         )
@@ -279,8 +287,7 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
                     source_type="whatsapp_session",
                     metadata={"phone": phone},
                 )
-            send_whatsapp_text(
-                phone,
+            _reply(
                 "⚠️ Ocorreu um erro inesperado ao processar sua anamnese.\n"
                 "Nossa equipe foi notificada. Por favor, tente novamente mais tarde.",
             )
@@ -291,4 +298,4 @@ def process_message(clinic_id: int, phone: str, contact_name: str, text: str) ->
 
     # ── Avança para o próximo passo ───────────────────────────────────────────
     upsert_session(clinic_id, phone, next_step, data)
-    send_whatsapp_text(phone, STEP_QUESTIONS[next_step])
+    _reply(STEP_QUESTIONS[next_step])
