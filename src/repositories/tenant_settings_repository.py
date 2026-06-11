@@ -74,6 +74,31 @@ def upsert_branding(
         return row
 
 
+def resolve_tenant_by_phone_number_id(phone_number_id: str) -> Optional[dict[str, Any]]:
+    """Resolve o tenant a partir do `whatsapp_phone_number_id` (presente em
+    `value.metadata` de todo payload Meta) — base do roteamento multi-tenant do
+    webhook (COM-3 / 29.3 RM5). Retorna tenant_id + legacy_clinic_id do 1o tenant
+    ATIVO casado, ou None quando nao houver correspondencia."""
+    pnid = (phone_number_id or "").strip()
+    if not pnid:
+        return None
+
+    with db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT t.id AS tenant_id, t.legacy_clinic_id AS clinic_id,
+                   t.status, t.slug
+            FROM tenant_integrations ti
+            JOIN tenants t ON t.id = ti.tenant_id
+            WHERE ti.whatsapp_phone_number_id = %s
+              AND t.status = 'active'
+            LIMIT 1
+            """,
+            (pnid,),
+        )
+        return cursor.fetchone()
+
+
 def resolve_tenant_by_subdomain(subdomain: str) -> Optional[dict[str, Any]]:
     """Resolve tenant a partir do subdominio (case-insensitive)."""
     normalized = (subdomain or "").strip().lower()

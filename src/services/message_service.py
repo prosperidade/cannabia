@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import logging
+from typing import Optional
 
+from src.config import DEFAULT_CLINIC_ID
 from src.integrations.email import send_email_notification
 from src.repositories import message_repository
 from src.services.anamnesis_flow import process_message
@@ -10,6 +12,43 @@ from src.services.anamnesis_flow import process_message
 logger = logging.getLogger("cannabia.message")
 
 CRITICAL_TERMS = ("ajuda", "urgente", "crítico", "critico", "emergência", "emergencia")
+
+
+def extract_phone_number_id(value: dict) -> Optional[str]:
+    """Lê value.metadata.phone_number_id (presente em todo payload Meta)."""
+    return ((value or {}).get("metadata") or {}).get("phone_number_id")
+
+
+def resolve_tenant_routing(value: dict, default_clinic_id: int = DEFAULT_CLINIC_ID) -> dict:
+    """
+    Resolve {clinic_id, tenant_id} por value.metadata.phone_number_id (COM-3 /
+    29.3 RM5), encerrando o vazamento cross-tenant em que toda mensagem caía na
+    clínica default. Sem match (ou sem phone_number_id): fallback ao
+    `default_clinic_id` com WARNING.
+    """
+    phone_number_id = extract_phone_number_id(value)
+    if phone_number_id:
+        try:
+            from src.repositories.tenant_settings_repository import (
+                resolve_tenant_by_phone_number_id,
+            )
+            match = resolve_tenant_by_phone_number_id(phone_number_id)
+        except Exception:
+            logger.exception(
+                "Falha ao resolver tenant por phone_number_id=%s", phone_number_id
+            )
+            match = None
+        if match:
+            return {
+                "clinic_id": match.get("clinic_id") or default_clinic_id,
+                "tenant_id": match.get("tenant_id"),
+            }
+        logger.warning(
+            "Nenhum tenant ativo para phone_number_id=%s — fallback clinic_id=%s",
+            phone_number_id,
+            default_clinic_id,
+        )
+    return {"clinic_id": default_clinic_id, "tenant_id": None}
 
 
 def parse_change(data):
@@ -52,25 +91,28 @@ def _resolve_contact_name(msg: dict, contacts: list) -> str:
     return "desconhecido"
 
 
-def handle_message_event(value: dict, clinic_id: int) -> None:
+def handle_message_event(value: dict, clinic_id: int, tenant_id: Optional[int] = None) -> None:
     """
     Processa um `value` Meta de field="messages", iterando TODAS as mensagens
     do batch (COM-2). Cada mensagem é processada de forma isolada: uma falha
-    individual não interrompe as demais.
+    individual não interrompe as demais. `tenant_id` (COM-3) é propagado ao
+    outbound para usar a credencial WhatsApp do tenant resolvido.
     """
     messages = value.get("messages", []) or []
     contacts = value.get("contacts", []) or []
 
     for msg in messages:
         try:
-            _process_single_message(msg, contacts, clinic_id)
+            _process_single_message(msg, contacts, clinic_id, tenant_id)
         except Exception:
             logger.exception(
                 "Falha ao processar mensagem inbound (wamid=%s)", msg.get("id")
             )
 
 
-def _process_single_message(msg: dict, contacts: list, clinic_id: int) -> None:
+def _process_single_message(
+    msg: dict, contacts: list, clinic_id: int, tenant_id: Optional[int] = None
+) -> None:
     """
     Trata uma única mensagem inbound:
     1. Salva a mensagem recebida (auditoria)
@@ -123,9 +165,9 @@ def _process_single_message(msg: dict, contacts: list, clinic_id: int) -> None:
         send_email_notification(subject, body)
         logger.warning("Alerta crítico recebido de %s: %s", sender, message_text[:80])
 
-    # Delega ao motor de anamnese
+    # Delega ao motor de anamnese (tenant_id propagado ao outbound — COM-3)
     try:
-        process_message(clinic_id, sender, contact_name, message_text)
+        process_message(clinic_id, sender, contact_name, message_text, tenant_id=tenant_id)
     except Exception:
         logger.exception("Erro em process_message para %s", sender)
 

@@ -1,7 +1,9 @@
 import hashlib
 import hmac
+import json
 import logging
 import os
+from typing import Optional
 
 from flask import Blueprint, abort, render_template, request, g
 from flask_socketio import SocketIO
@@ -18,9 +20,11 @@ from src.config import (
     WHATSAPP_APP_SECRET,
 )
 from src.services.message_service import (
+    extract_phone_number_id,
     handle_message_event,
     handle_status_event,
     iter_message_changes,
+    resolve_tenant_routing,
 )
 
 logger = logging.getLogger("cannabia.webhook")
@@ -43,22 +47,25 @@ def _validate_webhook_payload(data) -> bool:
     return isinstance(changes, list) and bool(changes)
 
 
-def _verify_hmac_meta(raw_body: bytes) -> bool:
+def _verify_hmac_meta(raw_body: bytes, app_secret: Optional[str] = None) -> bool:
     """
     Valida X-Hub-Signature-256 enviada pela Meta no header da request.
     Usa hmac.compare_digest para ser resistente a timing attacks.
-    Em produção, ou quando WHATSAPP_WEBHOOK_REQUIRE_SIGNATURE=true, a ausência
-    de WHATSAPP_APP_SECRET bloqueia o webhook. Em desenvolvimento, mantém a
-    tolerância legada para facilitar testes locais.
+
+    `app_secret` é o segredo do tenant resolvido por phone_number_id (COM-3 /
+    29.3 RM5); quando ausente, cai no WHATSAPP_APP_SECRET global. Em produção, ou
+    quando WHATSAPP_WEBHOOK_REQUIRE_SIGNATURE=true, a ausência de qualquer segredo
+    bloqueia o webhook. Em desenvolvimento, mantém a tolerância legada.
     """
-    if not WHATSAPP_APP_SECRET:
+    secret = app_secret or WHATSAPP_APP_SECRET
+    if not secret:
         if _strict_meta_webhook_hmac():
             logger.error(
-                "WHATSAPP_APP_SECRET não configurado com validação HMAC obrigatória."
+                "Nenhum app_secret (tenant/global) configurado com validação HMAC obrigatória."
             )
             return False
         logger.warning(
-            "WHATSAPP_APP_SECRET não configurado — validação HMAC desativada (dev mode)."
+            "app_secret não configurado — validação HMAC desativada (dev mode)."
         )
         return True
 
@@ -68,12 +75,36 @@ def _verify_hmac_meta(raw_body: bytes) -> bool:
 
     expected = header[len("sha256="):]
     computed = hmac.new(
-        WHATSAPP_APP_SECRET.encode("utf-8"),
+        secret.encode("utf-8"),
         raw_body,
         hashlib.sha256,
     ).hexdigest()
 
     return hmac.compare_digest(computed, expected)
+
+
+def _resolve_meta_app_secret(data: dict) -> Optional[str]:
+    """
+    Resolve o app_secret do tenant pelo 1º phone_number_id do payload (COM-3).
+    Extrair o phone_number_id de um payload ainda-não-verificado apenas SELECIONA
+    contra qual segredo conferir a assinatura — a verificação HMAC continua
+    gateando o processamento. Retorna None para o caller usar o segredo global.
+    """
+    for _field, value in iter_message_changes(data):
+        if not extract_phone_number_id(value):
+            continue
+        routing = resolve_tenant_routing(value)
+        if routing.get("tenant_id") is not None:
+            try:
+                from src.services.tenant_secrets import get_whatsapp_config
+
+                return get_whatsapp_config(routing["tenant_id"]).get("app_secret")
+            except Exception:
+                logger.exception(
+                    "Falha ao resolver app_secret do tenant %s", routing["tenant_id"]
+                )
+        return None
+    return None
 
 
 def _strict_meta_webhook_hmac() -> bool:
@@ -92,11 +123,15 @@ def _process_meta_payload(data: dict, clinic_id: int) -> None:
     """
     for field, value in iter_message_changes(data):
         if field == "messages":
-            handle_message_event(value, clinic_id)
+            routing = resolve_tenant_routing(value, default_clinic_id=clinic_id)
+            handle_message_event(
+                value, routing["clinic_id"], tenant_id=routing["tenant_id"]
+            )
             socketio.emit("new_message", redact_dict(value))
 
         elif field == "message_template_status_update":
-            handle_status_event(value, clinic_id)
+            routing = resolve_tenant_routing(value, default_clinic_id=clinic_id)
+            handle_status_event(value, routing["clinic_id"])
             socketio.emit("status_update", redact_dict(value))
 
 
@@ -126,7 +161,18 @@ def webhook_meta():
 
     # 🔐 Validação HMAC — body deve ser lido como raw ANTES do parse JSON
     raw_body = request.get_data()
-    if not _verify_hmac_meta(raw_body):
+
+    # Parse leniente para rotear o segredo de verificação pelo phone_number_id
+    # (COM-3). A assinatura ainda gateia o processamento abaixo.
+    try:
+        routing_data = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+    except (ValueError, UnicodeDecodeError):
+        routing_data = {}
+    if not isinstance(routing_data, dict):
+        routing_data = {}
+
+    app_secret = _resolve_meta_app_secret(routing_data)
+    if not _verify_hmac_meta(raw_body, app_secret):
         logger.warning("Webhook Meta rejeitado: assinatura HMAC inválida.")
         abort(403, description="Assinatura HMAC inválida.")
 

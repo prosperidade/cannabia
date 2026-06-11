@@ -70,7 +70,7 @@ def test_contact_name_casa_por_wa_id(monkeypatch):
     captured = {}
     monkeypatch.setattr(
         ms, "process_message",
-        lambda clinic_id, sender, name, text: captured.update({sender: name}),
+        lambda clinic_id, sender, name, text, tenant_id=None: captured.update({sender: name}),
     )
     value = {
         "contacts": [
@@ -88,7 +88,7 @@ def test_contact_name_casa_por_wa_id(monkeypatch):
 def test_uma_mensagem_com_erro_nao_interrompe_as_demais(monkeypatch):
     saved, processed = _patch_sideeffects(monkeypatch)
 
-    def boom(clinic_id, sender, name, text):
+    def boom(clinic_id, sender, name, text, tenant_id=None):
         if sender == "bad":
             raise RuntimeError("falha isolada")
         processed.append(sender)
