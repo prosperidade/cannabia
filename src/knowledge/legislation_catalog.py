@@ -205,7 +205,13 @@ def sync_legislation_catalog(
             conditions = []
             params = []
 
-            for column in ("local_path", "file_hash", "google_file_uri", "google_file_name", "source_url"):
+            # Chaves de IDENTIDADE do documento. source_url foi REMOVIDO (A5
+            # follow-up): normas distintas compartilham legitimamente a mesma
+            # pagina-fonte (ex.: indice de RDCs da Anvisa), entao usa-lo como
+            # chave colapsava varias normas numa unica linha. Identidade real =
+            # arquivo (local_path/hash) ou referencia do provedor (uri/name);
+            # o fallback por (source, norm_number)/(source, title) cobre o resto.
+            for column in ("local_path", "file_hash", "google_file_uri", "google_file_name"):
                 value = record.get(column)
                 if value:
                     conditions.append(f"{column} = %s")

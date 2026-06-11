@@ -106,3 +106,61 @@ def test_sync_legislation_catalog_creates_and_updates_entries(monkeypatch):
     assert summary["items"][0]["catalog_id"] == 7
     assert summary["items"][1]["catalog_id"] == 9
     assert summary["items"][1]["action"] == "updated"
+
+
+def test_sync_does_not_collapse_distinct_norms_sharing_source_url(monkeypatch):
+    """Regressao A5 follow-up: normas distintas com o MESMO source_url nao podem
+    colapsar numa linha. O matching de identidade NAO pode usar source_url."""
+
+    executed_sql = []
+
+    class FakeConn:
+        def commit(self):
+            pass
+
+    class FakeCursor:
+        def __init__(self):
+            self._fetchone = None
+            self._next_id = 100
+
+        def execute(self, sql, params=()):
+            normalized = " ".join(sql.split())
+            executed_sql.append(normalized)
+            if normalized.startswith("SELECT id FROM knowledge_catalog"):
+                self._fetchone = None  # nada existente -> forca INSERT
+            elif normalized.startswith("INSERT INTO knowledge_catalog"):
+                self._fetchone = {"id": self._next_id}
+                self._next_id += 1
+            elif normalized.startswith("UPDATE knowledge_catalog"):
+                self._fetchone = {"id": 0}
+            else:
+                raise AssertionError(f"Unexpected SQL: {normalized}")
+
+        def fetchone(self):
+            return self._fetchone
+
+    @contextmanager
+    def fake_db_cursor(dictionary=False):
+        yield FakeConn(), FakeCursor()
+
+    monkeypatch.setattr("src.knowledge.legislation_catalog.db_cursor", fake_db_cursor)
+
+    shared_url = "https://www.gov.br/anvisa/.../resolucoes-da-diretoria-colegiada"
+    summary = sync_legislation_catalog(
+        [
+            {"display_name": "RDC 1.014 2026.pdf", "name": "files/a", "uri": "gs://a",
+             "checksum": "h1", "size_bytes": 10, "local_path": "data/legislation/RDC_1014_2026_ANVISA.pdf",
+             "source_url": shared_url, "norm_number": "RDC 1.014/2026"},
+            {"display_name": "RDC 1.015 2026.pdf", "name": "files/b", "uri": "gs://b",
+             "checksum": "h2", "size_bytes": 11, "local_path": "data/legislation/RDC_1015_2026_ANVISA.pdf",
+             "source_url": shared_url, "norm_number": "RDC 1.015/2026"},
+        ],
+    )
+
+    # Ambas criam linha propria (nao colapsam).
+    assert summary["created"] == 2, "normas distintas colapsaram — source_url ainda e chave de identidade"
+    # Nenhum SELECT de identidade pode casar por source_url.
+    selects = [s for s in executed_sql if s.startswith("SELECT id FROM knowledge_catalog")]
+    assert selects, "esperava SELECTs de identidade"
+    assert all("source_url =" not in s for s in selects), \
+        "matching de identidade ainda usa source_url"
