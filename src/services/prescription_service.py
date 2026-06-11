@@ -259,6 +259,39 @@ def _update_order_status(clinic_id: int, order_id: int, new_status: str) -> bool
         return cur.fetchone() is not None
 
 
+def _record_prescription_consent(
+    *,
+    clinic_id: int,
+    prescription_id: int,
+    patient_id: int,
+    prescriber_user_id: Optional[int],
+    prescriber_crm: Optional[str],
+    prescriber_habilitado: bool,
+    tcle_accepted: Optional[bool],
+    details: Optional[Dict[str, Any]] = None,
+) -> Optional[int]:
+    """Registra o TCLE/consentimento vinculado à prescrição (REG-1015 / RDC
+    1.015/2026). `tcle_accepted=None` = pendente de captura (assinatura é UI futura)."""
+    with db_cursor() as (conn, cur):
+        cur.execute(
+            """
+            INSERT INTO prescription_consents
+                (clinic_id, prescription_id, patient_id, prescriber_user_id,
+                 prescriber_crm, prescriber_habilitado, tcle_accepted, details)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb)
+            RETURNING id
+            """,
+            (
+                clinic_id, prescription_id, patient_id, prescriber_user_id,
+                prescriber_crm, prescriber_habilitado, tcle_accepted,
+                json.dumps(details or {}, default=str),
+            ),
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return row[0] if row else None
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # SERVICE LAYER — Orquestração do fluxo completo
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -439,11 +472,59 @@ class PrescriptionService:
                 prescription_id,
             )
 
+        # REG-1015 / RDC 1.015/2026 (JÁ EM VIGOR) — prontidão mínima no fluxo de
+        # prescrição: validação de prescritor habilitado + registro de TCLE
+        # vinculado à prescrição. Não bloqueia a emissão (prontidão auditada); a
+        # UI de assinatura e a validação plena do conselho ficam para depois.
+        reg_1015 = {"tcle_recorded": False, "prescriber_habilitado": None}
+        try:
+            from src.ai.agents.regulatorio import validate_prescriber_habilitation
+
+            habil = validate_prescriber_habilitation(payload.doctor_crm, payload.doctor_user_id)
+            tcle_accepted = data.get("tcle_accepted")  # None = pendente de captura
+            consent_id = _record_prescription_consent(
+                clinic_id=clinic_id,
+                prescription_id=prescription_id,
+                patient_id=payload.patient_id,
+                prescriber_user_id=payload.doctor_user_id,
+                prescriber_crm=payload.doctor_crm,
+                prescriber_habilitado=habil["habilitado"],
+                tcle_accepted=tcle_accepted,
+                details={"habilitation": habil, "norm_ref": "RDC 1.015/2026"},
+            )
+            reg_1015 = {
+                "tcle_recorded": consent_id is not None,
+                "consent_id": consent_id,
+                "prescriber_habilitado": habil["habilitado"],
+                "tcle_accepted": tcle_accepted,
+                "pending_revalidation": True,
+            }
+            if not habil["habilitado"]:
+                logger.warning(
+                    "Prescrição #%d: prescritor sem habilitação confirmada (%s)",
+                    prescription_id, habil.get("reason"),
+                )
+                from src.infra.audit import log_audit_event
+
+                log_audit_event(
+                    action="prescription_prescriber_unverified",
+                    resource_type="prescription",
+                    resource_id=str(prescription_id),
+                    details=habil,
+                    clinic_id=clinic_id,
+                )
+        except Exception:
+            logger.exception(
+                "Falha no registro REG-1015 da prescrição #%d (emissão não bloqueada)",
+                prescription_id,
+            )
+
         return {
             "prescription_id": prescription_id,
             "dosage_summary": dosage_summary,
             "status": "active",
             "anvisa_compliance": anvisa_compliance,
+            "reg_1015": reg_1015,
         }
 
     def create_b2b_order(
