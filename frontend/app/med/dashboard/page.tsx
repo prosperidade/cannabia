@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { Card, MaterialIcon, Badge, Button, StatCard, Avatar } from "@/components/ui-tw";
 import { listAppointments, listReturns } from "@/lib/api";
 import type { AppointmentItem } from "@/lib/types";
 import { useApiSession } from "@/lib/use-api-session";
+import { useFetchData } from "@/lib/use-fetch-data";
 
 /**
  * /med/dashboard — home do medico assalariado puro (sem is_clinic_admin).
@@ -30,38 +31,24 @@ export default function MedDashboardPage() {
   const { data: session } = useApiSession();
   const userName = session?.user?.username ?? "";
 
-  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
-  const [returns, setReturns] = useState<PendingReturn[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setErrorMsg(null);
-
-    Promise.all([listAppointments({ limit: 200 }), listReturns()])
-      .then(([appts, retsRaw]) => {
-        if (!alive) return;
-        // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
-        const items = appts?.items ?? [];
-        setAppointments(items as AppointmentItem[]);
-        // /returns retorna lista, mas api.ts tipa como Record. Cast via unknown.
-        const retsArr = retsRaw.data as unknown as PendingReturn[] | undefined;
-        setReturns(Array.isArray(retsArr) ? retsArr : []);
-      })
-      .catch((err) => {
-        if (!alive) return;
-        const msg = err instanceof Error ? err.message : "Falha ao carregar a fila do dia.";
-        setErrorMsg(msg);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const {
+    data,
+    loading,
+    error: errorMsg,
+  } = useFetchData(
+    async () => {
+      const [appts, retsRaw] = await Promise.all([listAppointments({ limit: 200 }), listReturns()]);
+      // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
+      const items = (appts?.items ?? []) as AppointmentItem[];
+      // /returns retorna lista, mas api.ts tipa como Record. Cast via unknown.
+      const retsArr = retsRaw.data as unknown as PendingReturn[] | undefined;
+      return { appointments: items, returns: Array.isArray(retsArr) ? retsArr : [] };
+    },
+    [],
+    "Falha ao carregar a fila do dia.",
+  );
+  const appointments = data?.appointments ?? [];
+  const returns = data?.returns ?? [];
 
   // --- Derivacoes locais (filtragem por hoje + ordenacao) -----------------
   const todayPrefix = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
