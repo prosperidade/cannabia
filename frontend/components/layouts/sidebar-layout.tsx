@@ -45,7 +45,9 @@ export function SidebarLayout({
         {/* Brand */}
         <div className="px-6 mb-10 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-xl">eco</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">
+              eco
+            </span>
           </div>
           <div>
             <h1 className="text-xl font-black text-primary-container tracking-widest font-headline">
@@ -58,13 +60,14 @@ export function SidebarLayout({
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+        <nav aria-label="Navegação principal" className="flex-1 px-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group",
                   active
@@ -72,7 +75,9 @@ export function SidebarLayout({
                     : "text-stone-400 hover:text-stone-200 hover:bg-white/5",
                 )}
               >
-                <span className="material-symbols-outlined">{item.icon}</span>
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  {item.icon}
+                </span>
                 <span className="font-headline tracking-tight text-sm">{item.label}</span>
               </Link>
             );
@@ -117,7 +122,9 @@ export function SidebarLayout({
             {/* Brand */}
             <div className="px-6 mb-10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-xl">eco</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">
+                  eco
+                </span>
               </div>
               <div>
                 <h1 className="text-xl font-black text-primary-container tracking-widest font-headline">
@@ -130,7 +137,7 @@ export function SidebarLayout({
             </div>
 
             {/* Nav Items */}
-            <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+            <nav aria-label="Navegação principal" className="flex-1 px-4 space-y-2 overflow-y-auto">
               {navItems.map((item) => {
                 const active = isActive(item.href);
                 return (
@@ -138,6 +145,7 @@ export function SidebarLayout({
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group",
                       active
@@ -145,7 +153,9 @@ export function SidebarLayout({
                         : "text-stone-400 hover:text-stone-200 hover:bg-white/5",
                     )}
                   >
-                    <span className="material-symbols-outlined">{item.icon}</span>
+                    <span aria-hidden="true" className="material-symbols-outlined">
+                      {item.icon}
+                    </span>
                     <span className="font-headline tracking-tight text-sm">{item.label}</span>
                   </Link>
                 );
@@ -197,10 +207,15 @@ export function SidebarLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto pt-14 md:pt-0">
+          {children}
+        </main>
 
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-4 bg-zinc-900/90 backdrop-blur-xl z-40 rounded-t-[2rem] border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <nav
+          aria-label="Navegação rápida"
+          className="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-4 bg-zinc-900/90 backdrop-blur-xl z-40 rounded-t-[2rem] border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+        >
           {[
             {
               label: "Painel",
@@ -228,12 +243,14 @@ export function SidebarLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex flex-col items-center justify-center rounded-full px-3 py-2 transition-transform duration-300 active:scale-90",
                   active ? "bg-primary/10 text-primary" : "text-zinc-400 hover:bg-white/5",
                 )}
               >
                 <span
+                  aria-hidden="true"
                   className="material-symbols-outlined"
                   style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
                 >
@@ -249,7 +266,9 @@ export function SidebarLayout({
             onClick={() => setMobileOpen(true)}
             className="flex flex-col items-center justify-center rounded-full px-3 py-2 transition-transform duration-300 active:scale-90 text-zinc-400 hover:bg-white/5"
           >
-            <span className="material-symbols-outlined">more_horiz</span>
+            <span aria-hidden="true" className="material-symbols-outlined">
+              more_horiz
+            </span>
             <span className="font-headline text-[10px] font-semibold tracking-tight">Mais...</span>
           </button>
         </nav>

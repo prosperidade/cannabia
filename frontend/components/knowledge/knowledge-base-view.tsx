@@ -205,8 +205,8 @@ export function KnowledgeBaseView() {
           <div className="flex-1">
             <h3 className="text-sm font-bold text-on-surface">Adicionar via PubMed</h3>
             <p className="text-xs text-stone-500 mt-0.5">
-              Informe um termo (ex.: "cannabidiol epilepsy") e a IA ingere ate 5 artigos relevantes
-              diretamente na base.
+              Informe um termo (ex.: &quot;cannabidiol epilepsy&quot;) e a IA ingere ate 5 artigos
+              relevantes diretamente na base.
             </p>
           </div>
         </div>
