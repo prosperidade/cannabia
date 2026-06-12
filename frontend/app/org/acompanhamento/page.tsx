@@ -51,9 +51,7 @@ export default function AcompanhamentoPage() {
         const today = new Date().toISOString().slice(0, 10);
         const filtered = (Array.isArray(appts) ? appts : [])
           .filter(
-            (a) =>
-              typeof a.appointment_date === "string" &&
-              a.appointment_date.startsWith(today),
+            (a) => typeof a.appointment_date === "string" && a.appointment_date.startsWith(today),
           )
           .sort((a, b) => a.appointment_date.localeCompare(b.appointment_date));
         setTodayAgenda(filtered);
@@ -61,8 +59,7 @@ export default function AcompanhamentoPage() {
       })
       .catch((err) => {
         if (!alive) return;
-        const msg =
-          err instanceof Error ? err.message : "Falha ao carregar dados.";
+        const msg = err instanceof Error ? err.message : "Falha ao carregar dados.";
         setErrorMsg(msg);
       })
       .finally(() => {
@@ -84,8 +81,8 @@ export default function AcompanhamentoPage() {
           Acompanhamento
         </h1>
         <p className="text-sm text-stone-500 mt-1">
-          Cuidado continuo dos pacientes entre consultas. Os agentes IA
-          monitoram e sinalizam o que precisa de atencao humana.
+          Cuidado continuo dos pacientes entre consultas. Os agentes IA monitoram e sinalizam o que
+          precisa de atencao humana.
         </p>
       </header>
 
@@ -151,10 +148,7 @@ export default function AcompanhamentoPage() {
         {loading ? (
           <ul className="space-y-2">
             {[0, 1, 2].map((i) => (
-              <li
-                key={i}
-                className="h-14 rounded-xl bg-surface-container-low/60 animate-pulse"
-              />
+              <li key={i} className="h-14 rounded-xl bg-surface-container-low/60 animate-pulse" />
             ))}
           </ul>
         ) : todayAgenda.length === 0 ? (
@@ -172,10 +166,7 @@ export default function AcompanhamentoPage() {
               <li className="pt-2 text-center text-xs text-stone-500">
                 + {todayAgenda.length - 8} agendamento
                 {todayAgenda.length - 8 === 1 ? "" : "s"} —{" "}
-                <a
-                  href="/org/agendamentos"
-                  className="text-primary font-bold hover:underline"
-                >
+                <a href="/org/agendamentos" className="text-primary font-bold hover:underline">
                   ver tudo
                 </a>
               </li>
@@ -258,10 +249,9 @@ export default function AcompanhamentoPage() {
           Logado como <span className="text-on-surface">{userName}</span>
           {overview && (
             <>
-              {" "}— atualizado{" "}
-              <span className="text-on-surface">
-                {formatTimestamp(overview.generated_at)}
-              </span>
+              {" "}
+              — atualizado{" "}
+              <span className="text-on-surface">{formatTimestamp(overview.generated_at)}</span>
             </>
           )}
         </p>
@@ -278,11 +268,7 @@ function renderKpi(loading: boolean, value: number | undefined): string {
   return String(value);
 }
 
-function renderAgentSummary(
-  loading: boolean,
-  actions: number,
-  lastAt: string | null,
-): string {
+function renderAgentSummary(loading: boolean, actions: number, lastAt: string | null): string {
   if (loading) return "Carregando atividade...";
   if (actions === 0) return "Sem atividade nas ultimas 24h.";
   const when = lastAt ? formatTimestamp(lastAt) : "ha pouco";
@@ -326,9 +312,7 @@ function KpiCard({
   } as const;
   return (
     <Card variant="glass" padding="md" className="space-y-3">
-      <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center ${toneStyles[tone]}`}
-      >
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${toneStyles[tone]}`}>
         <MaterialIcon icon={icon} />
       </div>
       <div>
@@ -342,39 +326,21 @@ function KpiCard({
   );
 }
 
-function SectionHeader({
-  icon,
-  title,
-  desc,
-}: {
-  icon: string;
-  title: string;
-  desc?: string;
-}) {
+function SectionHeader({ icon, title, desc }: { icon: string; title: string; desc?: string }) {
   return (
     <div className="flex items-start gap-3 mb-4">
       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
         <MaterialIcon icon={icon} className="text-primary" />
       </div>
       <div>
-        <h3 className="text-lg font-headline font-bold text-on-surface leading-tight">
-          {title}
-        </h3>
+        <h3 className="text-lg font-headline font-bold text-on-surface leading-tight">{title}</h3>
         {desc && <p className="text-xs text-stone-500 mt-0.5">{desc}</p>}
       </div>
     </div>
   );
 }
 
-function EmptyState({
-  icon,
-  title,
-  subtitle,
-}: {
-  icon: string;
-  title: string;
-  subtitle: string;
-}) {
+function EmptyState({ icon, title, subtitle }: { icon: string; title: string; subtitle: string }) {
   return (
     <div className="py-10 flex flex-col items-center justify-center text-center gap-2">
       <MaterialIcon icon={icon} size="xl" className="text-stone-600" />
@@ -392,9 +358,7 @@ function ActivePatientRow({ patient }: { patient: ActivePatient }) {
     <li className="flex flex-wrap items-center gap-3 py-3">
       <Avatar name={patient.patient_name || "Paciente"} size="sm" />
       <div className="flex-1 min-w-[160px]">
-        <p className="text-sm font-bold text-on-surface truncate">
-          {patient.patient_name}
-        </p>
+        <p className="text-sm font-bold text-on-surface truncate">{patient.patient_name}</p>
         <p className="text-[11px] text-stone-500 truncate">
           {patient.plan_name ?? "Plano sem nome"}
           {patient.dosage ? ` · ${patient.dosage}` : ""}
@@ -405,9 +369,7 @@ function ActivePatientRow({ patient }: { patient: ActivePatient }) {
         <p className="text-on-surface font-bold">Dia {patient.days_in_treatment}</p>
         <p>de tratamento</p>
       </div>
-      {returnLabel && (
-        <Badge tone={returnTone}>{returnLabel}</Badge>
-      )}
+      {returnLabel && <Badge tone={returnTone}>{returnLabel}</Badge>}
       {followup && <Badge tone={followup.tone}>{followup.label}</Badge>}
     </li>
   );

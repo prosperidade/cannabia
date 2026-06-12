@@ -63,8 +63,7 @@ export function SliderPicker({
       const rect = track.getBoundingClientRect();
       const raw = (clientX - rect.left) / rect.width;
       const clamped = Math.max(0, Math.min(1, raw));
-      const stepped =
-        Math.round((clamped * (max - min)) / step) * step + min;
+      const stepped = Math.round((clamped * (max - min)) / step) * step + min;
       setValue(stepped);
     },
     [min, max, step],
@@ -111,9 +110,7 @@ export function SliderPicker({
               <span className="ds-slider__label">Intensidade</span>
               <span className="ds-slider__value">
                 {value}
-                <span style={{ fontSize: 12, fontWeight: 400, opacity: 0.6 }}>
-                  {unit}
-                </span>
+                <span style={{ fontSize: 12, fontWeight: 400, opacity: 0.6 }}>{unit}</span>
               </span>
             </div>
 
@@ -131,10 +128,7 @@ export function SliderPicker({
               tabIndex={0}
             >
               <div className="ds-slider__track">
-                <div
-                  className="ds-slider__fill"
-                  style={{ width: `${pct}%` }}
-                />
+                <div className="ds-slider__fill" style={{ width: `${pct}%` }} />
               </div>
               <motion.div
                 className="ds-slider__thumb"
@@ -152,11 +146,7 @@ export function SliderPicker({
             )}
           </div>
 
-          <button
-            className="ds-widget-confirm"
-            onClick={handleConfirm}
-            disabled={submitted}
-          >
+          <button className="ds-widget-confirm" onClick={handleConfirm} disabled={submitted}>
             {submitted ? "Enviado" : "Confirmar"}
           </button>
         </motion.div>

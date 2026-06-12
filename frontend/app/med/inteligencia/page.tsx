@@ -3,14 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { getClinicalIntelligence } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  Button,
-  StatCard,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, StatCard, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ────────────────────────────────────────────
    AI Clinical Intelligence Analytics Dashboard
@@ -21,7 +14,13 @@ const FALLBACK_STATS = [
   { icon: "analytics", label: "Total Analises", value: "—", delta: "—", deltaType: "up" as const },
   { icon: "verified", label: "Precisao Media", value: "—", delta: "—", deltaType: "up" as const },
   { icon: "timer", label: "Tempo de Resposta", value: "—", delta: "—", deltaType: "up" as const },
-  { icon: "medical_information", label: "Condicoes Identificadas", value: "—", delta: "—", deltaType: "up" as const },
+  {
+    icon: "medical_information",
+    label: "Condicoes Identificadas",
+    value: "—",
+    delta: "—",
+    deltaType: "up" as const,
+  },
 ];
 
 const FALLBACK_PERIOD_DATA: { label: string; value: number }[] = [];
@@ -32,8 +31,22 @@ const FALLBACK_RISK = [
   { label: "Alto", pct: 0, color: "bg-orange-500" },
   { label: "Critico", pct: 0, color: "bg-error" },
 ];
-const FALLBACK_MODELS: { name: string; requests: number; credits: string; cost: string; icon: string }[] = [];
-const FALLBACK_EXECUTIONS: { id: string; patient: string; model: string; type: string; confidence: number; date: string; status: string }[] = [];
+const FALLBACK_MODELS: {
+  name: string;
+  requests: number;
+  credits: string;
+  cost: string;
+  icon: string;
+}[] = [];
+const FALLBACK_EXECUTIONS: {
+  id: string;
+  patient: string;
+  model: string;
+  type: string;
+  confidence: number;
+  date: string;
+  status: string;
+}[] = [];
 
 export default function InteligenciaPage() {
   const [tab, setTab] = useState<"overview" | "executions">("overview");
@@ -53,10 +66,12 @@ export default function InteligenciaPage() {
 
       if (Array.isArray(d.stats)) setStats(d.stats as typeof FALLBACK_STATS);
       if (Array.isArray(d.by_period)) setPeriodData(d.by_period as typeof FALLBACK_PERIOD_DATA);
-      if (Array.isArray(d.top_conditions)) setConditions(d.top_conditions as typeof FALLBACK_CONDITIONS);
+      if (Array.isArray(d.top_conditions))
+        setConditions(d.top_conditions as typeof FALLBACK_CONDITIONS);
       if (Array.isArray(d.risk_distribution)) setRisk(d.risk_distribution as typeof FALLBACK_RISK);
       if (Array.isArray(d.by_model)) setModels(d.by_model as typeof FALLBACK_MODELS);
-      if (Array.isArray(d.recent_executions)) setExecutions(d.recent_executions as typeof FALLBACK_EXECUTIONS);
+      if (Array.isArray(d.recent_executions))
+        setExecutions(d.recent_executions as typeof FALLBACK_EXECUTIONS);
     } catch {
       // keep fallback data
     } finally {
@@ -64,7 +79,9 @@ export default function InteligenciaPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const maxPeriodValue = periodData.length > 0 ? Math.max(...periodData.map((d) => d.value)) : 1;
 
@@ -98,7 +115,9 @@ export default function InteligenciaPage() {
             onClick={() => setTab(tab === "overview" ? "executions" : "overview")}
           >
             <MaterialIcon icon={tab === "overview" ? "list" : "dashboard"} size="sm" />
-            <span className="ml-1">{tab === "overview" ? "Analises Realizadas" : "Visao Geral"}</span>
+            <span className="ml-1">
+              {tab === "overview" ? "Analises Realizadas" : "Visao Geral"}
+            </span>
           </Button>
           <Button size="sm" variant="secondary">
             <MaterialIcon icon="file_download" size="sm" />
@@ -250,9 +269,7 @@ export default function InteligenciaPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-on-surface">{m.name}</p>
-                        <p className="text-[10px] text-stone-500">
-                          {m.requests} analises
-                        </p>
+                        <p className="text-[10px] text-stone-500">{m.requests} analises</p>
                       </div>
                       <Badge tone="primary">{m.credits}</Badge>
                     </div>
@@ -269,20 +286,56 @@ export default function InteligenciaPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-stone-500">Creditos de IA utilizados</span>
                     <span className="font-bold text-on-surface">
-                      {models.reduce((acc, m) => acc + (Number(String(m.credits).replace(/[^\d.]/g, "")) || 0), 0).toFixed(1)}M
+                      {models
+                        .reduce(
+                          (acc, m) => acc + (Number(String(m.credits).replace(/[^\d.]/g, "")) || 0),
+                          0,
+                        )
+                        .toFixed(1)}
+                      M
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-stone-500">Custo estimado</span>
                     <span className="font-bold text-primary text-lg">
-                      R$ {models.reduce((acc, m) => acc + (Number(String(m.cost).replace(/[^\d.,]/g, "").replace(",", ".")) || 0), 0).toFixed(2).replace(".", ",")}
+                      R${" "}
+                      {models
+                        .reduce(
+                          (acc, m) =>
+                            acc +
+                            (Number(
+                              String(m.cost)
+                                .replace(/[^\d.,]/g, "")
+                                .replace(",", "."),
+                            ) || 0),
+                          0,
+                        )
+                        .toFixed(2)
+                        .replace(".", ",")}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-stone-500">Custo medio por analise</span>
                     <span className="font-bold text-on-surface">
                       {models.length > 0
-                        ? `R$ ${(models.reduce((acc, m) => acc + (Number(String(m.cost).replace(/[^\d.,]/g, "").replace(",", ".")) || 0), 0) / Math.max(models.reduce((acc, m) => acc + m.requests, 0), 1)).toFixed(2).replace(".", ",")}`
+                        ? `R$ ${(
+                            models.reduce(
+                              (acc, m) =>
+                                acc +
+                                (Number(
+                                  String(m.cost)
+                                    .replace(/[^\d.,]/g, "")
+                                    .replace(",", "."),
+                                ) || 0),
+                              0,
+                            ) /
+                            Math.max(
+                              models.reduce((acc, m) => acc + m.requests, 0),
+                              1,
+                            )
+                          )
+                            .toFixed(2)
+                            .replace(".", ",")}`
                         : "—"}
                     </span>
                   </div>
@@ -326,13 +379,8 @@ export default function InteligenciaPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {executions.map((exe) => (
-                  <tr
-                    key={exe.id}
-                    className="hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    <td className="px-4 md:px-6 py-4 text-xs font-mono text-stone-400">
-                      {exe.id}
-                    </td>
+                  <tr key={exe.id} className="hover:bg-white/5 transition-colors cursor-pointer">
+                    <td className="px-4 md:px-6 py-4 text-xs font-mono text-stone-400">{exe.id}</td>
                     <td className="px-4 md:px-6 py-4 text-sm font-semibold text-on-surface">
                       {exe.patient}
                     </td>

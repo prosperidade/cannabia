@@ -5,12 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
 import { getPatientProfile, getPatientEvolution } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Badge, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 const QUICK_ACTIONS = [
   { label: "Meu Tratamento", icon: "medication", href: "/p/tratamento", color: "text-secondary" },
@@ -92,13 +87,16 @@ export default function PatientDashboardPage() {
         const evoData = evolutionRes.data as Record<string, unknown>;
         setEvolution((evoData.evolution as EvolutionData) ?? null);
       } catch {
-        if (!cancelled) setError("Nao foi possivel carregar seus dados. Tente novamente mais tarde.");
+        if (!cancelled)
+          setError("Nao foi possivel carregar seus dados. Tente novamente mais tarde.");
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     fetchData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -123,9 +121,8 @@ export default function PatientDashboardPage() {
 
   const patientName = session?.user?.username ?? patient?.name ?? "Paciente";
   const totalDays = patient?.treatment_total_days ?? 0;
-  const progress = patient && totalDays > 0
-    ? Math.round((patient.treatment_day / totalDays) * 100)
-    : 0;
+  const progress =
+    patient && totalDays > 0 ? Math.round((patient.treatment_day / totalDays) * 100) : 0;
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -166,9 +163,7 @@ export default function PatientDashboardPage() {
               <span className="text-xs font-semibold uppercase tracking-wider text-on-surface">
                 Status do Tratamento
               </span>
-              {patient.treatment_phase && (
-                <Badge tone="primary">{patient.treatment_phase}</Badge>
-              )}
+              {patient.treatment_phase && <Badge tone="primary">{patient.treatment_phase}</Badge>}
             </div>
             {totalDays > 0 && (
               <>
@@ -206,7 +201,10 @@ export default function PatientDashboardPage() {
       <section className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="font-headline font-bold text-lg">Diario de Sintomas</h2>
-          <Link href="/p/diario" className="text-primary text-xs font-bold uppercase tracking-wider">
+          <Link
+            href="/p/diario"
+            className="text-primary text-xs font-bold uppercase tracking-wider"
+          >
             Ver Historico
           </Link>
         </div>

@@ -53,7 +53,8 @@ function mapBackendUser(raw: Record<string, unknown>): AdminUser {
   const username = raw.username as string | null;
   const email = raw.email as string | null;
   const isActive = raw.is_active as boolean;
-  const clinics = (raw.clinics as { clinic_id: number; clinic_name: string; clinic_role: string }[]) ?? [];
+  const clinics =
+    (raw.clinics as { clinic_id: number; clinic_name: string; clinic_role: string }[]) ?? [];
 
   return {
     id: raw.id as number,
@@ -266,11 +267,7 @@ function InviteModal({
           Envie um convite para um novo membro da equipe.
         </p>
 
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-error/10 text-error text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-3 rounded-xl bg-error/10 text-error text-sm">{error}</div>}
 
         <div className="space-y-4">
           <div>
@@ -459,11 +456,7 @@ export default function UsuariosPage() {
         sortable: true,
         render: (_val, row) => {
           const user = row as unknown as AdminUser;
-          return (
-            <Badge tone={ROLE_BADGE_TONE[user.role]}>
-              {ROLE_LABEL[user.role]}
-            </Badge>
-          );
+          return <Badge tone={ROLE_BADGE_TONE[user.role]}>{ROLE_LABEL[user.role]}</Badge>;
         },
       },
       {
@@ -471,9 +464,7 @@ export default function UsuariosPage() {
         label: "Organizacao",
         sortable: true,
         render: (_val, row) => (
-          <span className="text-sm text-on-surface-variant">
-            {String(row.tenant)}
-          </span>
+          <span className="text-sm text-on-surface-variant">{String(row.tenant)}</span>
         ),
       },
       {
@@ -487,8 +478,7 @@ export default function UsuariosPage() {
               <span
                 className={cn(
                   "w-2 h-2 rounded-full",
-                  user.status === "ativo" &&
-                    "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]",
+                  user.status === "ativo" && "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]",
                   user.status === "inativo" && "bg-stone-600",
                   user.status === "pendente" &&
                     "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]",
@@ -508,9 +498,7 @@ export default function UsuariosPage() {
         render: (_val, row) => {
           const user = row as unknown as AdminUser;
           return (
-            <span className="text-sm text-stone-400">
-              {formatRelativeDate(user.last_login)}
-            </span>
+            <span className="text-sm text-stone-400">{formatRelativeDate(user.last_login)}</span>
           );
         },
       },
@@ -559,8 +547,8 @@ export default function UsuariosPage() {
             <span className="text-primary"> e Permissoes</span>
           </h1>
           <p className="text-on-surface-variant max-w-xl">
-            Configure acessos, defina permissoes por papel e gerencie a equipe clinica da
-            plataforma Cannab&apos;IA.
+            Configure acessos, defina permissoes por papel e gerencie a equipe clinica da plataforma
+            Cannab&apos;IA.
           </p>
         </div>
         <Button
@@ -699,51 +687,36 @@ export default function UsuariosPage() {
                     <th className="py-2 text-[10px] font-bold uppercase tracking-widest text-stone-500">
                       Modulo
                     </th>
-                    {(["admin", "medico", "atendente"] as UserRole[]).map(
-                      (role) => (
-                        <th
-                          key={role}
-                          className="py-2 text-[10px] font-bold uppercase tracking-widest text-stone-500 text-center"
-                        >
-                          {ROLE_LABEL[role]}
-                        </th>
-                      ),
-                    )}
+                    {(["admin", "medico", "atendente"] as UserRole[]).map((role) => (
+                      <th
+                        key={role}
+                        className="py-2 text-[10px] font-bold uppercase tracking-widest text-stone-500 text-center"
+                      >
+                        {ROLE_LABEL[role]}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map(
-                    (perm) => (
-                      <tr
-                        key={perm}
-                        className="hover:bg-white/5 transition-colors"
-                      >
-                        <td className="py-3 text-sm text-on-surface">
-                          {PERMISSION_LABELS[perm]}
+                  {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map((perm) => (
+                    <tr key={perm} className="hover:bg-white/5 transition-colors">
+                      <td className="py-3 text-sm text-on-surface">{PERMISSION_LABELS[perm]}</td>
+                      {(["admin", "medico", "atendente"] as UserRole[]).map((role) => (
+                        <td key={role} className="py-3 text-center">
+                          {ROLE_PERMISSIONS[role][perm] ? (
+                            <MaterialIcon
+                              icon="check_circle"
+                              filled
+                              size="sm"
+                              className="text-primary"
+                            />
+                          ) : (
+                            <MaterialIcon icon="cancel" size="sm" className="text-stone-600" />
+                          )}
                         </td>
-                        {(["admin", "medico", "atendente"] as UserRole[]).map(
-                          (role) => (
-                            <td key={role} className="py-3 text-center">
-                              {ROLE_PERMISSIONS[role][perm] ? (
-                                <MaterialIcon
-                                  icon="check_circle"
-                                  filled
-                                  size="sm"
-                                  className="text-primary"
-                                />
-                              ) : (
-                                <MaterialIcon
-                                  icon="cancel"
-                                  size="sm"
-                                  className="text-stone-600"
-                                />
-                              )}
-                            </td>
-                          ),
-                        )}
-                      </tr>
-                    ),
-                  )}
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -785,9 +758,7 @@ export default function UsuariosPage() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-on-surface leading-snug">
-                      {evt.description}
-                    </p>
+                    <p className="text-sm text-on-surface leading-snug">{evt.description}</p>
                     <p className="text-[10px] text-stone-500 mt-1">
                       {formatActivityTime(evt.timestamp)}
                     </p>

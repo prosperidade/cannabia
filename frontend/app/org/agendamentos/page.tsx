@@ -3,17 +3,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import {
-  Button,
-  Badge,
-  Card,
-  MaterialIcon,
-  StatCard,
-  Input,
-} from "@/components/ui-tw";
+import { Button, Badge, Card, MaterialIcon, StatCard, Input } from "@/components/ui-tw";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
-import { ApiError, listAppointments, createAppointment, createAppointmentTriageLink } from "@/lib/api";
+import {
+  ApiError,
+  listAppointments,
+  createAppointment,
+  createAppointmentTriageLink,
+} from "@/lib/api";
 import type { AppointmentItem } from "@/lib/types";
 
 /* ── helpers ───────────────────────────────────────────────────────── */
@@ -65,7 +63,10 @@ function groupByDate(items: AppointmentItem[]) {
   return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
 }
 
-const statusBadge: Record<string, { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }> = {
+const statusBadge: Record<
+  string,
+  { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }
+> = {
   confirmed: { tone: "success", label: "Confirmado" },
   pending: { tone: "warning", label: "Pendente" },
   cancelled: { tone: "danger", label: "Cancelado" },
@@ -78,12 +79,7 @@ const typeBadge: Record<string, { icon: string; label: string }> = {
 };
 
 /* ── doctors mock (used in filters & form) ─────────────────────────── */
-const DOCTORS = [
-  "Todos os Medicos",
-  "Dr. Aris Thorne",
-  "Dra. Elena Vance",
-  "Dra. Helena Freitas",
-];
+const DOCTORS = ["Todos os Medicos", "Dr. Aris Thorne", "Dra. Elena Vance", "Dra. Helena Freitas"];
 
 /* ── mini calendar ─────────────────────────────────────────────────── */
 function MiniCalendar({
@@ -135,17 +131,13 @@ function MiniCalendar({
 
   const todayDate = new Date();
   const todayStr =
-    todayDate.getFullYear() === year && todayDate.getMonth() === month
-      ? todayDate.getDate()
-      : -1;
+    todayDate.getFullYear() === year && todayDate.getMonth() === month ? todayDate.getDate() : -1;
 
   return (
     <Card className="overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold font-headline capitalize">
-            {monthLabel}
-          </h2>
+          <h2 className="text-2xl font-bold font-headline capitalize">{monthLabel}</h2>
           <div className="flex gap-1">
             <button
               onClick={() => setOffset((o) => o - 1)}
@@ -179,10 +171,9 @@ function MiniCalendar({
           </div>
         ))}
         {cells.map((cell) => {
-          const isoStr =
-            cell.current
-              ? `${year}-${String(month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`
-              : "";
+          const isoStr = cell.current
+            ? `${year}-${String(month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`
+            : "";
           const isSelected = selectedDate === isoStr;
           const count = cell.current ? countByDay[cell.day] || 0 : 0;
 
@@ -259,9 +250,7 @@ function NewAppointmentModal({
       setDate("");
       setDoctor("");
     } catch (err) {
-      setFormError(
-        err instanceof ApiError ? err.message : "Falha ao criar agendamento.",
-      );
+      setFormError(err instanceof ApiError ? err.message : "Falha ao criar agendamento.");
     } finally {
       setSaving(false);
     }
@@ -276,9 +265,7 @@ function NewAppointmentModal({
         >
           <MaterialIcon icon="close" />
         </button>
-        <h3 className="text-xl font-bold font-headline mb-6">
-          Novo Agendamento
-        </h3>
+        <h3 className="text-xl font-bold font-headline mb-6">Novo Agendamento</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Nome do Paciente"
@@ -328,27 +315,18 @@ function NewAppointmentModal({
                       : "border-outline-variant/30 text-stone-400 hover:bg-white/5",
                   )}
                 >
-                  <MaterialIcon
-                    icon={t === "presencial" ? "location_on" : "videocam"}
-                    size="sm"
-                  />
+                  <MaterialIcon icon={t === "presencial" ? "location_on" : "videocam"} size="sm" />
                   {t === "presencial" ? "Presencial" : "Online"}
                 </button>
               ))}
             </div>
           </div>
-          {formError && (
-            <p className="text-sm text-error">{formError}</p>
-          )}
+          {formError && <p className="text-sm text-error">{formError}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" type="button" onClick={onClose}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              icon="add_circle"
-              loading={saving}
-            >
+            <Button type="submit" icon="add_circle" loading={saving}>
               Criar Agendamento
             </Button>
           </div>
@@ -395,9 +373,7 @@ export default function AgendamentosPage() {
       const env = await listAppointments({ limit: 200 });
       setAppointments(env.items);
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : "Falha ao carregar agendamentos.",
-      );
+      setError(err instanceof ApiError ? err.message : "Falha ao carregar agendamentos.");
     } finally {
       setLoading(false);
     }
@@ -415,21 +391,13 @@ export default function AgendamentosPage() {
   /* stats */
   const total = appointments.length;
   const today = appointments.filter((a) => isToday(a.appointment_date)).length;
-  const thisWeek = appointments.filter((a) =>
-    isThisWeek(a.appointment_date),
-  ).length;
-  const cancelled = appointments.filter(
-    (a) => a.status === "cancelled",
-  ).length;
+  const thisWeek = appointments.filter((a) => isThisWeek(a.appointment_date)).length;
+  const cancelled = appointments.filter((a) => a.status === "cancelled").length;
 
   /* filtered */
   const filtered = appointments.filter((a) => {
     if (filterStatus !== "all" && a.status !== filterStatus) return false;
-    if (
-      selectedDate &&
-      !a.appointment_date.startsWith(selectedDate)
-    )
-      return false;
+    if (selectedDate && !a.appointment_date.startsWith(selectedDate)) return false;
     return true;
   });
 
@@ -452,8 +420,8 @@ export default function AgendamentosPage() {
             Gestao de Agendamentos
           </h1>
           <p className="text-on-surface-variant max-w-xl text-sm">
-            Visualize e organize o fluxo clinico com precisao assistida por IA.
-            Identifique conflitos e otimize a ocupacao das salas.
+            Visualize e organize o fluxo clinico com precisao assistida por IA. Identifique
+            conflitos e otimize a ocupacao das salas.
           </p>
         </div>
         <Button
@@ -467,11 +435,7 @@ export default function AgendamentosPage() {
 
       {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon="calendar_month"
-          label="Total Agendamentos"
-          value={total}
-        />
+        <StatCard icon="calendar_month" label="Total Agendamentos" value={total} />
         <StatCard
           icon="today"
           label="Hoje"
@@ -479,11 +443,7 @@ export default function AgendamentosPage() {
           delta={today > 0 ? `${today} consultas` : undefined}
           deltaType="up"
         />
-        <StatCard
-          icon="date_range"
-          label="Esta Semana"
-          value={thisWeek}
-        />
+        <StatCard icon="date_range" label="Esta Semana" value={thisWeek} />
         <StatCard
           icon="cancel"
           label="Cancelados"
@@ -540,9 +500,7 @@ export default function AgendamentosPage() {
           <MiniCalendar
             appointments={appointments}
             selectedDate={selectedDate}
-            onSelect={(d) =>
-              setSelectedDate((prev) => (prev === d ? null : d))
-            }
+            onSelect={(d) => setSelectedDate((prev) => (prev === d ? null : d))}
           />
         </div>
 
@@ -550,9 +508,7 @@ export default function AgendamentosPage() {
         <div className="lg:col-span-4 space-y-6">
           <Card className="h-fit">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-xl font-headline tracking-tight">
-                Proximas Consultas
-              </h3>
+              <h3 className="font-bold text-xl font-headline tracking-tight">Proximas Consultas</h3>
               <Badge tone="neutral">Hoje</Badge>
             </div>
 
@@ -581,9 +537,7 @@ export default function AgendamentosPage() {
                       >
                         <div className="flex items-start justify-between mb-1">
                           <div>
-                            <p className="font-bold text-sm text-white">
-                              {appt.patient_name}
-                            </p>
+                            <p className="font-bold text-sm text-white">{appt.patient_name}</p>
                             <p className="text-[10px] text-stone-500 uppercase tracking-widest">
                               {isToday(appt.appointment_date)
                                 ? "Hoje"
@@ -600,9 +554,8 @@ export default function AgendamentosPage() {
                       </div>
                     );
                   })}
-                {appointments.filter(
-                  (a) => new Date(a.appointment_date) >= new Date(),
-                ).length === 0 && (
+                {appointments.filter((a) => new Date(a.appointment_date) >= new Date()).length ===
+                  0 && (
                   <p className="text-sm text-stone-500 text-center py-4">
                     Nenhuma consulta futura encontrada.
                   </p>
@@ -614,10 +567,7 @@ export default function AgendamentosPage() {
           {/* AI Insight card */}
           <Card className="bg-gradient-to-tr from-primary/5 to-transparent">
             <div className="flex items-center gap-3 mb-4">
-              <MaterialIcon
-                icon="auto_awesome"
-                className="text-primary"
-              />
+              <MaterialIcon icon="auto_awesome" className="text-primary" />
               <h4 className="font-bold text-sm uppercase tracking-widest text-primary">
                 Analise Inteligente
               </h4>
@@ -627,8 +577,8 @@ export default function AgendamentosPage() {
               <span className="text-primary font-bold">
                 {total > 0 ? Math.min(Math.round((thisWeek / 40) * 100), 100) : 0}%
               </span>{" "}
-              para as proximas 48h. Recomendamos monitorar horarios de pico para
-              otimizar o fluxo de atendimento.
+              para as proximas 48h. Recomendamos monitorar horarios de pico para otimizar o fluxo de
+              atendimento.
             </p>
           </Card>
         </div>
@@ -638,10 +588,7 @@ export default function AgendamentosPage() {
       {grouped.length > 0 && (
         <div className="space-y-6">
           <h3 className="text-xl font-bold font-headline">
-            Agendamentos{" "}
-            {selectedDate
-              ? `- ${fmtDate(selectedDate + "T00:00:00")}`
-              : ""}
+            Agendamentos {selectedDate ? `- ${fmtDate(selectedDate + "T00:00:00")}` : ""}
           </h3>
           {grouped.map(([dateKey, items]) => (
             <div key={dateKey}>
@@ -650,7 +597,9 @@ export default function AgendamentosPage() {
                   {fmtDate(dateKey + "T00:00:00")}
                 </span>
                 <div className="flex-1 h-px bg-white/5" />
-                <Badge tone="neutral">{items.length} agendamento{items.length > 1 ? "s" : ""}</Badge>
+                <Badge tone="neutral">
+                  {items.length} agendamento{items.length > 1 ? "s" : ""}
+                </Badge>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {items
@@ -677,9 +626,7 @@ export default function AgendamentosPage() {
                             <p className="font-bold text-sm text-on-surface font-headline">
                               {appt.patient_name}
                             </p>
-                            <p className="text-xs text-stone-500">
-                              Cod. {appt.id}
-                            </p>
+                            <p className="text-xs text-stone-500">Cod. {appt.id}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -719,14 +666,8 @@ export default function AgendamentosPage() {
 
       {!loading && !error && filtered.length === 0 && (
         <Card className="text-center py-12">
-          <MaterialIcon
-            icon="event_busy"
-            size="xl"
-            className="text-stone-600 mx-auto mb-4"
-          />
-          <p className="text-stone-400">
-            Nenhum agendamento encontrado com os filtros atuais.
-          </p>
+          <MaterialIcon icon="event_busy" size="xl" className="text-stone-600 mx-auto mb-4" />
+          <p className="text-stone-400">Nenhum agendamento encontrado com os filtros atuais.</p>
         </Card>
       )}
 

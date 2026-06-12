@@ -3,22 +3,39 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { getClinicalTrials } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  Button,
-  StatCard,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, StatCard, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ────────────────────────────────────────────
    Clinical Trials Panel
    ──────────────────────────────────────────── */
 
-type StatItem = { icon: string; label: string; value: string | number; delta: string; deltaType: "up" | "down" | "neutral" };
-type Trial = { name: string; description: string; phase: string; phaseTone: "info" | "warning" | "success"; status: string; statusTone: "success" | "primary" | "neutral"; enrolled: number; target: number; startDate: string; endDate: string; progress: number; icon: string };
-type Finding = { trial: string; finding: string; type: string; typeTone: "success" | "primary" | "info" };
+type StatItem = {
+  icon: string;
+  label: string;
+  value: string | number;
+  delta: string;
+  deltaType: "up" | "down" | "neutral";
+};
+type Trial = {
+  name: string;
+  description: string;
+  phase: string;
+  phaseTone: "info" | "warning" | "success";
+  status: string;
+  statusTone: "success" | "primary" | "neutral";
+  enrolled: number;
+  target: number;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  icon: string;
+};
+type Finding = {
+  trial: string;
+  finding: string;
+  type: string;
+  typeTone: "success" | "primary" | "info";
+};
 type Eligibility = { criteria: string; met: boolean };
 type RecruitmentItem = { label: string; value: number };
 
@@ -55,7 +72,9 @@ export default function EnsaiosPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const maxRecruitValue = recruitment.length > 0 ? Math.max(...recruitment.map((d) => d.value)) : 1;
 
@@ -154,9 +173,7 @@ export default function EnsaiosPage() {
                             <span className="text-sm font-semibold text-on-surface">
                               {trial.name}
                             </span>
-                            <p className="text-[10px] text-stone-500 mt-0.5">
-                              {trial.description}
-                            </p>
+                            <p className="text-[10px] text-stone-500 mt-0.5">{trial.description}</p>
                           </div>
                         </div>
                       </td>
@@ -210,9 +227,7 @@ export default function EnsaiosPage() {
         <Card variant="glass" padding="lg" className="rounded-3xl flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h3 className="font-bold text-on-surface font-headline text-lg">
-                Taxa de Sucesso
-              </h3>
+              <h3 className="font-bold text-on-surface font-headline text-lg">Taxa de Sucesso</h3>
               <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
                 Recrutamento Mensal
               </p>
@@ -224,7 +239,10 @@ export default function EnsaiosPage() {
               const heightPct = (d.value / maxRecruitValue) * 100;
               const isMax = d.value === maxRecruitValue;
               return (
-                <div key={d.label} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                <div
+                  key={d.label}
+                  className="flex-1 flex flex-col items-center gap-2 h-full justify-end"
+                >
                   <div
                     className={cn(
                       "w-full rounded-t-lg transition-all",
@@ -293,9 +311,7 @@ export default function EnsaiosPage() {
               <h3 className="text-lg font-bold text-on-surface font-headline">
                 Criterios de Elegibilidade
               </h3>
-              <p className="text-xs text-stone-500">
-                Verificacao para Protocolo THC-G1
-              </p>
+              <p className="text-xs text-stone-500">Verificacao para Protocolo THC-G1</p>
             </div>
           </div>
           <div className="space-y-3">
@@ -304,9 +320,7 @@ export default function EnsaiosPage() {
                 key={i}
                 className={cn(
                   "flex items-center gap-4 p-4 rounded-xl border transition-all",
-                  e.met
-                    ? "bg-emerald-500/5 border-emerald-500/20"
-                    : "bg-error/5 border-error/20",
+                  e.met ? "bg-emerald-500/5 border-emerald-500/20" : "bg-error/5 border-error/20",
                 )}
               >
                 <div
@@ -332,11 +346,7 @@ export default function EnsaiosPage() {
               <span className="text-xs text-stone-500">
                 {eligibility.filter((e) => e.met).length}/{eligibility.length} criterios atendidos
               </span>
-              <Badge
-                tone={
-                  eligibility.every((e) => e.met) ? "success" : "warning"
-                }
-              >
+              <Badge tone={eligibility.every((e) => e.met) ? "success" : "warning"}>
                 {eligibility.every((e) => e.met) ? "ELEGIVEL" : "PARCIAL"}
               </Badge>
             </div>
@@ -345,21 +355,22 @@ export default function EnsaiosPage() {
       </div>
 
       {/* ── AI Insights ── */}
-      <Card variant="glass" padding="lg" className="rounded-3xl border-l-4 border-primary relative overflow-hidden">
+      <Card
+        variant="glass"
+        padding="lg"
+        className="rounded-3xl border-l-4 border-primary relative overflow-hidden"
+      >
         <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-4">
-            <MaterialIcon
-              icon="auto_awesome"
-              className="text-amber-500"
-            />
+            <MaterialIcon icon="auto_awesome" className="text-amber-500" />
             <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
               Previsoes da IA
             </span>
           </div>
           <p className="text-sm text-stone-300 leading-relaxed italic mb-6">
-            &quot;Com base nos dados atuais de adesao e recrutamento do Protocolo THC-G1, prevemos uma
-            conclusao 14 dias antes do cronograma original, com eficacia projetada 8.2% acima da
+            &quot;Com base nos dados atuais de adesao e recrutamento do Protocolo THC-G1, prevemos
+            uma conclusao 14 dias antes do cronograma original, com eficacia projetada 8.2% acima da
             media do setor.&quot;
           </p>
           <div className="flex flex-wrap gap-3">

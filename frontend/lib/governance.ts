@@ -123,14 +123,11 @@ export type AssociationPayload = {
 };
 
 export async function upsertAssociation(csrfToken: string, payload: AssociationPayload) {
-  const response = await request<{ association: AssociationRecord }>(
-    "/governance/association",
-    {
-      method: "PUT",
-      headers: csrfHeader(csrfToken),
-      body: JSON.stringify(payload),
-    },
-  );
+  const response = await request<{ association: AssociationRecord }>("/governance/association", {
+    method: "PUT",
+    headers: csrfHeader(csrfToken),
+    body: JSON.stringify(payload),
+  });
   return response.data.association;
 }
 
@@ -160,25 +157,19 @@ export type DocumentCreatePayload = {
 };
 
 export async function createDocument(csrfToken: string, payload: DocumentCreatePayload) {
-  const response = await request<{ document: InstitutionalDocument }>(
-    "/governance/documents",
-    {
-      method: "POST",
-      headers: csrfHeader(csrfToken),
-      body: JSON.stringify(payload),
-    },
-  );
+  const response = await request<{ document: InstitutionalDocument }>("/governance/documents", {
+    method: "POST",
+    headers: csrfHeader(csrfToken),
+    body: JSON.stringify(payload),
+  });
   return response.data.document;
 }
 
 export async function deactivateDocument(csrfToken: string, docId: number) {
-  await request<{ deactivated: true; document_id: number }>(
-    `/governance/documents/${docId}`,
-    {
-      method: "DELETE",
-      headers: csrfHeader(csrfToken),
-    },
-  );
+  await request<{ deactivated: true; document_id: number }>(`/governance/documents/${docId}`, {
+    method: "DELETE",
+    headers: csrfHeader(csrfToken),
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -203,10 +194,7 @@ export type RtCreatePayload = {
   user_id?: number | null;
 };
 
-export async function createTechnicalResponsible(
-  csrfToken: string,
-  payload: RtCreatePayload,
-) {
+export async function createTechnicalResponsible(csrfToken: string, payload: RtCreatePayload) {
   const response = await request<{ technical_responsible: TechnicalResponsible }>(
     "/governance/rts",
     {
@@ -261,10 +249,7 @@ export type CapacityCreatePayload = {
   overall_readiness?: number | null;
 };
 
-export async function createCapacityAssessment(
-  csrfToken: string,
-  payload: CapacityCreatePayload,
-) {
+export async function createCapacityAssessment(csrfToken: string, payload: CapacityCreatePayload) {
   const response = await request<{ capacity_assessment: CapacityAssessment }>(
     "/governance/capacity",
     {
@@ -286,13 +271,10 @@ export async function getEligibility() {
 }
 
 export async function refreshEligibility(csrfToken: string) {
-  const response = await request<EligibilityReport>(
-    "/governance/eligibility/refresh",
-    {
-      method: "POST",
-      headers: csrfHeader(csrfToken),
-    },
-  );
+  const response = await request<EligibilityReport>("/governance/eligibility/refresh", {
+    method: "POST",
+    headers: csrfHeader(csrfToken),
+  });
   return response.data;
 }
 
@@ -323,8 +305,6 @@ export async function adminListAssociations() {
 }
 
 export async function getDossier() {
-  const response = await request<DossierPayload>(
-    "/governance/eligibility/dossier",
-  );
+  const response = await request<DossierPayload>("/governance/eligibility/dossier");
   return response.data;
 }

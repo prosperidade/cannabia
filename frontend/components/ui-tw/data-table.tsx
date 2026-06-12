@@ -58,7 +58,8 @@ export function DataTable({
                   key={col.key}
                   className={cn(
                     "px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500",
-                    col.sortable && "cursor-pointer select-none hover:text-stone-300 transition-colors",
+                    col.sortable &&
+                      "cursor-pointer select-none hover:text-stone-300 transition-colors",
                   )}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
                 >
@@ -96,13 +97,8 @@ export function DataTable({
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                 >
                   {columns.map((col) => (
-                    <td
-                      key={col.key}
-                      className="px-5 py-4 text-sm text-on-surface"
-                    >
-                      {col.render
-                        ? col.render(row[col.key], row)
-                        : String(row[col.key] ?? "")}
+                    <td key={col.key} className="px-5 py-4 text-sm text-on-surface">
+                      {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
                     </td>
                   ))}
                 </tr>

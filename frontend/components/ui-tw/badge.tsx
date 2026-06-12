@@ -17,12 +17,7 @@ export interface BadgeProps {
   className?: string;
 }
 
-export function Badge({
-  tone = "primary",
-  pulse = false,
-  children,
-  className,
-}: BadgeProps) {
+export function Badge({ tone = "primary", pulse = false, children, className }: BadgeProps) {
   return (
     <span
       className={cn(

@@ -54,7 +54,8 @@ async function proxy(request: Request, context: RouteContext) {
     headers.set("x-real-ip", realIp);
   }
 
-  const forwardedProto = request.headers.get("x-forwarded-proto") ?? incomingUrl.protocol.replace(":", "");
+  const forwardedProto =
+    request.headers.get("x-forwarded-proto") ?? incomingUrl.protocol.replace(":", "");
   headers.set("x-forwarded-proto", forwardedProto);
 
   const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");

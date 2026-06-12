@@ -120,7 +120,11 @@ export function AppShell({ session, title, subtitle, children }: AppShellProps) 
           >
             {busy ? "Saindo..." : "Sair"}
           </button>
-          {error ? <div aria-live="assertive" className="inline-error" role="alert">{error}</div> : null}
+          {error ? (
+            <div aria-live="assertive" className="inline-error" role="alert">
+              {error}
+            </div>
+          ) : null}
         </div>
       </aside>
 

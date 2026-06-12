@@ -7,12 +7,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { listPrescriptions, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import {
-  MaterialIcon,
-  Badge,
-  Button,
-  SearchBar,
-} from "@/components/ui-tw";
+import { MaterialIcon, Badge, Button, SearchBar } from "@/components/ui-tw";
 
 /* -------------------------------------------------------------------------- */
 
@@ -81,10 +76,7 @@ export default function PrescricoesPage() {
       if (err instanceof ApiError && err.status === 404) {
         setPrescriptions([]);
       } else {
-        const msg =
-          err instanceof ApiError
-            ? err.message
-            : "Falha ao carregar prescricoes.";
+        const msg = err instanceof ApiError ? err.message : "Falha ao carregar prescricoes.";
         setError(msg);
       }
     } finally {
@@ -121,11 +113,7 @@ export default function PrescricoesPage() {
             Prescricoes
           </h1>
           <p className="text-stone-500 text-sm flex items-center gap-2">
-            <MaterialIcon
-              icon="prescriptions"
-              size="sm"
-              className="text-primary"
-            />
+            <MaterialIcon icon="prescriptions" size="sm" className="text-primary" />
             Gerencie as prescricoes dos pacientes
           </p>
         </div>
@@ -153,49 +141,34 @@ export default function PrescricoesPage() {
         <div className="glass-panel rounded-2xl p-8 text-center space-y-4">
           <MaterialIcon icon="error_outline" size="xl" className="text-error" />
           <p className="text-stone-400">{error}</p>
-          <Button
-            variant="secondary"
-            size="sm"
-            icon="refresh"
-            onClick={fetchPrescriptions}
-          >
+          <Button variant="secondary" size="sm" icon="refresh" onClick={fetchPrescriptions}>
             Tentar novamente
           </Button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="glass-panel rounded-2xl p-12 text-center space-y-4 border border-white/5">
           <div className="w-20 h-20 mx-auto rounded-full bg-surface-container-high flex items-center justify-center">
-            <MaterialIcon
-              icon="prescriptions"
-              size="xl"
-              className="text-stone-600"
-            />
+            <MaterialIcon icon="prescriptions" size="xl" className="text-stone-600" />
           </div>
           <h3 className="text-lg font-headline font-bold text-stone-400">
             Nenhuma prescricao encontrada
           </h3>
           <p className="text-sm text-stone-600 max-w-md mx-auto">
-            As prescricoes aparecerao aqui conforme forem emitidas. Clique em
-            &quot;Nova Prescricao&quot; para criar uma.
+            As prescricoes aparecerao aqui conforme forem emitidas. Clique em &quot;Nova
+            Prescricao&quot; para criar uma.
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map((item, idx) => {
             const key = item.id ?? idx;
-            const status = (
-              (item.status ?? "pendente") as string
-            ).toLowerCase();
+            const status = ((item.status ?? "pendente") as string).toLowerCase();
             const statusCfg = STATUS_BADGE[status] ?? {
               label: status,
               tone: "neutral" as const,
             };
             return (
-              <Link
-                key={key}
-                href={`/med/prescricao/${item.id ?? idx}`}
-                className="block"
-              >
+              <Link key={key} href={`/med/prescricao/${item.id ?? idx}`} className="block">
                 <div
                   className={cn(
                     "glass-panel rounded-2xl p-4 lg:p-6 transition-colors",
@@ -217,20 +190,12 @@ export default function PrescricoesPage() {
                       </div>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-stone-500">
                         <span className="flex items-center gap-1">
-                          <MaterialIcon
-                            icon="calendar_today"
-                            size="sm"
-                            className="text-[12px]"
-                          />
+                          <MaterialIcon icon="calendar_today" size="sm" className="text-[12px]" />
                           {formatDate(item.created_at as string | undefined)}
                         </span>
                         {item.dosage && (
                           <span className="flex items-center gap-1 font-mono">
-                            <MaterialIcon
-                              icon="medication"
-                              size="sm"
-                              className="text-[12px]"
-                            />
+                            <MaterialIcon icon="medication" size="sm" className="text-[12px]" />
                             {String(item.dosage)}
                           </span>
                         )}

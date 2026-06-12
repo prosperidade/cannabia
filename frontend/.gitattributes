@@ -1,0 +1,13 @@
+# Frontend Cannab'IA — força LF em todos os arquivos checados pelo Prettier
+# (.prettierrc.json define endOfLine="lf"). Sem isto, contribuidores com
+# core.autocrlf=true poderiam commitar CRLF e quebrar `format:check` no CI
+# (runner Linux). Cobre os mesmos tipos do glob de format/format:check.
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.mjs  text eol=lf
+*.cjs  text eol=lf
+*.json text eol=lf
+*.css  text eol=lf
+*.md   text eol=lf

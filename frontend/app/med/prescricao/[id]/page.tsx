@@ -4,24 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
-import {
-  ApiError,
-  getAttendance,
-  calculateDosage,
-  emitPrescription,
-} from "@/lib/api";
-import {
-  Button,
-  Card,
-  Input,
-  Badge,
-  MaterialIcon,
-} from "@/components/ui-tw";
-import type {
-  PrescriptionType,
-  PrescriptionItem,
-  TreatmentPlan,
-} from "@/lib/types-medical";
+import { ApiError, getAttendance, calculateDosage, emitPrescription } from "@/lib/api";
+import { Button, Card, Input, Badge, MaterialIcon } from "@/components/ui-tw";
+import type { PrescriptionType, PrescriptionItem, TreatmentPlan } from "@/lib/types-medical";
 import type { AttendanceDetail, PrescriptionContract } from "@/lib/types";
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -102,7 +87,9 @@ export default function PrescricaoPage() {
   const [notes, setNotes] = useState("");
   const [cannabinoidRatio, setCannabinoidRatio] = useState("");
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
-  const [prescriptionContract, setPrescriptionContract] = useState<PrescriptionContract | null>(null);
+  const [prescriptionContract, setPrescriptionContract] = useState<PrescriptionContract | null>(
+    null,
+  );
   const [weightKg, setWeightKg] = useState("");
   const [heightCm, setHeightCm] = useState("");
   const [priorCannabisUse, setPriorCannabisUse] = useState<"" | "true" | "false">("");
@@ -156,16 +143,13 @@ export default function PrescricaoPage() {
   }, [session]);
 
   /* item management */
-  const updateItem = useCallback(
-    (index: number, field: keyof PrescriptionItem, value: string) => {
-      setItems((prev) => {
-        const next = [...prev];
-        next[index] = { ...next[index], [field]: value };
-        return next;
-      });
-    },
-    [],
-  );
+  const updateItem = useCallback((index: number, field: keyof PrescriptionItem, value: string) => {
+    setItems((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: value };
+      return next;
+    });
+  }, []);
 
   const addItem = () => setItems((prev) => [...prev, { ...EMPTY_ITEM }]);
 
@@ -344,9 +328,7 @@ export default function PrescricaoPage() {
         </div>
         <div className="flex items-center gap-3 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
           <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs font-medium text-on-surface-variant">
-            Analise IA Ativa
-          </span>
+          <span className="text-xs font-medium text-on-surface-variant">Analise IA Ativa</span>
         </div>
       </div>
 
@@ -358,9 +340,7 @@ export default function PrescricaoPage() {
           <Card>
             <div className="flex items-center gap-3 mb-6">
               <MaterialIcon icon="description" className="text-primary" />
-              <h3 className="font-headline font-bold text-lg text-white">
-                Tipo de Receita
-              </h3>
+              <h3 className="font-headline font-bold text-lg text-white">Tipo de Receita</h3>
             </div>
             <div className="flex gap-3">
               <button
@@ -463,7 +443,9 @@ export default function PrescricaoPage() {
             </div>
 
             <p className="text-sm text-on-surface-variant">
-              {contractError ?? prescriptionContract?.message ?? "Defina os campos minimos antes do calculo."}
+              {contractError ??
+                prescriptionContract?.message ??
+                "Defina os campos minimos antes do calculo."}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
@@ -551,11 +533,11 @@ export default function PrescricaoPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <MaterialIcon icon="medication" className="text-primary" />
-                <h3 className="font-headline font-bold text-lg text-white">
-                  Itens da Prescricao
-                </h3>
+                <h3 className="font-headline font-bold text-lg text-white">Itens da Prescricao</h3>
               </div>
-              <Badge tone="neutral">{items.length} {items.length === 1 ? "item" : "itens"}</Badge>
+              <Badge tone="neutral">
+                {items.length} {items.length === 1 ? "item" : "itens"}
+              </Badge>
             </div>
 
             <div className="space-y-6">
@@ -648,13 +630,7 @@ export default function PrescricaoPage() {
               ))}
             </div>
 
-            <Button
-              variant="secondary"
-              size="sm"
-              icon="add"
-              onClick={addItem}
-              className="mt-4"
-            >
+            <Button variant="secondary" size="sm" icon="add" onClick={addItem} className="mt-4">
               Adicionar Item
             </Button>
           </Card>
@@ -663,9 +639,7 @@ export default function PrescricaoPage() {
           <Card>
             <div className="flex items-center gap-3 mb-4">
               <MaterialIcon icon="history_edu" className="text-primary" />
-              <h3 className="font-headline font-bold text-lg text-white">
-                Observacoes Clinicas
-              </h3>
+              <h3 className="font-headline font-bold text-lg text-white">Observacoes Clinicas</h3>
             </div>
             <textarea
               value={notes}
@@ -694,9 +668,7 @@ export default function PrescricaoPage() {
           <Card className="sticky top-6">
             <div className="flex items-center gap-3 mb-6">
               <MaterialIcon icon="preview" className="text-primary" />
-              <h3 className="font-headline font-bold text-lg text-white">
-                Previa da Prescricao
-              </h3>
+              <h3 className="font-headline font-bold text-lg text-white">Previa da Prescricao</h3>
             </div>
 
             {/* Preview card in white (like print) */}
@@ -710,13 +682,8 @@ export default function PrescricaoPage() {
                   <h4 className="font-headline font-bold text-lg text-stone-900 uppercase tracking-tight">
                     Cannab&apos;IA Clinical
                   </h4>
-                  <p className="text-[10px] text-stone-500">
-                    Prescricao Medica Digital
-                  </p>
-                  <Badge
-                    tone={prescType === "azul" ? "info" : "neutral"}
-                    className="mt-2"
-                  >
+                  <p className="text-[10px] text-stone-500">Prescricao Medica Digital</p>
+                  <Badge tone={prescType === "azul" ? "info" : "neutral"} className="mt-2">
                     {prescType === "azul" ? "Receita Azul - ANVISA" : "Receita Branca"}
                   </Badge>
                 </div>
@@ -724,33 +691,21 @@ export default function PrescricaoPage() {
                 {/* Patient */}
                 <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
                   <div>
-                    <p className="text-[9px] uppercase text-stone-400 font-bold">
-                      Paciente
-                    </p>
-                    <p className="font-semibold text-stone-800">
-                      {patientName || "---"}
-                    </p>
+                    <p className="text-[9px] uppercase text-stone-400 font-bold">Paciente</p>
+                    <p className="font-semibold text-stone-800">{patientName || "---"}</p>
                   </div>
                   <div>
                     <p className="text-[9px] uppercase text-stone-400 font-bold">CPF</p>
-                    <p className="font-semibold text-stone-800">
-                      {patientCpf || "---"}
-                    </p>
+                    <p className="font-semibold text-stone-800">{patientCpf || "---"}</p>
                   </div>
                   <div>
                     <p className="text-[9px] uppercase text-stone-400 font-bold">Data</p>
-                    <p className="font-semibold text-stone-800">
-                      {formatDate(new Date())}
-                    </p>
+                    <p className="font-semibold text-stone-800">{formatDate(new Date())}</p>
                   </div>
                   {cannabinoidRatio && (
                     <div>
-                      <p className="text-[9px] uppercase text-stone-400 font-bold">
-                        CBD:THC
-                      </p>
-                      <p className="font-semibold text-stone-800">
-                        {cannabinoidRatio}
-                      </p>
+                      <p className="text-[9px] uppercase text-stone-400 font-bold">CBD:THC</p>
+                      <p className="font-semibold text-stone-800">{cannabinoidRatio}</p>
                     </div>
                   )}
                 </div>
@@ -758,10 +713,7 @@ export default function PrescricaoPage() {
                 {/* Items preview */}
                 <div className="border-t border-stone-100 pt-3 space-y-3">
                   {items.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="border-l-2 border-primary/60 pl-3"
-                    >
+                    <div key={idx} className="border-l-2 border-primary/60 pl-3">
                       <p className="font-bold text-sm text-stone-800">
                         {item.medication || "Medicamento"}
                       </p>
@@ -772,9 +724,7 @@ export default function PrescricaoPage() {
                         {item.duration && `por ${item.duration}`}
                       </p>
                       {item.route && (
-                        <p className="text-[10px] text-stone-400 capitalize">
-                          Via: {item.route}
-                        </p>
+                        <p className="text-[10px] text-stone-400 capitalize">Via: {item.route}</p>
                       )}
                     </div>
                   ))}
@@ -834,12 +784,7 @@ export default function PrescricaoPage() {
               ) : (
                 <div className="text-center space-y-3">
                   <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-primary/10 border border-primary/30">
-                    <MaterialIcon
-                      icon="check_circle"
-                      filled
-                      size="lg"
-                      className="text-primary"
-                    />
+                    <MaterialIcon icon="check_circle" filled size="lg" className="text-primary" />
                     <p className="text-sm font-bold text-primary">
                       Prescricao emitida com sucesso!
                     </p>
@@ -847,9 +792,7 @@ export default function PrescricaoPage() {
                   <Button
                     variant="primary"
                     icon="draw"
-                    onClick={() =>
-                      router.push(`/med/prescricao/${params.id}/assinar`)
-                    }
+                    onClick={() => router.push(`/med/prescricao/${params.id}/assinar`)}
                     className="w-full"
                   >
                     Assinar Digitalmente
@@ -857,11 +800,7 @@ export default function PrescricaoPage() {
                 </div>
               )}
 
-              <Button
-                variant="ghost"
-                icon="save"
-                className="w-full"
-              >
+              <Button variant="ghost" icon="save" className="w-full">
                 Salvar Rascunho
               </Button>
             </div>
@@ -880,14 +819,10 @@ export default function PrescricaoPage() {
           </div>
           <div className="flex items-center gap-2">
             <MaterialIcon icon="gavel" size="sm" />
-            <span className="text-[10px] uppercase font-bold tracking-widest">
-              Conforme LGPD
-            </span>
+            <span className="text-[10px] uppercase font-bold tracking-widest">Conforme LGPD</span>
           </div>
         </div>
-        <p className="text-[10px] font-medium">
-          Cannab&apos;IA Clinical v4.2.0
-        </p>
+        <p className="text-[10px] font-medium">Cannab&apos;IA Clinical v4.2.0</p>
       </footer>
     </div>
   );

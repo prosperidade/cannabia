@@ -73,8 +73,8 @@ export default function HomePage() {
 
         {/* Description */}
         <p className="text-on-surface/60 text-base leading-relaxed mb-10 max-w-md">
-          Anamnese inteligente, planos terapeuticos personalizados e evidencias
-          cientificas em tempo real para medicina canabinoide.
+          Anamnese inteligente, planos terapeuticos personalizados e evidencias cientificas em tempo
+          real para medicina canabinoide.
         </p>
 
         {/* CTAs */}

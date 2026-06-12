@@ -50,7 +50,12 @@ export function useSystemStatus(): SystemStatus {
   const check = useCallback(async () => {
     // Offline check
     if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setState((prev) => ({ ...prev, overall: "offline", offline: true, error: "Sem conexão com a internet" }));
+      setState((prev) => ({
+        ...prev,
+        overall: "offline",
+        offline: true,
+        error: "Sem conexão com a internet",
+      }));
       return;
     }
 
@@ -66,7 +71,7 @@ export function useSystemStatus(): SystemStatus {
       clearTimeout(timer);
 
       if (!res.ok) {
-        const overall = res.status === 503 ? "unhealthy" as const : "degraded" as const;
+        const overall = res.status === 503 ? ("unhealthy" as const) : ("degraded" as const);
         // Try to parse body anyway
         try {
           const data = (await res.json()) as HealthResponse;
@@ -133,7 +138,12 @@ export function useSystemStatus(): SystemStatus {
       void check();
     }
     function onOffline() {
-      setState((prev) => ({ ...prev, overall: "offline", offline: true, error: "Sem conexão com a internet" }));
+      setState((prev) => ({
+        ...prev,
+        overall: "offline",
+        offline: true,
+        error: "Sem conexão com a internet",
+      }));
     }
 
     window.addEventListener("online", onOnline);

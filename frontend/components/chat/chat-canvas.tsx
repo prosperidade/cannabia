@@ -12,9 +12,7 @@ interface ChatHeaderProps {
 export function ChatHeader({ clinicName, clinicInitials }: ChatHeaderProps) {
   return (
     <header className="ds-chat-header">
-      <div className="ds-chat-header__avatar">
-        {clinicInitials ?? clinicName.charAt(0)}
-      </div>
+      <div className="ds-chat-header__avatar">{clinicInitials ?? clinicName.charAt(0)}</div>
       <div className="ds-chat-header__info">
         <p className="ds-chat-header__name">{clinicName}</p>
         <span className="ds-chat-header__status">

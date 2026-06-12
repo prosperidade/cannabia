@@ -22,7 +22,11 @@ const confidenceLabel = {
   baixo: "Baixa",
 } as const;
 
-export function DifferentialDiagnosisCard({ conditions, analysis, className }: DifferentialDiagnosisCardProps) {
+export function DifferentialDiagnosisCard({
+  conditions,
+  analysis,
+  className,
+}: DifferentialDiagnosisCardProps) {
   const allConditions = [
     ...conditions.map((c) => ({
       name: c.condition_name,
@@ -57,7 +61,9 @@ export function DifferentialDiagnosisCard({ conditions, analysis, className }: D
 
       {analysis.red_flags.length > 0 ? (
         <div className="ds-ddx__flags">
-          <span className="ds-ddx__flags-icon" aria-hidden="true">&#9888;</span>
+          <span className="ds-ddx__flags-icon" aria-hidden="true">
+            &#9888;
+          </span>
           <div>
             <strong className="ds-ddx__flags-title">Red Flags Identificadas</strong>
             <ul className="ds-ddx__flags-list">
@@ -76,9 +82,7 @@ export function DifferentialDiagnosisCard({ conditions, analysis, className }: D
               <span className="ds-ddx__item-rank">{i + 1}</span>
               <div className="ds-ddx__item-body">
                 <strong className="ds-ddx__item-name">{cond.name}</strong>
-                {cond.icd10 ? (
-                  <span className="ds-ddx__item-icd">CID-10: {cond.icd10}</span>
-                ) : null}
+                {cond.icd10 ? <span className="ds-ddx__item-icd">CID-10: {cond.icd10}</span> : null}
               </div>
               <Badge tone={confidenceTone[cond.confidence]}>
                 {confidenceLabel[cond.confidence]}
@@ -98,7 +102,9 @@ export function DifferentialDiagnosisCard({ conditions, analysis, className }: D
           <h3 className="ds-ddx__exams-title">Exames Recomendados</h3>
           <div className="ds-ddx__exams-chips">
             {analysis.recommended_exams.map((exam) => (
-              <span key={exam} className="ds-ddx__exam-chip">{exam}</span>
+              <span key={exam} className="ds-ddx__exam-chip">
+                {exam}
+              </span>
             ))}
           </div>
         </div>

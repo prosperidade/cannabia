@@ -47,10 +47,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function request<T>(
-  path: string,
-  init: RequestInit = {},
-): Promise<ApiEnvelope<T>> {
+export async function request<T>(path: string, init: RequestInit = {}): Promise<ApiEnvelope<T>> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
 
@@ -148,8 +145,7 @@ export async function listMessages(
   }
   const response = await request<MessageItem[]>(`/messages?${params.toString()}`);
   const metaTotal =
-    (response.meta as { total?: number } | undefined)?.total ??
-    response.data.length;
+    (response.meta as { total?: number } | undefined)?.total ?? response.data.length;
   return {
     items: response.data,
     total: metaTotal,
@@ -183,16 +179,12 @@ export async function listAttendances(opts?: {
   if (opts?.offset != null) params.set("offset", String(opts.offset));
   if (opts?.include_total) params.set("include_total", "1");
   const query = params.toString() ? `?${params}` : "";
-  const response = await request<Paginated<AttendanceListItem>>(
-    `/attendances${query}`,
-  );
+  const response = await request<Paginated<AttendanceListItem>>(`/attendances${query}`);
   return response.data;
 }
 
 /** Convenience: extrai items diretos do envelope (substituicao drop-in). */
-export async function listAttendancesItems(
-  status?: string,
-): Promise<AttendanceListItem[]> {
+export async function listAttendancesItems(status?: string): Promise<AttendanceListItem[]> {
   const env = await listAttendances({ status, limit: 200 });
   return env.items;
 }
@@ -249,9 +241,7 @@ export async function listAppointments(opts?: {
   if (opts?.offset != null) params.set("offset", String(opts.offset));
   if (opts?.include_total) params.set("include_total", "1");
   const query = params.toString() ? `?${params}` : "";
-  const response = await request<Paginated<AppointmentItem>>(
-    `/appointments${query}`,
-  );
+  const response = await request<Paginated<AppointmentItem>>(`/appointments${query}`);
   return response.data;
 }
 
@@ -474,26 +464,27 @@ export type AiAuditPaginatedData = {
   filters?: AiAuditData["filters"] & { offset?: number };
 };
 
-export async function getAiAudit(filters: AiMetricsFilters & {
-  offset?: number;
-  include_total?: boolean;
-} = {}): Promise<AiAuditPaginatedData> {
+export async function getAiAudit(
+  filters: AiMetricsFilters & {
+    offset?: number;
+    include_total?: boolean;
+  } = {},
+): Promise<AiAuditPaginatedData> {
   const params = new URLSearchParams();
   params.set("paginated", "1");
   if (filters.status?.trim()) params.set("status", filters.status.trim());
   if (typeof filters.days === "number") params.set("days", String(filters.days));
   if (typeof filters.limit === "number") params.set("limit", String(filters.limit));
-  if (typeof filters.offset === "number")
-    params.set("offset", String(filters.offset));
+  if (typeof filters.offset === "number") params.set("offset", String(filters.offset));
   if (filters.include_total) params.set("include_total", "1");
-  const response = await request<AiAuditPaginatedData>(
-    `/admin/ai-metrics?${params.toString()}`,
-  );
+  const response = await request<AiAuditPaginatedData>(`/admin/ai-metrics?${params.toString()}`);
   return response.data;
 }
 
 // ── Payments ──
-export async function listPayments(params: { status?: string; patient_id?: number; limit?: number; offset?: number } = {}) {
+export async function listPayments(
+  params: { status?: string; patient_id?: number; limit?: number; offset?: number } = {},
+) {
   const sp = new URLSearchParams();
   if (params.status) sp.set("status", params.status);
   if (params.patient_id != null) sp.set("patient_id", String(params.patient_id));
@@ -539,26 +530,20 @@ export async function confirmPaymentManual(
   id: number,
   payload: { amount_cents?: number; payer_name?: string; payer_document?: string } = {},
 ) {
-  const response = await request<import("@/lib/types").PaymentRequest>(
-    `/payments/${id}/confirm`,
-    {
-      method: "POST",
-      headers: { "X-CSRF-Token": csrfToken },
-      body: JSON.stringify(payload),
-    },
-  );
+  const response = await request<import("@/lib/types").PaymentRequest>(`/payments/${id}/confirm`, {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(payload),
+  });
   return response.data;
 }
 
 export async function cancelPayment(csrfToken: string, id: number) {
-  const response = await request<import("@/lib/types").PaymentRequest>(
-    `/payments/${id}/cancel`,
-    {
-      method: "POST",
-      headers: { "X-CSRF-Token": csrfToken },
-      body: JSON.stringify({}),
-    },
-  );
+  const response = await request<import("@/lib/types").PaymentRequest>(`/payments/${id}/cancel`, {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: JSON.stringify({}),
+  });
   return response.data;
 }
 
@@ -596,7 +581,12 @@ export async function listReturns() {
 export async function getOrgDashboard() {
   return request<Record<string, unknown>>("/org/dashboard");
 }
-export async function listOrgPatients(params?: { search?: string; status?: string; page?: number; page_size?: number }) {
+export async function listOrgPatients(params?: {
+  search?: string;
+  status?: string;
+  page?: number;
+  page_size?: number;
+}) {
   const qs = new URLSearchParams();
   if (params?.search) qs.set("search", params.search);
   if (params?.status) qs.set("status", params.status);
@@ -634,7 +624,11 @@ export async function createAdminUser(csrfToken: string, payload: Record<string,
     body: JSON.stringify(payload),
   });
 }
-export async function updateAdminUser(userId: number, csrfToken: string, payload: Record<string, unknown>) {
+export async function updateAdminUser(
+  userId: number,
+  csrfToken: string,
+  payload: Record<string, unknown>,
+) {
   return request<Record<string, unknown>>(`/admin/users/${userId}`, {
     method: "PATCH",
     headers: { "X-CSRF-Token": csrfToken },
@@ -733,7 +727,11 @@ export async function uploadLegislation(csrfToken: string) {
     body: JSON.stringify({}),
   });
 }
-export async function queryLegislation(csrfToken: string, question: string, options?: { files?: string[]; structured?: boolean }) {
+export async function queryLegislation(
+  csrfToken: string,
+  question: string,
+  options?: { files?: string[]; structured?: boolean },
+) {
   return request<Record<string, unknown>>("/regulatory/query", {
     method: "POST",
     headers: { "X-CSRF-Token": csrfToken },
@@ -743,7 +741,12 @@ export async function queryLegislation(csrfToken: string, question: string, opti
 
 // ── Knowledge Base ──
 export async function getKnowledgeCatalog(params?: {
-  doc_type?: string; source?: string; status?: string; search?: string; page?: number; page_size?: number;
+  doc_type?: string;
+  source?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
 }) {
   const qs = new URLSearchParams();
   if (params?.doc_type) qs.set("doc_type", params.doc_type);
@@ -785,7 +788,16 @@ export async function getKnowledgeMonitors() {
   const response = await request<Record<string, unknown>[]>("/knowledge/monitors");
   return response.data;
 }
-export async function createKnowledgeMonitor(csrfToken: string, payload: { name: string; url: string; source_type: string; search_query?: string; check_interval_hours?: number }) {
+export async function createKnowledgeMonitor(
+  csrfToken: string,
+  payload: {
+    name: string;
+    url: string;
+    source_type: string;
+    search_query?: string;
+    check_interval_hours?: number;
+  },
+) {
   return request<Record<string, unknown>>("/knowledge/monitors", {
     method: "POST",
     headers: { "X-CSRF-Token": csrfToken },
@@ -826,14 +838,14 @@ export async function listConversations(params?: {
   if (params?.offset != null) qs.set("offset", String(params.offset));
   if (params?.include_total) qs.set("include_total", "1");
   const q = qs.toString();
-  const response = await request<Paginated<Conversation>>(
-    `/conversations${q ? `?${q}` : ""}`,
-  );
+  const response = await request<Paginated<Conversation>>(`/conversations${q ? `?${q}` : ""}`);
   return response.data;
 }
 export async function getConversation(id: number, limit?: number) {
   const qs = limit ? `?limit=${limit}` : "";
-  const response = await request<import("@/lib/types").ConversationDetail>(`/conversations/${id}${qs}`);
+  const response = await request<import("@/lib/types").ConversationDetail>(
+    `/conversations/${id}${qs}`,
+  );
   return response.data;
 }
 export async function sendConversationMessage(id: number, csrfToken: string, message: string) {
@@ -881,9 +893,7 @@ export type AcompanhamentoOverview = {
 };
 
 export async function getAcompanhamentoOverview() {
-  const response = await request<AcompanhamentoOverview>(
-    "/org/acompanhamento/overview",
-  );
+  const response = await request<AcompanhamentoOverview>("/org/acompanhamento/overview");
   return response.data;
 }
 
@@ -917,13 +927,19 @@ export async function listAgents() {
 }
 export async function getAgentDiary(agentName: string, lastN?: number) {
   const qs = lastN ? `?last_n=${lastN}` : "";
-  const response = await request<Record<string, unknown>[]>(`/admin/agents/${agentName}/diary${qs}`);
+  const response = await request<Record<string, unknown>[]>(
+    `/admin/agents/${agentName}/diary${qs}`,
+  );
   return response.data;
 }
 export async function getAgentSkills(agentName: string) {
   return request<Record<string, unknown>>(`/admin/agents/${agentName}/skills`);
 }
-export async function executeAgent(agentName: string, csrfToken: string, payload: Record<string, unknown>) {
+export async function executeAgent(
+  agentName: string,
+  csrfToken: string,
+  payload: Record<string, unknown>,
+) {
   return request<Record<string, unknown>>(`/admin/agents/${agentName}/execute`, {
     method: "POST",
     headers: { "X-CSRF-Token": csrfToken },
@@ -981,16 +997,13 @@ export async function uploadOnboardingDocument(
 
   // Nao usar request<T> aqui — FormData precisa que browser defina o
   // boundary do Content-Type sozinho. request<T> seta application/json.
-  const response = await fetch(
-    `${API_BASE_URL}/med/onboarding/upload/${field}`,
-    {
-      method: "POST",
-      headers: { "X-CSRF-Token": csrfToken },
-      body: formData,
-      credentials: "include",
-      cache: "no-store",
-    },
-  );
+  const response = await fetch(`${API_BASE_URL}/med/onboarding/upload/${field}`, {
+    method: "POST",
+    headers: { "X-CSRF-Token": csrfToken },
+    body: formData,
+    credentials: "include",
+    cache: "no-store",
+  });
 
   const raw = response.headers.get("content-type")?.includes("application/json")
     ? ((await response.json()) as ApiEnvelope<{ field: string; url: string }> | ApiFailure)

@@ -42,11 +42,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     return (
       <div className="ds-error-fallback" role="alert">
-        <div className="ds-error-fallback__icon" aria-hidden="true">!</div>
+        <div className="ds-error-fallback__icon" aria-hidden="true">
+          !
+        </div>
         <h2 className="ds-error-fallback__title">Algo deu errado</h2>
         <p className="ds-error-fallback__desc">
-          Ocorreu um erro inesperado nesta seção. Você pode tentar recarregar
-          ou voltar à página anterior.
+          Ocorreu um erro inesperado nesta seção. Você pode tentar recarregar ou voltar à página
+          anterior.
         </p>
         <div style={{ display: "flex", gap: "12px" }}>
           <Button onClick={this.reset} variant="primary" size="sm">

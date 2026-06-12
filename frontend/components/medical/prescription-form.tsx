@@ -114,7 +114,10 @@ export function PrescriptionForm({
         </button>
         <button
           type="button"
-          className={cn("ds-rx__type-btn", rxType === "azul" && "ds-rx__type-btn--active ds-rx__type-btn--azul")}
+          className={cn(
+            "ds-rx__type-btn",
+            rxType === "azul" && "ds-rx__type-btn--active ds-rx__type-btn--azul",
+          )}
           onClick={() => setRxType("azul")}
         >
           <span className="ds-rx__type-dot ds-rx__type-dot--azul" />

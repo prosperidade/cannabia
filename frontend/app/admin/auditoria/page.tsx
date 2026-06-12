@@ -50,9 +50,7 @@ function fmtDate(iso: string): string {
   });
 }
 
-function statusTone(
-  status: string,
-): "success" | "danger" | "warning" | "neutral" {
+function statusTone(status: string): "success" | "danger" | "warning" | "neutral" {
   if (status === "success") return "success";
   if (status === "error") return "danger";
   if (status === "security_blocked") return "warning";
@@ -110,12 +108,9 @@ function computeCostBreakdown(logs: AiAuditLog[]) {
   }
 
   const totalCost = logs.reduce((s, l) => s + l.estimated_cost_usd, 0);
-  const avgCostPerExec =
-    logs.length > 0 ? totalCost / logs.length : 0;
+  const avgCostPerExec = logs.length > 0 ? totalCost / logs.length : 0;
 
-  const sortedDays = Object.entries(byDay).sort(([a], [b]) =>
-    a.localeCompare(b),
-  );
+  const sortedDays = Object.entries(byDay).sort(([a], [b]) => a.localeCompare(b));
 
   return { byModel, sortedDays, avgCostPerExec, totalCost };
 }
@@ -166,10 +161,7 @@ export default function AuditoriaPage() {
         setHasMore(result.recent_logs.has_more);
         setOffset(nextOffset + result.recent_logs.items.length);
       } catch (err) {
-        const message =
-          err instanceof ApiError
-            ? err.message
-            : "Falha ao carregar metricas de IA.";
+        const message = err instanceof ApiError ? err.message : "Falha ao carregar metricas de IA.";
         setError(message);
       } finally {
         setLoading(false);
@@ -206,10 +198,7 @@ export default function AuditoriaPage() {
       : "0"
     : "--";
 
-  const costBreakdown = useMemo(
-    () => computeCostBreakdown(logs),
-    [logs],
-  );
+  const costBreakdown = useMemo(() => computeCostBreakdown(logs), [logs]);
 
   /* ── Table columns ── */
   const columns: DataTableColumn[] = useMemo(
@@ -219,9 +208,7 @@ export default function AuditoriaPage() {
         label: "Data/Hora",
         sortable: true,
         render: (val) => (
-          <span className="text-stone-400 font-medium text-sm">
-            {fmtDate(String(val))}
-          </span>
+          <span className="text-stone-400 font-medium text-sm">{fmtDate(String(val))}</span>
         ),
       },
       {
@@ -231,9 +218,7 @@ export default function AuditoriaPage() {
         render: (val) => (
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary" />
-            <span className="text-on-surface font-semibold text-sm">
-              {String(val)}
-            </span>
+            <span className="text-on-surface font-semibold text-sm">{String(val)}</span>
           </div>
         ),
       },
@@ -246,12 +231,7 @@ export default function AuditoriaPage() {
           const isGpt = model.toLowerCase().includes("gpt");
           return (
             <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "w-2 h-2 rounded-full",
-                  isGpt ? "bg-primary" : "bg-secondary",
-                )}
-              />
+              <span className={cn("w-2 h-2 rounded-full", isGpt ? "bg-primary" : "bg-secondary")} />
               <span className="text-sm">{model}</span>
             </div>
           );
@@ -272,9 +252,7 @@ export default function AuditoriaPage() {
         label: "Custo",
         sortable: true,
         render: (val) => (
-          <span className="text-on-surface text-sm font-mono">
-            {fmtCurrency(Number(val))}
-          </span>
+          <span className="text-on-surface text-sm font-mono">{fmtCurrency(Number(val))}</span>
         ),
       },
       {
@@ -283,28 +261,21 @@ export default function AuditoriaPage() {
         sortable: true,
         render: (_val, row) => {
           const log = row as unknown as AiAuditLog;
-          return (
-            <Badge tone={statusTone(log.status)}>{statusLabel(log.status)}</Badge>
-          );
+          return <Badge tone={statusTone(log.status)}>{statusLabel(log.status)}</Badge>;
         },
       },
       {
         key: "patient_id",
         label: "Paciente",
         render: (val) => (
-          <span className="text-stone-500 text-sm">
-            {val ? `Cod. ${val}` : "--"}
-          </span>
+          <span className="text-stone-500 text-sm">{val ? `Cod. ${val}` : "--"}</span>
         ),
       },
     ],
     [],
   );
 
-  const tableData = useMemo(
-    () => logs as unknown as Record<string, unknown>[],
-    [logs],
-  );
+  const tableData = useMemo(() => logs as unknown as Record<string, unknown>[], [logs]);
 
   /* ── Max bar height for chart ── */
   const maxDayCost = useMemo(() => {
@@ -328,8 +299,7 @@ export default function AuditoriaPage() {
             </span>
           </h1>
           <p className="text-on-surface-variant max-w-xl">
-            Monitoramento de custos, uso de IA e precisao dos modelos de
-            analise em producao.
+            Monitoramento de custos, uso de IA e precisao dos modelos de analise em producao.
           </p>
         </div>
         <div className="flex gap-3 shrink-0">
@@ -362,11 +332,7 @@ export default function AuditoriaPage() {
 
         {/* Days filter */}
         <div className="glass-panel px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-          <MaterialIcon
-            icon="calendar_month"
-            size="sm"
-            className="text-primary"
-          />
+          <MaterialIcon icon="calendar_month" size="sm" className="text-primary" />
           <select
             value={daysFilter}
             onChange={(e) => setDaysFilter(Number(e.target.value))}
@@ -413,17 +379,10 @@ export default function AuditoriaPage() {
           <div className="flex items-center gap-3">
             <MaterialIcon icon="error" className="text-error" />
             <div>
-              <p className="text-sm font-bold text-error">
-                Erro ao carregar dados
-              </p>
+              <p className="text-sm font-bold text-error">Erro ao carregar dados</p>
               <p className="text-xs text-on-surface-variant">{error}</p>
             </div>
-            <Button
-              variant="danger"
-              size="sm"
-              className="ml-auto"
-              onClick={() => void fetchData()}
-            >
+            <Button variant="danger" size="sm" className="ml-auto" onClick={() => void fetchData()}>
               Tentar novamente
             </Button>
           </div>
@@ -434,10 +393,7 @@ export default function AuditoriaPage() {
       {loading && !data && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="glass-panel rounded-2xl p-5 h-28 animate-pulse"
-            />
+            <div key={i} className="glass-panel rounded-2xl p-5 h-28 animate-pulse" />
           ))}
         </div>
       )}
@@ -478,11 +434,7 @@ export default function AuditoriaPage() {
               </span>
               <Badge tone="success">{successRate}%</Badge>
             </div>
-            <ProgressBar
-              value={Number(successRate)}
-              variant="success"
-              glow
-            />
+            <ProgressBar value={Number(successRate)} variant="success" glow />
             <p className="text-xs text-stone-500 mt-2">
               {summary.sucessos} de {summary.total_execucoes} analises
             </p>
@@ -496,9 +448,7 @@ export default function AuditoriaPage() {
               <Badge tone="danger">{errorRate}%</Badge>
             </div>
             <ProgressBar value={Number(errorRate)} variant="danger" />
-            <p className="text-xs text-stone-500 mt-2">
-              {summary.erros} erros registrados
-            </p>
+            <p className="text-xs text-stone-500 mt-2">{summary.erros} erros registrados</p>
           </Card>
 
           <Card variant="glass" padding="md">
@@ -525,44 +475,32 @@ export default function AuditoriaPage() {
               Custo por Modelo
             </h3>
             <div className="space-y-5">
-              {Object.entries(costBreakdown.byModel).map(
-                ([model, info]) => {
-                  const pct =
-                    costBreakdown.totalCost > 0
-                      ? (info.cost / costBreakdown.totalCost) * 100
-                      : 0;
-                  const isGpt = model.toLowerCase().includes("gpt");
-                  return (
-                    <div key={model} className="space-y-2">
-                      <div className="flex justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "w-2.5 h-2.5 rounded-full",
-                              isGpt ? "bg-primary" : "bg-secondary",
-                            )}
-                          />
-                          <span className="text-on-surface font-medium">
-                            {model}
-                          </span>
-                        </div>
-                        <span className="text-on-surface font-mono">
-                          {fmtCurrency(info.cost)}
-                        </span>
+              {Object.entries(costBreakdown.byModel).map(([model, info]) => {
+                const pct =
+                  costBreakdown.totalCost > 0 ? (info.cost / costBreakdown.totalCost) * 100 : 0;
+                const isGpt = model.toLowerCase().includes("gpt");
+                return (
+                  <div key={model} className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            "w-2.5 h-2.5 rounded-full",
+                            isGpt ? "bg-primary" : "bg-secondary",
+                          )}
+                        />
+                        <span className="text-on-surface font-medium">{model}</span>
                       </div>
-                      <ProgressBar
-                        value={pct}
-                        variant={isGpt ? "primary" : "success"}
-                        size="sm"
-                      />
-                      <div className="flex justify-between text-[10px] text-stone-500">
-                        <span>{info.count} analises</span>
-                        <span>{fmtTokens(info.tokens)} creditos</span>
-                      </div>
+                      <span className="text-on-surface font-mono">{fmtCurrency(info.cost)}</span>
                     </div>
-                  );
-                },
-              )}
+                    <ProgressBar value={pct} variant={isGpt ? "primary" : "success"} size="sm" />
+                    <div className="flex justify-between text-[10px] text-stone-500">
+                      <span>{info.count} analises</span>
+                      <span>{fmtTokens(info.tokens)} creditos</span>
+                    </div>
+                  </div>
+                );
+              })}
 
               {Object.keys(costBreakdown.byModel).length === 0 && (
                 <p className="text-sm text-stone-500">Sem dados disponiveis.</p>
@@ -581,11 +519,7 @@ export default function AuditoriaPage() {
                 <span className="text-stone-500">Projecao mensal</span>
                 <span className="text-primary font-mono font-bold">
                   {summary
-                    ? fmtCurrency(
-                        (summary.total_cost_usd /
-                          Math.max(daysFilter || 30, 1)) *
-                          30,
-                      )
+                    ? fmtCurrency((summary.total_cost_usd / Math.max(daysFilter || 30, 1)) * 30)
                     : "--"}
                 </span>
               </div>
@@ -615,10 +549,7 @@ export default function AuditoriaPage() {
                   {costBreakdown.sortedDays.map(([day, cost]) => {
                     const heightPct = (cost / maxDayCost) * 100;
                     return (
-                      <div
-                        key={day}
-                        className="flex-1 min-w-[12px] group relative"
-                      >
+                      <div key={day} className="flex-1 min-w-[12px] group relative">
                         <div
                           className="w-full bg-primary/20 rounded-t-sm hover:bg-primary/40 transition-all"
                           style={{ height: `${Math.max(heightPct, 2)}%` }}
@@ -632,13 +563,10 @@ export default function AuditoriaPage() {
                   })}
                 </div>
                 <div className="flex justify-between mt-3 text-[10px] text-stone-600 font-bold uppercase tracking-widest">
+                  <span>{costBreakdown.sortedDays[0]?.[0]?.slice(5) ?? ""}</span>
                   <span>
-                    {costBreakdown.sortedDays[0]?.[0]?.slice(5) ?? ""}
-                  </span>
-                  <span>
-                    {costBreakdown.sortedDays[
-                      costBreakdown.sortedDays.length - 1
-                    ]?.[0]?.slice(5) ?? ""}
+                    {costBreakdown.sortedDays[costBreakdown.sortedDays.length - 1]?.[0]?.slice(5) ??
+                      ""}
                   </span>
                 </div>
               </>
@@ -660,11 +588,7 @@ export default function AuditoriaPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <MaterialIcon
-                  icon="check_circle"
-                  filled
-                  className="text-emerald-400"
-                />
+                <MaterialIcon icon="check_circle" filled className="text-emerald-400" />
               </div>
               <div>
                 <p className="text-xl font-bold text-on-surface font-headline">
@@ -681,9 +605,7 @@ export default function AuditoriaPage() {
                 <MaterialIcon icon="error" filled className="text-error" />
               </div>
               <div>
-                <p className="text-xl font-bold text-on-surface font-headline">
-                  {summary.erros}
-                </p>
+                <p className="text-xl font-bold text-on-surface font-headline">{summary.erros}</p>
                 <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
                   Erros
                 </p>
@@ -692,11 +614,7 @@ export default function AuditoriaPage() {
 
             <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-amber-400/10 flex items-center justify-center">
-                <MaterialIcon
-                  icon="shield"
-                  filled
-                  className="text-amber-400"
-                />
+                <MaterialIcon icon="shield" filled className="text-amber-400" />
               </div>
               <div>
                 <p className="text-xl font-bold text-on-surface font-headline">
@@ -710,11 +628,7 @@ export default function AuditoriaPage() {
 
             <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MaterialIcon
-                  icon="speed"
-                  filled
-                  className="text-primary"
-                />
+                <MaterialIcon icon="speed" filled className="text-primary" />
               </div>
               <div>
                 <p className="text-xl font-bold text-on-surface font-headline">
@@ -734,23 +648,14 @@ export default function AuditoriaPage() {
         <Card variant="outline" padding="md" className="border-primary/20">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <div className="bg-primary/20 p-2 rounded-full shrink-0">
-              <MaterialIcon
-                icon="warning"
-                filled
-                className="text-primary"
-              />
+              <MaterialIcon icon="warning" filled className="text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-on-surface">
-                Alerta de Orcamento
-              </p>
+              <p className="text-sm font-bold text-on-surface">Alerta de Orcamento</p>
               <p className="text-xs text-stone-400 mt-1">
                 Projecao mensal:{" "}
                 <span className="text-primary font-bold">
-                  {fmtCurrency(
-                    (summary.total_cost_usd / Math.max(daysFilter || 30, 1)) *
-                      30,
-                  )}
+                  {fmtCurrency((summary.total_cost_usd / Math.max(daysFilter || 30, 1)) * 30)}
                 </span>
                 . Monitore o consumo e ajuste limites conforme necessario.
               </p>
@@ -765,9 +670,7 @@ export default function AuditoriaPage() {
       {/* ── Recent Executions Log Table ── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold font-headline text-on-surface">
-            Analises Recentes
-          </h3>
+          <h3 className="text-lg font-bold font-headline text-on-surface">Analises Recentes</h3>
           <span className="text-xs text-stone-500">
             {logs.length} registro{logs.length !== 1 ? "s" : ""}
             {hasMore ? " (+)" : ""}
@@ -780,9 +683,7 @@ export default function AuditoriaPage() {
             columns={columns}
             data={tableData}
             emptyMessage={
-              loading
-                ? "Carregando..."
-                : "Nenhuma analise encontrada para os filtros selecionados."
+              loading ? "Carregando..." : "Nenhuma analise encontrada para os filtros selecionados."
             }
           />
         </div>
@@ -791,9 +692,7 @@ export default function AuditoriaPage() {
         <div className="md:hidden space-y-3">
           {logs.length === 0 && !loading && (
             <Card variant="glass" padding="md">
-              <p className="text-sm text-stone-500 text-center">
-                Nenhuma analise encontrada.
-              </p>
+              <p className="text-sm text-stone-500 text-center">Nenhuma analise encontrada.</p>
             </Card>
           )}
           {logs.map((log) => (
@@ -811,16 +710,10 @@ export default function AuditoriaPage() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center">
-                    <MaterialIcon
-                      icon="smart_toy"
-                      size="sm"
-                      className="text-primary"
-                    />
+                    <MaterialIcon icon="smart_toy" size="sm" className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-on-surface">
-                      {log.endpoint}
-                    </p>
+                    <p className="text-sm font-bold text-on-surface">{log.endpoint}</p>
                     <p className="text-[10px] text-stone-500">
                       {fmtDate(log.created_at)} - {log.model}
                     </p>
@@ -836,13 +729,9 @@ export default function AuditoriaPage() {
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <Badge tone={statusTone(log.status)}>
-                  {statusLabel(log.status)}
-                </Badge>
+                <Badge tone={statusTone(log.status)}>{statusLabel(log.status)}</Badge>
                 {log.patient_id && (
-                  <span className="text-[10px] text-stone-500">
-                    Cod. paciente {log.patient_id}
-                  </span>
+                  <span className="text-[10px] text-stone-500">Cod. paciente {log.patient_id}</span>
                 )}
               </div>
               {log.error_message && (

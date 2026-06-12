@@ -19,7 +19,11 @@ export function Table({ className, children, ...props }: TableProps) {
 
 /* ─── Sections ─────────────────────────────────────────────────────── */
 
-export function TableHeader({ className, children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
+export function TableHeader({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead className={cn("ds-table__head", className)} {...props}>
       {children}
@@ -27,7 +31,11 @@ export function TableHeader({ className, children, ...props }: HTMLAttributes<HT
   );
 }
 
-export function TableBody({ className, children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
+export function TableBody({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <tbody className={cn("ds-table__body", className)} {...props}>
       {children}
@@ -84,7 +92,11 @@ export function TableHeadCell({
   );
 }
 
-export function TableCell({ className, children, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
+export function TableCell({
+  className,
+  children,
+  ...props
+}: TdHTMLAttributes<HTMLTableCellElement>) {
   return (
     <td className={cn("ds-table__td", className)} {...props}>
       {children}

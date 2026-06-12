@@ -8,13 +8,7 @@ import { cn } from "@/lib/cn";
 import { listAttendances, createTriageLink, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 import type { AttendanceListItem } from "@/lib/types";
-import {
-  MaterialIcon,
-  Badge,
-  Button,
-  SearchBar,
-  StatCard,
-} from "@/components/ui-tw";
+import { MaterialIcon, Badge, Button, SearchBar, StatCard } from "@/components/ui-tw";
 
 /* ---------------------------------------------------------------------------
  * Types & helpers
@@ -74,7 +68,10 @@ const RISK_CONFIG = {
   },
 } as const;
 
-const STATUS_BADGE: Record<string, { label: string; tone: "primary" | "success" | "warning" | "danger" | "neutral" }> = {
+const STATUS_BADGE: Record<
+  string,
+  { label: string; tone: "primary" | "success" | "warning" | "danger" | "neutral" }
+> = {
   processado: { label: "Processado", tone: "success" },
   revisado: { label: "Revisado pelo medico", tone: "primary" },
   pendente: { label: "Aguardando revisao", tone: "warning" },
@@ -139,22 +136,25 @@ export default function FilaDeAtendimentoPage() {
   }, [session.loading, session.data, router]);
 
   // Fetch attendances — Sprint 3 Page-Migration: envelope `Paginated<T>`
-  const fetchAttendances = useCallback(async (opts?: { append?: boolean }) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const nextOffset = opts?.append ? offset : 0;
-      const env = await listAttendances({ limit: 50, offset: nextOffset });
-      setAttendances((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
-      setHasMore(env.has_more);
-      setOffset(nextOffset + env.items.length);
-    } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Falha ao carregar a fila.";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [offset]);
+  const fetchAttendances = useCallback(
+    async (opts?: { append?: boolean }) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const nextOffset = opts?.append ? offset : 0;
+        const env = await listAttendances({ limit: 50, offset: nextOffset });
+        setAttendances((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
+        setHasMore(env.has_more);
+        setOffset(nextOffset + env.items.length);
+      } catch (err) {
+        const msg = err instanceof ApiError ? err.message : "Falha ao carregar a fila.";
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [offset],
+  );
 
   const loadMore = useCallback(() => {
     void fetchAttendances({ append: true });
@@ -194,9 +194,7 @@ export default function FilaDeAtendimentoPage() {
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       items = items.filter(
-        (a) =>
-          a.patient_name.toLowerCase().includes(q) ||
-          a.phone.toLowerCase().includes(q),
+        (a) => a.patient_name.toLowerCase().includes(q) || a.phone.toLowerCase().includes(q),
       );
     }
 
@@ -212,8 +210,10 @@ export default function FilaDeAtendimentoPage() {
 
     // Sort
     items.sort((a, b) => {
-      if (sortMode === "newest") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sortMode === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (sortMode === "newest")
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sortMode === "oldest")
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       // risk: higher risk first
       return RISK_CONFIG[deriveRiskLevel(a)].sortOrder - RISK_CONFIG[deriveRiskLevel(b)].sortOrder;
     });
@@ -225,7 +225,9 @@ export default function FilaDeAtendimentoPage() {
   const stats = useMemo(() => {
     const total = attendances.length;
     const aguardando = attendances.filter((a) => normaliseStatus(a.status) === "pendente").length;
-    const emAtendimento = attendances.filter((a) => normaliseStatus(a.status) === "em_revisao").length;
+    const emAtendimento = attendances.filter(
+      (a) => normaliseStatus(a.status) === "em_revisao",
+    ).length;
     const finalizados = attendances.filter((a) => normaliseStatus(a.status) === "revisado").length;
     return { total, aguardando, emAtendimento, finalizados };
   }, [attendances]);
@@ -266,9 +268,7 @@ export default function FilaDeAtendimentoPage() {
             Gerar Link de Triagem
           </Button>
         </div>
-        {linkFeedback ? (
-          <p className="text-xs text-stone-400">{linkFeedback}</p>
-        ) : null}
+        {linkFeedback ? <p className="text-xs text-stone-400">{linkFeedback}</p> : null}
       </div>
 
       {/* ------------------------------------------------------------------ */}
@@ -359,7 +359,12 @@ export default function FilaDeAtendimentoPage() {
         <div className="glass-panel rounded-2xl p-8 text-center space-y-4">
           <MaterialIcon icon="error_outline" size="xl" className="text-error" />
           <p className="text-stone-400">{error}</p>
-          <Button variant="secondary" size="sm" icon="refresh" onClick={() => void fetchAttendances()}>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon="refresh"
+            onClick={() => void fetchAttendances()}
+          >
             Tentar novamente
           </Button>
         </div>
@@ -373,7 +378,8 @@ export default function FilaDeAtendimentoPage() {
             Nenhum paciente na fila
           </h3>
           <p className="text-sm text-stone-600 max-w-md mx-auto">
-            Quando novos pacientes completarem a triagem pelo WhatsApp, eles aparecerao aqui automaticamente.
+            Quando novos pacientes completarem a triagem pelo WhatsApp, eles aparecerao aqui
+            automaticamente.
           </p>
         </div>
       ) : (
@@ -441,9 +447,7 @@ function PatientQueueCard({ item }: { item: AttendanceListItem }) {
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-lg font-bold text-on-surface truncate">
-                {item.patient_name}
-              </h3>
+              <h3 className="text-lg font-bold text-on-surface truncate">{item.patient_name}</h3>
               <span className="text-xs text-stone-500 font-mono shrink-0">{item.phone}</span>
             </div>
 
@@ -537,7 +541,9 @@ function PatientQueueCard({ item }: { item: AttendanceListItem }) {
             <p className="text-xs text-stone-500 mt-0.5 truncate">{item.phone}</p>
 
             <div className="flex items-center gap-3 mt-2 flex-wrap">
-              <Badge tone={statusCfg.tone} className="text-[9px]">{statusCfg.label}</Badge>
+              <Badge tone={statusCfg.tone} className="text-[9px]">
+                {statusCfg.label}
+              </Badge>
               <span className="flex items-center gap-1 text-[10px] text-stone-500">
                 <MaterialIcon icon="schedule" size="sm" className="text-[11px]" />
                 {waitTime}
@@ -551,11 +557,7 @@ function PatientQueueCard({ item }: { item: AttendanceListItem }) {
 
         {/* Action */}
         <Link href={`/med/consulta/${item.id}`} className="block">
-          <Button
-            size="sm"
-            icon="play_arrow"
-            className="w-full"
-          >
+          <Button size="sm" icon="play_arrow" className="w-full">
             Atender
           </Button>
         </Link>

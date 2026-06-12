@@ -9,11 +9,7 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, padding = "md", children, ...props }, ref) => {
     return (
-      <div
-        className={cn("ds-card", `ds-card--pad-${padding}`, className)}
-        ref={ref}
-        {...props}
-      >
+      <div className={cn("ds-card", `ds-card--pad-${padding}`, className)} ref={ref} {...props}>
         {children}
       </div>
     );

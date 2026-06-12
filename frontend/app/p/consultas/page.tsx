@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getPatientAppointments } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  MaterialIcon,
-} from "@/components/ui-tw";
+import { Card, Badge, MaterialIcon } from "@/components/ui-tw";
 
 type Appointment = {
   id: number;
@@ -41,9 +37,7 @@ function ApptCard({ appt }: { appt: Appointment }) {
           <p className="text-[10px] uppercase tracking-widest font-bold text-primary/80">
             {appt.modality}
           </p>
-          <h3 className="text-lg font-headline font-bold mt-1">
-            {appt.date}
-          </h3>
+          <h3 className="text-lg font-headline font-bold mt-1">{appt.date}</h3>
           <p className="text-sm text-on-surface-variant">
             {appt.time} &bull; {appt.doctor}
           </p>
@@ -51,9 +45,7 @@ function ApptCard({ appt }: { appt: Appointment }) {
         <Badge tone={statusTone(appt.status)}>{appt.status}</Badge>
       </div>
       {appt.notes && (
-        <p className="text-xs text-on-surface-variant border-t border-white/5 pt-3">
-          {appt.notes}
-        </p>
+        <p className="text-xs text-on-surface-variant border-t border-white/5 pt-3">{appt.notes}</p>
       )}
     </Card>
   );
@@ -81,7 +73,9 @@ export default function PatientConsultasPage() {
       }
     }
     fetchData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -147,7 +141,9 @@ export default function PatientConsultasPage() {
               </Card>
             ) : (
               <div className="space-y-3">
-                {data.upcoming.map((a) => <ApptCard key={a.id} appt={a} />)}
+                {data.upcoming.map((a) => (
+                  <ApptCard key={a.id} appt={a} />
+                ))}
               </div>
             )}
           </section>
@@ -165,7 +161,9 @@ export default function PatientConsultasPage() {
               </Card>
             ) : (
               <div className="space-y-3">
-                {data.past.map((a) => <ApptCard key={a.id} appt={a} />)}
+                {data.past.map((a) => (
+                  <ApptCard key={a.id} appt={a} />
+                ))}
               </div>
             )}
           </section>

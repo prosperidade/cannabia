@@ -4,14 +4,7 @@ import { useState, useEffect } from "react";
 import { useSystemStatus } from "@/lib/use-system-status";
 import { getAdminStats } from "@/lib/api";
 import { cn } from "@/lib/cn";
-import {
-  StatCard,
-  Badge,
-  Card,
-  Button,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { StatCard, Badge, Card, Button, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ── Helpers ── */
 
@@ -65,7 +58,15 @@ const SYSTEM_FEATURES = [
 interface AdminStats {
   total_tenants: number;
   total_users: number;
-  ai_data: { summary: { total_requests: number; total_tokens: number; total_cost_usd: number; avg_latency_ms: number }; recent_logs: unknown[] };
+  ai_data: {
+    summary: {
+      total_requests: number;
+      total_tokens: number;
+      total_cost_usd: number;
+      avg_latency_ms: number;
+    };
+    recent_logs: unknown[];
+  };
 }
 
 export default function AdminOverviewPage() {
@@ -86,7 +87,9 @@ export default function AdminOverviewPage() {
       .finally(() => {
         if (!cancelled) setStatsLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -105,12 +108,7 @@ export default function AdminOverviewPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            icon="refresh"
-            onClick={status.refresh}
-          >
+          <Button variant="ghost" size="sm" icon="refresh" onClick={status.refresh}>
             Atualizar
           </Button>
           <Button variant="primary" size="sm" icon="build">
@@ -151,7 +149,12 @@ export default function AdminOverviewPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.keys(status.components).length > 0
             ? Object.entries(status.components).map(([name, comp]) => (
-                <Card key={name} variant="glass" padding="md" className="relative overflow-hidden group">
+                <Card
+                  key={name}
+                  variant="glass"
+                  padding="md"
+                  className="relative overflow-hidden group"
+                >
                   <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-colors" />
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -185,19 +188,26 @@ export default function AdminOverviewPage() {
                 </Card>
               ))
             : /* Fallback mock cards when no components data */
-              ["Camada de Servicos", "Banco de Dados", "Analise Inteligente", "Cache"].map((label) => (
-                <Card key={label} variant="glass" padding="md" className="relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl" />
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                      {label}
-                    </span>
-                    <span className="h-2.5 w-2.5 rounded-full bg-stone-600" />
-                  </div>
-                  <div className="text-2xl font-bold font-headline text-stone-500 mb-1">--</div>
-                  <Badge tone="neutral">Verificando...</Badge>
-                </Card>
-              ))}
+              ["Camada de Servicos", "Banco de Dados", "Analise Inteligente", "Cache"].map(
+                (label) => (
+                  <Card
+                    key={label}
+                    variant="glass"
+                    padding="md"
+                    className="relative overflow-hidden group"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl" />
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+                        {label}
+                      </span>
+                      <span className="h-2.5 w-2.5 rounded-full bg-stone-600" />
+                    </div>
+                    <div className="text-2xl font-bold font-headline text-stone-500 mb-1">--</div>
+                    <Badge tone="neutral">Verificando...</Badge>
+                  </Card>
+                ),
+              )}
         </div>
         {status.lastChecked && (
           <p className="text-[11px] text-stone-500 mt-3">
@@ -223,7 +233,11 @@ export default function AdminOverviewPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon="apartment" label="Total Organizacoes" value={adminStats?.total_tenants ?? "--"} />
+            <StatCard
+              icon="apartment"
+              label="Total Organizacoes"
+              value={adminStats?.total_tenants ?? "--"}
+            />
             <StatCard icon="group" label="Total Usuarios" value={adminStats?.total_users ?? "--"} />
             <StatCard
               icon="psychology"

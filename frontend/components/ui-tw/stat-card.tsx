@@ -31,12 +31,7 @@ export function StatCard({
   className,
 }: StatCardProps) {
   return (
-    <div
-      className={cn(
-        "glass-panel rounded-2xl p-5 flex flex-col gap-3",
-        className,
-      )}
-    >
+    <div className={cn("glass-panel rounded-2xl p-5 flex flex-col gap-3", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
           <MaterialIcon icon={icon} size="lg" className="text-primary" />

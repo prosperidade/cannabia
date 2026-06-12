@@ -8,12 +8,7 @@ import { cn } from "@/lib/cn";
 import { getAttendance, saveMedicalRecord, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 import type { AttendanceDetail, MedicalRecordEntry, MedicalRecordPayload } from "@/lib/types";
-import {
-  MaterialIcon,
-  Badge,
-  Button,
-  Card,
-} from "@/components/ui-tw";
+import { MaterialIcon, Badge, Button, Card } from "@/components/ui-tw";
 
 /* ---------------------------------------------------------------------------
  * Helpers
@@ -49,9 +44,7 @@ function PreviousNoteItem({ entry }: { entry: MedicalRecordEntry }) {
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-bold text-on-surface truncate">
-              {entry.title}
-            </h4>
+            <h4 className="text-sm font-bold text-on-surface truncate">{entry.title}</h4>
             <Badge tone="neutral">{entry.status}</Badge>
           </div>
           <div className="flex items-center gap-3 mt-1 text-[10px] text-stone-500">
@@ -170,13 +163,10 @@ function NotesForm({
   const [form, setForm] = useState<FormData>(() => {
     if (consultationEntry) {
       return {
-        medical_observations:
-          consultationEntry.medical_observations ?? "",
-        clinical_assessment:
-          consultationEntry.clinical_assessment ?? "",
+        medical_observations: consultationEntry.medical_observations ?? "",
+        clinical_assessment: consultationEntry.clinical_assessment ?? "",
         conduct: consultationEntry.conduct ?? "",
-        requested_exams_text:
-          consultationEntry.requested_exams.join(", "),
+        requested_exams_text: consultationEntry.requested_exams.join(", "),
         follow_up_plan: consultationEntry.follow_up_plan ?? "",
       };
     }
@@ -188,9 +178,7 @@ function NotesForm({
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Collapsible sections for mobile
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     observations: true,
     assessment: true,
     conduct: true,
@@ -202,10 +190,7 @@ function NotesForm({
     setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function handleChange(
-    field: keyof FormData,
-    value: string,
-  ) {
+  function handleChange(field: keyof FormData, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setSaveSuccess(false);
     setSaveError(null);
@@ -234,10 +219,7 @@ function NotesForm({
       setSaveSuccess(true);
       onSaved();
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao salvar notas medicas.";
+      const message = err instanceof ApiError ? err.message : "Falha ao salvar notas medicas.";
       setSaveError(message);
     } finally {
       setSaving(false);
@@ -268,8 +250,7 @@ function NotesForm({
       label: "Conduta",
       icon: "clinical_notes",
       field: "conduct" as keyof FormData,
-      placeholder:
-        "Descreva a conduta adotada, ajustes de dosagem, orientacoes ao paciente...",
+      placeholder: "Descreva a conduta adotada, ajustes de dosagem, orientacoes ao paciente...",
       rows: 4,
     },
     {
@@ -277,8 +258,7 @@ function NotesForm({
       label: "Exames Solicitados",
       icon: "biotech",
       field: "requested_exams_text" as keyof FormData,
-      placeholder:
-        "Hemograma completo, Vitamina D, Perfil hepatico (separe por virgula)",
+      placeholder: "Hemograma completo, Vitamina D, Perfil hepatico (separe por virgula)",
       rows: 2,
     },
     {
@@ -286,8 +266,7 @@ function NotesForm({
       label: "Plano de Acompanhamento",
       icon: "event_repeat",
       field: "follow_up_plan" as keyof FormData,
-      placeholder:
-        "Retorno em 30 dias, reavaliar dosagem, monitorar efeitos colaterais...",
+      placeholder: "Retorno em 30 dias, reavaliar dosagem, monitorar efeitos colaterais...",
       rows: 3,
     },
   ];
@@ -308,14 +287,8 @@ function NotesForm({
               className="w-full flex items-center justify-between p-4 md:cursor-default"
             >
               <div className="flex items-center gap-2">
-                <MaterialIcon
-                  icon={section.icon}
-                  size="sm"
-                  className="text-primary"
-                />
-                <h4 className="text-sm font-bold text-on-surface">
-                  {section.label}
-                </h4>
+                <MaterialIcon icon={section.icon} size="sm" className="text-primary" />
+                <h4 className="text-sm font-bold text-on-surface">{section.label}</h4>
               </div>
               <MaterialIcon
                 icon={isExpanded ? "expand_less" : "expand_more"}
@@ -325,17 +298,10 @@ function NotesForm({
             </button>
 
             {/* Section content */}
-            <div
-              className={cn(
-                "px-4 pb-4 transition-all",
-                !isExpanded && "hidden md:block",
-              )}
-            >
+            <div className={cn("px-4 pb-4 transition-all", !isExpanded && "hidden md:block")}>
               <textarea
                 value={form[section.field]}
-                onChange={(e) =>
-                  handleChange(section.field, e.target.value)
-                }
+                onChange={(e) => handleChange(section.field, e.target.value)}
                 placeholder={section.placeholder}
                 rows={section.rows}
                 className={cn(
@@ -411,9 +377,7 @@ export default function NotasMedicasPage() {
       setDetail(data);
     } catch (err) {
       const message =
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao carregar dados do atendimento.";
+        err instanceof ApiError ? err.message : "Falha ao carregar dados do atendimento.";
       setError(message);
     } finally {
       setLoading(false);
@@ -430,9 +394,7 @@ export default function NotasMedicasPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <p className="text-stone-500 text-sm font-medium">
-            Carregando notas...
-          </p>
+          <p className="text-stone-500 text-sm font-medium">Carregando notas...</p>
         </div>
       </div>
     );
@@ -443,32 +405,14 @@ export default function NotasMedicasPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Card variant="glass" padding="lg" className="max-w-md text-center">
-          <MaterialIcon
-            icon="error_outline"
-            size="xl"
-            className="text-error mb-4"
-          />
-          <h3 className="text-lg font-bold text-on-surface mb-2">
-            Erro ao Carregar
-          </h3>
-          <p className="text-sm text-stone-400 mb-4">
-            {error ?? "Atendimento nao encontrado."}
-          </p>
+          <MaterialIcon icon="error_outline" size="xl" className="text-error mb-4" />
+          <h3 className="text-lg font-bold text-on-surface mb-2">Erro ao Carregar</h3>
+          <p className="text-sm text-stone-400 mb-4">{error ?? "Atendimento nao encontrado."}</p>
           <div className="flex justify-center gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              icon="arrow_back"
-              onClick={() => router.back()}
-            >
+            <Button variant="secondary" size="sm" icon="arrow_back" onClick={() => router.back()}>
               Voltar
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              icon="refresh"
-              onClick={() => void loadData()}
-            >
+            <Button variant="primary" size="sm" icon="refresh" onClick={() => void loadData()}>
               Tentar Novamente
             </Button>
           </div>
@@ -478,25 +422,18 @@ export default function NotasMedicasPage() {
   }
 
   const previousEntries = [...detail.medical_record_entries].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
   return (
     <section className="space-y-6 md:space-y-8 pb-8 max-w-4xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-stone-500">
-        <Link
-          href="/med/atendimentos"
-          className="hover:text-primary transition-colors"
-        >
+        <Link href="/med/atendimentos" className="hover:text-primary transition-colors">
           Atendimentos
         </Link>
         <MaterialIcon icon="chevron_right" size="sm" />
-        <Link
-          href={`/med/prontuario/${id}`}
-          className="hover:text-primary transition-colors"
-        >
+        <Link href={`/med/prontuario/${id}`} className="hover:text-primary transition-colors">
           Prontuario
         </Link>
         <MaterialIcon icon="chevron_right" size="sm" />
@@ -511,12 +448,8 @@ export default function NotasMedicasPage() {
           </h1>
           <p className="text-sm text-stone-400 mt-1">
             Paciente:{" "}
-            <span className="text-on-surface font-medium">
-              {detail.report.patient_name}
-            </span>
-            <span className="text-stone-600 ml-2">
-              Cod. {detail.report.patient_id ?? id}
-            </span>
+            <span className="text-on-surface font-medium">{detail.report.patient_name}</span>
+            <span className="text-stone-600 ml-2">Cod. {detail.report.patient_id ?? id}</span>
           </p>
         </div>
         <Badge
@@ -536,9 +469,7 @@ export default function NotasMedicasPage() {
       <Card variant="glass" padding="lg" className="rounded-3xl">
         <div className="flex items-center gap-2 mb-6">
           <MaterialIcon icon="edit_note" className="text-primary" filled />
-          <h2 className="text-lg font-bold font-headline text-on-surface">
-            Nova Nota
-          </h2>
+          <h2 className="text-lg font-bold font-headline text-on-surface">Nova Nota</h2>
         </div>
         <NotesForm
           attendanceId={id}
@@ -553,9 +484,7 @@ export default function NotasMedicasPage() {
         <Card variant="glass" padding="lg" className="rounded-3xl space-y-4">
           <div className="flex items-center gap-2">
             <MaterialIcon icon="history" className="text-primary" />
-            <h2 className="text-lg font-bold font-headline text-on-surface">
-              Notas Anteriores
-            </h2>
+            <h2 className="text-lg font-bold font-headline text-on-surface">Notas Anteriores</h2>
             <Badge tone="neutral" className="ml-auto">
               {previousEntries.length}
             </Badge>

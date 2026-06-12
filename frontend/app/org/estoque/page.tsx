@@ -70,25 +70,31 @@ function daysUntilExpiry(dateStr: string) {
   return Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-const stockStatusConfig: Record<StockStatus, { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }> = {
+const stockStatusConfig: Record<
+  StockStatus,
+  { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }
+> = {
   disponivel: { tone: "primary", label: "Disponivel" },
   baixo: { tone: "warning", label: "Baixo Estoque" },
   vencido: { tone: "danger", label: "Vencido" },
 };
 
-const dispensationStatusConfig: Record<string, { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }> = {
+const dispensationStatusConfig: Record<
+  string,
+  { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }
+> = {
   dispensado: { tone: "success", label: "Dispensado" },
   pendente: { tone: "warning", label: "Pendente" },
   cancelado: { tone: "danger", label: "Cancelado" },
 };
 
 const stockIcons: Record<string, string> = {
-  "Oleo": "science",
-  "Flores": "eco",
-  "Capsulas": "medical_services",
-  "Tintura": "water_drop",
-  "Pomada": "spa",
-  "Spray": "vaccines",
+  Oleo: "science",
+  Flores: "eco",
+  Capsulas: "medical_services",
+  Tintura: "water_drop",
+  Pomada: "spa",
+  Spray: "vaccines",
 };
 
 function getProductIcon(name: string) {
@@ -155,9 +161,7 @@ function NewStockEntryModal({
         >
           <MaterialIcon icon="close" />
         </button>
-        <h3 className="text-xl font-bold font-headline mb-6">
-          Registrar Entrada
-        </h3>
+        <h3 className="text-xl font-bold font-headline mb-6">Registrar Entrada</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Nome do Produto"
@@ -284,9 +288,7 @@ function NewDispensationModal({
         >
           <MaterialIcon icon="close" />
         </button>
-        <h3 className="text-xl font-bold font-headline mb-6">
-          Nova Dispensacao
-        </h3>
+        <h3 className="text-xl font-bold font-headline mb-6">Nova Dispensacao</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Nome do Paciente"
@@ -376,7 +378,9 @@ export default function EstoquePage() {
       }
     }
     fetchStock();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /* stats */
@@ -434,9 +438,7 @@ export default function EstoquePage() {
           </div>
           <div>
             <p className="font-bold text-sm font-headline">{row.product_name as string}</p>
-            <p className="text-[10px] text-stone-500 uppercase">
-              {row.product_detail as string}
-            </p>
+            <p className="text-[10px] text-stone-500 uppercase">{row.product_detail as string}</p>
           </div>
         </div>
       ),
@@ -445,9 +447,7 @@ export default function EstoquePage() {
       key: "batch_code",
       label: "Lote",
       sortable: true,
-      render: (val) => (
-        <span className="text-xs font-mono text-stone-300">{val as string}</span>
-      ),
+      render: (val) => <span className="text-xs font-mono text-stone-300">{val as string}</span>,
     },
     {
       key: "quantity",
@@ -470,7 +470,11 @@ export default function EstoquePage() {
           <span
             className={cn(
               "text-xs",
-              days <= 0 ? "text-error font-semibold" : days <= 90 ? "text-amber-400" : "text-stone-300",
+              days <= 0
+                ? "text-error font-semibold"
+                : days <= 90
+                  ? "text-amber-400"
+                  : "text-stone-300",
             )}
           >
             {fmtDate(val as string)}
@@ -489,9 +493,7 @@ export default function EstoquePage() {
     {
       key: "supplier",
       label: "Fornecedor",
-      render: (val) => (
-        <span className="text-xs text-stone-400">{val as string}</span>
-      ),
+      render: (val) => <span className="text-xs text-stone-400">{val as string}</span>,
     },
   ];
 
@@ -526,8 +528,8 @@ export default function EstoquePage() {
             Gestao de Estoque
           </h1>
           <p className="text-on-surface-variant max-w-xl text-sm">
-            Controle e rastreabilidade. Gerencie produtos, lotes, dispensacoes e
-            conformidade sanitaria.
+            Controle e rastreabilidade. Gerencie produtos, lotes, dispensacoes e conformidade
+            sanitaria.
           </p>
         </div>
         <div className="flex gap-3">
@@ -551,11 +553,7 @@ export default function EstoquePage() {
 
       {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon="inventory_2"
-          label="Produtos em Estoque"
-          value={totalProducts}
-        />
+        <StatCard icon="inventory_2" label="Produtos em Estoque" value={totalProducts} />
         <StatCard
           icon="alarm_on"
           label="Lotes Prox. Vencimento"
@@ -570,11 +568,7 @@ export default function EstoquePage() {
           delta="+8% este mes"
           deltaType="up"
         />
-        <StatCard
-          icon="payments"
-          label="Valor em Estoque"
-          value={stockValue}
-        />
+        <StatCard icon="payments" label="Valor em Estoque" value={stockValue} />
       </div>
 
       {/* alerts */}
@@ -588,7 +582,8 @@ export default function EstoquePage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-error">
-                    {expired.length} Produto{expired.length > 1 ? "s" : ""} Vencido{expired.length > 1 ? "s" : ""}
+                    {expired.length} Produto{expired.length > 1 ? "s" : ""} Vencido
+                    {expired.length > 1 ? "s" : ""}
                   </h4>
                   <p className="text-[10px] text-stone-500">
                     {expired.map((s) => s.product_name).join(", ")}
@@ -624,9 +619,7 @@ export default function EstoquePage() {
                   <h4 className="font-bold text-sm text-amber-500">
                     {expiringSoon.length} Proximo{expiringSoon.length > 1 ? "s" : ""} do Vencimento
                   </h4>
-                  <p className="text-[10px] text-stone-500">
-                    Dentro de 90 dias
-                  </p>
+                  <p className="text-[10px] text-stone-500">Dentro de 90 dias</p>
                 </div>
               </div>
             </Card>
@@ -722,9 +715,7 @@ export default function EstoquePage() {
             })}
             {filteredStock.length === 0 && (
               <Card className="text-center py-8">
-                <p className="text-stone-500 text-sm">
-                  Nenhum produto encontrado.
-                </p>
+                <p className="text-stone-500 text-sm">Nenhum produto encontrado.</p>
               </Card>
             )}
           </div>
@@ -740,26 +731,21 @@ export default function EstoquePage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-white/5">
-                    {["Paciente", "Produto", "Qtd", "Receita", "Data", "Status"].map(
-                      (h) => (
-                        <th
-                          key={h}
-                          className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500"
-                        >
-                          {h}
-                        </th>
-                      ),
-                    )}
+                    {["Paciente", "Produto", "Qtd", "Receita", "Data", "Status"].map((h) => (
+                      <th
+                        key={h}
+                        className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-stone-500"
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {filteredDispensations.map((d) => {
                     const cfg = dispensationStatusConfig[d.status];
                     return (
-                      <tr
-                        key={d.id}
-                        className="hover:bg-white/5 transition-colors"
-                      >
+                      <tr key={d.id} className="hover:bg-white/5 transition-colors">
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary shrink-0">
@@ -770,21 +756,14 @@ export default function EstoquePage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-5 py-4 text-sm text-stone-300">
-                          {d.product_name}
-                        </td>
+                        <td className="px-5 py-4 text-sm text-stone-300">{d.product_name}</td>
                         <td className="px-5 py-4 text-sm font-bold">
-                          {d.quantity}{" "}
-                          <span className="text-stone-500 font-normal">
-                            {d.unit}
-                          </span>
+                          {d.quantity} <span className="text-stone-500 font-normal">{d.unit}</span>
                         </td>
                         <td className="px-5 py-4 text-xs font-mono text-stone-400">
                           {d.prescription_id}
                         </td>
-                        <td className="px-5 py-4 text-xs text-stone-400">
-                          {fmtDateTime(d.date)}
-                        </td>
+                        <td className="px-5 py-4 text-xs text-stone-400">{fmtDateTime(d.date)}</td>
                         <td className="px-5 py-4">
                           <Badge tone={cfg.tone}>{cfg.label}</Badge>
                         </td>
@@ -793,10 +772,7 @@ export default function EstoquePage() {
                   })}
                   {filteredDispensations.length === 0 && (
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-5 py-10 text-center text-sm text-stone-500"
-                      >
+                      <td colSpan={6} className="px-5 py-10 text-center text-sm text-stone-500">
                         Nenhuma dispensacao encontrada.
                       </td>
                     </tr>
@@ -818,12 +794,8 @@ export default function EstoquePage() {
                         <MaterialIcon icon="person" size="sm" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-on-surface">
-                          {d.patient_name}
-                        </p>
-                        <p className="text-[10px] text-on-surface-variant">
-                          {d.product_name}
-                        </p>
+                        <p className="text-sm font-semibold text-on-surface">{d.patient_name}</p>
+                        <p className="text-[10px] text-on-surface-variant">{d.product_name}</p>
                       </div>
                     </div>
                     <Badge tone={cfg.tone}>{cfg.label}</Badge>
@@ -839,9 +811,7 @@ export default function EstoquePage() {
             })}
             {filteredDispensations.length === 0 && (
               <Card className="text-center py-8">
-                <p className="text-stone-500 text-sm">
-                  Nenhuma dispensacao encontrada.
-                </p>
+                <p className="text-stone-500 text-sm">Nenhuma dispensacao encontrada.</p>
               </Card>
             )}
           </div>
@@ -895,12 +865,10 @@ export default function EstoquePage() {
           {/* traceability report */}
           <Card className="flex flex-col justify-between">
             <div>
-              <h4 className="font-bold text-lg font-headline mb-2">
-                Relatorio de Rastreabilidade
-              </h4>
+              <h4 className="font-bold text-lg font-headline mb-2">Relatorio de Rastreabilidade</h4>
               <p className="text-xs text-stone-400 mb-6 leading-relaxed">
-                Gere um log completo de toda a movimentacao de um lote especifico
-                para fins de auditoria sanitaria.
+                Gere um log completo de toda a movimentacao de um lote especifico para fins de
+                auditoria sanitaria.
               </p>
               <div className="space-y-3">
                 <div className="flex flex-col gap-1.5">
@@ -926,10 +894,7 @@ export default function EstoquePage() {
             <div className="mt-8 pt-6 border-t border-stone-800/50">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <MaterialIcon
-                    icon="verified_user"
-                    className="text-primary"
-                  />
+                  <MaterialIcon icon="verified_user" className="text-primary" />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase font-black text-primary">

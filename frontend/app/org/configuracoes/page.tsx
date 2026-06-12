@@ -4,14 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
 import { getClinicConfig, updateClinicConfig } from "@/lib/api";
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  MaterialIcon,
-  ToggleSwitch,
-} from "@/components/ui-tw";
+import { Badge, Button, Card, Input, MaterialIcon, ToggleSwitch } from "@/components/ui-tw";
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -108,21 +101,40 @@ const COLOR_PRESETS = [
   { label: "Coral", value: "#E07A5F" },
 ];
 
-type TabKey =
-  | "identidade"
-  | "cadastro"
-  | "operacional"
-  | "integracoes"
-  | "dna"
-  | "notificacoes";
+type TabKey = "identidade" | "cadastro" | "operacional" | "integracoes" | "dna" | "notificacoes";
 
 const TABS: Array<{ key: TabKey; label: string; icon: string; hint: string }> = [
-  { key: "identidade", label: "Identidade Visual", icon: "palette", hint: "Logo, cores, marca, subdominio" },
-  { key: "cadastro", label: "Clinica/Associacao", icon: "medical_information", hint: "Razao social, CNPJ, contato" },
-  { key: "operacional", label: "Operacional", icon: "schedule", hint: "Horarios, consultas, modalidades" },
+  {
+    key: "identidade",
+    label: "Identidade Visual",
+    icon: "palette",
+    hint: "Logo, cores, marca, subdominio",
+  },
+  {
+    key: "cadastro",
+    label: "Clinica/Associacao",
+    icon: "medical_information",
+    hint: "Razao social, CNPJ, contato",
+  },
+  {
+    key: "operacional",
+    label: "Operacional",
+    icon: "schedule",
+    hint: "Horarios, consultas, modalidades",
+  },
   { key: "integracoes", label: "Integracoes", icon: "cable", hint: "WhatsApp, IA, Email, Pix" },
-  { key: "dna", label: "DNA do Negocio", icon: "auto_awesome", hint: "Missao, perfil de paciente, tom dos agentes" },
-  { key: "notificacoes", label: "Notificacoes", icon: "notifications_active", hint: "Email + WhatsApp por evento" },
+  {
+    key: "dna",
+    label: "DNA do Negocio",
+    icon: "auto_awesome",
+    hint: "Missao, perfil de paciente, tom dos agentes",
+  },
+  {
+    key: "notificacoes",
+    label: "Notificacoes",
+    icon: "notifications_active",
+    hint: "Email + WhatsApp por evento",
+  },
 ];
 
 /* ── Page ─────────────────────────────────────────────────────────── */
@@ -140,7 +152,7 @@ export default function ConfiguracoesPage() {
       setLoading(true);
       const res = await getClinicConfig();
       const remote = res.data as Record<string, unknown>;
-      setConfig((prev) => ({ ...prev, ...remote } as ClinicConfig));
+      setConfig((prev) => ({ ...prev, ...remote }) as ClinicConfig);
     } catch {
       // mantem defaults
     } finally {
@@ -224,7 +236,10 @@ export default function ConfiguracoesPage() {
                       : "bg-surface-container/40 border-outline-variant/20 text-stone-400 hover:bg-surface-container/70 hover:text-on-surface",
                   )}
                 >
-                  <MaterialIcon icon={t.icon} className={tab === t.key ? "text-primary" : "text-stone-500"} />
+                  <MaterialIcon
+                    icon={t.icon}
+                    className={tab === t.key ? "text-primary" : "text-stone-500"}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold leading-tight whitespace-nowrap lg:whitespace-normal">
                       {t.label}
@@ -241,24 +256,12 @@ export default function ConfiguracoesPage() {
 
         {/* ── Conteudo da aba ──────────────────────────────────── */}
         <main className="lg:col-span-9 space-y-6">
-          {tab === "identidade" && (
-            <IdentidadeTab config={config} update={update} />
-          )}
-          {tab === "cadastro" && (
-            <CadastroTab config={config} update={update} />
-          )}
-          {tab === "operacional" && (
-            <OperacionalTab config={config} update={update} />
-          )}
-          {tab === "integracoes" && (
-            <IntegracoesTab config={config} update={update} />
-          )}
-          {tab === "dna" && (
-            <DnaTab config={config} update={update} />
-          )}
-          {tab === "notificacoes" && (
-            <NotificacoesTab config={config} update={update} />
-          )}
+          {tab === "identidade" && <IdentidadeTab config={config} update={update} />}
+          {tab === "cadastro" && <CadastroTab config={config} update={update} />}
+          {tab === "operacional" && <OperacionalTab config={config} update={update} />}
+          {tab === "integracoes" && <IntegracoesTab config={config} update={update} />}
+          {tab === "dna" && <DnaTab config={config} update={update} />}
+          {tab === "notificacoes" && <NotificacoesTab config={config} update={update} />}
         </main>
       </div>
     </div>
@@ -318,7 +321,8 @@ function IdentidadeTab({ config, update }: TabProps) {
               icon="image"
             />
             <p className="text-[11px] text-stone-500 -mt-3">
-              Em breve: upload direto. Por enquanto, hospede a imagem em servico publico (S3, Cloudinary, etc.) e cole o link.
+              Em breve: upload direto. Por enquanto, hospede a imagem em servico publico (S3,
+              Cloudinary, etc.) e cole o link.
             </p>
           </div>
 
@@ -338,14 +342,14 @@ function IdentidadeTab({ config, update }: TabProps) {
               )}
               <div className="h-2 w-20 bg-black/20 rounded-full" />
             </div>
-            <p className="text-sm font-bold text-on-surface mb-1">{config.brandName || "Sua marca"}</p>
+            <p className="text-sm font-bold text-on-surface mb-1">
+              {config.brandName || "Sua marca"}
+            </p>
             <div
               className="mt-3 w-12 h-12 rounded-xl"
               style={{ backgroundColor: config.accentColor }}
             />
-            <p className="mt-3 text-[11px] text-stone-500">
-              Cor primaria + destaque em tempo real
-            </p>
+            <p className="mt-3 text-[11px] text-stone-500">Cor primaria + destaque em tempo real</p>
           </div>
         </div>
       </Card>
@@ -546,9 +550,19 @@ function TimeRange({
     <div>
       <p className="text-xs text-stone-400 font-bold uppercase mb-2">{label}</p>
       <div className="flex items-center gap-3">
-        <input type="time" value={open} onChange={(e) => onOpen(e.target.value)} className={inputCls} />
+        <input
+          type="time"
+          value={open}
+          onChange={(e) => onOpen(e.target.value)}
+          className={inputCls}
+        />
         <span className="text-stone-500">ate</span>
-        <input type="time" value={close} onChange={(e) => onClose(e.target.value)} className={inputCls} />
+        <input
+          type="time"
+          value={close}
+          onChange={(e) => onClose(e.target.value)}
+          className={inputCls}
+        />
       </div>
     </div>
   );
@@ -615,7 +629,8 @@ function IntegracoesTab({ config, update }: TabProps) {
           />
         </div>
         <p className="text-[11px] text-stone-500 mt-3">
-          Sem chave especifica, os agentes usam as chaves globais da plataforma (configuradas pelo super admin).
+          Sem chave especifica, os agentes usam as chaves globais da plataforma (configuradas pelo
+          super admin).
         </p>
       </Card>
 
@@ -731,8 +746,9 @@ function DnaTab({ config, update }: TabProps) {
         <MaterialIcon icon="info" size="md" className="text-primary flex-shrink-0 mt-0.5" />
         <div className="text-xs text-stone-400 leading-relaxed">
           <p className="font-bold text-primary mb-1">Por que isso importa</p>
-          Os agentes (Triagem, Anamnese, Prescritor, Cientifico, Regulatorio, FollowUp) consultam o DNA antes de cada acao.
-          Quanto mais preciso o DNA, mais alinhado o trabalho dos agentes com a sua identidade clinica.
+          Os agentes (Triagem, Anamnese, Prescritor, Cientifico, Regulatorio, FollowUp) consultam o
+          DNA antes de cada acao. Quanto mais preciso o DNA, mais alinhado o trabalho dos agentes
+          com a sua identidade clinica.
         </div>
       </div>
     </>

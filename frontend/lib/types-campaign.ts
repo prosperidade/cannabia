@@ -9,11 +9,7 @@ export type CampaignChannel = "whatsapp" | "email" | "sms";
 
 export type CampaignTemplateStatus = "draft" | "active" | "archived";
 
-export type CampaignExecutionStatus =
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "failed";
+export type CampaignExecutionStatus = "pending" | "in_progress" | "completed" | "failed";
 
 // ── Template ───────────────────────────────────────────────────────
 

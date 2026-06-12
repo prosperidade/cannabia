@@ -8,5 +8,9 @@ export default function OldAuditoriaRedirect() {
   useEffect(() => {
     router.replace("/admin/auditoria");
   }, [router]);
-  return <div className="min-h-screen bg-surface flex items-center justify-center"><p className="text-on-surface/50">Redirecionando...</p></div>;
+  return (
+    <div className="min-h-screen bg-surface flex items-center justify-center">
+      <p className="text-on-surface/50">Redirecionando...</p>
+    </div>
+  );
 }

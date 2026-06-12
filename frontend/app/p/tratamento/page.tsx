@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { getPatientTreatment } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  MaterialIcon,
-  ProgressBar,
-  Button,
-} from "@/components/ui-tw";
+import { Card, Badge, MaterialIcon, ProgressBar, Button } from "@/components/ui-tw";
 
 type Protocol = {
   id: number;
@@ -77,13 +71,16 @@ export default function TratamentoPage() {
         if (cancelled) return;
         setData(res.data as unknown as TreatmentData);
       } catch {
-        if (!cancelled) setError("Nao foi possivel carregar o tratamento. Tente novamente mais tarde.");
+        if (!cancelled)
+          setError("Nao foi possivel carregar o tratamento. Tente novamente mais tarde.");
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     fetchData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -101,7 +98,9 @@ export default function TratamentoPage() {
     return (
       <div className="max-w-md mx-auto py-16 text-center">
         <MaterialIcon icon="cloud_off" size="xl" className="text-error/50 mb-4" />
-        <p className="text-on-surface-variant text-sm">{error ?? "Nenhum tratamento encontrado."}</p>
+        <p className="text-on-surface-variant text-sm">
+          {error ?? "Nenhum tratamento encontrado."}
+        </p>
       </div>
     );
   }
@@ -111,7 +110,9 @@ export default function TratamentoPage() {
     return (
       <div className="max-w-md mx-auto py-16 text-center">
         <MaterialIcon icon="medication" size="xl" className="text-primary/40 mb-4" />
-        <p className="text-on-surface-variant text-sm">Nenhum plano terapeutico ativo foi encontrado.</p>
+        <p className="text-on-surface-variant text-sm">
+          Nenhum plano terapeutico ativo foi encontrado.
+        </p>
       </div>
     );
   }
@@ -124,8 +125,10 @@ export default function TratamentoPage() {
   const ratioTotal = protocol.cbd_ratio + protocol.thc_ratio;
   const hasRatio = ratioTotal > 0;
   const nextDose = schedule.find((slot) => !slot.taken) ?? schedule[0];
-  const hasInstructions = Boolean(instructions?.notes) || (instructions?.precautions?.length ?? 0) > 0;
-  const hasMonitoring = (monitoring?.observe?.length ?? 0) > 0 || (monitoring?.contact_when?.length ?? 0) > 0;
+  const hasInstructions =
+    Boolean(instructions?.notes) || (instructions?.precautions?.length ?? 0) > 0;
+  const hasMonitoring =
+    (monitoring?.observe?.length ?? 0) > 0 || (monitoring?.contact_when?.length ?? 0) > 0;
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -137,9 +140,7 @@ export default function TratamentoPage() {
           </h1>
           {protocol.status && <Badge tone="success">{protocol.status}</Badge>}
         </div>
-        <p className="text-on-surface-variant text-sm mt-1">
-          {protocol.name}
-        </p>
+        <p className="text-on-surface-variant text-sm mt-1">{protocol.name}</p>
       </section>
 
       {/* ── Next Dose Countdown ── */}
@@ -238,7 +239,9 @@ export default function TratamentoPage() {
         <div className="bg-surface-container/40 p-4 rounded-lg border border-outline-variant/20">
           <div className="flex items-center gap-2 mb-2">
             <MaterialIcon icon="route" size="sm" className="text-primary" />
-            <span className="text-xs font-medium text-on-surface-variant">Via de Administracao</span>
+            <span className="text-xs font-medium text-on-surface-variant">
+              Via de Administracao
+            </span>
           </div>
           <p className="text-sm font-bold">{protocol.route ?? "Nao informada"}</p>
         </div>
@@ -273,7 +276,9 @@ export default function TratamentoPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold">{slot.period}</p>
-                    <p className="text-xs text-on-surface-variant">{slot.time} &bull; {slot.dose}</p>
+                    <p className="text-xs text-on-surface-variant">
+                      {slot.time} &bull; {slot.dose}
+                    </p>
                   </div>
                 </div>
                 {slot.taken ? (
@@ -376,19 +381,21 @@ export default function TratamentoPage() {
               </ul>
             </div>
           )}
-          {monitoring.contact_when.length > 0 && <div className="pt-3 border-t border-white/5">
-            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">
-              Quando entrar em contato
-            </p>
-            <ul className="space-y-2">
-              {monitoring.contact_when.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-on-surface">
-                  <MaterialIcon icon="emergency" size="sm" className="text-error mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>}
+          {monitoring.contact_when.length > 0 && (
+            <div className="pt-3 border-t border-white/5">
+              <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">
+                Quando entrar em contato
+              </p>
+              <ul className="space-y-2">
+                {monitoring.contact_when.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-on-surface">
+                    <MaterialIcon icon="emergency" size="sm" className="text-error mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </Card>
       )}
 

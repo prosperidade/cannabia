@@ -61,13 +61,19 @@ const channelConfig: Record<CampaignChannel, { icon: string; label: string; colo
   sms: { icon: "sms", label: "SMS", color: "text-amber-400 bg-amber-400/10" },
 };
 
-const templateStatusConfig: Record<CampaignTemplateStatus, { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }> = {
+const templateStatusConfig: Record<
+  CampaignTemplateStatus,
+  { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }
+> = {
   active: { tone: "success", label: "Ativo" },
   draft: { tone: "warning", label: "Rascunho" },
   archived: { tone: "neutral", label: "Arquivado" },
 };
 
-const executionStatusConfig: Record<CampaignExecutionStatus, { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }> = {
+const executionStatusConfig: Record<
+  CampaignExecutionStatus,
+  { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }
+> = {
   pending: { tone: "warning", label: "Pendente" },
   in_progress: { tone: "primary", label: "Em Progresso" },
   completed: { tone: "success", label: "Concluido" },
@@ -130,9 +136,7 @@ function NewTemplateModal({
         >
           <MaterialIcon icon="close" />
         </button>
-        <h3 className="text-xl font-bold font-headline mb-6">
-          Novo Modelo de Mensagem
-        </h3>
+        <h3 className="text-xl font-bold font-headline mb-6">Novo Modelo de Mensagem</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Nome do Modelo"
@@ -179,7 +183,8 @@ function NewTemplateModal({
               className="w-full bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT px-4 py-3 text-on-surface placeholder:text-stone-600 focus:border-primary-container focus:outline-none transition-colors resize-none"
             />
             <span className="text-[10px] text-stone-500">
-              Campos disponiveis: {"{{patient_name}}"}, {"{{doctor_name}}"}, {"{{product_name}}"}, {"{{clinic_name}}"}
+              Campos disponiveis: {"{{patient_name}}"}, {"{{doctor_name}}"}, {"{{product_name}}"},{" "}
+              {"{{clinic_name}}"}
             </span>
           </div>
           {formError && <p className="text-sm text-error">{formError}</p>}
@@ -276,8 +281,8 @@ export default function CampanhasPage() {
             Campanhas WhatsApp
           </h1>
           <p className="text-on-surface-variant max-w-xl text-sm">
-            Comunicacao e reengajamento. Gerencie modelos de mensagem, automatize disparos
-            e acompanhe resultados em tempo real.
+            Comunicacao e reengajamento. Gerencie modelos de mensagem, automatize disparos e
+            acompanhe resultados em tempo real.
           </p>
         </div>
         <Button
@@ -291,11 +296,7 @@ export default function CampanhasPage() {
 
       {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon="description"
-          label="Modelos Ativos"
-          value={activeTemplates}
-        />
+        <StatCard icon="description" label="Modelos Ativos" value={activeTemplates} />
         <StatCard
           icon="send"
           label="Campanhas Enviadas"
@@ -342,7 +343,9 @@ export default function CampanhasPage() {
             <Card padding="sm" className="text-center text-stone-400 py-12">
               <MaterialIcon icon="description" className="text-stone-600 mb-2" />
               <p className="text-sm">Nenhum modelo de campanha encontrado.</p>
-              <p className="text-xs text-stone-500 mt-1">Crie o primeiro modelo clicando em &quot;Novo Modelo&quot;.</p>
+              <p className="text-xs text-stone-500 mt-1">
+                Crie o primeiro modelo clicando em &quot;Novo Modelo&quot;.
+              </p>
             </Card>
           )}
           {templates.map((tpl) => {
@@ -361,9 +364,7 @@ export default function CampanhasPage() {
                 <div className="p-3 bg-surface-container rounded-lg shrink-0 self-start">
                   <MaterialIcon
                     icon={ch.icon}
-                    className={cn(
-                      tpl.status === "active" ? "text-primary" : "text-stone-400",
-                    )}
+                    className={cn(tpl.status === "active" ? "text-primary" : "text-stone-400")}
                   />
                 </div>
 
@@ -385,13 +386,9 @@ export default function CampanhasPage() {
                     <Badge tone={st.tone}>{st.label}</Badge>
                   </div>
                   {tpl.description && (
-                    <p className="text-[10px] text-stone-500 mb-2">
-                      {tpl.description}
-                    </p>
+                    <p className="text-[10px] text-stone-500 mb-2">{tpl.description}</p>
                   )}
-                  <p className="text-xs text-stone-400 line-clamp-2">
-                    {tpl.template_body}
-                  </p>
+                  <p className="text-xs text-stone-400 line-clamp-2">{tpl.template_body}</p>
                 </div>
 
                 {/* actions */}
@@ -400,12 +397,22 @@ export default function CampanhasPage() {
                     <MaterialIcon icon="edit" size="sm" />
                   </button>
                   {tpl.status === "active" && (
-                    <Button size="sm" variant="secondary" icon="send" onClick={() => handleSend(tpl.id)}>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      icon="send"
+                      onClick={() => handleSend(tpl.id)}
+                    >
                       Enviar
                     </Button>
                   )}
                   {tpl.status === "draft" && (
-                    <Button size="sm" variant="secondary" icon="check_circle" onClick={() => handleActivate(tpl.id)}>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      icon="check_circle"
+                      onClick={() => handleActivate(tpl.id)}
+                    >
                       Ativar
                     </Button>
                   )}
@@ -462,9 +469,7 @@ export default function CampanhasPage() {
                         const st = executionStatusConfig[exec.status];
                         const pct =
                           exec.total_patients > 0
-                            ? Math.round(
-                                (exec.sent_count / exec.total_patients) * 100,
-                              )
+                            ? Math.round((exec.sent_count / exec.total_patients) * 100)
                             : 0;
                         const progressVariant =
                           exec.status === "failed"
@@ -473,10 +478,7 @@ export default function CampanhasPage() {
                               ? "success"
                               : "primary";
                         return (
-                          <tr
-                            key={exec.id}
-                            className="hover:bg-white/5 transition-colors"
-                          >
+                          <tr key={exec.id} className="hover:bg-white/5 transition-colors">
                             <td className="px-5 py-4">
                               <p className="font-bold text-sm text-stone-200 font-headline">
                                 {getTemplateName(exec.template_id)}
@@ -492,17 +494,11 @@ export default function CampanhasPage() {
                               {exec.total_patients.toLocaleString("pt-BR")}
                             </td>
                             <td className="px-5 py-4 w-40">
-                              <ProgressBar
-                                value={pct}
-                                variant={progressVariant}
-                                size="sm"
-                              />
+                              <ProgressBar value={pct} variant={progressVariant} size="sm" />
                             </td>
                             <td className="px-5 py-4 text-sm">
                               {exec.failed_count > 0 ? (
-                                <span className="text-error font-bold">
-                                  {exec.failed_count}
-                                </span>
+                                <span className="text-error font-bold">{exec.failed_count}</span>
                               ) : (
                                 <span className="text-stone-500">0</span>
                               )}
@@ -524,9 +520,7 @@ export default function CampanhasPage() {
                   const st = executionStatusConfig[exec.status];
                   const pct =
                     exec.total_patients > 0
-                      ? Math.round(
-                          (exec.sent_count / exec.total_patients) * 100,
-                        )
+                      ? Math.round((exec.sent_count / exec.total_patients) * 100)
                       : 0;
                   const progressVariant =
                     exec.status === "failed"
@@ -545,9 +539,7 @@ export default function CampanhasPage() {
                             {getTemplateName(exec.template_id)}
                           </h4>
                         </div>
-                        <span className="text-xs text-stone-400">
-                          {fmtDate(exec.started_at)}
-                        </span>
+                        <span className="text-xs text-stone-400">{fmtDate(exec.started_at)}</span>
                       </div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-stone-500">
@@ -559,11 +551,7 @@ export default function CampanhasPage() {
                           </span>
                         )}
                       </div>
-                      <ProgressBar
-                        value={pct}
-                        variant={progressVariant}
-                        size="sm"
-                      />
+                      <ProgressBar value={pct} variant={progressVariant} size="sm" />
                     </Card>
                   );
                 })}
@@ -606,9 +594,7 @@ export default function CampanhasPage() {
               agora mesmo?
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-stone-500">
-                Campos utilizados: 2/5
-              </span>
+              <span className="text-[10px] text-stone-500">Campos utilizados: 2/5</span>
               <button className="text-xs text-primary font-bold hover:underline">
                 Visualizar mensagem
               </button>
@@ -641,14 +627,10 @@ export default function CampanhasPage() {
               ].map((item) => (
                 <div key={item.step} className="flex items-start gap-4">
                   <div className="mt-1 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-bold text-primary">
-                      {item.step}
-                    </span>
+                    <span className="text-[10px] font-bold text-primary">{item.step}</span>
                   </div>
                   <p className="text-xs text-stone-400">
-                    <strong className="text-stone-200 block">
-                      {item.title}
-                    </strong>
+                    <strong className="text-stone-200 block">{item.title}</strong>
                     {item.desc}
                   </p>
                 </div>
@@ -666,8 +648,8 @@ export default function CampanhasPage() {
             Automatize seu alcance clinico.
           </h2>
           <p className="text-stone-400 max-w-md text-sm">
-            Use segmentacao com IA para alcancar os pacientes certos com
-            lembretes medicos no momento ideal.
+            Use segmentacao com IA para alcancar os pacientes certos com lembretes medicos no
+            momento ideal.
           </p>
         </div>
         <Button

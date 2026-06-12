@@ -5,14 +5,7 @@ import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
 import { getDiaryHistory, submitDiaryEntry } from "@/lib/api";
 import type { SymptomDiaryEntry } from "@/lib/types-telemetry";
-import {
-  Card,
-  Badge,
-  MaterialIcon,
-  Button,
-  SliderRange,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Badge, MaterialIcon, Button, SliderRange, ProgressBar } from "@/components/ui-tw";
 
 type DiaryEntry = SymptomDiaryEntry & {
   id?: number;
@@ -63,7 +56,20 @@ function formatDate(dateStr: string): string {
   const d = new Date(normalized);
   if (Number.isNaN(d.getTime())) return dateStr;
   const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
-  const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const months = [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
+  ];
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
 }
 
@@ -136,7 +142,9 @@ export default function DiarioPage() {
       }
     }
     fetchHistory();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const toggleSideEffect = (effect: string) => {
@@ -188,14 +196,19 @@ export default function DiarioPage() {
   };
 
   /* ── Weekly averages ── */
-  const weeklyAvg = history.length > 0
-    ? {
-        pain: Math.round(history.reduce((s, e) => s + e.pain_level, 0) / history.length * 10) / 10,
-        sleep: Math.round(history.reduce((s, e) => s + e.sleep_quality, 0) / history.length * 10) / 10,
-        mood: Math.round(history.reduce((s, e) => s + e.mood, 0) / history.length * 10) / 10,
-        overall: Math.round(history.reduce((s, e) => s + e.overall, 0) / history.length * 10) / 10,
-      }
-    : { pain: 0, sleep: 0, mood: 0, overall: 0 };
+  const weeklyAvg =
+    history.length > 0
+      ? {
+          pain:
+            Math.round((history.reduce((s, e) => s + e.pain_level, 0) / history.length) * 10) / 10,
+          sleep:
+            Math.round((history.reduce((s, e) => s + e.sleep_quality, 0) / history.length) * 10) /
+            10,
+          mood: Math.round((history.reduce((s, e) => s + e.mood, 0) / history.length) * 10) / 10,
+          overall:
+            Math.round((history.reduce((s, e) => s + e.overall, 0) / history.length) * 10) / 10,
+        }
+      : { pain: 0, sleep: 0, mood: 0, overall: 0 };
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -299,9 +312,7 @@ export default function DiarioPage() {
                   size="lg"
                   filled={star <= sleepQuality / 2}
                   className={cn(
-                    star <= sleepQuality / 2
-                      ? "text-primary"
-                      : "text-on-surface-variant/30",
+                    star <= sleepQuality / 2 ? "text-primary" : "text-on-surface-variant/30",
                   )}
                 />
               </button>
@@ -352,9 +363,7 @@ export default function DiarioPage() {
         </div>
 
         {/* Submit Error */}
-        {submitError && (
-          <p className="text-error text-xs text-center">{submitError}</p>
-        )}
+        {submitError && <p className="text-error text-xs text-center">{submitError}</p>}
 
         {/* Submit */}
         <Button
@@ -383,7 +392,9 @@ export default function DiarioPage() {
           <>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-surface-container/40 p-3 rounded-lg border border-outline-variant/20 text-center">
-                <p className="text-2xl font-black text-primary font-headline">{weeklyAvg.overall}</p>
+                <p className="text-2xl font-black text-primary font-headline">
+                  {weeklyAvg.overall}
+                </p>
                 <p className="text-[10px] uppercase tracking-widest text-stone-500 font-bold mt-1">
                   Bem-estar
                 </p>
@@ -395,7 +406,9 @@ export default function DiarioPage() {
                 </p>
               </div>
               <div className="bg-surface-container/40 p-3 rounded-lg border border-outline-variant/20 text-center">
-                <p className="text-2xl font-black text-secondary font-headline">{weeklyAvg.sleep}</p>
+                <p className="text-2xl font-black text-secondary font-headline">
+                  {weeklyAvg.sleep}
+                </p>
                 <p className="text-[10px] uppercase tracking-widest text-stone-500 font-bold mt-1">
                   Sono
                 </p>
@@ -418,7 +431,8 @@ export default function DiarioPage() {
                   Insight Botanico
                 </h4>
                 <p className="text-on-surface leading-relaxed text-sm">
-                  Seu diario mostra uma reducao de 15% nos niveis de dor quando a qualidade do sono esta acima de 3 estrelas. Consistencia e a chave.
+                  Seu diario mostra uma reducao de 15% nos niveis de dor quando a qualidade do sono
+                  esta acima de 3 estrelas. Consistencia e a chave.
                 </p>
               </div>
             </div>
@@ -438,7 +452,9 @@ export default function DiarioPage() {
         ) : history.length === 0 ? (
           <Card variant="glass" padding="md" className="text-center py-8">
             <MaterialIcon icon="edit_note" size="xl" className="text-primary/30 mb-2" />
-            <p className="text-on-surface-variant text-sm">Nenhum registro encontrado. Comece registrando como voce esta hoje.</p>
+            <p className="text-on-surface-variant text-sm">
+              Nenhum registro encontrado. Comece registrando como voce esta hoje.
+            </p>
           </Card>
         ) : (
           <div className="space-y-3">
@@ -453,10 +469,7 @@ export default function DiarioPage() {
                   <Card
                     variant="solid"
                     padding="sm"
-                    className={cn(
-                      "space-y-2 border transition-colors",
-                      scoreBg(entry.overall),
-                    )}
+                    className={cn("space-y-2 border transition-colors", scoreBg(entry.overall))}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -477,14 +490,21 @@ export default function DiarioPage() {
                           />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-on-surface">{formatDate(entry.date)}</p>
+                          <p className="text-sm font-bold text-on-surface">
+                            {formatDate(entry.date)}
+                          </p>
                           <p className="text-xs text-on-surface-variant">
                             Dor: {entry.pain_level}/10 &bull; Sono: {entry.sleep_quality}/10
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={cn("text-lg font-black font-headline", scoreColor(entry.overall))}>
+                        <span
+                          className={cn(
+                            "text-lg font-black font-headline",
+                            scoreColor(entry.overall),
+                          )}
+                        >
                           {entry.overall}
                         </span>
                         <MaterialIcon
@@ -498,7 +518,9 @@ export default function DiarioPage() {
                     {/* Progress bars */}
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">Dor</p>
+                        <p className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">
+                          Dor
+                        </p>
                         <ProgressBar
                           value={entry.pain_level * 10}
                           variant={scoreBarVariant(10 - entry.pain_level)}
@@ -506,7 +528,9 @@ export default function DiarioPage() {
                         />
                       </div>
                       <div>
-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">Sono</p>
+                        <p className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">
+                          Sono
+                        </p>
                         <ProgressBar
                           value={entry.sleep_quality * 10}
                           variant={scoreBarVariant(entry.sleep_quality)}
@@ -514,7 +538,9 @@ export default function DiarioPage() {
                         />
                       </div>
                       <div>
-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">Humor</p>
+                        <p className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">
+                          Humor
+                        </p>
                         <ProgressBar
                           value={entry.mood * 10}
                           variant={scoreBarVariant(entry.mood)}
