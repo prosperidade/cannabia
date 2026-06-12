@@ -43,6 +43,11 @@ export default function TenantDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  // Bump força o remount dos formulários (via `key`) quando os dados de origem
+  // mudam após um save — reproduz o re-sync que o effect prop->state fazia,
+  // sem setState síncrono em effect (react-hooks/set-state-in-effect). Em
+  // load/troca de tenant os forms já remontam pelo guard de `loading`.
+  const [formEpoch, setFormEpoch] = useState(0);
 
   const fetchAll = useCallback(async () => {
     if (!Number.isFinite(tenantId)) return;
@@ -77,6 +82,7 @@ export default function TenantDetailPage() {
       setSaveMessage(null);
       const updated = await updateTenantBranding(csrf, tenantId, data);
       setBranding(updated);
+      setFormEpoch((e) => e + 1);
       setSaveMessage("Branding salvo com sucesso.");
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : "Falha ao salvar branding.");
@@ -98,6 +104,7 @@ export default function TenantDetailPage() {
       });
       const updated = await updateTenantIntegrations(csrf, tenantId, cleanPayload);
       setIntegrations(updated);
+      setFormEpoch((e) => e + 1);
       setSaveMessage("Integracoes salvas com sucesso.");
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : "Falha ao salvar integracoes.");
@@ -117,6 +124,7 @@ export default function TenantDetailPage() {
       setSaveMessage(null);
       const updated = await updateTenantPlan(csrf, tenantId, data);
       setPlan(updated);
+      setFormEpoch((e) => e + 1);
       setSaveMessage("Plano atualizado.");
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : "Falha ao salvar plano.");
@@ -255,18 +263,26 @@ export default function TenantDetailPage() {
       )}
 
       {tab === "branding" && (
-        <BrandingForm branding={branding} onSave={handleSaveBranding} saving={saving} />
+        <BrandingForm
+          key={formEpoch}
+          branding={branding}
+          onSave={handleSaveBranding}
+          saving={saving}
+        />
       )}
 
       {tab === "integrations" && (
         <IntegrationsForm
+          key={formEpoch}
           integrations={integrations}
           onSave={handleSaveIntegrations}
           saving={saving}
         />
       )}
 
-      {tab === "plan" && <PlanForm plan={plan} onSave={handleSavePlan} saving={saving} />}
+      {tab === "plan" && (
+        <PlanForm key={formEpoch} plan={plan} onSave={handleSavePlan} saving={saving} />
+      )}
     </div>
   );
 }
@@ -290,13 +306,9 @@ function BrandingForm({
   const [secondary, setSecondary] = useState(branding?.secondary_color ?? "");
   const [subdomain, setSubdomain] = useState(branding?.subdomain ?? "");
 
-  useEffect(() => {
-    setBrandName(branding?.brand_name ?? "");
-    setLogoUrl(branding?.logo_url ?? "");
-    setPrimary(branding?.primary_color ?? "");
-    setSecondary(branding?.secondary_color ?? "");
-    setSubdomain(branding?.subdomain ?? "");
-  }, [branding]);
+  // Sem effect prop->state: o componente é remontado via `key={formEpoch}` no
+  // pai quando `branding` muda (load/save), e os initializers do useState já
+  // leem a prop. Evita react-hooks/set-state-in-effect.
 
   return (
     <Card variant="glass" padding="lg" className="space-y-5">
@@ -393,15 +405,8 @@ function IntegrationsForm({
   const [aiKey, setAiKey] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
 
-  useEffect(() => {
-    setWpPhoneId(integrations?.whatsapp_phone_number_id ?? "");
-    setWpAccountId(integrations?.whatsapp_business_account_id ?? "");
-    setEmailFrom(integrations?.email_from ?? "");
-    setSmtpServer(integrations?.smtp_server ?? "");
-    setSmtpPort(integrations?.smtp_port != null ? String(integrations.smtp_port) : "");
-    setDoctorEmail(integrations?.doctor_email ?? "");
-    setAiProvider(integrations?.ai_provider ?? "gemini");
-  }, [integrations]);
+  // Sem effect prop->state: remount via `key={formEpoch}` no pai (load/save)
+  // + initializers do useState leem a prop. Evita set-state-in-effect.
 
   function submit() {
     const payload: Partial<TenantIntegrations> = {
@@ -620,11 +625,8 @@ function PlanForm({
     plan?.user_limit != null ? String(plan.user_limit) : "",
   );
 
-  useEffect(() => {
-    setBillingPlan(plan?.billing_plan ?? "starter");
-    setAiLimit(plan?.ai_limit_month != null ? String(plan.ai_limit_month) : "");
-    setUserLimit(plan?.user_limit != null ? String(plan.user_limit) : "");
-  }, [plan]);
+  // Sem effect prop->state: remount via `key={formEpoch}` no pai (load/save)
+  // + initializers do useState leem a prop. Evita set-state-in-effect.
 
   return (
     <Card variant="glass" padding="lg" className="space-y-5">

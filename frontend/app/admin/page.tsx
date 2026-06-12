@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useSystemStatus } from "@/lib/use-system-status";
+import { useFetchData } from "@/lib/use-fetch-data";
 import { getAdminStats } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { StatCard, Badge, Card, Button, MaterialIcon, ProgressBar } from "@/components/ui-tw";
@@ -71,26 +71,12 @@ interface AdminStats {
 
 export default function AdminOverviewPage() {
   const status = useSystemStatus();
-  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setStatsLoading(true);
-    getAdminStats()
-      .then((data) => {
-        if (!cancelled) setAdminStats(data as AdminStats);
-      })
-      .catch(() => {
-        if (!cancelled) setAdminStats(null);
-      })
-      .finally(() => {
-        if (!cancelled) setStatsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Erro de stats é tratado como ausência de dados (adminStats=null), idêntico
+  // ao comportamento anterior (.catch -> setAdminStats(null)).
+  const { data: adminStats, loading: statsLoading } = useFetchData(
+    () => getAdminStats().then((d) => d as AdminStats),
+    [],
+  );
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-10">

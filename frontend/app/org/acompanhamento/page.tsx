@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { Card, MaterialIcon, Badge, Avatar } from "@/components/ui-tw";
 import {
   getAcompanhamentoOverview,
@@ -12,6 +10,7 @@ import {
 } from "@/lib/api";
 import type { AppointmentItem } from "@/lib/types";
 import { useApiSession } from "@/lib/use-api-session";
+import { useFetchData } from "@/lib/use-fetch-data";
 
 /**
  * Pagina de Acompanhamento — cuidado continuo dos pacientes entre
@@ -24,18 +23,12 @@ export default function AcompanhamentoPage() {
   const { data: session } = useApiSession();
   const userName = session?.user?.username ?? "";
 
-  const [overview, setOverview] = useState<AcompanhamentoOverview | null>(null);
-  const [todayAgenda, setTodayAgenda] = useState<AppointmentItem[]>([]);
-  const [activePatients, setActivePatients] = useState<ActivePatient[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setErrorMsg(null);
-
-    Promise.all([
+  const {
+    data,
+    loading,
+    error: errorMsg,
+  } = useFetchData(async () => {
+    const [ov, appts, active] = await Promise.all([
       getAcompanhamentoOverview(),
       // Agenda do dia — falha aqui nao bloqueia os KPIs
       // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
@@ -44,31 +37,16 @@ export default function AcompanhamentoPage() {
         .catch(() => [] as AppointmentItem[]),
       // Lista de pacientes em acompanhamento — falha nao bloqueia o resto
       getAcompanhamentoActivePatients(20).catch(() => ({ items: [], count: 0 })),
-    ])
-      .then(([ov, appts, active]) => {
-        if (!alive) return;
-        setOverview(ov);
-        const today = new Date().toISOString().slice(0, 10);
-        const filtered = (Array.isArray(appts) ? appts : [])
-          .filter(
-            (a) => typeof a.appointment_date === "string" && a.appointment_date.startsWith(today),
-          )
-          .sort((a, b) => a.appointment_date.localeCompare(b.appointment_date));
-        setTodayAgenda(filtered);
-        setActivePatients(active.items ?? []);
-      })
-      .catch((err) => {
-        if (!alive) return;
-        const msg = err instanceof Error ? err.message : "Falha ao carregar dados.";
-        setErrorMsg(msg);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
+    ]);
+    const today = new Date().toISOString().slice(0, 10);
+    const todayAgenda = (Array.isArray(appts) ? appts : [])
+      .filter((a) => typeof a.appointment_date === "string" && a.appointment_date.startsWith(today))
+      .sort((a, b) => a.appointment_date.localeCompare(b.appointment_date));
+    return { overview: ov, todayAgenda, activePatients: active.items ?? [] };
   }, []);
+  const overview = data?.overview ?? null;
+  const todayAgenda = data?.todayAgenda ?? [];
+  const activePatients = data?.activePatients ?? [];
 
   const kpis = overview?.kpis;
   const agents = overview?.agents_activity_24h ?? [];
