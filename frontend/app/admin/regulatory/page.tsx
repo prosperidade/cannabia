@@ -166,8 +166,8 @@ export default function RegulatoryPage() {
             <Card padding="lg" className="text-center">
               <MaterialIcon icon="folder_open" size="xl" className="text-stone-600 mb-3" />
               <p className="text-sm text-stone-400">
-                Nenhum documento carregado. Clique em "Sincronizar Legislacao" para enviar os
-                arquivos de data/legislation/.
+                Nenhum documento carregado. Clique em &quot;Sincronizar Legislacao&quot; para enviar
+                os arquivos de data/legislation/.
               </p>
             </Card>
           ) : (

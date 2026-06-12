@@ -1,0 +1,56 @@
+name: Frontend CI
+
+# Roda apenas em PRs/pushes que tocam o frontend (path filter), conforme
+# 29.7 R9. A política de versionamento (caret + lockfile + npm ci) está em
+# frontend/VERSIONING.md.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+
+# Cancela execuções antigas quando o mesmo ref recebe um push novo
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend (lint · format · type-check · build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # npm ci instala exatamente o que está no package-lock.json — build
+      # reproduzível e gate contra package.json/lock dessincronizados.
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Lint (eslint)
+        run: npm run lint
+
+      - name: Format check (prettier)
+        run: npm run format:check
+
+      - name: Type-check (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      - name: Build (next build)
+        run: npm run build

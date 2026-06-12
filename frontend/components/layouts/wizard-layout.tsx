@@ -50,7 +50,9 @@ export function WizardLayout({
         {/* Center: Logo */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-base">eco</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-base">
+              eco
+            </span>
           </div>
           <span className="font-headline font-black text-primary-container tracking-widest text-sm">
             Cannab&apos;IA
@@ -78,13 +80,17 @@ export function WizardLayout({
       </div>
 
       {/* ── Main Content ── */}
-      <main className="flex-1 pt-24 pb-32 px-6 flex flex-col items-center justify-center relative z-10">
+      <main
+        id="main-content"
+        className="flex-1 pt-24 pb-32 px-6 flex flex-col items-center justify-center relative z-10"
+      >
         <section className="w-full max-w-lg">
           {/* Step label */}
           {stepLabel && (
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-container/20 rounded-full flex items-center justify-center">
                 <span
+                  aria-hidden="true"
                   className="material-symbols-outlined text-primary"
                   style={{ fontVariationSettings: "'FILL' 1" }}
                 >
@@ -117,7 +123,10 @@ export function WizardLayout({
               : "border-stone-700 text-stone-400 hover:brightness-110",
           )}
         >
-          <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">
+          <span
+            aria-hidden="true"
+            className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform"
+          >
             arrow_back_ios
           </span>
           <span className="font-headline font-semibold text-[11px] uppercase tracking-widest">
@@ -138,7 +147,7 @@ export function WizardLayout({
         >
           {isSubmitting ? (
             <>
-              <span className="material-symbols-outlined text-sm animate-spin">
+              <span aria-hidden="true" className="material-symbols-outlined text-sm animate-spin">
                 progress_activity
               </span>
               <span className="font-headline font-semibold text-[11px] uppercase tracking-widest">
@@ -150,7 +159,10 @@ export function WizardLayout({
               <span className="font-headline font-semibold text-[11px] uppercase tracking-widest">
                 {isLastStep ? "Finalizar" : "Próximo"}
               </span>
-              <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform"
+              >
                 {isLastStep ? "check" : "arrow_forward_ios"}
               </span>
             </>
