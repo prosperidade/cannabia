@@ -5,13 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
 import { getAttendance, getPrescription, emitPrescription } from "@/lib/api";
-import {
-  Button,
-  Card,
-  Input,
-  Badge,
-  MaterialIcon,
-} from "@/components/ui-tw";
+import { Button, Card, Input, Badge, MaterialIcon } from "@/components/ui-tw";
 import type { AttendanceDetail } from "@/lib/types";
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -48,9 +42,7 @@ export default function AssinarPrescricaoPage() {
   const prescriberName = session?.user?.username ?? "";
   const prescriberCrm = (prescription?.prescriber_crm as string) ?? "";
   const patientName =
-    (prescription?.patient_name as string) ??
-    attendance?.report.patient_name ??
-    "";
+    (prescription?.patient_name as string) ?? attendance?.report.patient_name ?? "";
 
   const prescriptionItems = Array.isArray(prescription?.items)
     ? (prescription.items as Record<string, string>[])
@@ -130,19 +122,16 @@ export default function AssinarPrescricaoPage() {
               Prescricao Assinada com Sucesso
             </h1>
             <p className="text-on-surface-variant text-sm">
-              A prescricao digital para <span className="text-white font-semibold">{patientName}</span> foi
-              assinada e emitida com seguranca.
+              A prescricao digital para{" "}
+              <span className="text-white font-semibold">{patientName}</span> foi assinada e emitida
+              com seguranca.
             </p>
           </div>
           <Badge tone="success" className="px-4 py-1.5 text-xs">
             Assinatura Verificada
           </Badge>
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
-            <Button
-              variant="primary"
-              icon="download"
-              className="flex-1"
-            >
+            <Button variant="primary" icon="download" className="flex-1">
               Baixar PDF
             </Button>
             <Button
@@ -206,9 +195,7 @@ export default function AssinarPrescricaoPage() {
                   <h2 className="font-headline font-bold text-xl sm:text-2xl tracking-tighter text-stone-900 uppercase">
                     Cannab&apos;IA Clinical
                   </h2>
-                  <p className="text-xs text-stone-500">
-                    Centro de Pesquisa e Terapia Canabinoide
-                  </p>
+                  <p className="text-xs text-stone-500">Centro de Pesquisa e Terapia Canabinoide</p>
                 </div>
                 <div className="text-right text-xs text-stone-500">
                   <p>{formatDate(new Date())}</p>
@@ -245,22 +232,15 @@ export default function AssinarPrescricaoPage() {
                     <div key={idx} className="bg-stone-50 p-5 rounded-lg space-y-3">
                       <div className="flex justify-between items-end border-b border-stone-200 pb-2">
                         <div>
-                          <p className="font-bold text-lg">
-                            {item.medication ?? "Medicamento"}
-                          </p>
-                          <p className="text-xs text-stone-500">
-                            {item.concentration ?? ""}
-                          </p>
+                          <p className="font-bold text-lg">{item.medication ?? "Medicamento"}</p>
+                          <p className="text-xs text-stone-500">{item.concentration ?? ""}</p>
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-stone-400 uppercase mb-1">
-                          Posologia
-                        </p>
+                        <p className="text-xs font-bold text-stone-400 uppercase mb-1">Posologia</p>
                         <p className="text-stone-700 leading-relaxed italic text-sm">
-                          {item.dosage ?? ""} - {item.frequency ?? ""} por{" "}
-                          {item.duration ?? ""}. Via: {item.route ?? "oral"}.{" "}
-                          {item.instructions ?? ""}
+                          {item.dosage ?? ""} - {item.frequency ?? ""} por {item.duration ?? ""}.
+                          Via: {item.route ?? "oral"}. {item.instructions ?? ""}
                         </p>
                       </div>
                     </div>
@@ -281,8 +261,10 @@ export default function AssinarPrescricaoPage() {
                     </h3>
                     <p className="text-stone-700 text-sm leading-relaxed">
                       {typeof attendance.report.treatment_plan === "object"
-                        ? String((attendance.report.treatment_plan as Record<string, unknown>)
-                            .monitoring_plan ?? "")
+                        ? String(
+                            (attendance.report.treatment_plan as Record<string, unknown>)
+                              .monitoring_plan ?? "",
+                          )
                         : ""}
                     </p>
                   </>
@@ -316,9 +298,9 @@ export default function AssinarPrescricaoPage() {
             <div className="flex items-start gap-3">
               <MaterialIcon icon="warning" size="sm" className="text-error" />
               <p className="text-[11px] text-error/80 leading-snug">
-                Esta prescricao eletronica e valida por 30 dias. Distribuicao ou
-                modificacao nao autorizada configura violacao da legislacao vigente
-                conforme regulamentacao ANVISA e CFM.
+                Esta prescricao eletronica e valida por 30 dias. Distribuicao ou modificacao nao
+                autorizada configura violacao da legislacao vigente conforme regulamentacao ANVISA e
+                CFM.
               </p>
             </div>
           </div>
@@ -373,12 +355,8 @@ export default function AssinarPrescricaoPage() {
                   className="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary bg-surface-container-lowest"
                 />
                 <div>
-                  <p className="text-sm font-medium text-on-surface">
-                    Usar Certificado Digital A1
-                  </p>
-                  <p className="text-[10px] text-stone-500">
-                    Assinatura via ICP-Brasil
-                  </p>
+                  <p className="text-sm font-medium text-on-surface">Usar Certificado Digital A1</p>
+                  <p className="text-[10px] text-stone-500">Assinatura via ICP-Brasil</p>
                 </div>
               </label>
             </div>
@@ -436,9 +414,7 @@ export default function AssinarPrescricaoPage() {
                 <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
                   Data
                 </p>
-                <p className="text-sm font-medium text-on-surface">
-                  {formatDate(new Date())}
-                </p>
+                <p className="text-sm font-medium text-on-surface">{formatDate(new Date())}</p>
               </div>
             </div>
 
@@ -469,9 +445,8 @@ export default function AssinarPrescricaoPage() {
             <div className="mt-6 flex gap-3 p-4 bg-white/5 rounded-lg">
               <MaterialIcon icon="info" className="text-stone-400 text-lg" />
               <p className="text-[11px] text-stone-400 leading-tight">
-                Sua assinatura e protegida por criptografia ponta-a-ponta.
-                Cannab&apos;IA Clinical segue os padroes LGPD e normas do CFM para
-                prescricoes eletronicas.
+                Sua assinatura e protegida por criptografia ponta-a-ponta. Cannab&apos;IA Clinical
+                segue os padroes LGPD e normas do CFM para prescricoes eletronicas.
               </p>
             </div>
           </Card>
@@ -512,9 +487,7 @@ export default function AssinarPrescricaoPage() {
             </span>
           </div>
         </div>
-        <p className="text-[10px] font-medium">
-          Cannab&apos;IA Clinical v4.2.0
-        </p>
+        <p className="text-[10px] font-medium">Cannab&apos;IA Clinical v4.2.0</p>
       </footer>
     </div>
   );

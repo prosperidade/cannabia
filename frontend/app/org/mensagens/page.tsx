@@ -11,14 +11,7 @@ import {
 } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 import type { Conversation, ConversationMessage } from "@/lib/types";
-import {
-  Card,
-  Badge,
-  Button,
-  MaterialIcon,
-  SearchBar,
-  Avatar,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, MaterialIcon, SearchBar, Avatar } from "@/components/ui-tw";
 
 /* ── helpers ── */
 
@@ -29,8 +22,7 @@ function formatTime(iso: string) {
     const diffMs = now.getTime() - d.getTime();
     const diffH = diffMs / 3_600_000;
     if (diffH < 1) return `${Math.max(1, Math.floor(diffMs / 60_000))} min`;
-    if (diffH < 24)
-      return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    if (diffH < 24) return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   } catch {
     return "";
@@ -82,9 +74,7 @@ export default function InboxPage() {
           limit: 50,
           offset: nextOffset,
         });
-        setConversations((prev) =>
-          opts?.append ? [...prev, ...env.items] : env.items,
-        );
+        setConversations((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
         setHasMore(env.has_more);
         setOffset(nextOffset + env.items.length);
       } catch (err) {
@@ -173,9 +163,7 @@ export default function InboxPage() {
         <p className="text-stone-400 text-sm mt-1 flex items-center gap-2">
           <MaterialIcon icon="forum" size="sm" className="text-primary" />
           {openCount} conversas abertas
-          {totalUnread > 0 && (
-            <Badge tone="danger">{totalUnread} nao lidas</Badge>
-          )}
+          {totalUnread > 0 && <Badge tone="danger">{totalUnread} nao lidas</Badge>}
         </p>
       </div>
 
@@ -183,11 +171,7 @@ export default function InboxPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[60vh]">
         {/* Left: Conversation list */}
         <div className="lg:col-span-4 space-y-4">
-          <SearchBar
-            value={search}
-            onChange={setSearch}
-            placeholder="Buscar contato..."
-          />
+          <SearchBar value={search} onChange={setSearch} placeholder="Buscar contato..." />
           <div className="flex gap-2">
             {(["open", "closed", "all"] as const).map((s) => (
               <button
@@ -220,12 +204,7 @@ export default function InboxPage() {
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {hasMore && (
                 <div className="flex justify-center py-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    icon="expand_more"
-                    onClick={loadMoreConvs}
-                  >
+                  <Button variant="ghost" size="sm" icon="expand_more" onClick={loadMoreConvs}>
                     Carregar mais
                   </Button>
                 </div>
@@ -259,7 +238,9 @@ export default function InboxPage() {
                           {conv.last_message_preview || "Sem mensagens"}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge tone={sb.tone} className="text-[9px]">{sb.label}</Badge>
+                          <Badge tone={sb.tone} className="text-[9px]">
+                            {sb.label}
+                          </Badge>
                           <span className="text-[10px] text-stone-500">{conv.channel}</span>
                           {conv.unread_count > 0 && (
                             <span className="ml-auto w-5 h-5 rounded-full bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center">
@@ -281,8 +262,14 @@ export default function InboxPage() {
           {!activeConvId ? (
             <Card padding="lg" className="h-full flex items-center justify-center text-center">
               <div>
-                <MaterialIcon icon="chat_bubble_outline" size="xl" className="text-stone-600 mb-4" />
-                <p className="text-stone-400">Selecione uma conversa para visualizar as mensagens.</p>
+                <MaterialIcon
+                  icon="chat_bubble_outline"
+                  size="xl"
+                  className="text-stone-600 mb-4"
+                />
+                <p className="text-stone-400">
+                  Selecione uma conversa para visualizar as mensagens.
+                </p>
               </div>
             </Card>
           ) : threadLoading ? (
@@ -299,7 +286,9 @@ export default function InboxPage() {
                     <h3 className="font-bold text-on-surface truncate">
                       {contactLabel(activeConv)}
                     </h3>
-                    <p className="text-xs text-stone-500">{activeConv.contact_phone} - {activeConv.channel}</p>
+                    <p className="text-xs text-stone-500">
+                      {activeConv.contact_phone} - {activeConv.channel}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
@@ -317,7 +306,9 @@ export default function InboxPage() {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.length === 0 ? (
-                  <p className="text-center text-stone-500 text-sm py-8">Nenhuma mensagem nesta conversa.</p>
+                  <p className="text-center text-stone-500 text-sm py-8">
+                    Nenhuma mensagem nesta conversa.
+                  </p>
                 ) : (
                   messages.map((msg) => {
                     const isOutbound = msg.direction === "outbound";
@@ -337,11 +328,15 @@ export default function InboxPage() {
                           <p className="whitespace-pre-wrap break-words">
                             {msg.message_text || "(sem texto)"}
                           </p>
-                          <p className={cn(
-                            "text-[10px] mt-1",
-                            isOutbound ? "text-primary/60 text-right" : "text-stone-500",
-                          )}>
-                            {msg.sender_name && <span className="font-bold mr-2">{msg.sender_name}</span>}
+                          <p
+                            className={cn(
+                              "text-[10px] mt-1",
+                              isOutbound ? "text-primary/60 text-right" : "text-stone-500",
+                            )}
+                          >
+                            {msg.sender_name && (
+                              <span className="font-bold mr-2">{msg.sender_name}</span>
+                            )}
                             {formatTime(msg.created_at)}
                           </p>
                         </div>

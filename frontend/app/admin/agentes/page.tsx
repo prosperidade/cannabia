@@ -5,13 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useApiSession } from "@/lib/use-api-session";
 import { listAgents, getAgentDiary, ApiError } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  Button,
-  StatCard,
-  MaterialIcon,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, StatCard, MaterialIcon } from "@/components/ui-tw";
 
 /* ================================================================== */
 /*  TYPES                                                              */
@@ -208,26 +202,10 @@ export default function AgentesPage() {
       {/* ── KPIs ── */}
       {!loading && agents.length > 0 && (
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            icon="smart_toy"
-            label="Total de Agentes"
-            value={String(totalAgents)}
-          />
-          <StatCard
-            icon="check_circle"
-            label="Agentes Ativos"
-            value={String(activeAgents)}
-          />
-          <StatCard
-            icon="psychology"
-            label="Total de Habilidades"
-            value={String(totalSkills)}
-          />
-          <StatCard
-            icon="auto_stories"
-            label="Entradas no Diario"
-            value={String(totalDiary)}
-          />
+          <StatCard icon="smart_toy" label="Total de Agentes" value={String(totalAgents)} />
+          <StatCard icon="check_circle" label="Agentes Ativos" value={String(activeAgents)} />
+          <StatCard icon="psychology" label="Total de Habilidades" value={String(totalSkills)} />
+          <StatCard icon="auto_stories" label="Entradas no Diario" value={String(totalDiary)} />
         </section>
       )}
 
@@ -295,9 +273,7 @@ export default function AgentesPage() {
                       {agent.diary_entries} registro{(agent.diary_entries ?? 0) !== 1 ? "s" : ""}
                     </Badge>
                   )}
-                  {agent.error && (
-                    <Badge tone="danger">Erro</Badge>
-                  )}
+                  {agent.error && <Badge tone="danger">Erro</Badge>}
                 </div>
 
                 {/* ── Skills List ── */}
@@ -358,10 +334,7 @@ export default function AgentesPage() {
                     {!isDiaryLoading && diary && diary.length > 0 && (
                       <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                         {diary.map((entry, idx) => (
-                          <div
-                            key={idx}
-                            className="p-3 bg-white/5 rounded-lg"
-                          >
+                          <div key={idx} className="p-3 bg-white/5 rounded-lg">
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-xs font-bold text-on-surface">
                                 {entry.event ?? "Evento"}
@@ -378,9 +351,7 @@ export default function AgentesPage() {
                               )}
                             </div>
                             {entry.details && (
-                              <p className="text-xs text-stone-400 line-clamp-3">
-                                {entry.details}
-                              </p>
+                              <p className="text-xs text-stone-400 line-clamp-3">{entry.details}</p>
                             )}
                           </div>
                         ))}

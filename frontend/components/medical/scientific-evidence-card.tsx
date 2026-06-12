@@ -11,7 +11,12 @@ type ScientificEvidenceCardProps = {
   className?: string;
 };
 
-export function ScientificEvidenceCard({ report, ragChunksUsed, reportModel, className }: ScientificEvidenceCardProps) {
+export function ScientificEvidenceCard({
+  report,
+  ragChunksUsed,
+  reportModel,
+  className,
+}: ScientificEvidenceCardProps) {
   return (
     <Card className={cn("ds-evidence", className)}>
       <CardHeader
@@ -34,7 +39,9 @@ export function ScientificEvidenceCard({ report, ragChunksUsed, reportModel, cla
           <ul className="ds-evidence__list">
             {report.supporting_evidence.map((ev, i) => (
               <li key={i} className="ds-evidence__item">
-                <span className="ds-evidence__bullet" aria-hidden="true">&#x25B6;</span>
+                <span className="ds-evidence__bullet" aria-hidden="true">
+                  &#x25B6;
+                </span>
                 {ev}
               </li>
             ))}
@@ -47,7 +54,9 @@ export function ScientificEvidenceCard({ report, ragChunksUsed, reportModel, cla
           <h3 className="ds-evidence__section-title">Referencias</h3>
           <ol className="ds-evidence__refs">
             {report.references.map((ref, i) => (
-              <li key={i} className="ds-evidence__ref">{ref}</li>
+              <li key={i} className="ds-evidence__ref">
+                {ref}
+              </li>
             ))}
           </ol>
         </div>

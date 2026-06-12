@@ -19,7 +19,14 @@ export function RiskIndicator({ level, className }: RiskIndicatorProps) {
   const { label, css, pct } = config[level] ?? config.moderado;
 
   return (
-    <div className={cn("ds-risk", css, className)} role="meter" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Nivel de risco: ${label}`}>
+    <div
+      className={cn("ds-risk", css, className)}
+      role="meter"
+      aria-valuenow={pct}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`Nivel de risco: ${label}`}
+    >
       <div className="ds-risk__track">
         <div className="ds-risk__fill" style={{ width: `${pct}%` }} />
       </div>

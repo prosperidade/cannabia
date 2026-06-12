@@ -8,12 +8,7 @@ import { cn } from "@/lib/cn";
 import { listAttendances, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 import type { AttendanceListItem } from "@/lib/types";
-import {
-  MaterialIcon,
-  Badge,
-  Button,
-  SearchBar,
-} from "@/components/ui-tw";
+import { MaterialIcon, Badge, Button, SearchBar } from "@/components/ui-tw";
 
 /* -------------------------------------------------------------------------- */
 
@@ -43,11 +38,7 @@ function getInitials(name: string): string {
 }
 
 function normaliseStatus(status: string): string {
-  return status
-    .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/ã/g, "a")
-    .replace(/ç/g, "c");
+  return status.toLowerCase().replace(/\s+/g, "_").replace(/ã/g, "a").replace(/ç/g, "c");
 }
 
 const STATUS_BADGE: Record<
@@ -86,10 +77,7 @@ export default function PacientesPage() {
       const env = await listAttendances({ limit: 200 });
       setAttendances(env.items);
     } catch (err) {
-      const msg =
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao carregar pacientes.";
+      const msg = err instanceof ApiError ? err.message : "Falha ao carregar pacientes.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -112,8 +100,7 @@ export default function PacientesPage() {
 
       if (
         !existing ||
-        new Date(a.created_at).getTime() >
-          new Date(existing.last_attendance_date).getTime()
+        new Date(a.created_at).getTime() > new Date(existing.last_attendance_date).getTime()
       ) {
         map.set(key, {
           patient_id: a.patient_id,
@@ -130,8 +117,7 @@ export default function PacientesPage() {
 
     return Array.from(map.values()).sort(
       (a, b) =>
-        new Date(b.last_attendance_date).getTime() -
-        new Date(a.last_attendance_date).getTime(),
+        new Date(b.last_attendance_date).getTime() - new Date(a.last_attendance_date).getTime(),
     );
   }, [attendances]);
 
@@ -139,9 +125,7 @@ export default function PacientesPage() {
     if (!search.trim()) return patients;
     const q = search.trim().toLowerCase();
     return patients.filter(
-      (p) =>
-        p.patient_name.toLowerCase().includes(q) ||
-        p.phone.toLowerCase().includes(q),
+      (p) => p.patient_name.toLowerCase().includes(q) || p.phone.toLowerCase().includes(q),
     );
   }, [patients, search]);
 
@@ -162,8 +146,8 @@ export default function PacientesPage() {
         </h1>
         <p className="text-stone-500 text-sm flex items-center gap-2">
           <MaterialIcon icon="group" size="sm" className="text-primary" />
-          {patients.length} paciente{patients.length !== 1 ? "s" : ""}{" "}
-          registrado{patients.length !== 1 ? "s" : ""}
+          {patients.length} paciente{patients.length !== 1 ? "s" : ""} registrado
+          {patients.length !== 1 ? "s" : ""}
         </p>
       </div>
 
@@ -184,12 +168,7 @@ export default function PacientesPage() {
         <div className="glass-panel rounded-2xl p-8 text-center space-y-4">
           <MaterialIcon icon="error_outline" size="xl" className="text-error" />
           <p className="text-stone-400">{error}</p>
-          <Button
-            variant="secondary"
-            size="sm"
-            icon="refresh"
-            onClick={fetchData}
-          >
+          <Button variant="secondary" size="sm" icon="refresh" onClick={fetchData}>
             Tentar novamente
           </Button>
         </div>
@@ -202,8 +181,7 @@ export default function PacientesPage() {
             Nenhum paciente encontrado
           </h3>
           <p className="text-sm text-stone-600 max-w-md mx-auto">
-            Seus pacientes aparecerao aqui conforme forem atendidos pelo
-            sistema.
+            Seus pacientes aparecerao aqui conforme forem atendidos pelo sistema.
           </p>
         </div>
       ) : (
@@ -232,22 +210,14 @@ export default function PacientesPage() {
                       {getInitials(p.patient_name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-on-surface truncate">
-                        {p.patient_name}
-                      </h3>
-                      <p className="text-xs text-stone-500 font-mono mt-0.5">
-                        {p.phone}
-                      </p>
+                      <h3 className="font-bold text-on-surface truncate">{p.patient_name}</h3>
+                      <p className="text-xs text-stone-500 font-mono mt-0.5">{p.phone}</p>
                       <div className="flex flex-wrap items-center gap-2 mt-3">
                         <Badge tone={statusCfg.tone} className="text-[9px]">
                           {statusCfg.label}
                         </Badge>
                         <span className="text-[10px] text-stone-500 flex items-center gap-1">
-                          <MaterialIcon
-                            icon="calendar_today"
-                            size="sm"
-                            className="text-[11px]"
-                          />
+                          <MaterialIcon icon="calendar_today" size="sm" className="text-[11px]" />
                           {formatDate(p.last_attendance_date)}
                         </span>
                         <span className="text-[10px] text-stone-500">

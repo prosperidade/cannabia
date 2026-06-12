@@ -60,12 +60,7 @@ export default function PagamentoPage() {
           <div className="max-w-md w-full text-center space-y-8">
             {/* Checkmark */}
             <div className="mx-auto w-24 h-24 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-              <MaterialIcon
-                icon="check_circle"
-                filled
-                size="xl"
-                className="text-primary"
-              />
+              <MaterialIcon icon="check_circle" filled size="xl" className="text-primary" />
             </div>
 
             <div className="space-y-3">
@@ -83,9 +78,7 @@ export default function PagamentoPage() {
                   <MaterialIcon icon="chat" size="sm" className="text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-on-surface">
-                    A sua consulta sera por chat
-                  </p>
+                  <p className="text-sm font-bold text-on-surface">A sua consulta sera por chat</p>
                   <p className="text-xs text-on-surface-variant">
                     Responda no seu tempo, sem pressa
                   </p>
@@ -136,9 +129,7 @@ export default function PagamentoPage() {
                 <p className="text-sm text-on-surface-variant uppercase tracking-widest font-bold">
                   Valor atual da consulta
                 </p>
-                <p className="text-lg text-on-surface-variant">
-                  Apenas
-                </p>
+                <p className="text-lg text-on-surface-variant">Apenas</p>
                 <p className="font-headline text-5xl font-extrabold text-primary tracking-tighter">
                   R$ {currentPrice}
                 </p>
@@ -154,7 +145,8 @@ export default function PagamentoPage() {
                     />
                   </div>
                   <p className="text-sm text-on-surface-variant text-left leading-relaxed">
-                    Voce tera acesso a uma consulta completa com um medico especialista em medicina canabinoide.
+                    Voce tera acesso a uma consulta completa com um medico especialista em medicina
+                    canabinoide.
                   </p>
                 </div>
 
@@ -203,9 +195,7 @@ export default function PagamentoPage() {
         <button className="hover:opacity-80 transition-opacity active:scale-95">
           <MaterialIcon icon="arrow_back" className="text-primary" />
         </button>
-        <h1 className="text-lg font-bold tracking-tighter text-primary font-headline">
-          Pagamento
-        </h1>
+        <h1 className="text-lg font-bold tracking-tighter text-primary font-headline">Pagamento</h1>
         <div className="w-6" />
       </header>
 
@@ -226,11 +216,7 @@ export default function PagamentoPage() {
             {/* Price Display */}
             <Card variant="glass" padding="md" className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <MaterialIcon
-                  icon="medical_services"
-                  size="lg"
-                  className="text-primary"
-                />
+                <MaterialIcon icon="medical_services" size="lg" className="text-primary" />
               </div>
               <div className="flex-1">
                 <h3 className="font-headline font-bold text-on-surface">
@@ -241,9 +227,7 @@ export default function PagamentoPage() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-stone-500 line-through">
-                  R$ {originalPrice}
-                </p>
+                <p className="text-sm text-stone-500 line-through">R$ {originalPrice}</p>
                 <p className="font-headline font-extrabold text-2xl text-primary tracking-tighter">
                   R$ {currentPrice}
                 </p>
@@ -292,7 +276,7 @@ export default function PagamentoPage() {
                     "flex-1 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all",
                     selectedMethod === "card"
                       ? "bg-primary-container text-on-primary-container"
-                      : "text-stone-500 hover:text-stone-300"
+                      : "text-stone-500 hover:text-stone-300",
                   )}
                 >
                   <MaterialIcon icon="credit_card" size="sm" />
@@ -304,7 +288,7 @@ export default function PagamentoPage() {
                     "flex-1 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all",
                     selectedMethod === "pix"
                       ? "bg-primary-container text-on-primary-container"
-                      : "text-stone-500 hover:text-stone-300"
+                      : "text-stone-500 hover:text-stone-300",
                   )}
                 >
                   <MaterialIcon icon="qr_code_2" size="sm" />
@@ -402,9 +386,7 @@ export default function PagamentoPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-on-surface">Consulta Premium</h3>
-                    <p className="text-sm text-on-surface-variant">
-                      Medico Especialista
-                    </p>
+                    <p className="text-sm text-on-surface-variant">Medico Especialista</p>
                     <p className="text-xs text-primary mt-1">Consulta por chat</p>
                   </div>
                 </div>
@@ -413,18 +395,14 @@ export default function PagamentoPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-stone-400">Valor original</span>
-                    <span className="text-stone-500 line-through">
-                      R$ {originalPrice},00
-                    </span>
+                    <span className="text-stone-500 line-through">R$ {originalPrice},00</span>
                   </div>
                   <div className="flex justify-between items-center text-sm text-primary">
                     <span className="flex items-center gap-1">
                       <MaterialIcon icon="local_offer" size="sm" />
                       Desconto promocional
                     </span>
-                    <span className="font-medium">
-                      -R$ {originalPrice - currentPrice},00
-                    </span>
+                    <span className="font-medium">-R$ {originalPrice - currentPrice},00</span>
                   </div>
                   {couponApplied && (
                     <div className="flex justify-between items-center text-sm text-emerald-400">
@@ -473,12 +451,10 @@ export default function PagamentoPage() {
                   />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-on-surface">
-                    Precisa de ajuda?
-                  </h4>
+                  <h4 className="text-sm font-bold text-on-surface">Precisa de ajuda?</h4>
                   <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                    Nossa equipe de suporte esta disponivel para ajudar durante todo o
-                    processo de pagamento.
+                    Nossa equipe de suporte esta disponivel para ajudar durante todo o processo de
+                    pagamento.
                   </p>
                 </div>
               </Card>
@@ -493,9 +469,7 @@ export default function PagamentoPage() {
             <div className="flex justify-between items-end border-t border-white/5 pt-6">
               <div>
                 <p className="text-stone-500 text-sm">Valor total</p>
-                <p className="text-xs text-stone-600 italic">
-                  Taxas inclusas
-                </p>
+                <p className="text-xs text-stone-600 italic">Taxas inclusas</p>
               </div>
               <div className="text-right">
                 <p className="text-4xl font-headline font-extrabold text-primary tracking-tighter">
@@ -506,36 +480,22 @@ export default function PagamentoPage() {
 
             <div className="flex items-center justify-center gap-4 py-2 opacity-60">
               <div className="flex items-center gap-1.5">
-                <MaterialIcon
-                  icon="verified_user"
-                  size="sm"
-                  className="text-primary text-[14px]"
-                />
+                <MaterialIcon icon="verified_user" size="sm" className="text-primary text-[14px]" />
                 <span className="text-[10px] uppercase tracking-widest font-bold">
                   Criptografado
                 </span>
               </div>
               <div className="h-1 w-1 bg-stone-700 rounded-full" />
               <div className="flex items-center gap-1.5">
-                <MaterialIcon
-                  icon="lock"
-                  size="sm"
-                  className="text-primary text-[14px]"
-                />
-                <span className="text-[10px] uppercase tracking-widest font-bold">
-                  SSL Seguro
-                </span>
+                <MaterialIcon icon="lock" size="sm" className="text-primary text-[14px]" />
+                <span className="text-[10px] uppercase tracking-widest font-bold">SSL Seguro</span>
               </div>
             </div>
           </section>
 
           {/* Security message */}
           <Card variant="glass" padding="sm" className="flex items-center gap-3">
-            <MaterialIcon
-              icon="shield"
-              size="sm"
-              className="text-primary flex-shrink-0"
-            />
+            <MaterialIcon icon="shield" size="sm" className="text-primary flex-shrink-0" />
             <p className="text-xs text-on-surface-variant leading-relaxed">
               Ambiente de atendimento seguro e em conformidade com as normas de saude
             </p>

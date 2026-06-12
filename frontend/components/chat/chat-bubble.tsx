@@ -25,12 +25,7 @@ interface ChatBubbleProps {
   timestamp?: string;
 }
 
-export function ChatBubble({
-  role,
-  children,
-  initials,
-  timestamp,
-}: ChatBubbleProps) {
+export function ChatBubble({ role, children, initials, timestamp }: ChatBubbleProps) {
   const isAi = role === "ai";
   const fallbackInitials = isAi ? "IA" : "P";
 
@@ -41,13 +36,9 @@ export function ChatBubble({
       initial="hidden"
       animate="visible"
     >
-      <div className={`ds-chat-avatar ds-chat-avatar--${role}`}>
-        {initials ?? fallbackInitials}
-      </div>
+      <div className={`ds-chat-avatar ds-chat-avatar--${role}`}>{initials ?? fallbackInitials}</div>
       <div>
-        <div className={`ds-chat-bubble ds-chat-bubble--${role}`}>
-          {children}
-        </div>
+        <div className={`ds-chat-bubble ds-chat-bubble--${role}`}>{children}</div>
         {timestamp && <div className="ds-chat-time">{timestamp}</div>}
       </div>
     </motion.div>

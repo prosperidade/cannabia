@@ -18,28 +18,18 @@ export default function AdminSistemaPlaceholder() {
         <h2 className="text-2xl md:text-3xl font-black text-on-surface font-headline tracking-tight">
           Sistema e Configuracoes
         </h2>
-        <p className="text-stone-500 font-medium text-sm mt-1">
-          Em reorganizacao
-        </p>
+        <p className="text-stone-500 font-medium text-sm mt-1">Em reorganizacao</p>
       </div>
 
       <Card variant="glass" padding="lg" className="space-y-4 max-w-2xl">
         <div className="flex items-start gap-4">
-          <MaterialIcon
-            icon="construction"
-            size="lg"
-            className="text-amber-400"
-          />
+          <MaterialIcon icon="construction" size="lg" className="text-amber-400" />
           <div className="space-y-2">
-            <h3 className="text-lg font-bold text-on-surface font-headline">
-              Em consolidacao
-            </h3>
+            <h3 className="text-lg font-bold text-on-surface font-headline">Em consolidacao</h3>
             <p className="text-sm text-stone-400 leading-relaxed">
-              As configuracoes do sistema estao sendo agrupadas no painel
-              da clinica/associacao em uma area unica. Quando concluido,
-              esta tela vai abrir automaticamente a aba certa em{" "}
-              <code className="text-primary">/org/configuracoes</code>{" "}
-              de acordo com o seu papel.
+              As configuracoes do sistema estao sendo agrupadas no painel da clinica/associacao em
+              uma area unica. Quando concluido, esta tela vai abrir automaticamente a aba certa em{" "}
+              <code className="text-primary">/org/configuracoes</code> de acordo com o seu papel.
             </p>
             <p className="text-xs text-stone-500 mt-3">
               Sprint atual: Fase A2 (refatoracao do app unificado).

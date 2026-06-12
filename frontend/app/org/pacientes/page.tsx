@@ -28,7 +28,10 @@ interface OrgPatient {
   medicoResponsavel: string;
 }
 
-const statusConfig: Record<PatientStatus, { label: string; tone: "primary" | "info" | "warning" | "danger" | "neutral" }> = {
+const statusConfig: Record<
+  PatientStatus,
+  { label: string; tone: "primary" | "info" | "warning" | "danger" | "neutral" }
+> = {
   em_tratamento: { label: "Em Tratamento", tone: "primary" },
   onboarding: { label: "Em Cadastro", tone: "info" },
   aguardando: { label: "Aguardando Retorno", tone: "warning" },
@@ -42,7 +45,18 @@ type StatsData = {
   inativos: number;
 };
 
-const tratamentos = ["Todos", "Ansiedade", "Dor Cronica", "Insonia", "Depressao", "Epilepsia", "Fibromialgia", "TDAH", "Dor Neuropatica", "Parkinson"];
+const tratamentos = [
+  "Todos",
+  "Ansiedade",
+  "Dor Cronica",
+  "Insonia",
+  "Depressao",
+  "Epilepsia",
+  "Fibromialgia",
+  "TDAH",
+  "Dor Neuropatica",
+  "Parkinson",
+];
 
 export default function PacientesPage() {
   const router = useRouter();
@@ -50,7 +64,12 @@ export default function PacientesPage() {
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [tratamentoFilter, setTratamentoFilter] = useState<string>("Todos");
   const [patients, setPatients] = useState<OrgPatient[]>([]);
-  const [statsData, setStatsData] = useState<StatsData>({ total: 0, ativos: 0, emTratamento: 0, inativos: 0 });
+  const [statsData, setStatsData] = useState<StatsData>({
+    total: 0,
+    ativos: 0,
+    emTratamento: 0,
+    inativos: 0,
+  });
   const [apiLoading, setApiLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -75,13 +94,14 @@ export default function PacientesPage() {
       }
     }
     fetchPatients();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [search, statusFilter]);
 
   const filteredPatients = useMemo(() => {
     return patients.filter((p) => {
-      const matchesTratamento =
-        tratamentoFilter === "Todos" || p.tratamento === tratamentoFilter;
+      const matchesTratamento = tratamentoFilter === "Todos" || p.tratamento === tratamentoFilter;
       return matchesTratamento;
     });
   }, [patients, tratamentoFilter]);
@@ -219,10 +239,34 @@ export default function PacientesPage() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon="group" label="Total" value={statsData.total.toLocaleString("pt-BR")} delta="+12%" deltaType="up" />
-        <StatCard icon="check_circle" label="Ativos" value={statsData.ativos.toLocaleString("pt-BR")} delta="+8%" deltaType="up" />
-        <StatCard icon="healing" label="Em Tratamento" value={statsData.emTratamento.toLocaleString("pt-BR")} delta="+5%" deltaType="up" />
-        <StatCard icon="person_off" label="Inativos" value={statsData.inativos.toLocaleString("pt-BR")} delta="-3%" deltaType="down" />
+        <StatCard
+          icon="group"
+          label="Total"
+          value={statsData.total.toLocaleString("pt-BR")}
+          delta="+12%"
+          deltaType="up"
+        />
+        <StatCard
+          icon="check_circle"
+          label="Ativos"
+          value={statsData.ativos.toLocaleString("pt-BR")}
+          delta="+8%"
+          deltaType="up"
+        />
+        <StatCard
+          icon="healing"
+          label="Em Tratamento"
+          value={statsData.emTratamento.toLocaleString("pt-BR")}
+          delta="+5%"
+          deltaType="up"
+        />
+        <StatCard
+          icon="person_off"
+          label="Inativos"
+          value={statsData.inativos.toLocaleString("pt-BR")}
+          delta="-3%"
+          deltaType="down"
+        />
       </div>
 
       {/* Filters */}

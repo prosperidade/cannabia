@@ -14,12 +14,7 @@ export interface MaterialIconProps {
   className?: string;
 }
 
-export function MaterialIcon({
-  icon,
-  filled = false,
-  size = "md",
-  className,
-}: MaterialIconProps) {
+export function MaterialIcon({ icon, filled = false, size = "md", className }: MaterialIconProps) {
   return (
     <span
       className={cn("material-symbols-outlined", sizeMap[size], className)}

@@ -17,15 +17,11 @@ export function StepHabitos() {
         <h2 className="text-2xl md:text-3xl font-headline font-extrabold text-on-surface leading-tight mb-2">
           Habitos de Saude
         </h2>
-        <p className="text-sm text-on-surface-variant leading-relaxed mb-3">
-          Sobre a sua saude:
-        </p>
+        <p className="text-sm text-on-surface-variant leading-relaxed mb-3">Sobre a sua saude:</p>
         {/* Warning */}
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <MaterialIcon icon="warning" filled size="sm" className="text-amber-400" />
-          <span className="text-xs font-semibold text-amber-400">
-            Responda com muita atencao
-          </span>
+          <span className="text-xs font-semibold text-amber-400">Responda com muita atencao</span>
         </div>
       </div>
 
@@ -50,7 +46,9 @@ export function StepHabitos() {
             </span>
             <ToggleSwitch
               checked={habitos.fuma}
-              onChange={(val) => updateHabitos({ fuma: val, frequencia_fumo: val ? habitos.frequencia_fumo : "" })}
+              onChange={(val) =>
+                updateHabitos({ fuma: val, frequencia_fumo: val ? habitos.frequencia_fumo : "" })
+              }
             />
           </div>
           {habitos.fuma && (

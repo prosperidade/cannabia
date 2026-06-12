@@ -5,12 +5,7 @@ import { startTransition, type FormEvent, useEffect, useState } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { StatusPill } from "@/components/status-pill";
-import {
-  ApiError,
-  getAttendance,
-  reviewAttendance,
-  saveMedicalRecord,
-} from "@/lib/api";
+import { ApiError, getAttendance, reviewAttendance, saveMedicalRecord } from "@/lib/api";
 import { formatDateTime, humanize, toStringArray } from "@/lib/format";
 import { useApiSession } from "@/lib/use-api-session";
 import type { AttendanceDetail, MedicalRecordPayload } from "@/lib/types";
@@ -68,16 +63,16 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
       <header className="attendance-card">
         <div>
           <p className="eyebrow">Recomendacao do Prescritor</p>
-          <h2>{ratio} · {humanize(route)}</h2>
+          <h2>
+            {ratio} · {humanize(route)}
+          </h2>
           {spectrum ? <p className="lead">Espectro: {humanize(spectrum)}</p> : null}
         </div>
         {maxDaily !== null ? (
           <div style={{ textAlign: "right" }}>
             <p className="eyebrow">Dose maxima diaria</p>
             <strong style={{ fontSize: "1.4rem" }}>{maxDaily} mg</strong>
-            {concentration !== null ? (
-              <p className="lead">{concentration} mg/mL</p>
-            ) : null}
+            {concentration !== null ? <p className="lead">{concentration} mg/mL</p> : null}
           </div>
         ) : null}
       </header>
@@ -87,8 +82,7 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
           <span
             className="mini-pill"
             title={
-              asString(data.safety_clamp_reason)
-              ?? "Rules Engine ajustou a dose por seguranca."
+              asString(data.safety_clamp_reason) ?? "Rules Engine ajustou a dose por seguranca."
             }
           >
             ⚠ Dosagem ajustada por seguranca
@@ -103,9 +97,7 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
           </span>
         ) : null}
         {confidence !== null ? (
-          <span className="mini-pill">
-            Confianca: {(confidence * 100).toFixed(0)}%
-          </span>
+          <span className="mini-pill">Confianca: {(confidence * 100).toFixed(0)}%</span>
         ) : null}
       </div>
 
@@ -148,14 +140,16 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
                 <div className="timeline-card" key={`tit-${idx}`}>
                   <header>
                     <div>
-                      <strong>{humanize(phase)} · {range}</strong>
+                      <strong>
+                        {humanize(phase)} · {range}
+                      </strong>
                       {drops !== null && doses !== null ? (
-                        <p className="lead">{drops} gota(s) · {doses}x ao dia</p>
+                        <p className="lead">
+                          {drops} gota(s) · {doses}x ao dia
+                        </p>
                       ) : null}
                     </div>
-                    {stepMg !== null ? (
-                      <span className="mini-pill">{stepMg} mg/dia</span>
-                    ) : null}
+                    {stepMg !== null ? <span className="mini-pill">{stepMg} mg/dia</span> : null}
                   </header>
                   {obs ? <p className="lead">{obs}</p> : null}
                 </div>
@@ -177,10 +171,7 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
       ) : null}
 
       {summary.age_adjustment || summary.recommended_ratio ? (
-        <p
-          className="lead"
-          style={{ marginTop: 12, fontSize: "0.85rem", opacity: 0.75 }}
-        >
+        <p className="lead" style={{ marginTop: 12, fontSize: "0.85rem", opacity: 0.75 }}>
           Rules Engine: {asString(summary.age_adjustment) ?? "—"}
           {asString(summary.recommended_ratio)
             ? ` · ratio recomendado: ${summary.recommended_ratio as string}`
@@ -193,7 +184,9 @@ function PrescriptionResultBlock({ data }: { data: Record<string, unknown> }) {
           <summary className="eyebrow" style={{ cursor: "pointer" }}>
             Racional clinico (LLM)
           </summary>
-          <p className="lead" style={{ marginTop: 8 }}>{rationale}</p>
+          <p className="lead" style={{ marginTop: 8 }}>
+            {rationale}
+          </p>
         </details>
       ) : null}
     </article>
@@ -252,7 +245,9 @@ export default function AttendanceDetailPage() {
           follow_up_plan: data.consultation_entry?.follow_up_plan ?? "",
         });
       } catch (loadError) {
-        setError(loadError instanceof ApiError ? loadError.message : "Falha ao carregar atendimento.");
+        setError(
+          loadError instanceof ApiError ? loadError.message : "Falha ao carregar atendimento.",
+        );
       } finally {
         setLoading(false);
       }
@@ -298,7 +293,9 @@ export default function AttendanceDetailPage() {
       await refreshDetail();
       setSaveMessage("Atendimento revisado com sucesso.");
     } catch (reviewError) {
-      setError(reviewError instanceof ApiError ? reviewError.message : "Falha ao revisar atendimento.");
+      setError(
+        reviewError instanceof ApiError ? reviewError.message : "Falha ao revisar atendimento.",
+      );
     } finally {
       setReviewBusy(false);
     }
@@ -410,9 +407,9 @@ export default function AttendanceDetailPage() {
             </pre>
           </article>
 
-          {report.prescription_result
-            ? <PrescriptionResultBlock data={report.prescription_result} />
-            : null}
+          {report.prescription_result ? (
+            <PrescriptionResultBlock data={report.prescription_result} />
+          ) : null}
         </div>
 
         <div className="record-stack">
@@ -427,8 +424,8 @@ export default function AttendanceDetailPage() {
             <p className="eyebrow">Prontuario longitudinal</p>
             <h2>Registro clinico do medico</h2>
             <p className="record-copy">
-              Esta e a primeira superficie do prontuario no frontend novo, consumindo a API
-              Flask em tempo real.
+              Esta e a primeira superficie do prontuario no frontend novo, consumindo a API Flask em
+              tempo real.
             </p>
 
             <div className="record-grid">
@@ -583,14 +580,18 @@ export default function AttendanceDetailPage() {
                         </span>
                       ))}
                     </div>
-                    {entry.clinical_assessment ? <p className="lead">{entry.clinical_assessment}</p> : null}
+                    {entry.clinical_assessment ? (
+                      <p className="lead">{entry.clinical_assessment}</p>
+                    ) : null}
                     {entry.conduct ? <p className="lead">{entry.conduct}</p> : null}
                     {entry.follow_up_plan ? <p className="lead">{entry.follow_up_plan}</p> : null}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="inline-empty">Ainda nao existem entradas clinicas neste prontuario.</div>
+              <div className="inline-empty">
+                Ainda nao existem entradas clinicas neste prontuario.
+              </div>
             )}
           </article>
         </div>

@@ -7,7 +7,13 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { getAttendance, saveMedicalRecord, reviewAttendance, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import type { AttendanceDetail, AttendanceReport, TimelineEvent, MedicalRecordEntry, MedicalRecordPayload } from "@/lib/types";
+import type {
+  AttendanceDetail,
+  AttendanceReport,
+  TimelineEvent,
+  MedicalRecordEntry,
+  MedicalRecordPayload,
+} from "@/lib/types";
 import type {
   ClinicalAnalysis,
   TreatmentPlan,
@@ -18,14 +24,7 @@ import type {
   RiskLevel,
   ConfidenceLevel,
 } from "@/lib/types-medical";
-import {
-  MaterialIcon,
-  Badge,
-  Button,
-  Card,
-  ProgressBar,
-  Avatar,
-} from "@/components/ui-tw";
+import { MaterialIcon, Badge, Button, Card, ProgressBar, Avatar } from "@/components/ui-tw";
 
 /* ---------------------------------------------------------------------------
  * Constants & Helpers
@@ -41,7 +40,10 @@ const RISK_CONFIG: Record<
   baixo: { label: "Baixo", tone: "success", dotColor: "bg-emerald-500" },
 };
 
-const CONFIDENCE_MAP: Record<ConfidenceLevel, { label: string; percent: number; variant: "primary" | "warning" | "danger" }> = {
+const CONFIDENCE_MAP: Record<
+  ConfidenceLevel,
+  { label: string; percent: number; variant: "primary" | "warning" | "danger" }
+> = {
   alto: { label: "Alto", percent: 88, variant: "primary" },
   medio: { label: "Medio", percent: 62, variant: "warning" },
   baixo: { label: "Baixo", percent: 35, variant: "danger" },
@@ -122,11 +124,21 @@ function parsePatientContext(report: AttendanceReport): PatientContext {
     id: report.patient_id ?? 0,
     name: report.patient_name,
     age: (an.age as number | undefined) ?? (an.idade as number | undefined) ?? 0,
-    main_complaint: (an.main_complaint as string | undefined) ?? (an.queixa_principal as string | undefined) ?? "",
+    main_complaint:
+      (an.main_complaint as string | undefined) ??
+      (an.queixa_principal as string | undefined) ??
+      "",
     symptoms: (an.symptoms as string[] | undefined) ?? (an.sintomas as string[] | undefined) ?? [],
-    current_medications: (an.current_medications as string[] | undefined) ?? (an.medicamentos_atuais as string[] | undefined) ?? [],
-    allergies: (an.allergies as string[] | undefined) ?? (an.alergias as string[] | undefined) ?? [],
-    medical_history: (an.medical_history as string | undefined) ?? (an.historico_medico as string | undefined) ?? null,
+    current_medications:
+      (an.current_medications as string[] | undefined) ??
+      (an.medicamentos_atuais as string[] | undefined) ??
+      [],
+    allergies:
+      (an.allergies as string[] | undefined) ?? (an.alergias as string[] | undefined) ?? [],
+    medical_history:
+      (an.medical_history as string | undefined) ??
+      (an.historico_medico as string | undefined) ??
+      null,
   };
 }
 
@@ -135,14 +147,21 @@ function parseExtractedConditions(ca: ClinicalAnalysis): ExtractedCondition[] {
   return ca.probable_conditions.map((cond, i) => ({
     condition_name: cond,
     icd10_hint: null,
-    confidence: i === 0 ? "alto" as ConfidenceLevel : i === 1 ? "medio" as ConfidenceLevel : "baixo" as ConfidenceLevel,
+    confidence:
+      i === 0
+        ? ("alto" as ConfidenceLevel)
+        : i === 1
+          ? ("medio" as ConfidenceLevel)
+          : ("baixo" as ConfidenceLevel),
     evidence_snippet: null,
   }));
 }
 
 /** Parse vital signs from anamnesis_data. */
 function parseVitalSigns(an: Record<string, unknown>): VitalSigns | null {
-  const vitals = (an.vital_signs ?? an.sinais_vitais ?? an.vitals) as Partial<VitalSigns> | undefined;
+  const vitals = (an.vital_signs ?? an.sinais_vitais ?? an.vitals) as
+    | Partial<VitalSigns>
+    | undefined;
   if (!vitals) return null;
   return {
     bp_systolic: vitals.bp_systolic ?? null,
@@ -172,16 +191,34 @@ function timelineToChat(event: TimelineEvent): {
   });
 
   if (event.source_type === "patient" || event.event_type === "message_received") {
-    return { id: event.id, side: "right", text: event.description ?? event.title, time, label: "Paciente" };
+    return {
+      id: event.id,
+      side: "right",
+      text: event.description ?? event.title,
+      time,
+      label: "Paciente",
+    };
   }
   if (event.source_type === "ai" || event.event_type === "ai_response") {
-    return { id: event.id, side: "left", text: event.description ?? event.title, time, label: "IA" };
+    return {
+      id: event.id,
+      side: "left",
+      text: event.description ?? event.title,
+      time,
+      label: "IA",
+    };
   }
   if (event.event_type === "system" || event.event_type === "status_change") {
     return { id: event.id, side: "center", text: event.title, time, label: "Sistema" };
   }
   // Default: show as AI/system message on the left
-  return { id: event.id, side: "left", text: event.description ?? event.title, time, label: event.event_type };
+  return {
+    id: event.id,
+    side: "left",
+    text: event.description ?? event.title,
+    time,
+    label: event.event_type,
+  };
 }
 
 /* ---------------------------------------------------------------------------
@@ -329,10 +366,7 @@ export default function ConsultaAoVivoPage() {
     () => (report ? parseScientificReport(report.scientific_report) : null),
     [report],
   );
-  const patientContext = useMemo(
-    () => (report ? parsePatientContext(report) : null),
-    [report],
-  );
+  const patientContext = useMemo(() => (report ? parsePatientContext(report) : null), [report]);
   const extractedConditions = useMemo(
     () => (clinicalAnalysis ? parseExtractedConditions(clinicalAnalysis) : []),
     [clinicalAnalysis],
@@ -432,7 +466,12 @@ export default function ConsultaAoVivoPage() {
             <Button variant="secondary" size="sm" icon="refresh" onClick={fetchDetail}>
               Tentar novamente
             </Button>
-            <Button variant="ghost" size="sm" icon="arrow_back" onClick={() => router.push("/med/fila")}>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon="arrow_back"
+              onClick={() => router.push("/med/fila")}
+            >
               Voltar
             </Button>
           </div>
@@ -446,8 +485,15 @@ export default function ConsultaAoVivoPage() {
       <div className="flex items-center justify-center min-h-[80vh]">
         <div className="glass-panel rounded-2xl p-12 text-center space-y-4">
           <MaterialIcon icon="search_off" size="xl" className="text-stone-600" />
-          <p className="text-stone-400 text-lg font-headline font-bold">Atendimento nao encontrado</p>
-          <Button variant="secondary" size="sm" icon="arrow_back" onClick={() => router.push("/med/fila")}>
+          <p className="text-stone-400 text-lg font-headline font-bold">
+            Atendimento nao encontrado
+          </p>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon="arrow_back"
+            onClick={() => router.push("/med/fila")}
+          >
             Voltar a fila
           </Button>
         </div>
@@ -482,7 +528,9 @@ export default function ConsultaAoVivoPage() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-mono font-bold text-primary">{formatTimer(elapsedSeconds)}</span>
+            <span className="text-xs font-mono font-bold text-primary">
+              {formatTimer(elapsedSeconds)}
+            </span>
           </div>
           <button
             onClick={() => router.push("/med/fila")}
@@ -517,9 +565,13 @@ export default function ConsultaAoVivoPage() {
                 <div key={msg.id} className="flex justify-end">
                   <div className="max-w-[80%] lg:max-w-[70%]">
                     <div className="bg-primary/10 border border-primary/20 rounded-2xl rounded-br-md px-4 py-3">
-                      <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                      <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
+                        {msg.text}
+                      </p>
                     </div>
-                    <p className="text-[10px] text-stone-600 text-right mt-1">{msg.label} &middot; {msg.time}</p>
+                    <p className="text-[10px] text-stone-600 text-right mt-1">
+                      {msg.label} &middot; {msg.time}
+                    </p>
                   </div>
                 </div>
               );
@@ -529,10 +581,16 @@ export default function ConsultaAoVivoPage() {
               <div key={msg.id} className="flex justify-start">
                 <div className="max-w-[80%] lg:max-w-[70%]">
                   <div className="glass-panel rounded-2xl rounded-bl-md px-4 py-3 border border-white/5">
-                    <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                    <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
+                      {msg.text}
+                    </p>
                   </div>
                   <p className="text-[10px] text-stone-600 mt-1">
-                    <MaterialIcon icon="auto_awesome" size="sm" className="text-primary text-[10px] mr-1 align-middle" />
+                    <MaterialIcon
+                      icon="auto_awesome"
+                      size="sm"
+                      className="text-primary text-[10px] mr-1 align-middle"
+                    />
                     {msg.label} &middot; {msg.time}
                   </p>
                 </div>
@@ -548,9 +606,8 @@ export default function ConsultaAoVivoPage() {
         <div className="flex items-start gap-3 rounded-xl bg-surface-container-low/60 px-4 py-3 border border-outline-variant/20">
           <MaterialIcon icon="info" size="sm" className="text-stone-400 shrink-0 mt-0.5" />
           <p className="text-[11px] text-stone-400 leading-relaxed">
-            Comunicação com o paciente é assíncrona via WhatsApp. Acima você vê
-            o histórico real da anamnese e dos eventos do atendimento. Chat em
-            tempo real virá em sprint futura.
+            Comunicação com o paciente é assíncrona via WhatsApp. Acima você vê o histórico real da
+            anamnese e dos eventos do atendimento. Chat em tempo real virá em sprint futura.
           </p>
         </div>
       </div>
@@ -567,7 +624,9 @@ export default function ConsultaAoVivoPage() {
             <MaterialIcon icon="auto_awesome" size="sm" />
             Assistente IA
           </h3>
-          <Badge tone="primary" pulse>AO VIVO</Badge>
+          <Badge tone="primary" pulse>
+            AO VIVO
+          </Badge>
         </div>
         {/* AI Tabs */}
         <div className="flex gap-1 overflow-x-auto no-scrollbar">
@@ -607,7 +666,9 @@ export default function ConsultaAoVivoPage() {
         <Card variant="glass" padding="sm" className="border-l-4 border-l-primary">
           <div className="flex items-center gap-2 mb-3">
             <MaterialIcon icon="person" size="sm" className="text-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Contexto do Paciente</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              Contexto do Paciente
+            </span>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -617,7 +678,9 @@ export default function ConsultaAoVivoPage() {
             {patientContext.age > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-xs text-stone-400">Idade</span>
-                <span className="text-sm font-semibold text-on-surface">{patientContext.age} anos</span>
+                <span className="text-sm font-semibold text-on-surface">
+                  {patientContext.age} anos
+                </span>
               </div>
             )}
             {patientContext.main_complaint && (
@@ -631,7 +694,10 @@ export default function ConsultaAoVivoPage() {
                 <span className="text-xs text-stone-400">Sintomas</span>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {patientContext.symptoms.map((s, i) => (
-                    <span key={i} className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-stone-300">
+                    <span
+                      key={i}
+                      className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-stone-300"
+                    >
                       {s}
                     </span>
                   ))}
@@ -643,7 +709,10 @@ export default function ConsultaAoVivoPage() {
                 <span className="text-xs text-stone-400">Medicamentos atuais</span>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {patientContext.current_medications.map((m, i) => (
-                    <span key={i} className="text-[10px] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full text-blue-300">
+                    <span
+                      key={i}
+                      className="text-[10px] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full text-blue-300"
+                    >
                       {m}
                     </span>
                   ))}
@@ -655,7 +724,10 @@ export default function ConsultaAoVivoPage() {
                 <span className="text-xs text-stone-400">Alergias</span>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {patientContext.allergies.map((a, i) => (
-                    <span key={i} className="text-[10px] bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full text-red-300">
+                    <span
+                      key={i}
+                      className="text-[10px] bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full text-red-300"
+                    >
                       {a}
                     </span>
                   ))}
@@ -675,7 +747,9 @@ export default function ConsultaAoVivoPage() {
           >
             <div className="flex items-center gap-2">
               <MaterialIcon icon="monitor_heart" size="sm" className="text-primary" />
-              <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Sinais Vitais</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                Sinais Vitais
+              </span>
             </div>
             <MaterialIcon
               icon={expandedSections.has("vitals") ? "expand_less" : "expand_more"}
@@ -686,22 +760,47 @@ export default function ConsultaAoVivoPage() {
           {expandedSections.has("vitals") && (
             <div className="grid grid-cols-2 gap-2 mt-3">
               {vitalSigns.bp_systolic != null && vitalSigns.bp_diastolic != null && (
-                <VitalItem label="PA" value={`${vitalSigns.bp_systolic}/${vitalSigns.bp_diastolic}`} unit="mmHg" icon="bloodtype" />
+                <VitalItem
+                  label="PA"
+                  value={`${vitalSigns.bp_systolic}/${vitalSigns.bp_diastolic}`}
+                  unit="mmHg"
+                  icon="bloodtype"
+                />
               )}
               {vitalSigns.heart_rate != null && (
-                <VitalItem label="FC" value={String(vitalSigns.heart_rate)} unit="bpm" icon="favorite" />
+                <VitalItem
+                  label="FC"
+                  value={String(vitalSigns.heart_rate)}
+                  unit="bpm"
+                  icon="favorite"
+                />
               )}
               {vitalSigns.temperature != null && (
-                <VitalItem label="Temp" value={String(vitalSigns.temperature)} unit="C" icon="thermostat" />
+                <VitalItem
+                  label="Temp"
+                  value={String(vitalSigns.temperature)}
+                  unit="C"
+                  icon="thermostat"
+                />
               )}
               {vitalSigns.spo2 != null && (
                 <VitalItem label="SpO2" value={String(vitalSigns.spo2)} unit="%" icon="air" />
               )}
               {vitalSigns.respiratory_rate != null && (
-                <VitalItem label="FR" value={String(vitalSigns.respiratory_rate)} unit="irpm" icon="pulmonology" />
+                <VitalItem
+                  label="FR"
+                  value={String(vitalSigns.respiratory_rate)}
+                  unit="irpm"
+                  icon="pulmonology"
+                />
               )}
               {vitalSigns.pain_level != null && (
-                <VitalItem label="Dor" value={String(vitalSigns.pain_level)} unit="/10" icon="sentiment_very_dissatisfied" />
+                <VitalItem
+                  label="Dor"
+                  value={String(vitalSigns.pain_level)}
+                  unit="/10"
+                  icon="sentiment_very_dissatisfied"
+                />
               )}
             </div>
           )}
@@ -712,7 +811,9 @@ export default function ConsultaAoVivoPage() {
       <Card variant="glass" padding="sm">
         <div className="flex items-center gap-2 mb-3">
           <MaterialIcon icon="diagnosis" size="sm" className="text-primary" />
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Diagnostico Diferencial</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            Diagnostico Diferencial
+          </span>
         </div>
         {extractedConditions.length === 0 ? (
           <p className="text-xs text-stone-500 italic">Nenhuma condicao identificada ainda.</p>
@@ -738,16 +839,25 @@ export default function ConsultaAoVivoPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-on-surface">{cond.condition_name}</p>
                       {cond.icd10_hint && (
-                        <span className="text-[10px] text-stone-500 font-mono">{cond.icd10_hint}</span>
+                        <span className="text-[10px] text-stone-500 font-mono">
+                          {cond.icd10_hint}
+                        </span>
                       )}
                     </div>
-                    <span className={cn("text-xs font-bold font-mono ml-2", `text-${conf.variant === "primary" ? "primary" : conf.variant === "warning" ? "amber-400" : "red-400"}`)}>
+                    <span
+                      className={cn(
+                        "text-xs font-bold font-mono ml-2",
+                        `text-${conf.variant === "primary" ? "primary" : conf.variant === "warning" ? "amber-400" : "red-400"}`,
+                      )}
+                    >
                       {conf.percent}%
                     </span>
                   </div>
                   <ProgressBar value={conf.percent} variant={conf.variant} size="sm" glow />
                   {cond.evidence_snippet && (
-                    <p className="text-[10px] text-stone-500 mt-2 italic leading-relaxed">{cond.evidence_snippet}</p>
+                    <p className="text-[10px] text-stone-500 mt-2 italic leading-relaxed">
+                      {cond.evidence_snippet}
+                    </p>
                   )}
                   {isHighlighted && (
                     <div className="mt-2 flex items-center gap-2">
@@ -775,11 +885,16 @@ export default function ConsultaAoVivoPage() {
         <Card variant="glass" padding="sm" className="border-l-4 border-l-error">
           <div className="flex items-center gap-2 mb-3">
             <MaterialIcon icon="warning" size="sm" className="text-error" />
-            <span className="text-xs font-bold uppercase tracking-widest text-error">Sinais de Alerta</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-error">
+              Sinais de Alerta
+            </span>
           </div>
           <div className="space-y-2">
             {clinicalAnalysis.red_flags.map((flag, i) => (
-              <div key={i} className="flex items-start gap-2 bg-error/5 border border-error/10 rounded-lg px-3 py-2">
+              <div
+                key={i}
+                className="flex items-start gap-2 bg-error/5 border border-error/10 rounded-lg px-3 py-2"
+              >
                 <MaterialIcon icon="emergency" size="sm" className="text-error mt-0.5 shrink-0" />
                 <span className="text-xs text-red-200 leading-relaxed">{flag}</span>
               </div>
@@ -793,7 +908,9 @@ export default function ConsultaAoVivoPage() {
         <Card variant="glass" padding="sm">
           <div className="flex items-center gap-2 mb-3">
             <MaterialIcon icon="labs" size="sm" className="text-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Exames Recomendados</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              Exames Recomendados
+            </span>
           </div>
           <div className="flex flex-wrap gap-2">
             {clinicalAnalysis.recommended_exams.map((exam, i) => (
@@ -819,31 +936,45 @@ export default function ConsultaAoVivoPage() {
           <Card variant="glass" padding="sm" className="border-l-4 border-l-primary">
             <div className="flex items-center gap-2 mb-3">
               <MaterialIcon icon="medication_liquid" size="sm" className="text-primary" />
-              <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Protocolo Canabinoides</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                Protocolo Canabinoides
+              </span>
             </div>
             <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 space-y-3">
               {treatmentPlan.cannabinoid_ratio && (
                 <div>
-                  <span className="text-[10px] uppercase text-primary font-bold tracking-widest">Proporcao CBD:THC</span>
-                  <p className="text-lg font-headline font-bold text-on-surface mt-0.5">{treatmentPlan.cannabinoid_ratio}</p>
+                  <span className="text-[10px] uppercase text-primary font-bold tracking-widest">
+                    Proporcao CBD:THC
+                  </span>
+                  <p className="text-lg font-headline font-bold text-on-surface mt-0.5">
+                    {treatmentPlan.cannabinoid_ratio}
+                  </p>
                 </div>
               )}
               {treatmentPlan.suggested_dosage && (
                 <div>
-                  <span className="text-[10px] uppercase text-stone-400 font-bold tracking-widest">Dosagem Sugerida</span>
+                  <span className="text-[10px] uppercase text-stone-400 font-bold tracking-widest">
+                    Dosagem Sugerida
+                  </span>
                   <p className="text-sm text-on-surface mt-0.5">{treatmentPlan.suggested_dosage}</p>
                 </div>
               )}
               {treatmentPlan.administration_route && (
                 <div>
-                  <span className="text-[10px] uppercase text-stone-400 font-bold tracking-widest">Via de Administracao</span>
-                  <p className="text-sm text-on-surface mt-0.5">{treatmentPlan.administration_route}</p>
+                  <span className="text-[10px] uppercase text-stone-400 font-bold tracking-widest">
+                    Via de Administracao
+                  </span>
+                  <p className="text-sm text-on-surface mt-0.5">
+                    {treatmentPlan.administration_route}
+                  </p>
                 </div>
               )}
               <button
-                onClick={() => void copyToClipboard(
-                  `Proporcao: ${treatmentPlan.cannabinoid_ratio}\nDosagem: ${treatmentPlan.suggested_dosage}\nVia: ${treatmentPlan.administration_route}`
-                )}
+                onClick={() =>
+                  void copyToClipboard(
+                    `Proporcao: ${treatmentPlan.cannabinoid_ratio}\nDosagem: ${treatmentPlan.suggested_dosage}\nVia: ${treatmentPlan.administration_route}`,
+                  )
+                }
                 className="text-[10px] text-primary hover:underline flex items-center gap-1"
               >
                 <MaterialIcon icon="content_copy" size="sm" className="text-[12px]" />
@@ -861,7 +992,9 @@ export default function ConsultaAoVivoPage() {
               >
                 <div className="flex items-center gap-2">
                   <MaterialIcon icon="monitoring" size="sm" className="text-primary" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Plano de Monitoramento</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                    Plano de Monitoramento
+                  </span>
                 </div>
                 <MaterialIcon
                   icon={expandedSections.has("monitoring") ? "expand_less" : "expand_more"}
@@ -882,12 +1015,18 @@ export default function ConsultaAoVivoPage() {
             <Card variant="glass" padding="sm">
               <div className="flex items-center gap-2 mb-3">
                 <MaterialIcon icon="health_and_safety" size="sm" className="text-amber-400" />
-                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Precaucoes</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                  Precaucoes
+                </span>
               </div>
               <ul className="space-y-2">
                 {treatmentPlan.precautions.map((p, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <MaterialIcon icon="chevron_right" size="sm" className="text-amber-400 mt-0.5 shrink-0" />
+                    <MaterialIcon
+                      icon="chevron_right"
+                      size="sm"
+                      className="text-amber-400 mt-0.5 shrink-0"
+                    />
                     <span className="text-xs text-stone-300 leading-relaxed">{p}</span>
                   </li>
                 ))}
@@ -908,7 +1047,9 @@ export default function ConsultaAoVivoPage() {
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <MaterialIcon icon="medication_liquid" size="xl" className="text-stone-700 mb-3" />
           <p className="text-stone-500 text-sm">Nenhum plano terapeutico disponivel.</p>
-          <p className="text-stone-600 text-xs mt-1">O plano sera gerado apos a analise completa.</p>
+          <p className="text-stone-600 text-xs mt-1">
+            O plano sera gerado apos a analise completa.
+          </p>
         </div>
       )}
     </>
@@ -925,7 +1066,9 @@ export default function ConsultaAoVivoPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <MaterialIcon icon="summarize" size="sm" className="text-primary" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Resumo Cientifico</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                    Resumo Cientifico
+                  </span>
                 </div>
                 <button
                   onClick={() => void copyToClipboard(scientificReport.summary)}
@@ -945,7 +1088,9 @@ export default function ConsultaAoVivoPage() {
             <Card variant="glass" padding="sm">
               <div className="flex items-center gap-2 mb-3">
                 <MaterialIcon icon="science" size="sm" className="text-primary" />
-                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Evidencias de Suporte</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                  Evidencias de Suporte
+                </span>
               </div>
               <ul className="space-y-3">
                 {scientificReport.supporting_evidence.map((ev, i) => (
@@ -962,13 +1107,19 @@ export default function ConsultaAoVivoPage() {
             <Card variant="glass" padding="sm">
               <div className="flex items-center gap-2 mb-3">
                 <MaterialIcon icon="menu_book" size="sm" className="text-primary" />
-                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Referencias</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                  Referencias
+                </span>
               </div>
               <ul className="space-y-2">
                 {scientificReport.references.map((ref, i) => (
                   <li key={i}>
-                    <p className="text-[11px] text-primary leading-tight hover:underline cursor-pointer">{ref}</p>
-                    <span className="text-[9px] text-stone-500 uppercase mt-0.5 block">Referencia {i + 1}</span>
+                    <p className="text-[11px] text-primary leading-tight hover:underline cursor-pointer">
+                      {ref}
+                    </p>
+                    <span className="text-[9px] text-stone-500 uppercase mt-0.5 block">
+                      Referencia {i + 1}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -979,7 +1130,9 @@ export default function ConsultaAoVivoPage() {
           <Card variant="glass" padding="sm">
             <div className="flex items-center gap-2 mb-3">
               <MaterialIcon icon="data_usage" size="sm" className="text-stone-400" />
-              <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Detalhes da Analise</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                Detalhes da Analise
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white/5 rounded-lg p-2.5 text-center">
@@ -987,7 +1140,9 @@ export default function ConsultaAoVivoPage() {
                 <p className="text-[10px] text-stone-500 uppercase">Fontes Consultadas</p>
               </div>
               <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                <p className="text-[11px] font-bold font-mono text-on-surface truncate">{report.report_model}</p>
+                <p className="text-[11px] font-bold font-mono text-on-surface truncate">
+                  {report.report_model}
+                </p>
                 <p className="text-[10px] text-stone-500 uppercase">Modelo de Analise</p>
               </div>
             </div>
@@ -1011,26 +1166,34 @@ export default function ConsultaAoVivoPage() {
       <Card variant="glass" padding="sm" className="border-l-4 border-l-primary">
         <div className="flex items-center gap-2 mb-4">
           <MaterialIcon icon="edit_note" size="sm" className="text-primary" />
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Prontuario da Consulta</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            Prontuario da Consulta
+          </span>
         </div>
         <div className="space-y-4">
           {/* Status */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Status da Consulta</label>
+            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              Status da Consulta
+            </label>
             <select
               value={mrStatus}
               onChange={(e) => setMrStatus(e.target.value)}
               className="w-full bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT px-4 py-3 text-on-surface text-sm focus:border-primary-container focus:outline-none transition-colors"
             >
               {CONSULTATION_STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Observations */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Observacoes Medicas</label>
+            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              Observacoes Medicas
+            </label>
             <textarea
               value={mrObservations}
               onChange={(e) => setMrObservations(e.target.value)}
@@ -1042,7 +1205,9 @@ export default function ConsultaAoVivoPage() {
 
           {/* Clinical Assessment */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Avaliacao Clinica</label>
+            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              Avaliacao Clinica
+            </label>
             <textarea
               value={mrAssessment}
               onChange={(e) => setMrAssessment(e.target.value)}
@@ -1054,7 +1219,9 @@ export default function ConsultaAoVivoPage() {
 
           {/* Conduct */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Conduta</label>
+            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              Conduta
+            </label>
             <textarea
               value={mrConduct}
               onChange={(e) => setMrConduct(e.target.value)}
@@ -1066,7 +1233,9 @@ export default function ConsultaAoVivoPage() {
 
           {/* Requested Exams */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Exames Solicitados</label>
+            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              Exames Solicitados
+            </label>
             <textarea
               value={mrExams}
               onChange={(e) => setMrExams(e.target.value)}
@@ -1078,7 +1247,9 @@ export default function ConsultaAoVivoPage() {
 
           {/* Follow-up Plan */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Plano de Retorno</label>
+            <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              Plano de Retorno
+            </label>
             <textarea
               value={mrFollowUp}
               onChange={(e) => setMrFollowUp(e.target.value)}
@@ -1089,12 +1260,7 @@ export default function ConsultaAoVivoPage() {
           </div>
 
           {/* Save Button */}
-          <Button
-            icon="save"
-            loading={saving}
-            onClick={handleSaveMedicalRecord}
-            className="w-full"
-          >
+          <Button icon="save" loading={saving} onClick={handleSaveMedicalRecord} className="w-full">
             Salvar Prontuario
           </Button>
         </div>
@@ -1159,9 +1325,7 @@ export default function ConsultaAoVivoPage() {
         </div>
 
         {/* Right: AI Panel */}
-        <div className="w-[420px] flex flex-col overflow-hidden shrink-0">
-          {renderAiPanel()}
-        </div>
+        <div className="w-[420px] flex flex-col overflow-hidden shrink-0">{renderAiPanel()}</div>
       </div>
 
       {/* ── MOBILE LAYOUT ──────────────────────────────────────────── */}
@@ -1214,8 +1378,14 @@ export default function ConsultaAoVivoPage() {
           scrollbar-width: none;
         }
         @keyframes slideInRight {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
         .animate-slide-in-right {
           animation: slideInRight 0.3s ease-out forwards;
@@ -1302,7 +1472,10 @@ function MedicalRecordEntryCard({ entry }: { entry: MedicalRecordEntry }) {
           <p className="text-[10px] text-stone-500 uppercase font-bold">Exames</p>
           <div className="flex flex-wrap gap-1 mt-0.5">
             {entry.requested_exams.map((ex, i) => (
-              <span key={i} className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+              <span
+                key={i}
+                className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full"
+              >
                 {ex}
               </span>
             ))}

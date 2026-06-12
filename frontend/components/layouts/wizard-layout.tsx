@@ -40,7 +40,7 @@ export function WizardLayout({
             "p-2 rounded-full transition-colors",
             isFirstStep
               ? "text-stone-600 cursor-not-allowed"
-              : "text-stone-400 hover:text-on-surface hover:bg-white/5"
+              : "text-stone-400 hover:text-on-surface hover:bg-white/5",
           )}
           aria-label="Voltar"
         >
@@ -50,9 +50,7 @@ export function WizardLayout({
         {/* Center: Logo */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-base">
-              eco
-            </span>
+            <span className="material-symbols-outlined text-primary text-base">eco</span>
           </div>
           <span className="font-headline font-black text-primary-container tracking-widest text-sm">
             Cannab&apos;IA
@@ -116,7 +114,7 @@ export function WizardLayout({
             "flex items-center gap-2 border rounded-full px-8 py-3 transition-all active:scale-95 group",
             isFirstStep
               ? "border-stone-800 text-stone-600 cursor-not-allowed"
-              : "border-stone-700 text-stone-400 hover:brightness-110"
+              : "border-stone-700 text-stone-400 hover:brightness-110",
           )}
         >
           <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">
@@ -135,7 +133,7 @@ export function WizardLayout({
             "flex items-center gap-2 rounded-full px-8 py-3 transition-all active:scale-105 group",
             canAdvance && !isSubmitting
               ? "bg-primary text-on-primary font-bold hover:brightness-110"
-              : "bg-stone-800 text-stone-500 cursor-not-allowed"
+              : "bg-stone-800 text-stone-500 cursor-not-allowed",
           )}
         >
           {isSubmitting ? (

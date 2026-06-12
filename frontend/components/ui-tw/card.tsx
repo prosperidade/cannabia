@@ -20,15 +20,8 @@ export interface CardProps {
   className?: string;
 }
 
-export function Card({
-  variant = "glass",
-  padding = "md",
-  children,
-  className,
-}: CardProps) {
+export function Card({ variant = "glass", padding = "md", children, className }: CardProps) {
   return (
-    <div className={cn(variantStyles[variant], paddingStyles[padding], className)}>
-      {children}
-    </div>
+    <div className={cn(variantStyles[variant], paddingStyles[padding], className)}>{children}</div>
   );
 }

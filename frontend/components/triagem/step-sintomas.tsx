@@ -85,9 +85,7 @@ export function StepSintomas() {
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <MaterialIcon icon="schedule" filled className="text-primary" />
           </div>
-          <h3 className="font-headline font-semibold text-on-surface">
-            Ha quanto tempo sente?
-          </h3>
+          <h3 className="font-headline font-semibold text-on-surface">Ha quanto tempo sente?</h3>
         </div>
         <div className="grid grid-cols-2 gap-2">
           {DURATION_OPTIONS.map((opt) => (

@@ -124,9 +124,7 @@ export function ConditionSelector({
                       </motion.svg>
                     )}
                   </span>
-                  {opt.emoji && (
-                    <span className="ds-condition-chip__emoji">{opt.emoji}</span>
-                  )}
+                  {opt.emoji && <span className="ds-condition-chip__emoji">{opt.emoji}</span>}
                   {opt.label}
                 </motion.button>
               );

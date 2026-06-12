@@ -11,23 +11,16 @@ import {
   cancelPayment,
   ApiError,
 } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  Button,
-  Input,
-  MaterialIcon,
-  StatCard,
-} from "@/components/ui-tw";
-import type {
-  PaymentRequest,
-  PaymentSummary,
-} from "@/lib/types";
+import { Card, Badge, Button, Input, MaterialIcon, StatCard } from "@/components/ui-tw";
+import type { PaymentRequest, PaymentSummary } from "@/lib/types";
 
 const fmtBRL = (cents: number) =>
   (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-const statusTone: Record<PaymentRequest["status"], "success" | "warning" | "danger" | "neutral" | "info"> = {
+const statusTone: Record<
+  PaymentRequest["status"],
+  "success" | "warning" | "danger" | "neutral" | "info"
+> = {
   paid: "success",
   pending: "warning",
   expired: "danger",
@@ -187,16 +180,8 @@ export default function PagamentosPage() {
           label="Recebido (total)"
           value={summary.paid ? fmtBRL(summary.paid.paid_cents) : "R$ 0,00"}
         />
-        <StatCard
-          icon="block"
-          label="Cancelados"
-          value={summary.cancelled?.count ?? 0}
-        />
-        <StatCard
-          icon="error_outline"
-          label="Expirados"
-          value={summary.expired?.count ?? 0}
-        />
+        <StatCard icon="block" label="Cancelados" value={summary.cancelled?.count ?? 0} />
+        <StatCard icon="error_outline" label="Expirados" value={summary.expired?.count ?? 0} />
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -260,13 +245,28 @@ export default function PagamentosPage() {
                 </Button>
                 {p.status === "pending" && (
                   <>
-                    <Button variant="ghost" size="sm" icon="content_copy" onClick={() => p.pix_payload && copyPix(p.pix_payload)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon="content_copy"
+                      onClick={() => p.pix_payload && copyPix(p.pix_payload)}
+                    >
                       Copiar Pix
                     </Button>
-                    <Button variant="ghost" size="sm" icon="check" onClick={() => handleConfirm(p.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon="check"
+                      onClick={() => handleConfirm(p.id)}
+                    >
                       Confirmar
                     </Button>
-                    <Button variant="ghost" size="sm" icon="close" onClick={() => handleCancel(p.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon="close"
+                      onClick={() => handleCancel(p.id)}
+                    >
                       Cancelar
                     </Button>
                   </>
@@ -285,17 +285,39 @@ export default function PagamentosPage() {
 
       {/* Issue Modal */}
       {showIssue && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowIssue(false)}>
-          <div className="glass-panel rounded-2xl p-6 w-full max-w-md space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setShowIssue(false)}
+        >
+          <div
+            className="glass-panel rounded-2xl p-6 w-full max-w-md space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold font-headline">Nova cobranca Pix</h2>
-              <button onClick={() => setShowIssue(false)} className="p-2 text-stone-400 hover:text-on-surface hover:bg-white/5 rounded-lg">
+              <button
+                onClick={() => setShowIssue(false)}
+                className="p-2 text-stone-400 hover:text-on-surface hover:bg-white/5 rounded-lg"
+              >
                 <MaterialIcon icon="close" />
               </button>
             </div>
-            <Input label="Valor (R$)" placeholder="250,00" value={issueAmount} onChange={(e) => setIssueAmount(e.target.value)} />
-            <Input label="Descricao" value={issueDescription} onChange={(e) => setIssueDescription(e.target.value)} />
-            <Input label="Paciente (id, opcional)" value={issuePatient} onChange={(e) => setIssuePatient(e.target.value)} />
+            <Input
+              label="Valor (R$)"
+              placeholder="250,00"
+              value={issueAmount}
+              onChange={(e) => setIssueAmount(e.target.value)}
+            />
+            <Input
+              label="Descricao"
+              value={issueDescription}
+              onChange={(e) => setIssueDescription(e.target.value)}
+            />
+            <Input
+              label="Paciente (id, opcional)"
+              value={issuePatient}
+              onChange={(e) => setIssuePatient(e.target.value)}
+            />
             <Input
               label="Chave Pix (opcional; usa padrao do tenant)"
               value={issuePixKey}
@@ -308,10 +330,23 @@ export default function PagamentosPage() {
               </div>
             )}
             <div className="flex gap-2">
-              <Button variant="ghost" size="md" className="flex-1" onClick={() => setShowIssue(false)} disabled={issuing}>
+              <Button
+                variant="ghost"
+                size="md"
+                className="flex-1"
+                onClick={() => setShowIssue(false)}
+                disabled={issuing}
+              >
                 Cancelar
               </Button>
-              <Button variant="primary" size="md" icon="send" className="flex-1" onClick={handleIssue} disabled={issuing || !csrf}>
+              <Button
+                variant="primary"
+                size="md"
+                icon="send"
+                className="flex-1"
+                onClick={handleIssue}
+                disabled={issuing || !csrf}
+              >
                 {issuing ? "Emitindo..." : "Emitir Pix"}
               </Button>
             </div>
@@ -321,14 +356,23 @@ export default function PagamentosPage() {
 
       {/* Detail Modal */}
       {selected && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setSelected(null)}>
-          <div className="glass-panel rounded-2xl p-6 w-full max-w-lg space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="glass-panel rounded-2xl p-6 w-full max-w-lg space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold font-headline">Cobranca #{selected.id}</h2>
                 <div className="text-xs text-stone-500">{selected.external_id}</div>
               </div>
-              <button onClick={() => setSelected(null)} className="p-2 text-stone-400 hover:text-on-surface hover:bg-white/5 rounded-lg">
+              <button
+                onClick={() => setSelected(null)}
+                className="p-2 text-stone-400 hover:text-on-surface hover:bg-white/5 rounded-lg"
+              >
                 <MaterialIcon icon="close" />
               </button>
             </div>
@@ -342,39 +386,67 @@ export default function PagamentosPage() {
                 <Badge tone={statusTone[selected.status]}>{statusLabel[selected.status]}</Badge>
               </div>
               <div>
-                <div className="text-[10px] text-stone-500 uppercase tracking-widest">Criada em</div>
+                <div className="text-[10px] text-stone-500 uppercase tracking-widest">
+                  Criada em
+                </div>
                 <div>{new Date(selected.created_at).toLocaleString("pt-BR")}</div>
               </div>
               <div>
-                <div className="text-[10px] text-stone-500 uppercase tracking-widest">Expira em</div>
-                <div>{selected.expires_at ? new Date(selected.expires_at).toLocaleString("pt-BR") : "--"}</div>
+                <div className="text-[10px] text-stone-500 uppercase tracking-widest">
+                  Expira em
+                </div>
+                <div>
+                  {selected.expires_at
+                    ? new Date(selected.expires_at).toLocaleString("pt-BR")
+                    : "--"}
+                </div>
               </div>
               {selected.paid_at && (
                 <div className="col-span-2">
-                  <div className="text-[10px] text-stone-500 uppercase tracking-widest">Pago em</div>
+                  <div className="text-[10px] text-stone-500 uppercase tracking-widest">
+                    Pago em
+                  </div>
                   <div>{new Date(selected.paid_at).toLocaleString("pt-BR")}</div>
                 </div>
               )}
             </div>
             {selected.pix_payload && (
               <div className="space-y-2">
-                <div className="text-[10px] text-stone-500 uppercase tracking-widest">Codigo Pix (copia e cola)</div>
+                <div className="text-[10px] text-stone-500 uppercase tracking-widest">
+                  Codigo Pix (copia e cola)
+                </div>
                 <textarea
                   readOnly
                   value={selected.pix_payload}
                   className="w-full h-28 text-[11px] font-mono bg-surface-container-low border border-outline-variant/30 rounded-lg p-3"
                 />
-                <Button variant="ghost" size="sm" icon="content_copy" onClick={() => selected.pix_payload && copyPix(selected.pix_payload)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon="content_copy"
+                  onClick={() => selected.pix_payload && copyPix(selected.pix_payload)}
+                >
                   Copiar
                 </Button>
               </div>
             )}
             {selected.status === "pending" && (
               <div className="flex gap-2 pt-2">
-                <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleCancel(selected.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleCancel(selected.id)}
+                >
                   Cancelar cobranca
                 </Button>
-                <Button variant="primary" size="sm" icon="check" className="flex-1" onClick={() => handleConfirm(selected.id)}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon="check"
+                  className="flex-1"
+                  onClick={() => handleConfirm(selected.id)}
+                >
                   Marcar como paga
                 </Button>
               </div>

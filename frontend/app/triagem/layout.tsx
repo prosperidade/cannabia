@@ -1,7 +1,3 @@
-export default function TriagemLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function TriagemLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

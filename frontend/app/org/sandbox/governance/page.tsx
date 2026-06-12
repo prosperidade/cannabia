@@ -27,13 +27,7 @@ import {
   type InstitutionalDocument,
   type TechnicalResponsible,
 } from "@/lib/governance";
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  MaterialIcon,
-} from "@/components/ui-tw";
+import { Badge, Button, Card, Input, MaterialIcon } from "@/components/ui-tw";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers visuais                                                    */
@@ -90,7 +84,9 @@ function EligibilityPanel({
         <div className="flex items-center gap-2">
           {report && (
             <Badge tone={report.is_eligible ? "success" : "danger"}>
-              {report.is_eligible ? "Apto a submissao" : `${failCount} pendencia${failCount !== 1 ? "s" : ""}`}
+              {report.is_eligible
+                ? "Apto a submissao"
+                : `${failCount} pendencia${failCount !== 1 ? "s" : ""}`}
             </Badge>
           )}
           {report && warnCount > 0 && (
@@ -117,7 +113,9 @@ function EligibilityPanel({
               key={f.code}
               className="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low border border-outline-variant/20"
             >
-              <div className={`mt-0.5 text-${findingTone(f.status) === "success" ? "emerald-400" : findingTone(f.status) === "danger" ? "error" : "amber-400"}`}>
+              <div
+                className={`mt-0.5 text-${findingTone(f.status) === "success" ? "emerald-400" : findingTone(f.status) === "danger" ? "error" : "amber-400"}`}
+              >
                 <MaterialIcon icon={findingIcon(f.status)} size="sm" />
               </div>
               <div className="flex-1">
@@ -209,9 +207,7 @@ function AssociationSection({
               onChange={(e) => setIsJudicial(e.target.checked)}
               className="w-4 h-4 accent-primary"
             />
-            <span className="text-sm text-on-surface">
-              {isJudicial ? "Sim" : "Nao"}
-            </span>
+            <span className="text-sm text-on-surface">{isJudicial ? "Sim" : "Nao"}</span>
           </div>
         </div>
       </div>
@@ -361,11 +357,7 @@ function RtSection({
               onChange={(e) => setCouncil(e.target.value.toUpperCase())}
               placeholder="CRM, CRF..."
             />
-            <Input
-              label="Numero"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-            />
+            <Input label="Numero" value={number} onChange={(e) => setNumber(e.target.value)} />
             <Input
               label="UF"
               value={state}
@@ -379,9 +371,7 @@ function RtSection({
               onChange={(e) => setHabValidity(e.target.value)}
             />
           </div>
-          {error && (
-            <div className="text-xs text-error mb-3">{error}</div>
-          )}
+          {error && <div className="text-xs text-error mb-3">{error}</div>}
           <div className="flex items-center gap-2">
             <Button variant="primary" size="sm" onClick={submit} disabled={submitting}>
               {submitting ? "Salvando..." : "Cadastrar"}
@@ -504,11 +494,7 @@ function DocumentsSection({
               placeholder="statute, minutes, license..."
               hint="Estatuto: 'statute'"
             />
-            <Input
-              label="Versao"
-              value={version}
-              onChange={(e) => setVersion(e.target.value)}
-            />
+            <Input label="Versao" value={version} onChange={(e) => setVersion(e.target.value)} />
             <Input
               label="Titulo"
               value={title}
@@ -581,15 +567,14 @@ function CapacityCard({ capacity }: { capacity: CapacityAssessment | null }) {
                 <div className="text-2xl font-headline font-extrabold text-primary">
                   {Number(capacity.overall_readiness).toFixed(1)}
                 </div>
-                <div className="text-[10px] uppercase tracking-widest text-stone-500">
-                  de 100
-                </div>
+                <div className="text-[10px] uppercase tracking-widest text-stone-500">de 100</div>
               </div>
             )}
           </div>
           <p className="text-xs text-stone-500">
-            Nova avaliacao: use <code className="text-primary">POST /api/v1/governance/capacity</code>{" "}
-            com os 4 scores JSONB + readiness.
+            Nova avaliacao: use{" "}
+            <code className="text-primary">POST /api/v1/governance/capacity</code> com os 4 scores
+            JSONB + readiness.
           </p>
         </div>
       ) : (
@@ -598,8 +583,8 @@ function CapacityCard({ capacity }: { capacity: CapacityAssessment | null }) {
             <MaterialIcon icon="warning" size="sm" className="text-amber-400 mt-0.5" />
             <div className="text-xs text-stone-300 leading-relaxed">
               Nenhuma avaliacao registrada. Capacidade Tecnico-Operacional e{" "}
-              <strong>requisito obrigatorio</strong> para elegibilidade (RDC 1.014/2026).
-              Registre a primeira avaliacao via API.
+              <strong>requisito obrigatorio</strong> para elegibilidade (RDC 1.014/2026). Registre a
+              primeira avaliacao via API.
             </div>
           </div>
         </div>
@@ -647,9 +632,7 @@ function DossierSection({
             <span>·</span>
             <span>{dossier.markdown.length} caracteres</span>
             <span>·</span>
-            <span>
-              gerado em {new Date(dossier.generated_at).toLocaleString("pt-BR")}
-            </span>
+            <span>gerado em {new Date(dossier.generated_at).toLocaleString("pt-BR")}</span>
           </div>
 
           <div className="max-h-[600px] overflow-y-auto p-4 rounded-lg bg-surface-container-low border border-outline-variant/20">
@@ -659,8 +642,8 @@ function DossierSection({
           </div>
 
           <div className="mt-3 text-[11px] text-stone-500">
-            Esta e a previa em Markdown. Conversao para PDF/A e assinatura eletronica
-            fazem parte do fluxo de Regulatory Reporting (doc 27 §8).
+            Esta e a previa em Markdown. Conversao para PDF/A e assinatura eletronica fazem parte do
+            fluxo de Regulatory Reporting (doc 27 §8).
           </div>
         </>
       )}
@@ -706,9 +689,7 @@ export default function GovernanceHubPage() {
       setReport(e);
     } catch (err) {
       setGlobalError(
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao carregar dados de governance.",
+        err instanceof ApiError ? err.message : "Falha ao carregar dados de governance.",
       );
     } finally {
       setLoadingAll(false);
@@ -731,9 +712,7 @@ export default function GovernanceHubPage() {
       const updated = await getAssociation();
       setAssociation(updated);
     } catch (err) {
-      setGlobalError(
-        err instanceof ApiError ? err.message : "Falha ao revalidar.",
-      );
+      setGlobalError(err instanceof ApiError ? err.message : "Falha ao revalidar.");
     } finally {
       setRefreshing(false);
     }
@@ -745,9 +724,7 @@ export default function GovernanceHubPage() {
       const d = await getDossier();
       setDossier(d);
     } catch (err) {
-      setGlobalError(
-        err instanceof ApiError ? err.message : "Falha ao gerar dossie.",
-      );
+      setGlobalError(err instanceof ApiError ? err.message : "Falha ao gerar dossie.");
     } finally {
       setLoadingDossier(false);
     }
@@ -773,12 +750,10 @@ export default function GovernanceHubPage() {
             Sandbox Regulatorio
           </span>
         </div>
-        <h1 className="text-3xl font-headline font-extrabold text-on-surface">
-          Governance Hub
-        </h1>
+        <h1 className="text-3xl font-headline font-extrabold text-on-surface">Governance Hub</h1>
         <p className="text-sm text-stone-400 mt-1 max-w-2xl">
-          Dossie institucional e validacao automatica de elegibilidade ao Sandbox
-          regulamentado pela RDC 1.014/2026.
+          Dossie institucional e validacao automatica de elegibilidade ao Sandbox regulamentado pela
+          RDC 1.014/2026.
         </p>
       </header>
 
@@ -790,27 +765,15 @@ export default function GovernanceHubPage() {
 
       <EligibilityPanel report={report} loading={refreshing} onRefresh={handleRefresh} />
 
-      <AssociationSection
-        association={association}
-        csrfToken={csrfToken}
-        onSaved={reloadAll}
-      />
+      <AssociationSection association={association} csrfToken={csrfToken} onSaved={reloadAll} />
 
       <RtSection rts={rts} csrfToken={csrfToken} onCreated={reloadAll} />
 
-      <DocumentsSection
-        documents={documents}
-        csrfToken={csrfToken}
-        onCreated={reloadAll}
-      />
+      <DocumentsSection documents={documents} csrfToken={csrfToken} onCreated={reloadAll} />
 
       <CapacityCard capacity={capacity} />
 
-      <DossierSection
-        dossier={dossier}
-        loading={loadingDossier}
-        onLoad={handleLoadDossier}
-      />
+      <DossierSection dossier={dossier} loading={loadingDossier} onLoad={handleLoadDossier} />
     </div>
   );
 }

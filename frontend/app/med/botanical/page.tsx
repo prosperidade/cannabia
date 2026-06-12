@@ -3,27 +3,55 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { getBotanicalAnalysis } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  Button,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ────────────────────────────────────────────
    Botanical Precision - Strain/Cultivar Analysis
    ──────────────────────────────────────────── */
 
-type Cultivar = { name: string; type: string; origin: string; thc: number; cbd: number; cbg: number; cbn: number };
+type Cultivar = {
+  name: string;
+  type: string;
+  origin: string;
+  thc: number;
+  cbd: number;
+  cbg: number;
+  cbn: number;
+};
 type Terpene = { name: string; pct: number; color: string; effect: string };
-type Compatibility = { score: number; patient: string; condition: string; factors: { label: string; score: number; status: string }[] };
+type Compatibility = {
+  score: number;
+  patient: string;
+  condition: string;
+  factors: { label: string; score: number; status: string }[];
+};
 type Effect = { icon: string; label: string; pct: number; desc: string };
-type Recommendation = { name: string; type: string; match: number; thc: number; cbd: number; terpene: string; reason: string };
+type Recommendation = {
+  name: string;
+  type: string;
+  match: number;
+  thc: number;
+  cbd: number;
+  terpene: string;
+  reason: string;
+};
 
-const FALLBACK_CULTIVAR: Cultivar = { name: "—", type: "—", origin: "—", thc: 0, cbd: 0, cbg: 0, cbn: 0 };
+const FALLBACK_CULTIVAR: Cultivar = {
+  name: "—",
+  type: "—",
+  origin: "—",
+  thc: 0,
+  cbd: 0,
+  cbg: 0,
+  cbn: 0,
+};
 const FALLBACK_TERPENES: Terpene[] = [];
-const FALLBACK_COMPATIBILITY: Compatibility = { score: 0, patient: "—", condition: "—", factors: [] };
+const FALLBACK_COMPATIBILITY: Compatibility = {
+  score: 0,
+  patient: "—",
+  condition: "—",
+  factors: [],
+};
 const FALLBACK_EFFECTS: Effect[] = [];
 const FALLBACK_RECOMMENDATIONS: Recommendation[] = [];
 
@@ -34,7 +62,8 @@ export default function BotanicalPage() {
   const [terpenes, setTerpenes] = useState<Terpene[]>(FALLBACK_TERPENES);
   const [compatibility, setCompatibility] = useState<Compatibility>(FALLBACK_COMPATIBILITY);
   const [effects, setEffects] = useState<Effect[]>(FALLBACK_EFFECTS);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>(FALLBACK_RECOMMENDATIONS);
+  const [recommendations, setRecommendations] =
+    useState<Recommendation[]>(FALLBACK_RECOMMENDATIONS);
 
   const fetchData = useCallback(async () => {
     try {
@@ -46,7 +75,8 @@ export default function BotanicalPage() {
       if (Array.isArray(d.terpenes)) setTerpenes(d.terpenes as Terpene[]);
       if (d.compatibility) setCompatibility(d.compatibility as Compatibility);
       if (Array.isArray(d.effects)) setEffects(d.effects as Effect[]);
-      if (Array.isArray(d.recommendations)) setRecommendations(d.recommendations as Recommendation[]);
+      if (Array.isArray(d.recommendations))
+        setRecommendations(d.recommendations as Recommendation[]);
     } catch {
       // keep fallback data
     } finally {
@@ -54,7 +84,9 @@ export default function BotanicalPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const maxTerpenePct = terpenes.length > 0 ? Math.max(...terpenes.map((t) => t.pct)) : 1;
 
@@ -128,10 +160,26 @@ export default function BotanicalPage() {
                   </span>
                   <div className="space-y-3">
                     {[
-                      { name: "THC", value: cultivar.thc, pct: Math.min(Math.round((cultivar.thc / 30) * 100), 100) },
-                      { name: "CBD", value: cultivar.cbd, pct: Math.min(Math.round((cultivar.cbd / 30) * 100), 100) },
-                      { name: "CBG", value: cultivar.cbg, pct: Math.min(Math.round((cultivar.cbg / 30) * 100), 100) },
-                      { name: "CBN", value: cultivar.cbn, pct: Math.min(Math.round((cultivar.cbn / 30) * 100), 100) },
+                      {
+                        name: "THC",
+                        value: cultivar.thc,
+                        pct: Math.min(Math.round((cultivar.thc / 30) * 100), 100),
+                      },
+                      {
+                        name: "CBD",
+                        value: cultivar.cbd,
+                        pct: Math.min(Math.round((cultivar.cbd / 30) * 100), 100),
+                      },
+                      {
+                        name: "CBG",
+                        value: cultivar.cbg,
+                        pct: Math.min(Math.round((cultivar.cbg / 30) * 100), 100),
+                      },
+                      {
+                        name: "CBN",
+                        value: cultivar.cbn,
+                        pct: Math.min(Math.round((cultivar.cbn / 30) * 100), 100),
+                      },
                     ].map((c) => (
                       <div key={c.name} className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold">
@@ -155,9 +203,7 @@ export default function BotanicalPage() {
                         key={t.name}
                         className="px-3 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2 hover:border-primary/20 transition-all cursor-default"
                       >
-                        <div
-                          className={cn("w-3 h-3 rounded-full", t.color)}
-                        />
+                        <div className={cn("w-3 h-3 rounded-full", t.color)} />
                         <span className="text-xs font-bold text-on-surface">{t.name}</span>
                         <span className="text-[10px] text-primary font-bold">{t.pct}%</span>
                       </div>
@@ -216,9 +262,7 @@ export default function BotanicalPage() {
                   fill="transparent"
                   stroke="currentColor"
                   strokeDasharray={2 * Math.PI * 64}
-                  strokeDashoffset={
-                    2 * Math.PI * 64 * (1 - compatibility.score / 100)
-                  }
+                  strokeDashoffset={2 * Math.PI * 64 * (1 - compatibility.score / 100)}
                   strokeLinecap="round"
                   strokeWidth="8"
                   style={{
@@ -235,9 +279,7 @@ export default function BotanicalPage() {
                 </span>
               </div>
             </div>
-            <p className="text-sm font-semibold text-stone-200">
-              {compatibility.patient}
-            </p>
+            <p className="text-sm font-semibold text-stone-200">{compatibility.patient}</p>
             <p className="text-xs text-stone-500 mt-1">{compatibility.condition}</p>
           </Card>
 
@@ -270,9 +312,7 @@ export default function BotanicalPage() {
         <div className="flex items-center gap-3 mb-6">
           <MaterialIcon icon="vital_signs" className="text-primary" size="lg" />
           <div>
-            <h3 className="text-lg font-bold text-on-surface font-headline">
-              Efeitos Esperados
-            </h3>
+            <h3 className="text-lg font-bold text-on-surface font-headline">Efeitos Esperados</h3>
             <p className="text-xs text-stone-500">
               Previsao terapeutica baseada no perfil molecular
             </p>
@@ -313,9 +353,7 @@ export default function BotanicalPage() {
               <h3 className="text-lg font-bold text-on-surface font-headline">
                 Cepas Recomendadas
               </h3>
-              <p className="text-xs text-stone-500">
-                Sugestoes baseadas no perfil do paciente
-              </p>
+              <p className="text-xs text-stone-500">Sugestoes baseadas no perfil do paciente</p>
             </div>
           </div>
           <Badge tone="primary">{recommendations.length} sugestoes</Badge>
@@ -351,9 +389,7 @@ export default function BotanicalPage() {
                     "hover:bg-white/5 transition-colors cursor-pointer",
                     selectedStrain === r.name && "bg-primary/5",
                   )}
-                  onClick={() =>
-                    setSelectedStrain(selectedStrain === r.name ? null : r.name)
-                  }
+                  onClick={() => setSelectedStrain(selectedStrain === r.name ? null : r.name)}
                 >
                   <td className="px-6 py-4">
                     <div>
@@ -400,9 +436,7 @@ export default function BotanicalPage() {
             <div
               key={r.name}
               className="p-4 rounded-xl bg-surface-container/50 border border-white/5 hover:border-primary/20 transition-all cursor-pointer"
-              onClick={() =>
-                setSelectedStrain(selectedStrain === r.name ? null : r.name)
-              }
+              onClick={() => setSelectedStrain(selectedStrain === r.name ? null : r.name)}
             >
               <div className="flex items-center justify-between mb-2">
                 <div>

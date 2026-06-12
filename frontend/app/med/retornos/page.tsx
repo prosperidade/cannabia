@@ -16,11 +16,7 @@ import {
   ProgressBar,
 } from "@/components/ui-tw";
 
-type ReturnReason =
-  | "ajuste_de_dose"
-  | "retorno_agendado"
-  | "alerta_ia"
-  | "acompanhamento";
+type ReturnReason = "ajuste_de_dose" | "retorno_agendado" | "alerta_ia" | "acompanhamento";
 
 type SymptomTrend = "melhorando" | "estavel" | "piorando";
 
@@ -48,7 +44,10 @@ type ReturnsStats = {
 
 /* ──────────────── Helpers ──────────────── */
 
-const REASON_CONFIG: Record<ReturnReason, { label: string; tone: "warning" | "info" | "danger" | "primary" }> = {
+const REASON_CONFIG: Record<
+  ReturnReason,
+  { label: string; tone: "warning" | "info" | "danger" | "primary" }
+> = {
   ajuste_de_dose: { label: "Ajuste de Dose", tone: "warning" },
   retorno_agendado: { label: "Retorno Agendado", tone: "info" },
   alerta_ia: { label: "Alerta IA", tone: "danger" },
@@ -61,7 +60,10 @@ const TREND_CONFIG: Record<SymptomTrend, { label: string; icon: string; color: s
   piorando: { label: "Piorando", icon: "trending_down", color: "text-error" },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; tone: "success" | "warning" | "info" | "neutral" }> = {
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; tone: "success" | "warning" | "info" | "neutral" }
+> = {
   pendente: { label: "Aguardando revisao", tone: "warning" },
   agendado: { label: "Agendado", tone: "info" },
   concluido: { label: "Concluido", tone: "success" },
@@ -80,7 +82,12 @@ export default function RetornosPage() {
   const [period, setPeriod] = useState<PeriodFilter>("30d");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [patients, setPatients] = useState<PatientReturn[]>([]);
-  const [stats, setStats] = useState<ReturnsStats>({ patientsInReturn: 0, pendingAdjustments: 0, scheduledReturns: 0, adherenceRate: 0 });
+  const [stats, setStats] = useState<ReturnsStats>({
+    patientsInReturn: 0,
+    pendingAdjustments: 0,
+    scheduledReturns: 0,
+    adherenceRate: 0,
+  });
   const [apiLoading, setApiLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -115,10 +122,13 @@ export default function RetornosPage() {
 
           // Determine return reason based on available data
           let returnReason: ReturnReason = "acompanhamento";
-          const nextReturn = item.next_return_date ? new Date(item.next_return_date as string) : null;
+          const nextReturn = item.next_return_date
+            ? new Date(item.next_return_date as string)
+            : null;
           const now = new Date();
           if (nextReturn && nextReturn < now) returnReason = "alerta_ia";
-          else if (nextReturn && nextReturn.getTime() - now.getTime() < 3 * 86400000) returnReason = "ajuste_de_dose";
+          else if (nextReturn && nextReturn.getTime() - now.getTime() < 3 * 86400000)
+            returnReason = "ajuste_de_dose";
           else if (nextReturn) returnReason = "retorno_agendado";
 
           // Determine symptom trend from ai_recommendation text
@@ -136,9 +146,7 @@ export default function RetornosPage() {
               ratio: (item.cbd_thc_ratio as string) || "N/A",
               dosage: (item.dosage as string) || "N/A",
             },
-            lastConsultation: lastUpdate
-              ? new Date(lastUpdate).toLocaleDateString("pt-BR")
-              : "N/A",
+            lastConsultation: lastUpdate ? new Date(lastUpdate).toLocaleDateString("pt-BR") : "N/A",
             returnReason,
             symptomTrend,
             aiRecommendation: aiRec || "Sem recomendacao disponivel.",
@@ -153,7 +161,9 @@ export default function RetornosPage() {
             patientsInReturn: meta.total_returns ?? mapped.length,
             pendingAdjustments: meta.pending ?? 0,
             scheduledReturns: meta.scheduled ?? 0,
-            adherenceRate: meta.total_returns ? Math.round(((meta.total_returns - (meta.pending ?? 0)) / meta.total_returns) * 100) : 0,
+            adherenceRate: meta.total_returns
+              ? Math.round(((meta.total_returns - (meta.pending ?? 0)) / meta.total_returns) * 100)
+              : 0,
           });
         }
       } catch {
@@ -163,15 +173,15 @@ export default function RetornosPage() {
       }
     }
     if (session?.authenticated) fetchReturns();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [session?.authenticated]);
 
   const filteredPatients = useMemo(() => {
     return patients.filter((p) => {
-      const matchesSearch =
-        !search || p.name.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === "todos" || p.status === statusFilter;
+      const matchesSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "todos" || p.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [patients, search, statusFilter]);
@@ -217,22 +227,14 @@ export default function RetornosPage() {
 
       {/* ── Stats Row ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <StatCard
-          icon="diversity_3"
-          label="Pacientes em Retorno"
-          value={stats.patientsInReturn}
-        />
+        <StatCard icon="diversity_3" label="Pacientes em Retorno" value={stats.patientsInReturn} />
         <StatCard
           icon="pending_actions"
           label="Ajustes Pendentes"
           value={stats.pendingAdjustments}
           className="border-l-2 border-l-amber-500/50"
         />
-        <StatCard
-          icon="event"
-          label="Retornos Agendados"
-          value={stats.scheduledReturns}
-        />
+        <StatCard icon="event" label="Retornos Agendados" value={stats.scheduledReturns} />
         <StatCard
           icon="query_stats"
           label="Taxa de Adesao"
@@ -289,7 +291,11 @@ export default function RetornosPage() {
       {/* ── Patient Return Cards ── */}
       {filteredPatients.length === 0 ? (
         /* Empty State */
-        <Card variant="glass" padding="lg" className="flex flex-col items-center justify-center py-16 text-center">
+        <Card
+          variant="glass"
+          padding="lg"
+          className="flex flex-col items-center justify-center py-16 text-center"
+        >
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
             <MaterialIcon icon="event_available" size="lg" className="text-primary/50" />
           </div>
@@ -297,8 +303,8 @@ export default function RetornosPage() {
             Nenhum retorno pendente
           </h3>
           <p className="text-stone-500 text-sm max-w-md">
-            Todos os pacientes estao em dia com seus protocolos. Novos alertas
-            aparecerão aqui quando a IA identificar necessidade de ajuste.
+            Todos os pacientes estao em dia com seus protocolos. Novos alertas aparecerão aqui
+            quando a IA identificar necessidade de ajuste.
           </p>
         </Card>
       ) : (
@@ -344,14 +350,20 @@ export default function RetornosPage() {
                           {patient.treatment.dosage}
                         </span>
                         <span className="flex items-center gap-1">
-                          <MaterialIcon icon="calendar_today" size="sm" className="text-stone-500" />
+                          <MaterialIcon
+                            icon="calendar_today"
+                            size="sm"
+                            className="text-stone-500"
+                          />
                           Ultima: {patient.lastConsultation}
                         </span>
                       </div>
 
                       {/* Symptom Trend */}
                       <div className="flex items-center gap-2 mb-3">
-                        <span className={cn("flex items-center gap-1 text-xs font-bold", trend.color)}>
+                        <span
+                          className={cn("flex items-center gap-1 text-xs font-bold", trend.color)}
+                        >
                           <MaterialIcon icon={trend.icon} size="sm" />
                           {trend.label}
                         </span>
@@ -373,11 +385,7 @@ export default function RetornosPage() {
 
                   {/* Right: Actions */}
                   <div className="flex flex-row md:flex-col gap-2 md:items-end flex-shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
-                    <Button
-                      size="sm"
-                      icon="event"
-                      className="flex-1 md:flex-none"
-                    >
+                    <Button size="sm" icon="event" className="flex-1 md:flex-none">
                       Agendar Retorno
                     </Button>
                     <Button

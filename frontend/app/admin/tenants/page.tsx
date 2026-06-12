@@ -135,7 +135,9 @@ export default function TenantsPage() {
       }
     }
     fetchTenants();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = tenants.filter((t) => {
@@ -221,11 +223,7 @@ export default function TenantsPage() {
       label: "Plano",
       render: (_val, row) => {
         const tenant = row as unknown as Tenant;
-        return (
-          <Badge tone={planTone[tenant.plan] as "primary"}>
-            {planLabel[tenant.plan]}
-          </Badge>
-        );
+        return <Badge tone={planTone[tenant.plan] as "primary"}>{planLabel[tenant.plan]}</Badge>;
       },
     },
     {
@@ -309,7 +307,7 @@ export default function TenantsPage() {
     },
   ];
 
-  const tableData = filtered.map((t) => ({ ...t } as unknown as Record<string, unknown>));
+  const tableData = filtered.map((t) => ({ ...t }) as unknown as Record<string, unknown>);
 
   if (apiLoading) {
     return (
@@ -354,12 +352,7 @@ export default function TenantsPage() {
           <Button variant="ghost" size="sm" icon="download">
             Relatorio
           </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            icon="add"
-            onClick={() => setShowNewModal(true)}
-          >
+          <Button variant="primary" size="sm" icon="add" onClick={() => setShowNewModal(true)}>
             Nova Organizacao
           </Button>
         </div>

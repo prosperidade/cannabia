@@ -53,9 +53,7 @@ export function MobileLayout({
           <div className="flex items-center gap-2">{topBarActions}</div>
         ) : (
           <div className="w-8 h-8 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-sm">
-              person
-            </span>
+            <span className="material-symbols-outlined text-primary text-sm">person</span>
           </div>
         )}
       </header>
@@ -73,18 +71,12 @@ export function MobileLayout({
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center rounded-full px-5 py-2 transition-transform duration-300 active:scale-90",
-                active
-                  ? "bg-primary/10 text-primary"
-                  : "text-zinc-400 hover:bg-white/5"
+                active ? "bg-primary/10 text-primary" : "text-zinc-400 hover:bg-white/5",
               )}
             >
               <span
                 className="material-symbols-outlined"
-                style={
-                  active
-                    ? { fontVariationSettings: "'FILL' 1" }
-                    : undefined
-                }
+                style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {item.icon}
               </span>

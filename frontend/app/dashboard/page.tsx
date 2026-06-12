@@ -14,5 +14,9 @@ export default function OldDashboardRedirect() {
     else if (role === "paciente") router.replace("/p/dashboard");
     else router.replace("/med/dashboard");
   }, [data, router]);
-  return <div className="min-h-screen bg-surface flex items-center justify-center"><p className="text-on-surface/50">Redirecionando...</p></div>;
+  return (
+    <div className="min-h-screen bg-surface flex items-center justify-center">
+      <p className="text-on-surface/50">Redirecionando...</p>
+    </div>
+  );
 }

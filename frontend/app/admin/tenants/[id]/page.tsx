@@ -15,14 +15,7 @@ import {
   ApiError,
 } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import {
-  Card,
-  Badge,
-  Button,
-  Input,
-  MaterialIcon,
-  StatCard,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, Input, MaterialIcon, StatCard } from "@/components/ui-tw";
 import type {
   TenantDetail,
   TenantBranding,
@@ -113,7 +106,11 @@ export default function TenantDetailPage() {
     }
   }
 
-  async function handleSavePlan(data: { billing_plan?: string; ai_limit_month?: number; user_limit?: number }) {
+  async function handleSavePlan(data: {
+    billing_plan?: string;
+    ai_limit_month?: number;
+    user_limit?: number;
+  }) {
     if (!csrf) return;
     try {
       setSaving(true);
@@ -160,7 +157,9 @@ export default function TenantDetailPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center space-y-4">
           <MaterialIcon icon="error_outline" size="xl" className="text-error/60" />
-          <p className="text-on-surface-variant text-sm">{error ?? "Organizacao nao encontrada."}</p>
+          <p className="text-on-surface-variant text-sm">
+            {error ?? "Organizacao nao encontrada."}
+          </p>
           <Button variant="ghost" size="sm" onClick={() => router.push("/admin/tenants")}>
             Voltar
           </Button>
@@ -236,27 +235,27 @@ export default function TenantDetailPage() {
 
       {tab === "info" && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon="apartment" label="Clinicas" value={(tenant as unknown as { clinic_count?: number }).clinic_count ?? 1} />
-          <StatCard icon="group" label="Usuarios" value={(tenant as unknown as { user_count?: number }).user_count ?? 0} />
+          <StatCard
+            icon="apartment"
+            label="Clinicas"
+            value={(tenant as unknown as { clinic_count?: number }).clinic_count ?? 1}
+          />
+          <StatCard
+            icon="group"
+            label="Usuarios"
+            value={(tenant as unknown as { user_count?: number }).user_count ?? 0}
+          />
           <StatCard
             icon="bolt"
             label="Uso IA (mes)"
             value={plan ? `${plan.ai_executions_month}/${plan.ai_limit_month}` : "--"}
           />
-          <StatCard
-            icon="verified"
-            label="Plano"
-            value={plan?.billing_plan ?? "starter"}
-          />
+          <StatCard icon="verified" label="Plano" value={plan?.billing_plan ?? "starter"} />
         </div>
       )}
 
       {tab === "branding" && (
-        <BrandingForm
-          branding={branding}
-          onSave={handleSaveBranding}
-          saving={saving}
-        />
+        <BrandingForm branding={branding} onSave={handleSaveBranding} saving={saving} />
       )}
 
       {tab === "integrations" && (
@@ -267,13 +266,7 @@ export default function TenantDetailPage() {
         />
       )}
 
-      {tab === "plan" && (
-        <PlanForm
-          plan={plan}
-          onSave={handleSavePlan}
-          saving={saving}
-        />
-      )}
+      {tab === "plan" && <PlanForm plan={plan} onSave={handleSavePlan} saving={saving} />}
     </div>
   );
 }
@@ -457,8 +450,16 @@ function IntegrationsForm({
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          <Input label="Phone number ID" value={wpPhoneId} onChange={(e) => setWpPhoneId(e.target.value)} />
-          <Input label="WABA (business account) ID" value={wpAccountId} onChange={(e) => setWpAccountId(e.target.value)} />
+          <Input
+            label="Phone number ID"
+            value={wpPhoneId}
+            onChange={(e) => setWpPhoneId(e.target.value)}
+          />
+          <Input
+            label="WABA (business account) ID"
+            value={wpAccountId}
+            onChange={(e) => setWpAccountId(e.target.value)}
+          />
           <SecretInput
             label="Token de acesso (META_WHATSAPP_KEY)"
             isSet={hasMetaKey}
@@ -491,10 +492,28 @@ function IntegrationsForm({
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          <Input label="De (from)" value={emailFrom} onChange={(e) => setEmailFrom(e.target.value)} />
-          <Input label="E-mail do medico responsavel" value={doctorEmail} onChange={(e) => setDoctorEmail(e.target.value)} />
-          <Input label="Servidor SMTP" placeholder="smtp.gmail.com" value={smtpServer} onChange={(e) => setSmtpServer(e.target.value)} />
-          <Input label="Porta SMTP" placeholder="587" value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} />
+          <Input
+            label="De (from)"
+            value={emailFrom}
+            onChange={(e) => setEmailFrom(e.target.value)}
+          />
+          <Input
+            label="E-mail do medico responsavel"
+            value={doctorEmail}
+            onChange={(e) => setDoctorEmail(e.target.value)}
+          />
+          <Input
+            label="Servidor SMTP"
+            placeholder="smtp.gmail.com"
+            value={smtpServer}
+            onChange={(e) => setSmtpServer(e.target.value)}
+          />
+          <Input
+            label="Porta SMTP"
+            placeholder="587"
+            value={smtpPort}
+            onChange={(e) => setSmtpPort(e.target.value)}
+          />
           <SecretInput
             label="Senha SMTP"
             isSet={hasEmailPw}
@@ -594,8 +613,12 @@ function PlanForm({
   saving: boolean;
 }) {
   const [billingPlan, setBillingPlan] = useState<string>(plan?.billing_plan ?? "starter");
-  const [aiLimit, setAiLimit] = useState<string>(plan?.ai_limit_month != null ? String(plan.ai_limit_month) : "");
-  const [userLimit, setUserLimit] = useState<string>(plan?.user_limit != null ? String(plan.user_limit) : "");
+  const [aiLimit, setAiLimit] = useState<string>(
+    plan?.ai_limit_month != null ? String(plan.ai_limit_month) : "",
+  );
+  const [userLimit, setUserLimit] = useState<string>(
+    plan?.user_limit != null ? String(plan.user_limit) : "",
+  );
 
   useEffect(() => {
     setBillingPlan(plan?.billing_plan ?? "starter");
@@ -617,7 +640,9 @@ function PlanForm({
 
       <div className="grid md:grid-cols-3 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Plano</label>
+          <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+            Plano
+          </label>
           <select
             value={billingPlan}
             onChange={(e) => setBillingPlan(e.target.value)}
@@ -628,8 +653,16 @@ function PlanForm({
             <option value="enterprise">Enterprise</option>
           </select>
         </div>
-        <Input label="Limite mensal de IA" value={aiLimit} onChange={(e) => setAiLimit(e.target.value)} />
-        <Input label="Limite de usuarios" value={userLimit} onChange={(e) => setUserLimit(e.target.value)} />
+        <Input
+          label="Limite mensal de IA"
+          value={aiLimit}
+          onChange={(e) => setAiLimit(e.target.value)}
+        />
+        <Input
+          label="Limite de usuarios"
+          value={userLimit}
+          onChange={(e) => setUserLimit(e.target.value)}
+        />
       </div>
 
       <div className="flex justify-end">

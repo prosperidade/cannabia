@@ -256,13 +256,9 @@ export default function KnowledgePage() {
         sortable: true,
         render: (val, row) => (
           <div className="max-w-xs">
-            <p className="text-sm font-semibold text-on-surface truncate">
-              {String(val || "--")}
-            </p>
+            <p className="text-sm font-semibold text-on-surface truncate">{String(val || "--")}</p>
             {row.journal ? (
-              <p className="text-[10px] text-stone-500 truncate">
-                {String(row.journal)}
-              </p>
+              <p className="text-[10px] text-stone-500 truncate">{String(row.journal)}</p>
             ) : null}
           </div>
         ),
@@ -271,9 +267,7 @@ export default function KnowledgePage() {
         key: "doc_type",
         label: "Tipo",
         sortable: true,
-        render: (val) => (
-          <Badge tone={docTypeTone(String(val))}>{docTypeLabel(String(val))}</Badge>
-        ),
+        render: (val) => <Badge tone={docTypeTone(String(val))}>{docTypeLabel(String(val))}</Badge>,
       },
       {
         key: "source",
@@ -287,38 +281,27 @@ export default function KnowledgePage() {
         key: "storage_type",
         label: "Armazenamento",
         sortable: true,
-        render: (val) => (
-          <Badge tone={storageBadge(String(val))}>
-            {String(val || "--")}
-          </Badge>
-        ),
+        render: (val) => <Badge tone={storageBadge(String(val))}>{String(val || "--")}</Badge>,
       },
       {
         key: "status",
         label: "Status",
         sortable: true,
-        render: (val) => (
-          <Badge tone={statusBadge(String(val))}>{String(val || "--")}</Badge>
-        ),
+        render: (val) => <Badge tone={statusBadge(String(val))}>{String(val || "--")}</Badge>,
       },
       {
         key: "created_at",
         label: "Data",
         sortable: true,
         render: (val) => (
-          <span className="text-sm text-stone-400 font-medium">
-            {fmtDate(String(val))}
-          </span>
+          <span className="text-sm text-stone-400 font-medium">{fmtDate(String(val))}</span>
         ),
       },
     ],
     [],
   );
 
-  const tableData = useMemo(
-    () => catalog as Record<string, unknown>[],
-    [catalog],
-  );
+  const tableData = useMemo(() => catalog as Record<string, unknown>[], [catalog]);
 
   /* ================================================================ */
   /*  RENDER                                                           */
@@ -430,11 +413,7 @@ export default function KnowledgePage() {
             label="Total de Documentos"
             value={Number(totalDocs).toLocaleString("pt-BR")}
           />
-          <StatCard
-            icon="article"
-            label="Tipos Diferentes"
-            value={String(byType.length)}
-          />
+          <StatCard icon="article" label="Tipos Diferentes" value={String(byType.length)} />
           <StatCard
             icon="database"
             label="Vetores ChromaDB"
@@ -476,9 +455,7 @@ export default function KnowledgePage() {
                   />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-on-surface font-headline">
-                    {item.cnt}
-                  </p>
+                  <p className="text-xl font-bold text-on-surface font-headline">{item.cnt}</p>
                   <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
                     {docTypeLabel(item.doc_type)}
                   </p>
@@ -491,9 +468,7 @@ export default function KnowledgePage() {
 
       {/* ── PubMed Search ── */}
       <Card variant="glass" padding="md">
-        <h3 className="text-lg font-bold font-headline text-on-surface mb-4">
-          Buscar no PubMed
-        </h3>
+        <h3 className="text-lg font-bold font-headline text-on-surface mb-4">Buscar no PubMed</h3>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -588,9 +563,7 @@ export default function KnowledgePage() {
         <div className="md:hidden space-y-3">
           {catalog.length === 0 && !loading && (
             <Card variant="glass" padding="md">
-              <p className="text-sm text-stone-500 text-center">
-                Nenhum documento encontrado.
-              </p>
+              <p className="text-sm text-stone-500 text-center">Nenhum documento encontrado.</p>
             </Card>
           )}
           {catalog.map((doc) => (
@@ -627,9 +600,7 @@ export default function KnowledgePage() {
                 <Badge tone={storageBadge(String(doc.storage_type))}>
                   {String(doc.storage_type || "--")}
                 </Badge>
-                <Badge tone={statusBadge(String(doc.status))}>
-                  {String(doc.status || "--")}
-                </Badge>
+                <Badge tone={statusBadge(String(doc.status))}>{String(doc.status || "--")}</Badge>
               </div>
             </Card>
           ))}
@@ -642,9 +613,7 @@ export default function KnowledgePage() {
       <section className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h3 className="text-xl font-bold font-headline text-on-surface">
-              Monitores de Fontes
-            </h3>
+            <h3 className="text-xl font-bold font-headline text-on-surface">Monitores de Fontes</h3>
             <p className="text-xs text-stone-500 mt-1">
               URLs monitoradas automaticamente para novas publicacoes.
             </p>
@@ -717,10 +686,7 @@ export default function KnowledgePage() {
                 <Card
                   key={Number(mon.id)}
                   padding="md"
-                  className={cn(
-                    "hover:bg-white/5 transition-colors",
-                    !isActive && "opacity-60",
-                  )}
+                  className={cn("hover:bg-white/5 transition-colors", !isActive && "opacity-60")}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">

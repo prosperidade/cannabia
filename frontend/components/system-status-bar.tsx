@@ -30,7 +30,8 @@ export function SystemStatusBar({ status }: SystemStatusBarProps) {
     return (
       <GlobalAlertBanner dismissible={false} tone="error">
         <strong>Sistema indisponível.</strong>{" "}
-        {status.error ?? "O backend não está respondendo. Algumas funcionalidades podem não operar."}
+        {status.error ??
+          "O backend não está respondendo. Algumas funcionalidades podem não operar."}
       </GlobalAlertBanner>
     );
   }
@@ -41,9 +42,7 @@ export function SystemStatusBar({ status }: SystemStatusBarProps) {
     .map(([name]) => name);
 
   const componentLabel =
-    degradedComponents.length > 0
-      ? ` Componentes afetados: ${degradedComponents.join(", ")}.`
-      : "";
+    degradedComponents.length > 0 ? ` Componentes afetados: ${degradedComponents.join(", ")}.` : "";
 
   return (
     <GlobalAlertBanner tone="warning">

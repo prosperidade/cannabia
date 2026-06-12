@@ -53,9 +53,7 @@ export function ToggleSwitch({
           }}
         />
       </div>
-      {label && (
-        <span className="text-sm font-semibold text-on-surface">{label}</span>
-      )}
+      {label && <span className="text-sm font-semibold text-on-surface">{label}</span>}
     </label>
   );
 }

@@ -5,11 +5,9 @@ import { MaterialIcon } from "./material-icon";
 const variantStyles = {
   primary:
     "bg-primary text-on-primary-container font-bold hover:brightness-110 shadow-lg shadow-primary-container/20",
-  secondary:
-    "border border-primary/30 bg-primary/10 text-primary font-bold hover:brightness-110",
+  secondary: "border border-primary/30 bg-primary/10 text-primary font-bold hover:brightness-110",
   ghost: "text-stone-400 hover:bg-white/5 font-bold",
-  danger:
-    "bg-error/10 text-error border border-error/30 font-bold hover:brightness-110",
+  danger: "bg-error/10 text-error border border-error/30 font-bold hover:brightness-110",
 } as const;
 
 const sizeStyles = {

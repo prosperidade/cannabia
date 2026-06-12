@@ -104,9 +104,15 @@ function TriageAccessState({
 
   return (
     <div className="min-h-screen bg-background text-on-background px-6 py-10 flex items-center justify-center">
-      <div className={`w-full max-w-lg rounded-3xl border ${borderClass} bg-stone-950/85 p-8 backdrop-blur-xl`}>
+      <div
+        className={`w-full max-w-lg rounded-3xl border ${borderClass} bg-stone-950/85 p-8 backdrop-blur-xl`}
+      >
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5">
-          <MaterialIcon icon={tone === "error" ? "error" : "link"} size="lg" className={iconClass} />
+          <MaterialIcon
+            icon={tone === "error" ? "error" : "link"}
+            size="lg"
+            className={iconClass}
+          />
         </div>
         <h1 className="text-2xl font-headline font-extrabold text-on-surface mb-3">{title}</h1>
         <p className="text-sm text-on-surface-variant leading-relaxed mb-6">{description}</p>
@@ -174,7 +180,9 @@ function TriagemPageContent() {
         if (!cancelled) {
           setLinkContext(null);
           setLinkError(
-            error instanceof ApiError ? error.message : "Nao foi possivel validar o link da triagem.",
+            error instanceof ApiError
+              ? error.message
+              : "Nao foi possivel validar o link da triagem.",
           );
         }
       } finally {
@@ -202,13 +210,7 @@ function TriagemPageContent() {
   }
 
   if (!session.data?.authenticated && linkError) {
-    return (
-      <TriageAccessState
-        title="Acesso Protegido"
-        description={linkError}
-        tone="error"
-      />
-    );
+    return <TriageAccessState title="Acesso Protegido" description={linkError} tone="error" />;
   }
 
   if (!session.data?.authenticated && !linkContext) {

@@ -95,9 +95,11 @@ const ICON_MAP: Record<string, string> = {
 };
 
 export function BiometryCard({ vitals, className }: BiometryCardProps) {
-  const bmi = vitals.bmi ?? (vitals.weight_kg && vitals.height_cm
-    ? +(vitals.weight_kg / (vitals.height_cm / 100) ** 2).toFixed(1)
-    : null);
+  const bmi =
+    vitals.bmi ??
+    (vitals.weight_kg && vitals.height_cm
+      ? +(vitals.weight_kg / (vitals.height_cm / 100) ** 2).toFixed(1)
+      : null);
 
   return (
     <Card className={cn("ds-biometry", className)}>
@@ -128,7 +130,7 @@ export function BiometryCard({ vitals, className }: BiometryCardProps) {
         })}
       </div>
 
-      {(vitals.weight_kg || vitals.height_cm || bmi) ? (
+      {vitals.weight_kg || vitals.height_cm || bmi ? (
         <div className="ds-biometry__anthro">
           {vitals.weight_kg ? (
             <div className="ds-anthro-item">
@@ -145,7 +147,12 @@ export function BiometryCard({ vitals, className }: BiometryCardProps) {
           {bmi ? (
             <div className="ds-anthro-item">
               <span className="ds-anthro-item__label">IMC</span>
-              <strong className={cn(bmi >= 30 && "ds-anthro-item--warn", bmi >= 35 && "ds-anthro-item--danger")}>
+              <strong
+                className={cn(
+                  bmi >= 30 && "ds-anthro-item--warn",
+                  bmi >= 35 && "ds-anthro-item--danger",
+                )}
+              >
                 {bmi}
               </strong>
             </div>

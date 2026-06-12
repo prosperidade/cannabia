@@ -36,7 +36,10 @@ interface OrgDoctor {
   eficiencia: number;
 }
 
-const statusConfig: Record<DoctorStatus, { label: string; tone: "primary" | "warning" | "info" | "neutral" }> = {
+const statusConfig: Record<
+  DoctorStatus,
+  { label: string; tone: "primary" | "warning" | "info" | "neutral" }
+> = {
   ativo: { label: "Ativo", tone: "primary" },
   licenca: { label: "Licenca", tone: "warning" },
   avaliacao: { label: "Em Avaliacao", tone: "info" },
@@ -55,7 +58,12 @@ export default function MedicosPage() {
   const [activeTab, setActiveTab] = useState<"painel" | "credenciais">("painel");
   const [search, setSearch] = useState("");
   const [doctors, setDoctors] = useState<OrgDoctor[]>([]);
-  const [statsData, setStatsData] = useState<DoctorStats>({ total: 0, ativos: 0, emAvaliacao: 0, consultasHoje: 0 });
+  const [statsData, setStatsData] = useState<DoctorStats>({
+    total: 0,
+    ativos: 0,
+    emAvaliacao: 0,
+    consultasHoje: 0,
+  });
   const [apiLoading, setApiLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -77,7 +85,9 @@ export default function MedicosPage() {
       }
     }
     fetchDoctors();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredDoctors = doctors.filter((d) => {
@@ -143,7 +153,9 @@ export default function MedicosPage() {
         return count === 0 ? (
           <Badge tone="primary">Completo</Badge>
         ) : (
-          <Badge tone="danger">{count} pendente{count > 1 ? "s" : ""}</Badge>
+          <Badge tone="danger">
+            {count} pendente{count > 1 ? "s" : ""}
+          </Badge>
         );
       },
     },
@@ -176,7 +188,12 @@ export default function MedicosPage() {
         const v = val as number;
         return v > 0 ? (
           <div className="flex items-center gap-2">
-            <ProgressBar value={v} size="sm" variant={v >= 90 ? "success" : "warning"} className="w-20" />
+            <ProgressBar
+              value={v}
+              size="sm"
+              variant={v >= 90 ? "success" : "warning"}
+              className="w-20"
+            />
             <span className="text-xs font-bold text-on-surface">{v}%</span>
           </div>
         ) : (
@@ -246,10 +263,28 @@ export default function MedicosPage() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon="medical_services" label="Total Medicos" value={statsData.total} delta="+4.2%" deltaType="up" />
+        <StatCard
+          icon="medical_services"
+          label="Total Medicos"
+          value={statsData.total}
+          delta="+4.2%"
+          deltaType="up"
+        />
         <StatCard icon="check_circle" label="Ativos" value={statsData.ativos} />
-        <StatCard icon="pending" label="Em Avaliacao" value={statsData.emAvaliacao} delta="Pendente" deltaType="neutral" />
-        <StatCard icon="event_available" label="Consultas Hoje" value={statsData.consultasHoje} delta="+3" deltaType="up" />
+        <StatCard
+          icon="pending"
+          label="Em Avaliacao"
+          value={statsData.emAvaliacao}
+          delta="Pendente"
+          deltaType="neutral"
+        />
+        <StatCard
+          icon="event_available"
+          label="Consultas Hoje"
+          value={statsData.consultasHoje}
+          delta="+3"
+          deltaType="up"
+        />
       </div>
 
       {/* Search + Tabs */}
@@ -267,7 +302,7 @@ export default function MedicosPage() {
               "px-5 py-2 rounded-lg text-sm font-bold font-headline transition-all",
               activeTab === "painel"
                 ? "bg-primary text-on-primary"
-                : "bg-surface-container text-stone-400 hover:text-on-surface hover:bg-surface-container-highest"
+                : "bg-surface-container text-stone-400 hover:text-on-surface hover:bg-surface-container-highest",
             )}
           >
             Painel
@@ -278,7 +313,7 @@ export default function MedicosPage() {
               "px-5 py-2 rounded-lg text-sm font-bold font-headline transition-all",
               activeTab === "credenciais"
                 ? "bg-primary text-on-primary"
-                : "bg-surface-container text-stone-400 hover:text-on-surface hover:bg-surface-container-highest"
+                : "bg-surface-container text-stone-400 hover:text-on-surface hover:bg-surface-container-highest",
             )}
           >
             Credenciais & Performance
@@ -293,14 +328,21 @@ export default function MedicosPage() {
           {filteredDoctors.map((doc) => {
             const stCfg = statusConfig[doc.status];
             return (
-              <Card key={doc.id} variant="glass" padding="md" className="group hover:border-primary/20 transition-all">
+              <Card
+                key={doc.id}
+                variant="glass"
+                padding="md"
+                className="group hover:border-primary/20 transition-all"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <Avatar name={doc.nome} size="lg" />
                     <div>
                       <h3 className="text-sm font-bold text-on-surface">{doc.nome}</h3>
                       <p className="text-xs text-stone-500 font-mono">{doc.crm}</p>
-                      <p className="text-[10px] text-on-surface-variant mt-0.5">{doc.especialidade}</p>
+                      <p className="text-[10px] text-on-surface-variant mt-0.5">
+                        {doc.especialidade}
+                      </p>
                     </div>
                   </div>
                   <Badge tone={stCfg.tone}>{stCfg.label}</Badge>
@@ -309,18 +351,26 @@ export default function MedicosPage() {
                 {/* Stats Row */}
                 <div className="flex items-center justify-between py-3 border-t border-white/5">
                   <div className="text-center">
-                    <p className="text-lg font-black text-primary font-headline">{doc.pacientesAtivos}</p>
+                    <p className="text-lg font-black text-primary font-headline">
+                      {doc.pacientesAtivos}
+                    </p>
                     <p className="text-[10px] text-stone-500 uppercase tracking-wider">Pacientes</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-black text-on-surface font-headline">{doc.consultasHoje}</p>
-                    <p className="text-[10px] text-stone-500 uppercase tracking-wider">Consultas Hoje</p>
+                    <p className="text-lg font-black text-on-surface font-headline">
+                      {doc.consultasHoje}
+                    </p>
+                    <p className="text-[10px] text-stone-500 uppercase tracking-wider">
+                      Consultas Hoje
+                    </p>
                   </div>
                   <div className="text-center">
                     {doc.rating > 0 ? (
                       <div className="flex items-center justify-center gap-1">
                         <MaterialIcon icon="star" filled size="sm" className="text-primary" />
-                        <span className="text-lg font-black text-on-surface font-headline">{doc.rating}</span>
+                        <span className="text-lg font-black text-on-surface font-headline">
+                          {doc.rating}
+                        </span>
                       </div>
                     ) : (
                       <span className="text-stone-500 text-sm">N/A</span>

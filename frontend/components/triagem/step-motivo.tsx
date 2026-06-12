@@ -14,16 +14,61 @@ interface Objetivo {
 }
 
 const OBJETIVOS_PRINCIPAIS: Objetivo[] = [
-  { id: "melhora_sono", label: "Melhora do Sono", description: "Ciclos mais profundos e reparadores", icon: "bedtime" },
+  {
+    id: "melhora_sono",
+    label: "Melhora do Sono",
+    description: "Ciclos mais profundos e reparadores",
+    icon: "bedtime",
+  },
   { id: "mais_calma", label: "Mais Calma", description: "Tranquilidade no dia a dia", icon: "spa" },
-  { id: "aumento_foco", label: "Aumento do Foco", description: "Concentracao e produtividade", icon: "center_focus_strong" },
-  { id: "menos_estresse", label: "Menos Estresse", description: "Reducao do cortisol diario", icon: "self_improvement" },
-  { id: "controle_ansiedade", label: "Controle da Ansiedade", description: "Equilibrio emocional constante", icon: "psychology" },
-  { id: "dor_cronica", label: "Dor Cronica", description: "Alivio de tensoes e inflamacoes", icon: "healing" },
-  { id: "melhora_esporte", label: "Melhora no Esporte", description: "Performance e recuperacao", icon: "fitness_center" },
-  { id: "aumento_libido", label: "Aumento da Libido", description: "Saude sexual e bem-estar", icon: "favorite" },
-  { id: "enxaqueca", label: "Enxaqueca", description: "Reducao da frequencia e intensidade", icon: "bolt" },
-  { id: "controle_tpm", label: "Controle da TPM", description: "Equilibrio hormonal feminino", icon: "cycle" },
+  {
+    id: "aumento_foco",
+    label: "Aumento do Foco",
+    description: "Concentracao e produtividade",
+    icon: "center_focus_strong",
+  },
+  {
+    id: "menos_estresse",
+    label: "Menos Estresse",
+    description: "Reducao do cortisol diario",
+    icon: "self_improvement",
+  },
+  {
+    id: "controle_ansiedade",
+    label: "Controle da Ansiedade",
+    description: "Equilibrio emocional constante",
+    icon: "psychology",
+  },
+  {
+    id: "dor_cronica",
+    label: "Dor Cronica",
+    description: "Alivio de tensoes e inflamacoes",
+    icon: "healing",
+  },
+  {
+    id: "melhora_esporte",
+    label: "Melhora no Esporte",
+    description: "Performance e recuperacao",
+    icon: "fitness_center",
+  },
+  {
+    id: "aumento_libido",
+    label: "Aumento da Libido",
+    description: "Saude sexual e bem-estar",
+    icon: "favorite",
+  },
+  {
+    id: "enxaqueca",
+    label: "Enxaqueca",
+    description: "Reducao da frequencia e intensidade",
+    icon: "bolt",
+  },
+  {
+    id: "controle_tpm",
+    label: "Controle da TPM",
+    description: "Equilibrio hormonal feminino",
+    icon: "cycle",
+  },
 ];
 
 const OUTROS_MOTIVOS: { id: string; label: string }[] = [
@@ -159,9 +204,9 @@ export function StepMotivo() {
       <div className="flex items-start gap-2 p-3 rounded-lg bg-surface-container-low/50 border border-outline-variant/20">
         <MaterialIcon icon="info" size="sm" className="text-on-surface-variant mt-0.5" />
         <p className="text-[11px] text-on-surface-variant leading-relaxed">
-          <strong>Informacoes Importantes:</strong> As informacoes coletadas serao usadas exclusivamente
-          para personalizar seu protocolo terapeutico. Seus dados sao protegidos por criptografia
-          de ponta a ponta.
+          <strong>Informacoes Importantes:</strong> As informacoes coletadas serao usadas
+          exclusivamente para personalizar seu protocolo terapeutico. Seus dados sao protegidos por
+          criptografia de ponta a ponta.
         </p>
       </div>
     </div>

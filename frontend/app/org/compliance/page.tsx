@@ -3,14 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { getOrgCompliance } from "@/lib/api";
-import {
-  Card,
-  StatCard,
-  Button,
-  Badge,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, StatCard, Button, Badge, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -32,11 +25,12 @@ type AuditEvent = {
   detail: string;
 };
 
-const STATUS_BADGE: Record<CheckStatus, { tone: "primary" | "warning" | "danger"; label: string }> = {
-  conforme: { tone: "primary", label: "Conforme" },
-  pendente: { tone: "warning", label: "Pendente" },
-  vencido: { tone: "danger", label: "Vencido" },
-};
+const STATUS_BADGE: Record<CheckStatus, { tone: "primary" | "warning" | "danger"; label: string }> =
+  {
+    conforme: { tone: "primary", label: "Conforme" },
+    pendente: { tone: "warning", label: "Pendente" },
+    vencido: { tone: "danger", label: "Vencido" },
+  };
 
 const EVENT_STATUS_MAP = {
   success: { tone: "primary" as const, icon: "check_circle" },
@@ -83,7 +77,9 @@ export default function CompliancePage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Group checks by category
   const grouped = checks.reduce<Record<string, CheckItem[]>>((acc, item) => {
@@ -122,10 +118,20 @@ export default function CompliancePage() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <Button variant="secondary" icon="history" size="sm" onClick={() => alert("Arquivo de periodo")}>
+          <Button
+            variant="secondary"
+            icon="history"
+            size="sm"
+            onClick={() => alert("Arquivo de periodo")}
+          >
             Arquivo Periodo
           </Button>
-          <Button variant="primary" icon="upload_file" size="sm" onClick={() => alert("Gerar Relatorio ANVISA")}>
+          <Button
+            variant="primary"
+            icon="upload_file"
+            size="sm"
+            onClick={() => alert("Gerar Relatorio ANVISA")}
+          >
             Gerar Relatorio ANVISA
           </Button>
         </div>
@@ -133,14 +139,34 @@ export default function CompliancePage() {
 
       {/* Overview cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon="inventory_2" label="Total Lotes Rastreados" value="1.248" delta="+12%" deltaType="up" />
-        <StatCard icon="warning" label="Eventos Adversos" value="02" delta="Pendentes" deltaType="down" />
-        <StatCard icon="event_repeat" label="Renovacoes Proximas" value="45" delta="< 15 dias" deltaType="neutral" />
+        <StatCard
+          icon="inventory_2"
+          label="Total Lotes Rastreados"
+          value="1.248"
+          delta="+12%"
+          deltaType="up"
+        />
+        <StatCard
+          icon="warning"
+          label="Eventos Adversos"
+          value="02"
+          delta="Pendentes"
+          deltaType="down"
+        />
+        <StatCard
+          icon="event_repeat"
+          label="Renovacoes Proximas"
+          value="45"
+          delta="< 15 dias"
+          deltaType="neutral"
+        />
 
         {/* Audit Status Card - special */}
         <Card padding="md" className="border-primary/20 bg-primary/5">
           <div className="flex justify-between items-start mb-3">
-            <p className="text-xs font-bold text-primary tracking-wider uppercase">Score Compliance</p>
+            <p className="text-xs font-bold text-primary tracking-wider uppercase">
+              Score Compliance
+            </p>
             <MaterialIcon icon="verified" filled className="text-primary" />
           </div>
           <h3 className="text-3xl font-headline font-extrabold text-on-surface">{overallScore}%</h3>
@@ -160,7 +186,11 @@ export default function CompliancePage() {
               <p className="text-sm font-bold text-on-surface">Atencao Necessaria</p>
               <p className="text-xs text-stone-400 mt-1">
                 {pendenteItems > 0 && <span>{pendenteItems} item(ns) pendente(s). </span>}
-                {vencidoItems > 0 && <span className="text-error">{vencidoItems} item(ns) vencido(s) requerem acao imediata.</span>}
+                {vencidoItems > 0 && (
+                  <span className="text-error">
+                    {vencidoItems} item(ns) vencido(s) requerem acao imediata.
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -204,13 +234,21 @@ export default function CompliancePage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <MaterialIcon icon={cfg.icon} size="sm" className={cn(
-                          cfg.tone === "primary" && "text-primary",
-                          cfg.tone === "warning" && "text-amber-400",
-                          cfg.tone === "danger" && "text-error",
-                        )} />
+                        <MaterialIcon
+                          icon={cfg.icon}
+                          size="sm"
+                          className={cn(
+                            cfg.tone === "primary" && "text-primary",
+                            cfg.tone === "warning" && "text-amber-400",
+                            cfg.tone === "danger" && "text-error",
+                          )}
+                        />
                         <Badge tone={cfg.tone}>
-                          {evt.status === "success" ? "OK" : evt.status === "warning" ? "Alerta" : "Critico"}
+                          {evt.status === "success"
+                            ? "OK"
+                            : evt.status === "warning"
+                              ? "Alerta"
+                              : "Critico"}
                         </Badge>
                       </div>
                       <span className="text-[10px] text-stone-500 font-mono">{evt.date}</span>
@@ -225,7 +263,9 @@ export default function CompliancePage() {
 
           {/* Clinical Evolution Stats */}
           <Card padding="md">
-            <h4 className="text-lg font-headline font-bold text-on-surface mb-4">Eficacia Clinica</h4>
+            <h4 className="text-lg font-headline font-bold text-on-surface mb-4">
+              Eficacia Clinica
+            </h4>
             <div className="space-y-4">
               {[
                 { label: "Reducao Media de Dor", value: "--", color: "text-primary" },
@@ -233,8 +273,12 @@ export default function CompliancePage() {
                 { label: "Retencao de Pacientes", value: "--", color: "text-secondary" },
               ].map((stat) => (
                 <div key={stat.label} className="flex items-center justify-between">
-                  <span className="text-xs text-stone-500 uppercase tracking-widest font-bold">{stat.label}</span>
-                  <span className={cn("text-lg font-headline font-extrabold", stat.color)}>{stat.value}</span>
+                  <span className="text-xs text-stone-500 uppercase tracking-widest font-bold">
+                    {stat.label}
+                  </span>
+                  <span className={cn("text-lg font-headline font-extrabold", stat.color)}>
+                    {stat.value}
+                  </span>
                 </div>
               ))}
             </div>
@@ -286,7 +330,11 @@ function ChecklistSection({
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 w-32">
-            <ProgressBar value={sectionPct} size="sm" variant={sectionPct === 100 ? "success" : sectionPct >= 75 ? "primary" : "warning"} />
+            <ProgressBar
+              value={sectionPct}
+              size="sm"
+              variant={sectionPct === 100 ? "success" : sectionPct >= 75 ? "primary" : "warning"}
+            />
             <span className="text-xs font-bold text-stone-400">{sectionPct}%</span>
           </div>
           <MaterialIcon
@@ -325,7 +373,9 @@ function ChecklistSection({
                   <p className="text-sm font-medium text-on-surface">{item.label}</p>
                   <p className="text-xs text-stone-500 truncate">{item.detail}</p>
                 </div>
-                <Badge tone={cfg.tone} className="shrink-0">{cfg.label}</Badge>
+                <Badge tone={cfg.tone} className="shrink-0">
+                  {cfg.label}
+                </Badge>
               </div>
             );
           })}

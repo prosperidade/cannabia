@@ -35,9 +35,7 @@ export function SliderRange({
             </label>
           )}
           {showValue && (
-            <span className="text-3xl font-black text-primary font-headline">
-              {value}
-            </span>
+            <span className="text-3xl font-black text-primary font-headline">{value}</span>
           )}
         </div>
       )}
