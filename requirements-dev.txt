@@ -5,6 +5,9 @@
 # Testes
 pytest>=8.0.0
 pytest-cov>=5.0.0
+# Ordem de testes aleatorizada — revela acoplamento/isolamento entre testes.
+# Reproduz uma ordem: pytest --randomly-seed=<N>; desativa: -p no:randomly.
+pytest-randomly>=3.15.0
 
 # Mocking de HTTP
 responses>=0.25.0

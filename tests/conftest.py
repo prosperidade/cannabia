@@ -43,8 +43,51 @@ def _load_project_dotenv() -> None:
 
 _load_project_dotenv()
 
+
+def _resolve_test_database_url() -> None:
+    """Garante isolamento do banco de teste por worktree.
+
+    Causa-raiz (2026-06-14): o `.env` define `DATABASE_URL` apontando para o
+    banco de DEV, e `_load_project_dotenv` o carrega no ambiente — então o
+    antigo `setdefault` nunca tomava efeito e `TEST_DATABASE_URL` ficava
+    INERTE. Resultado: toda worktree rodava pytest contra o MESMO banco de
+    dev, e execuções concorrentes (agentes em paralelo) se contaminavam
+    (flake intermitente do test_smoke_full_pipeline).
+
+    Regra de precedência: `TEST_DATABASE_URL` (banco isolado, provisionado por
+    `scripts/setup_worktree_db.py`) SEMPRE vence o `DATABASE_URL` de dev.
+    Sem ele, mantemos o comportamento legado mas com aviso explícito quando os
+    testes estão prestes a rodar contra o banco compartilhado de dev.
+    """
+    test_url = os.getenv("TEST_DATABASE_URL")
+    if test_url:
+        os.environ["DATABASE_URL"] = test_url
+        return
+
+    dev_url = os.environ.get("DATABASE_URL")
+    if dev_url:
+        # Sem banco de teste dedicado: roda no DATABASE_URL atual (dev).
+        # Avisa alto — silenciar isto foi o que mascarou o flake.
+        import warnings
+
+        dbname = dev_url.rsplit("/", 1)[-1].split("?")[0]
+        warnings.warn(
+            f"\n[conftest] TEST_DATABASE_URL não definido — testes vão rodar contra "
+            f"'{dbname}' (banco de dev compartilhado).\n"
+            f"           Rode `python scripts/setup_worktree_db.py` e cole o "
+            f"TEST_DATABASE_URL no .env desta worktree para isolar.\n"
+            f"           Execuções concorrentes neste banco causam flakes "
+            f"cross-process.",
+            stacklevel=2,
+        )
+        return
+
+    os.environ["DATABASE_URL"] = "postgresql://localhost/cannabia_test"
+
+
+_resolve_test_database_url()
+
 # Garante que variáveis de teste são carregadas antes do import da app
-os.environ.setdefault("DATABASE_URL", os.getenv("TEST_DATABASE_URL", "postgresql://localhost/cannabia_test"))
 os.environ.setdefault("SECRET_KEY", "test-secret-key-do-not-use-in-production")
 os.environ.setdefault("ENCRYPTION_KEY", "test-encryption-key-32chars-ok!!")
 os.environ.setdefault("SESSION_COOKIE_SECURE", "false")
