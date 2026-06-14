@@ -20,10 +20,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (session.data?.authenticated) {
       router.replace(
-        getRoleRedirect(
-          session.data.user?.role,
-          !!session.data.user?.is_clinic_admin,
-        ),
+        getRoleRedirect(session.data.user?.role, !!session.data.user?.is_clinic_admin),
       );
     }
   }, [router, session.data]);
@@ -35,16 +32,11 @@ export default function LoginPage() {
 
     try {
       const result = await login(username, password);
-      const target = getRoleRedirect(
-        result.user?.role,
-        !!result.user?.is_clinic_admin,
-      );
+      const target = getRoleRedirect(result.user?.role, !!result.user?.is_clinic_admin);
       router.push(target);
       router.refresh();
     } catch (submitError) {
-      setError(
-        submitError instanceof ApiError ? submitError.message : "Falha ao autenticar.",
-      );
+      setError(submitError instanceof ApiError ? submitError.message : "Falha ao autenticar.");
     } finally {
       setBusy(false);
     }
@@ -77,9 +69,7 @@ export default function LoginPage() {
 
         {/* Title */}
         <div className="text-center">
-          <h2 className="text-lg font-headline font-bold text-on-surface">
-            Acessar sua conta
-          </h2>
+          <h2 className="text-lg font-headline font-bold text-on-surface">Acessar sua conta</h2>
           <p className="text-sm text-on-surface/50 mt-1">
             Entre com suas credenciais para continuar
           </p>

@@ -431,39 +431,37 @@ def query_legislation(
     Returns:
         (answer_text, {"input_tokens": int, "output_tokens": int, "files_used": list})
     """
-    client = _get_client()
-
-    # Select files
-    files = _selected_catalog_entries(file_names=file_names)
-
-    if not files:
-        raise ValueError("No legislation files available. Upload files first.")
-
-    # Build content parts: file references + question
-    parts = []
-    for f in files:
-        parts.append(genai_types.Part.from_uri(
-            file_uri=f["uri"],
-            mime_type=f.get("mime_type") or "application/pdf",
-        ))
+    # FULL-TEXT DURÁVEL (A5/A11 follow-up): a fonte é o TEXTO das normas (.md em
+    # data/legislation, via manifesto), NÃO mais a Gemini Files API (que expirava
+    # em 48h). Passa o corpus INTEIRO ao LLM — full-document preserva referências
+    # cruzadas da lei (95% vs 70% com chunks). `file_names` mantido por compat; o
+    # corpus de legislação é pequeno e vai inteiro.
+    texts, image_only = _load_legislation_texts()
+    if not texts:
+        raise ValueError(
+            "Sem texto de legislacao disponivel. Gere os .md com "
+            "scripts/ocr_legislation_pdfs.py e declare sanitized_filename no sources.json."
+        )
+    corpus = "\n\n".join(f"===== {title} =====\n{content}" for title, content in texts)
+    files_used = [t for t, _ in texts]
 
     system_instruction = (
         "Voce e um especialista em legislacao regulatoria brasileira de cannabis medicinal. "
-        "Analise os documentos fornecidos e responda com precisao, citando artigos e paragrafos especificos. "
-        "Se a resposta nao estiver nos documentos, diga explicitamente. "
-        "Sempre cite: numero da norma, artigo, paragrafo e inciso quando aplicavel. "
-        "Responda em portugues brasileiro."
+        "Analise os documentos fornecidos e responda com precisao, citando numero da norma, "
+        "artigo, paragrafo e inciso quando aplicavel. Se a resposta nao estiver nos documentos, "
+        "diga explicitamente. Responda em portugues brasileiro."
     )
+    user_text = f"DOCUMENTOS:\n{corpus}\n\nPERGUNTA: {question}"
 
-    parts.append(genai_types.Part.from_text(text=question))
-
-    # Retry with exponential backoff (Gemini quota/availability)
+    client = _get_client()  # manter referencia (evita GC fechar o client mid-call)
     last_error = None
     for attempt in range(3):
         try:
             response = client.models.generate_content(
                 model=GEMINI_MODEL,
-                contents=[genai_types.Content(role="user", parts=parts)],
+                contents=[genai_types.Content(
+                    role="user", parts=[genai_types.Part.from_text(text=user_text)]
+                )],
                 config=genai_types.GenerateContentConfig(
                     system_instruction=system_instruction,
                     temperature=temperature,
@@ -472,25 +470,21 @@ def query_legislation(
             )
             break
         except Exception as exc:  # noqa: BLE001 — boundary do retry de Gemini
-            # genai.errors / httpx.* / quota exceeded / network — qualquer tipo eh transient.
-            # Captura ampla intencional: o else: do for re-eleva como RuntimeError apos 3 tentativas.
             last_error = exc
             wait = 2 ** attempt
-            logger.warning("Gemini query attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
+            logger.warning("Gemini legislation attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
             time.sleep(wait)
     else:
-        # Gemini esgotou as 3 tentativas (quota/erro): tenta o fallback OpenAI
-        # sobre o corpus textual antes de desistir (resiliencia — doc 30 C3).
+        # Gemini esgotou as tentativas: fallback OpenAI sobre o MESMO texto.
         logger.error("Gemini indisponivel apos 3 tentativas; acionando fallback OpenAI. (%s)", last_error)
         try:
             return _query_legislation_openai_fallback(question, temperature)
-        except Exception as fb_exc:  # noqa: BLE001 — boundary: agrega os dois erros
+        except Exception as fb_exc:  # noqa: BLE001 — agrega os dois erros
             raise RuntimeError(
                 f"Consulta regulatoria indisponivel: Gemini falhou ({last_error}) "
                 f"e fallback OpenAI falhou ({fb_exc})."
             )
 
-    # Extract token usage
     usage = {}
     if hasattr(response, "usage_metadata") and response.usage_metadata:
         um = response.usage_metadata
@@ -499,18 +493,15 @@ def query_legislation(
             "output_tokens": getattr(um, "candidates_token_count", 0),
             "total_tokens": getattr(um, "total_token_count", 0),
         }
-
-    usage["files_used"] = [f["display_name"] for f in files]
+    usage["files_used"] = files_used
     usage["model"] = GEMINI_MODEL
+    usage["fallback"] = False
 
     answer = response.text if hasattr(response, "text") else str(response)
-
     logger.info(
-        "Legislation query answered. Files: %d, Tokens: %s",
-        len(files),
-        usage.get("total_tokens", "unknown"),
+        "Legislation query answered (full-text durável, %d normas, %s tokens).",
+        len(texts), usage.get("total_tokens", "unknown"),
     )
-
     return answer, usage
 
 
@@ -524,19 +515,15 @@ def query_legislation_structured(
     Returns:
         (parsed_dict, usage_dict)
     """
-    client = _get_client()
-
-    files = _selected_catalog_entries(file_names=file_names)
-
-    if not files:
-        raise ValueError("No legislation files available.")
-
-    parts = []
-    for f in files:
-        parts.append(genai_types.Part.from_uri(
-            file_uri=f["uri"],
-            mime_type=f.get("mime_type") or "application/pdf",
-        ))
+    # FULL-TEXT DURÁVEL (igual a query_legislation): corpus textual, sem Files API.
+    texts, image_only = _load_legislation_texts()
+    if not texts:
+        raise ValueError(
+            "Sem texto de legislacao disponivel. Gere os .md com "
+            "scripts/ocr_legislation_pdfs.py e declare sanitized_filename no sources.json."
+        )
+    corpus = "\n\n".join(f"===== {title} =====\n{content}" for title, content in texts)
+    files_used = [t for t, _ in texts]
 
     system_instruction = (
         "Voce e um especialista em legislacao regulatoria brasileira de cannabis medicinal. "
@@ -544,15 +531,17 @@ def query_legislation_structured(
         '{"answer": "resposta completa", "citations": [{"norm": "RDC 327/2019", "article": "Art. 8", '
         '"text": "texto do artigo"}], "applicable": true/false, "confidence": 0.0-1.0}'
     )
+    user_text = f"DOCUMENTOS:\n{corpus}\n\nPERGUNTA: {question}"
 
-    parts.append(genai_types.Part.from_text(text=question))
-
+    client = _get_client()  # manter referencia (evita GC fechar o client mid-call)
     last_error = None
     for attempt in range(3):
         try:
             response = client.models.generate_content(
                 model=GEMINI_MODEL,
-                contents=[genai_types.Content(role="user", parts=parts)],
+                contents=[genai_types.Content(
+                    role="user", parts=[genai_types.Part.from_text(text=user_text)]
+                )],
                 config=genai_types.GenerateContentConfig(
                     system_instruction=system_instruction,
                     temperature=0,
@@ -562,15 +551,25 @@ def query_legislation_structured(
             )
             break
         except Exception as exc:  # noqa: BLE001 — boundary do retry de Gemini structured
-            # Mesma justificativa do query nao-structured acima: tipos variados sao transient.
             last_error = exc
             wait = 2 ** attempt
-            logger.warning("Gemini structured query attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
+            logger.warning("Gemini structured attempt %d failed, retrying in %ds: %s", attempt + 1, wait, exc)
             time.sleep(wait)
     else:
-        raise RuntimeError(
-            f"Consulta regulatoria estruturada indisponivel apos 3 tentativas. ({last_error})"
-        )
+        # Fallback OpenAI: resposta textual embrulhada no formato estruturado.
+        logger.error("Gemini structured indisponivel; fallback OpenAI. (%s)", last_error)
+        try:
+            answer, fb_usage = _query_legislation_openai_fallback(question, 0.0)
+            return (
+                {"answer": answer, "citations": [], "applicable": True,
+                 "confidence": 0.5, "fallback": True},
+                fb_usage,
+            )
+        except Exception as fb_exc:  # noqa: BLE001
+            raise RuntimeError(
+                f"Consulta regulatoria estruturada indisponivel: Gemini ({last_error}) "
+                f"e fallback OpenAI ({fb_exc})."
+            )
 
     usage = {}
     if hasattr(response, "usage_metadata") and response.usage_metadata:
@@ -579,13 +578,15 @@ def query_legislation_structured(
             "input_tokens": getattr(um, "prompt_token_count", 0),
             "output_tokens": getattr(um, "candidates_token_count", 0),
             "total_tokens": getattr(um, "total_token_count", 0),
-            "files_used": [f["display_name"] for f in files],
-            "model": GEMINI_MODEL,
         }
+    usage["files_used"] = files_used
+    usage["model"] = GEMINI_MODEL
+    usage["fallback"] = False
 
     try:
         result = json.loads(response.text)
     except (json.JSONDecodeError, AttributeError):
-        result = {"answer": response.text if hasattr(response, "text") else str(response), "citations": [], "applicable": False, "confidence": 0.0}
+        result = {"answer": response.text if hasattr(response, "text") else str(response),
+                  "citations": [], "applicable": False, "confidence": 0.0}
 
     return result, usage

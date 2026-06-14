@@ -13,11 +13,22 @@ import {
   ProgressBar,
 } from "@/components/ui-tw";
 
-type KpiItem = { icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" | "neutral" };
+type KpiItem = {
+  icon: string;
+  label: string;
+  value: string;
+  delta: string;
+  deltaType: "up" | "down" | "neutral";
+};
 type ChartConsulta = { month: string; novo: number; retorno: number };
 type ChartReceita = { month: string; value: number };
 type TopMedico = { name: string; specialty: string; count: number; rating: number | null };
-type ActivityItem = { icon: string; text: string; time: string; tone: "primary" | "success" | "info" | "danger" };
+type ActivityItem = {
+  icon: string;
+  text: string;
+  time: string;
+  tone: "primary" | "success" | "info" | "danger";
+};
 
 type OrgDashData = {
   kpiData: KpiItem[];
@@ -49,7 +60,9 @@ export default function OrgDashboardPage() {
       }
     }
     fetchData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const kpiData = data?.kpiData ?? [];
@@ -302,13 +315,15 @@ export default function OrgDashboardPage() {
                 key={idx}
                 className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors"
               >
-                <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
-                  act.tone === "primary" && "bg-primary/10",
-                  act.tone === "success" && "bg-emerald-500/10",
-                  act.tone === "info" && "bg-blue-400/10",
-                  act.tone === "danger" && "bg-error/10",
-                )}>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                    act.tone === "primary" && "bg-primary/10",
+                    act.tone === "success" && "bg-emerald-500/10",
+                    act.tone === "info" && "bg-blue-400/10",
+                    act.tone === "danger" && "bg-error/10",
+                  )}
+                >
                   <MaterialIcon
                     icon={act.icon}
                     size="sm"
@@ -335,7 +350,9 @@ export default function OrgDashboardPage() {
         <div className="p-5 border-b border-white/5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h4 className="text-lg font-bold font-headline">Desempenho Clinico</h4>
-            <p className="text-sm text-on-surface-variant">Top profissionais por eficacia e volume de atendimentos</p>
+            <p className="text-sm text-on-surface-variant">
+              Top profissionais por eficacia e volume de atendimentos
+            </p>
           </div>
           <button className="text-primary text-xs font-bold hover:underline">
             Ver Corpo Medico

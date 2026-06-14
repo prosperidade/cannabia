@@ -8,12 +8,7 @@ import { cn } from "@/lib/cn";
 import { listAttendances, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 import type { AttendanceListItem } from "@/lib/types";
-import {
-  MaterialIcon,
-  Badge,
-  Button,
-  SearchBar,
-} from "@/components/ui-tw";
+import { MaterialIcon, Badge, Button, SearchBar } from "@/components/ui-tw";
 
 /* -------------------------------------------------------------------------- */
 
@@ -31,11 +26,7 @@ const STATUS_BADGE: Record<
 };
 
 function normaliseStatus(status: string): string {
-  return status
-    .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/ã/g, "a")
-    .replace(/ç/g, "c");
+  return status.toLowerCase().replace(/\s+/g, "_").replace(/ã/g, "a").replace(/ç/g, "c");
 }
 
 function formatDate(dateStr: string): string {
@@ -76,25 +67,25 @@ export default function AtendimentosPage() {
   }, [session.loading, session.data, router]);
 
   // Sprint 3 Page-Migration: envelope `Paginated<AttendanceListItem>`.
-  const fetchAttendances = useCallback(async (opts?: { append?: boolean }) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const nextOffset = opts?.append ? offset : 0;
-      const env = await listAttendances({ limit: 50, offset: nextOffset });
-      setAttendances((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
-      setHasMore(env.has_more);
-      setOffset(nextOffset + env.items.length);
-    } catch (err) {
-      const msg =
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao carregar atendimentos.";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [offset]);
+  const fetchAttendances = useCallback(
+    async (opts?: { append?: boolean }) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const nextOffset = opts?.append ? offset : 0;
+        const env = await listAttendances({ limit: 50, offset: nextOffset });
+        setAttendances((prev) => (opts?.append ? [...prev, ...env.items] : env.items));
+        setHasMore(env.has_more);
+        setOffset(nextOffset + env.items.length);
+      } catch (err) {
+        const msg = err instanceof ApiError ? err.message : "Falha ao carregar atendimentos.";
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [offset],
+  );
 
   const loadMore = useCallback(() => {
     void fetchAttendances({ append: true });
@@ -119,10 +110,7 @@ export default function AtendimentosPage() {
       items = items.filter((a) => normaliseStatus(a.status) === statusFilter);
     }
 
-    items.sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    );
+    items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     return items;
   }, [attendances, search, statusFilter]);
@@ -202,18 +190,13 @@ export default function AtendimentosPage() {
       ) : filtered.length === 0 ? (
         <div className="glass-panel rounded-2xl p-12 text-center space-y-4 border border-white/5">
           <div className="w-20 h-20 mx-auto rounded-full bg-surface-container-high flex items-center justify-center">
-            <MaterialIcon
-              icon="assignment"
-              size="xl"
-              className="text-stone-600"
-            />
+            <MaterialIcon icon="assignment" size="xl" className="text-stone-600" />
           </div>
           <h3 className="text-lg font-headline font-bold text-stone-400">
             Nenhum atendimento encontrado
           </h3>
           <p className="text-sm text-stone-600 max-w-md mx-auto">
-            Os atendimentos aparecerao aqui conforme forem processados pelo
-            sistema.
+            Os atendimentos aparecerao aqui conforme forem processados pelo sistema.
           </p>
         </div>
       ) : (
@@ -248,22 +231,15 @@ export default function AtendimentosPage() {
                     tone: "neutral" as const,
                   };
                   return (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-white/5 transition-colors group"
-                    >
+                    <tr key={item.id} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold text-sm">
                             {getInitials(item.patient_name)}
                           </div>
                           <div>
-                            <p className="font-bold text-on-surface text-sm">
-                              {item.patient_name}
-                            </p>
-                            <p className="text-xs text-stone-500 font-mono">
-                              {item.phone}
-                            </p>
+                            <p className="font-bold text-on-surface text-sm">{item.patient_name}</p>
+                            <p className="text-xs text-stone-500 font-mono">{item.phone}</p>
                           </div>
                         </div>
                       </td>

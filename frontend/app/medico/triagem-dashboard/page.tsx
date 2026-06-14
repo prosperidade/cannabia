@@ -8,5 +8,9 @@ export default function OldTriagemDashboardRedirect() {
   useEffect(() => {
     router.replace("/med/dashboard");
   }, [router]);
-  return <div className="min-h-screen bg-surface flex items-center justify-center"><p className="text-on-surface/50">Redirecionando...</p></div>;
+  return (
+    <div className="min-h-screen bg-surface flex items-center justify-center">
+      <p className="text-on-surface/50">Redirecionando...</p>
+    </div>
+  );
 }

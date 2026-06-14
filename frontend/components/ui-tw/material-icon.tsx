@@ -12,6 +12,13 @@ export interface MaterialIconProps {
   filled?: boolean;
   size?: keyof typeof sizeMap;
   className?: string;
+  /**
+   * Rótulo acessível. Quando omitido (default), o ícone é puramente
+   * decorativo: `aria-hidden` impede que o leitor de tela vocalize a
+   * ligature ("eco", "dashboard"...). Quando fornecido, o ícone passa a
+   * ser semântico (`role="img"` + `aria-label`).
+   */
+  label?: string;
 }
 
 export function MaterialIcon({
@@ -19,10 +26,15 @@ export function MaterialIcon({
   filled = false,
   size = "md",
   className,
+  label,
 }: MaterialIconProps) {
+  const semantic = label !== undefined;
   return (
     <span
       className={cn("material-symbols-outlined", sizeMap[size], className)}
+      aria-hidden={semantic ? undefined : true}
+      role={semantic ? "img" : undefined}
+      aria-label={semantic ? label : undefined}
       style={
         filled
           ? { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }

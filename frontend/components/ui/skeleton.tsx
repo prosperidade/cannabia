@@ -21,7 +21,12 @@ export function Skeleton({
 }: SkeletonProps) {
   if (lines && lines > 1) {
     return (
-      <div aria-busy="true" aria-label="Carregando conteúdo" className="ds-skeleton-stack" role="status">
+      <div
+        aria-busy="true"
+        aria-label="Carregando conteúdo"
+        className="ds-skeleton-stack"
+        role="status"
+      >
         <span className="sr-only">Carregando...</span>
         {Array.from({ length: lines }, (_, i) => (
           <span
@@ -56,7 +61,12 @@ export function Skeleton({
 /** Full card skeleton with header + lines */
 export function CardSkeleton({ lines = 3 }: { lines?: number }) {
   return (
-    <div aria-busy="true" aria-label="Carregando painel" className="ds-card ds-card--pad-md" role="status">
+    <div
+      aria-busy="true"
+      aria-label="Carregando painel"
+      className="ds-card ds-card--pad-md"
+      role="status"
+    >
       <div className="ds-card__header">
         <div>
           <Skeleton height="12px" width="80px" />
@@ -71,7 +81,12 @@ export function CardSkeleton({ lines = 3 }: { lines?: number }) {
 /** Table skeleton: rows of bars */
 export function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
   return (
-    <div aria-busy="true" aria-label="Carregando tabela" className="ds-table-skeleton" role="status">
+    <div
+      aria-busy="true"
+      aria-label="Carregando tabela"
+      className="ds-table-skeleton"
+      role="status"
+    >
       <span className="sr-only">Carregando tabela...</span>
       {Array.from({ length: rows }, (_, r) => (
         <div className="ds-table-skeleton__row" key={r}>

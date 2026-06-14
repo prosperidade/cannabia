@@ -2,21 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
-import {
-  listLegislationFiles,
-  uploadLegislation,
-  queryLegislation,
-  ApiError,
-} from "@/lib/api";
+import { listLegislationFiles, uploadLegislation, queryLegislation, ApiError } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import {
-  Card,
-  Badge,
-  Button,
-  MaterialIcon,
-  SearchBar,
-  StatCard,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, MaterialIcon, SearchBar, StatCard } from "@/components/ui-tw";
 
 /* ── types ── */
 
@@ -64,7 +52,7 @@ export default function RegulatoryPage() {
     setFilesError(null);
     try {
       const data = await listLegislationFiles();
-      setFiles(Array.isArray(data) ? data as LegislationFile[] : []);
+      setFiles(Array.isArray(data) ? (data as LegislationFile[]) : []);
     } catch (err) {
       setFilesError(err instanceof ApiError ? err.message : "Falha ao carregar arquivos.");
     } finally {
@@ -137,11 +125,7 @@ export default function RegulatoryPage() {
             Gerencie e consulte a base regulatoria da plataforma.
           </p>
         </div>
-        <Button
-          icon="cloud_upload"
-          loading={uploading}
-          onClick={() => void handleUpload()}
-        >
+        <Button icon="cloud_upload" loading={uploading} onClick={() => void handleUpload()}>
           Sincronizar Legislacao
         </Button>
       </div>
@@ -165,9 +149,7 @@ export default function RegulatoryPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Files list */}
         <div className="lg:col-span-5 space-y-4">
-          <h3 className="text-lg font-bold font-headline text-on-surface">
-            Documentos Carregados
-          </h3>
+          <h3 className="text-lg font-bold font-headline text-on-surface">Documentos Carregados</h3>
 
           {filesLoading ? (
             <div className="flex justify-center py-8">
@@ -184,13 +166,18 @@ export default function RegulatoryPage() {
             <Card padding="lg" className="text-center">
               <MaterialIcon icon="folder_open" size="xl" className="text-stone-600 mb-3" />
               <p className="text-sm text-stone-400">
-                Nenhum documento carregado. Clique em "Sincronizar Legislacao" para enviar os arquivos de data/legislation/.
+                Nenhum documento carregado. Clique em &quot;Sincronizar Legislacao&quot; para enviar
+                os arquivos de data/legislation/.
               </p>
             </Card>
           ) : (
             <div className="space-y-2 max-h-[50vh] overflow-y-auto">
               {files.map((file, i) => (
-                <Card key={file.name || i} padding="sm" className="hover:bg-white/5 transition-colors">
+                <Card
+                  key={file.name || i}
+                  padding="sm"
+                  className="hover:bg-white/5 transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <MaterialIcon
@@ -223,9 +210,7 @@ export default function RegulatoryPage() {
 
         {/* Right: Query */}
         <div className="lg:col-span-7 space-y-4">
-          <h3 className="text-lg font-bold font-headline text-on-surface">
-            Consulta Regulatoria
-          </h3>
+          <h3 className="text-lg font-bold font-headline text-on-surface">Consulta Regulatoria</h3>
 
           <Card padding="md" className="space-y-4">
             <div>
@@ -277,9 +262,7 @@ export default function RegulatoryPage() {
               <div className="flex items-center gap-2">
                 <MaterialIcon icon="auto_awesome" className="text-primary" />
                 <h4 className="font-bold text-on-surface">Resultado</h4>
-                {queryResult.model && (
-                  <Badge tone="neutral">{queryResult.model}</Badge>
-                )}
+                {queryResult.model && <Badge tone="neutral">{queryResult.model}</Badge>}
               </div>
 
               {queryResult.answer && (
@@ -309,7 +292,9 @@ export default function RegulatoryPage() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {queryResult.sources.map((src, i) => (
-                      <Badge key={i} tone="neutral">{src}</Badge>
+                      <Badge key={i} tone="neutral">
+                        {src}
+                      </Badge>
                     ))}
                   </div>
                 </div>

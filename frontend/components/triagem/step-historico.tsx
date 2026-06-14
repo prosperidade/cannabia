@@ -40,19 +40,14 @@ export function StepHistorico() {
         {/* Warning */}
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <MaterialIcon icon="warning" filled size="sm" className="text-amber-400" />
-          <span className="text-xs font-semibold text-amber-400">
-            Responda com muita atencao
-          </span>
+          <span className="text-xs font-semibold text-amber-400">Responda com muita atencao</span>
         </div>
       </div>
 
       {/* Toggle list */}
       <div className="divide-y divide-white/5">
         {QUESTIONS.map((q) => (
-          <div
-            key={q.key}
-            className="flex items-center justify-between py-4 gap-4"
-          >
+          <div key={q.key} className="flex items-center justify-between py-4 gap-4">
             <span className="text-sm font-medium text-on-surface leading-snug flex-1">
               {q.label}
             </span>

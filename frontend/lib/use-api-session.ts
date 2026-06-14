@@ -23,8 +23,7 @@ export function useApiSession() {
       const data = await getSession();
       setState({ loading: false, data, error: null });
     } catch (error) {
-      const message =
-        error instanceof ApiError ? error.message : "Falha ao carregar a sessao.";
+      const message = error instanceof ApiError ? error.message : "Falha ao carregar a sessao.";
       setState({ loading: false, data: null, error: message });
     }
   }

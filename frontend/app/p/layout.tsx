@@ -24,10 +24,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
       return;
     }
     if (!loading && data?.user && data.user.role !== "Paciente") {
-      router.replace(getRoleRedirect(
-        data.user.role,
-        data.user.is_clinic_admin,
-      ));
+      router.replace(getRoleRedirect(data.user.role, data.user.is_clinic_admin));
     }
   }, [loading, data, router]);
 
@@ -51,10 +48,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <MobileLayout
-      navItems={patientNavItems}
-      topBarTitle="Cannab'IA"
-    >
+    <MobileLayout navItems={patientNavItems} topBarTitle="Cannab'IA">
       {children}
     </MobileLayout>
   );

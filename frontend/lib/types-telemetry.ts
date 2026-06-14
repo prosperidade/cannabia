@@ -7,12 +7,7 @@
 // ── IoT Sources ────────────────────────────────────────────────────
 
 /** Fontes de dados permitidas pelo backend. */
-export type IoTSource =
-  | "apple_health"
-  | "google_fit"
-  | "manual"
-  | "withings"
-  | "fitbit";
+export type IoTSource = "apple_health" | "google_fit" | "manual" | "withings" | "fitbit";
 
 /** Tipos de métrica aceitos pelo backend. */
 export type IoTMetricType =
@@ -82,12 +77,7 @@ export type IoTTimeseriesResponse = {
 // ── Follow-Up CRM ──────────────────────────────────────────────────
 
 /** Status do follow-up no ciclo de vida CRM. */
-export type FollowUpStatus =
-  | "scheduled"
-  | "sent"
-  | "responded"
-  | "missed"
-  | "cancelled";
+export type FollowUpStatus = "scheduled" | "sent" | "responded" | "missed" | "cancelled";
 
 /** Tipo de follow-up (canal ou categoria). */
 export type FollowUpType = "whatsapp" | "email" | "sms" | "phone_call";

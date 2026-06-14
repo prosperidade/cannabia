@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
-import {
-  Card,
-  Button,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Button, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 import {
   ApiError,
   completeMedicalOnboarding,
@@ -128,18 +123,10 @@ export default function OnboardingPage() {
     diploma: { status: "idle", url: null, error: null },
   });
 
-  const ALLOWED_UPLOAD_MIMES = new Set([
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "application/pdf",
-  ]);
+  const ALLOWED_UPLOAD_MIMES = new Set(["image/jpeg", "image/jpg", "image/png", "application/pdf"]);
   const UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
 
-  const handleUploadChange = async (
-    field: OnboardingUploadField,
-    fileList: FileList | null,
-  ) => {
+  const handleUploadChange = async (field: OnboardingUploadField, fileList: FileList | null) => {
     const file = fileList?.[0];
     if (!file) return;
 
@@ -179,11 +166,12 @@ export default function OnboardingPage() {
         [field]: { status: "uploaded", url: result.url, error: null },
       }));
     } catch (err) {
-      const message = err instanceof ApiError
-        ? (err.code === "storage_not_configured"
+      const message =
+        err instanceof ApiError
+          ? err.code === "storage_not_configured"
             ? "Upload indisponível no servidor (storage não configurado). Pule por enquanto."
-            : err.message)
-        : "Falha ao enviar o arquivo.";
+            : err.message
+          : "Falha ao enviar o arquivo.";
       setUploads((prev) => ({
         ...prev,
         [field]: { status: "error", url: null, error: message },
@@ -210,8 +198,8 @@ export default function OnboardingPage() {
         });
         const toEntry = (url: string | null) =>
           url
-            ? ({ status: "uploaded" as const, url, error: null })
-            : ({ status: "idle" as const, url: null, error: null });
+            ? { status: "uploaded" as const, url, error: null }
+            : { status: "idle" as const, url: null, error: null };
         setUploads({
           photo: toEntry(data.photo_url),
           crm_doc: toEntry(data.crm_doc_url),
@@ -278,9 +266,10 @@ export default function OnboardingPage() {
       });
       router.push("/med/dashboard");
     } catch (err) {
-      const message = err instanceof ApiError
-        ? err.message
-        : "Não foi possível salvar o onboarding. Tente novamente.";
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível salvar o onboarding. Tente novamente.";
       setError(message);
     } finally {
       setSubmitting(false);
@@ -342,11 +331,7 @@ export default function OnboardingPage() {
               <span
                 className={cn(
                   "text-xs font-semibold uppercase tracking-widest hidden sm:inline",
-                  i === step
-                    ? "text-primary"
-                    : i < step
-                      ? "text-primary"
-                      : "text-stone-500",
+                  i === step ? "text-primary" : i < step ? "text-primary" : "text-stone-500",
                 )}
               >
                 {s.label}
@@ -484,8 +469,8 @@ export default function OnboardingPage() {
                     Upload de Documentos
                   </h4>
                   <p className="text-xs text-stone-500 leading-relaxed">
-                    PDF, JPG ou PNG, máximo 5MB. Os arquivos ficam acessíveis
-                    apenas ao próprio médico e aos validadores da plataforma.
+                    PDF, JPG ou PNG, máximo 5MB. Os arquivos ficam acessíveis apenas ao próprio
+                    médico e aos validadores da plataforma.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <UploadZone
@@ -662,18 +647,12 @@ export default function OnboardingPage() {
               >
                 <div className="space-y-4">
                   <div className="w-16 h-16 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
-                    <MaterialIcon
-                      icon="check_circle"
-                      className="text-primary"
-                      size="lg"
-                    />
+                    <MaterialIcon icon="check_circle" className="text-primary" size="lg" />
                   </div>
-                  <h3 className="text-xl font-black text-on-surface font-headline">
-                    Tudo pronto!
-                  </h3>
+                  <h3 className="text-xl font-black text-on-surface font-headline">Tudo pronto!</h3>
                   <p className="text-stone-400 max-w-md mx-auto">
-                    Seu perfil esta configurado. Voce pode comecar a usar a plataforma agora
-                    ou ajustar suas configuracoes a qualquer momento.
+                    Seu perfil esta configurado. Voce pode comecar a usar a plataforma agora ou
+                    ajustar suas configuracoes a qualquer momento.
                   </p>
                   {error && (
                     <div className="max-w-md mx-auto rounded-xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm text-red-300">
@@ -870,16 +849,10 @@ function UploadZone({ field, icon, label, hint, entry, onFile }: UploadZoneProps
       <div>
         <p className="text-sm font-bold text-on-surface">{label}</p>
         <p className="text-xs text-stone-500 mt-1">
-          {isUploading
-            ? "Enviando..."
-            : isUploaded
-              ? "Enviado. Clique para substituir."
-              : hint}
+          {isUploading ? "Enviando..." : isUploaded ? "Enviado. Clique para substituir." : hint}
         </p>
         {status === "error" && error && (
-          <p className="text-xs text-red-400 mt-2 leading-relaxed max-w-xs mx-auto">
-            {error}
-          </p>
+          <p className="text-xs text-red-400 mt-2 leading-relaxed max-w-xs mx-auto">{error}</p>
         )}
       </div>
     </label>

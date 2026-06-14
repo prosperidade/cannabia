@@ -8,6 +8,7 @@ from src.ai.chains import (
     run_treatment_plan,
     run_scientific_report,
     run_scientific_report_rag,
+    GEMINI_MODEL,
 )
 from src.infra.metrics import measure
 from src.knowledge.vector_store import KnowledgeStore
@@ -79,13 +80,13 @@ class CannabIAPipeline:
 
         # ═══════════════════════════════════════════════════════════
         # ETAPA 3 — Relatório Científico
-        # RAG path:      Gemini 1.5 Flash + contexto vetorial
+        # RAG path:      Gemini 2.5 Flash + contexto vetorial
         # Fallback path: gpt-4o-mini (banco vazio ou erro de RAG)
         # ═══════════════════════════════════════════════════════════
         with measure("ai.stage.report"):
             if use_rag:
                 scientific_report, tokens_3 = run_scientific_report_rag(treatment_plan, rag_chunks)
-                report_model = "gemini-1.5-flash"
+                report_model = GEMINI_MODEL
             else:
                 scientific_report, tokens_3 = run_scientific_report(treatment_plan)
                 report_model = "gpt-4o-mini"

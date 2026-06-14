@@ -15,14 +15,7 @@ import {
   ApiError,
 } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
-import {
-  Card,
-  Badge,
-  Button,
-  Input,
-  MaterialIcon,
-  StatCard,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, Input, MaterialIcon, StatCard } from "@/components/ui-tw";
 import type {
   TenantDetail,
   TenantBranding,
@@ -50,6 +43,11 @@ export default function TenantDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  // Bump força o remount dos formulários (via `key`) quando os dados de origem
+  // mudam após um save — reproduz o re-sync que o effect prop->state fazia,
+  // sem setState síncrono em effect (react-hooks/set-state-in-effect). Em
+  // load/troca de tenant os forms já remontam pelo guard de `loading`.
+  const [formEpoch, setFormEpoch] = useState(0);
 
   const fetchAll = useCallback(async () => {
     if (!Number.isFinite(tenantId)) return;
@@ -84,6 +82,7 @@ export default function TenantDetailPage() {
       setSaveMessage(null);
       const updated = await updateTenantBranding(csrf, tenantId, data);
       setBranding(updated);
+      setFormEpoch((e) => e + 1);
       setSaveMessage("Branding salvo com sucesso.");
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : "Falha ao salvar branding.");
@@ -105,6 +104,7 @@ export default function TenantDetailPage() {
       });
       const updated = await updateTenantIntegrations(csrf, tenantId, cleanPayload);
       setIntegrations(updated);
+      setFormEpoch((e) => e + 1);
       setSaveMessage("Integracoes salvas com sucesso.");
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : "Falha ao salvar integracoes.");
@@ -113,13 +113,18 @@ export default function TenantDetailPage() {
     }
   }
 
-  async function handleSavePlan(data: { billing_plan?: string; ai_limit_month?: number; user_limit?: number }) {
+  async function handleSavePlan(data: {
+    billing_plan?: string;
+    ai_limit_month?: number;
+    user_limit?: number;
+  }) {
     if (!csrf) return;
     try {
       setSaving(true);
       setSaveMessage(null);
       const updated = await updateTenantPlan(csrf, tenantId, data);
       setPlan(updated);
+      setFormEpoch((e) => e + 1);
       setSaveMessage("Plano atualizado.");
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : "Falha ao salvar plano.");
@@ -160,7 +165,9 @@ export default function TenantDetailPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center space-y-4">
           <MaterialIcon icon="error_outline" size="xl" className="text-error/60" />
-          <p className="text-on-surface-variant text-sm">{error ?? "Organizacao nao encontrada."}</p>
+          <p className="text-on-surface-variant text-sm">
+            {error ?? "Organizacao nao encontrada."}
+          </p>
           <Button variant="ghost" size="sm" onClick={() => router.push("/admin/tenants")}>
             Voltar
           </Button>
@@ -236,23 +243,28 @@ export default function TenantDetailPage() {
 
       {tab === "info" && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon="apartment" label="Clinicas" value={(tenant as unknown as { clinic_count?: number }).clinic_count ?? 1} />
-          <StatCard icon="group" label="Usuarios" value={(tenant as unknown as { user_count?: number }).user_count ?? 0} />
+          <StatCard
+            icon="apartment"
+            label="Clinicas"
+            value={(tenant as unknown as { clinic_count?: number }).clinic_count ?? 1}
+          />
+          <StatCard
+            icon="group"
+            label="Usuarios"
+            value={(tenant as unknown as { user_count?: number }).user_count ?? 0}
+          />
           <StatCard
             icon="bolt"
             label="Uso IA (mes)"
             value={plan ? `${plan.ai_executions_month}/${plan.ai_limit_month}` : "--"}
           />
-          <StatCard
-            icon="verified"
-            label="Plano"
-            value={plan?.billing_plan ?? "starter"}
-          />
+          <StatCard icon="verified" label="Plano" value={plan?.billing_plan ?? "starter"} />
         </div>
       )}
 
       {tab === "branding" && (
         <BrandingForm
+          key={formEpoch}
           branding={branding}
           onSave={handleSaveBranding}
           saving={saving}
@@ -261,6 +273,7 @@ export default function TenantDetailPage() {
 
       {tab === "integrations" && (
         <IntegrationsForm
+          key={formEpoch}
           integrations={integrations}
           onSave={handleSaveIntegrations}
           saving={saving}
@@ -268,11 +281,7 @@ export default function TenantDetailPage() {
       )}
 
       {tab === "plan" && (
-        <PlanForm
-          plan={plan}
-          onSave={handleSavePlan}
-          saving={saving}
-        />
+        <PlanForm key={formEpoch} plan={plan} onSave={handleSavePlan} saving={saving} />
       )}
     </div>
   );
@@ -297,13 +306,9 @@ function BrandingForm({
   const [secondary, setSecondary] = useState(branding?.secondary_color ?? "");
   const [subdomain, setSubdomain] = useState(branding?.subdomain ?? "");
 
-  useEffect(() => {
-    setBrandName(branding?.brand_name ?? "");
-    setLogoUrl(branding?.logo_url ?? "");
-    setPrimary(branding?.primary_color ?? "");
-    setSecondary(branding?.secondary_color ?? "");
-    setSubdomain(branding?.subdomain ?? "");
-  }, [branding]);
+  // Sem effect prop->state: o componente é remontado via `key={formEpoch}` no
+  // pai quando `branding` muda (load/save), e os initializers do useState já
+  // leem a prop. Evita react-hooks/set-state-in-effect.
 
   return (
     <Card variant="glass" padding="lg" className="space-y-5">
@@ -400,15 +405,8 @@ function IntegrationsForm({
   const [aiKey, setAiKey] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
 
-  useEffect(() => {
-    setWpPhoneId(integrations?.whatsapp_phone_number_id ?? "");
-    setWpAccountId(integrations?.whatsapp_business_account_id ?? "");
-    setEmailFrom(integrations?.email_from ?? "");
-    setSmtpServer(integrations?.smtp_server ?? "");
-    setSmtpPort(integrations?.smtp_port != null ? String(integrations.smtp_port) : "");
-    setDoctorEmail(integrations?.doctor_email ?? "");
-    setAiProvider(integrations?.ai_provider ?? "gemini");
-  }, [integrations]);
+  // Sem effect prop->state: remount via `key={formEpoch}` no pai (load/save)
+  // + initializers do useState leem a prop. Evita set-state-in-effect.
 
   function submit() {
     const payload: Partial<TenantIntegrations> = {
@@ -457,8 +455,16 @@ function IntegrationsForm({
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          <Input label="Phone number ID" value={wpPhoneId} onChange={(e) => setWpPhoneId(e.target.value)} />
-          <Input label="WABA (business account) ID" value={wpAccountId} onChange={(e) => setWpAccountId(e.target.value)} />
+          <Input
+            label="Phone number ID"
+            value={wpPhoneId}
+            onChange={(e) => setWpPhoneId(e.target.value)}
+          />
+          <Input
+            label="WABA (business account) ID"
+            value={wpAccountId}
+            onChange={(e) => setWpAccountId(e.target.value)}
+          />
           <SecretInput
             label="Token de acesso (META_WHATSAPP_KEY)"
             isSet={hasMetaKey}
@@ -491,10 +497,28 @@ function IntegrationsForm({
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          <Input label="De (from)" value={emailFrom} onChange={(e) => setEmailFrom(e.target.value)} />
-          <Input label="E-mail do medico responsavel" value={doctorEmail} onChange={(e) => setDoctorEmail(e.target.value)} />
-          <Input label="Servidor SMTP" placeholder="smtp.gmail.com" value={smtpServer} onChange={(e) => setSmtpServer(e.target.value)} />
-          <Input label="Porta SMTP" placeholder="587" value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} />
+          <Input
+            label="De (from)"
+            value={emailFrom}
+            onChange={(e) => setEmailFrom(e.target.value)}
+          />
+          <Input
+            label="E-mail do medico responsavel"
+            value={doctorEmail}
+            onChange={(e) => setDoctorEmail(e.target.value)}
+          />
+          <Input
+            label="Servidor SMTP"
+            placeholder="smtp.gmail.com"
+            value={smtpServer}
+            onChange={(e) => setSmtpServer(e.target.value)}
+          />
+          <Input
+            label="Porta SMTP"
+            placeholder="587"
+            value={smtpPort}
+            onChange={(e) => setSmtpPort(e.target.value)}
+          />
           <SecretInput
             label="Senha SMTP"
             isSet={hasEmailPw}
@@ -594,14 +618,15 @@ function PlanForm({
   saving: boolean;
 }) {
   const [billingPlan, setBillingPlan] = useState<string>(plan?.billing_plan ?? "starter");
-  const [aiLimit, setAiLimit] = useState<string>(plan?.ai_limit_month != null ? String(plan.ai_limit_month) : "");
-  const [userLimit, setUserLimit] = useState<string>(plan?.user_limit != null ? String(plan.user_limit) : "");
+  const [aiLimit, setAiLimit] = useState<string>(
+    plan?.ai_limit_month != null ? String(plan.ai_limit_month) : "",
+  );
+  const [userLimit, setUserLimit] = useState<string>(
+    plan?.user_limit != null ? String(plan.user_limit) : "",
+  );
 
-  useEffect(() => {
-    setBillingPlan(plan?.billing_plan ?? "starter");
-    setAiLimit(plan?.ai_limit_month != null ? String(plan.ai_limit_month) : "");
-    setUserLimit(plan?.user_limit != null ? String(plan.user_limit) : "");
-  }, [plan]);
+  // Sem effect prop->state: remount via `key={formEpoch}` no pai (load/save)
+  // + initializers do useState leem a prop. Evita set-state-in-effect.
 
   return (
     <Card variant="glass" padding="lg" className="space-y-5">
@@ -617,7 +642,9 @@ function PlanForm({
 
       <div className="grid md:grid-cols-3 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Plano</label>
+          <label className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+            Plano
+          </label>
           <select
             value={billingPlan}
             onChange={(e) => setBillingPlan(e.target.value)}
@@ -628,8 +655,16 @@ function PlanForm({
             <option value="enterprise">Enterprise</option>
           </select>
         </div>
-        <Input label="Limite mensal de IA" value={aiLimit} onChange={(e) => setAiLimit(e.target.value)} />
-        <Input label="Limite de usuarios" value={userLimit} onChange={(e) => setUserLimit(e.target.value)} />
+        <Input
+          label="Limite mensal de IA"
+          value={aiLimit}
+          onChange={(e) => setAiLimit(e.target.value)}
+        />
+        <Input
+          label="Limite de usuarios"
+          value={userLimit}
+          onChange={(e) => setUserLimit(e.target.value)}
+        />
       </div>
 
       <div className="flex justify-end">

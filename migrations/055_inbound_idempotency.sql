@@ -1,11 +1,14 @@
--- migrations/050_inbound_idempotency.sql
+-- migrations/055_inbound_idempotency.sql
 -- Track B / COM-1 (doc 30 Onda 1; docs/29.3 RM1)
+-- (renumerada de 050 -> 055: colidia com 050_seed_edital_monitor.sql do Track A
+--  (#72). O runner abortava em main por versao 050 duplicada. Ver reconcile em
+--  migrations/reconcile/050_collision_reconcile.sql.)
 -- Idempotencia de mensagens inbound do WhatsApp:
 --   * incoming_messages.wamid (id da Meta) + indice unico parcial (clinic_id, wamid)
 --   * indice unico parcial em conversation_messages(external_id)
 -- Reentrega da Meta (redelivery por ate 7 dias quando nao recebe 200 em ~5s) deixa
 -- de duplicar mensagem e de avancar 2x a maquina de estados (29.3 P1/RM1).
--- Aditiva e idempotente. Down em migrations/down/050_inbound_idempotency_down.sql
+-- Aditiva e idempotente. Down em migrations/down/055_inbound_idempotency_down.sql
 -- ============================================================================
 
 -- ETAPA 1 — coluna wamid (nullable; linhas legadas permanecem com NULL)

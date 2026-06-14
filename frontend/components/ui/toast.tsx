@@ -1,13 +1,7 @@
 "use client";
 
 import * as ToastPrimitive from "@radix-ui/react-toast";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -70,9 +64,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             }}
           >
             <div>
-              <ToastPrimitive.Title className="ds-toast__title">
-                {t.title}
-              </ToastPrimitive.Title>
+              <ToastPrimitive.Title className="ds-toast__title">{t.title}</ToastPrimitive.Title>
               {t.description ? (
                 <ToastPrimitive.Description className="ds-toast__desc">
                   {t.description}

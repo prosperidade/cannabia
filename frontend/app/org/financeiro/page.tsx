@@ -71,7 +71,9 @@ export default function FinanceiroPage() {
       }
     }
     fetchFinancial();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const revenueBreakdown = data?.revenueBreakdown ?? [];
@@ -92,7 +94,8 @@ export default function FinanceiroPage() {
         <div>
           <div className="text-sm font-bold text-on-surface">{row.name as string}</div>
           <div className="text-[10px] text-stone-500">
-            {row.specialty as string} &bull; {row.splitPct as number}/{100 - (row.splitPct as number)} Repasse
+            {row.specialty as string} &bull; {row.splitPct as number}/
+            {100 - (row.splitPct as number)} Repasse
           </div>
         </div>
       ),
@@ -107,9 +110,7 @@ export default function FinanceiroPage() {
       key: "grossRevenue",
       label: "Receita Bruta",
       sortable: true,
-      render: (val) => (
-        <span className="text-stone-300">{formatCurrency(val as number)}</span>
-      ),
+      render: (val) => <span className="text-stone-300">{formatCurrency(val as number)}</span>,
     },
     {
       key: "netPayout",
@@ -126,11 +127,7 @@ export default function FinanceiroPage() {
       label: "Status Repasse",
       render: (val) => {
         const isPaid = val === "paid";
-        return (
-          <Badge tone={isPaid ? "success" : "warning"}>
-            {isPaid ? "Pago" : "Pendente"}
-          </Badge>
-        );
+        return <Badge tone={isPaid ? "success" : "warning"}>{isPaid ? "Pago" : "Pendente"}</Badge>;
       },
     },
     {
@@ -233,10 +230,12 @@ export default function FinanceiroPage() {
             {revenueGrowthMonths.map((m, i) => (
               <div key={m.label} className="w-full relative group" style={{ height: `${m.pct}%` }}>
                 <div className="absolute inset-x-0 bottom-0 bg-primary/40 group-hover:bg-primary transition-colors rounded-t-md h-full" />
-                <span className={cn(
-                  "absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold",
-                  i === revenueGrowthMonths.length - 2 ? "text-primary" : "text-stone-500",
-                )}>
+                <span
+                  className={cn(
+                    "absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold",
+                    i === revenueGrowthMonths.length - 2 ? "text-primary" : "text-stone-500",
+                  )}
+                >
                   {m.label}
                 </span>
               </div>
@@ -346,9 +345,7 @@ export default function FinanceiroPage() {
 
           {/* Costs */}
           <div className="space-y-3">
-            <p className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">
-              Custos
-            </p>
+            <p className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Custos</p>
             <div className="space-y-2">
               {costBreakdown.map((item) => (
                 <div key={item.label} className="flex justify-between text-sm">
@@ -384,13 +381,19 @@ export default function FinanceiroPage() {
       </Card>
 
       {/* AI Insight */}
-      <Card padding="md" className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/10">
+      <Card
+        padding="md"
+        className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/10"
+      >
         <div className="flex items-center gap-2 text-primary mb-2">
           <MaterialIcon icon="auto_awesome" size="sm" />
-          <span className="text-[10px] font-black uppercase tracking-widest">Analise Inteligente</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">
+            Analise Inteligente
+          </span>
         </div>
         <p className="text-sm text-on-surface leading-relaxed">
-          Analises preditivas serao geradas automaticamente quando houver dados financeiros suficientes para identificar tendencias.
+          Analises preditivas serao geradas automaticamente quando houver dados financeiros
+          suficientes para identificar tendencias.
         </p>
       </Card>
     </div>

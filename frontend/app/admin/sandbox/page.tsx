@@ -7,10 +7,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ApiError } from "@/lib/api";
-import {
-  adminListAssociations,
-  type AssociationAdminSummary,
-} from "@/lib/governance";
+import { adminListAssociations, type AssociationAdminSummary } from "@/lib/governance";
 import { Badge, Button, Card, MaterialIcon } from "@/components/ui-tw";
 
 function statusTone(status: string | null): "neutral" | "warning" | "info" | "success" | "danger" {
@@ -72,9 +69,7 @@ export default function AdminSandboxPage() {
       const { associations } = await adminListAssociations();
       setRows(associations);
     } catch (e) {
-      setError(
-        e instanceof ApiError ? e.message : "Falha ao carregar associacoes.",
-      );
+      setError(e instanceof ApiError ? e.message : "Falha ao carregar associacoes.");
     } finally {
       setLoading(false);
     }
@@ -106,8 +101,8 @@ export default function AdminSandboxPage() {
               Associacoes no Sandbox
             </h1>
             <p className="text-sm text-stone-400 mt-1 max-w-2xl">
-              Visao multi-tenant do estado regulatorio (RDC 1.014/2026). Cada
-              linha representa uma associacao cadastrada na plataforma.
+              Visao multi-tenant do estado regulatorio (RDC 1.014/2026). Cada linha representa uma
+              associacao cadastrada na plataforma.
             </p>
           </div>
           <Button variant="secondary" size="sm" icon="refresh" onClick={load} disabled={loading}>
@@ -118,7 +113,12 @@ export default function AdminSandboxPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatTile label="Total" value={totals.all} icon="groups" />
-        <StatTile label="Criterios cumpridos" value={totals.ready} icon="check_circle" tone="success" />
+        <StatTile
+          label="Criterios cumpridos"
+          value={totals.ready}
+          icon="check_circle"
+          tone="success"
+        />
         <StatTile label="Em preparacao" value={totals.preparing} icon="edit_note" tone="warning" />
         <StatTile label="Submetidas" value={totals.submitted} icon="send" tone="info" />
       </div>
@@ -210,9 +210,9 @@ export default function AdminSandboxPage() {
       </Card>
 
       <p className="text-xs text-stone-500">
-        Este dashboard agrega sinais rapidos do banco. Para o relatorio completo
-        de elegibilidade de uma associacao especifica, use o acesso do atendente
-        dela em <code className="text-primary">/org/sandbox/governance</code>.
+        Este dashboard agrega sinais rapidos do banco. Para o relatorio completo de elegibilidade de
+        uma associacao especifica, use o acesso do atendente dela em{" "}
+        <code className="text-primary">/org/sandbox/governance</code>.
       </p>
     </div>
   );
@@ -248,9 +248,7 @@ function StatTile({
         </span>
         <MaterialIcon icon={icon} size="sm" className={toneClass} />
       </div>
-      <div className="text-2xl font-headline font-extrabold text-on-surface">
-        {value}
-      </div>
+      <div className="text-2xl font-headline font-extrabold text-on-surface">{value}</div>
     </div>
   );
 }

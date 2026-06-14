@@ -1,14 +1,7 @@
 "use client";
 
 import { ApiError, getSession, submitTriageIntake } from "@/lib/api";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import type {
   TriagemStep,
   TriagemFormData,
@@ -212,25 +205,19 @@ export function WizardProvider({ children, initialPatientName }: WizardProviderP
     setFormData((prev) => ({ ...prev, sintomas: data }));
   }, []);
 
-  const updateDadosFisicos = useCallback(
-    (data: Partial<TriagemDadosFisicos>) => {
-      setFormData((prev) => ({
-        ...prev,
-        dados_fisicos: { ...prev.dados_fisicos, ...data },
-      }));
-    },
-    [],
-  );
+  const updateDadosFisicos = useCallback((data: Partial<TriagemDadosFisicos>) => {
+    setFormData((prev) => ({
+      ...prev,
+      dados_fisicos: { ...prev.dados_fisicos, ...data },
+    }));
+  }, []);
 
-  const updateEmocional = useCallback(
-    (data: Partial<TriagemEstadoEmocional>) => {
-      setFormData((prev) => ({
-        ...prev,
-        estado_emocional: { ...prev.estado_emocional, ...data },
-      }));
-    },
-    [],
-  );
+  const updateEmocional = useCallback((data: Partial<TriagemEstadoEmocional>) => {
+    setFormData((prev) => ({
+      ...prev,
+      estado_emocional: { ...prev.estado_emocional, ...data },
+    }));
+  }, []);
 
   const updateHabitos = useCallback((data: Partial<TriagemHabitos>) => {
     setFormData((prev) => ({
@@ -332,7 +319,5 @@ export function WizardProvider({ children, initialPatientName }: WizardProviderP
     submitWizard,
   };
 
-  return (
-    <WizardContext.Provider value={value}>{children}</WizardContext.Provider>
-  );
+  return <WizardContext.Provider value={value}>{children}</WizardContext.Provider>;
 }

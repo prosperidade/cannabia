@@ -163,10 +163,10 @@ class AgenteCientifico(BaseAgent):
         tp = TreatmentPlan(**treatment_plan) if isinstance(treatment_plan, dict) else treatment_plan
 
         if chunks:
-            from src.ai.chains import run_scientific_report_rag
+            from src.ai.chains import run_scientific_report_rag, GEMINI_MODEL
             report, tokens = run_scientific_report_rag(tp, chunks)
             return {"report": report.model_dump() if hasattr(report, "model_dump") else report,
-                    "tokens": tokens, "model": "gemini-1.5-flash", "rag_used": True}
+                    "tokens": tokens, "model": GEMINI_MODEL, "rag_used": True}
         else:
             from src.ai.chains import run_scientific_report
             report, tokens = run_scientific_report(tp)

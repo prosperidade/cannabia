@@ -1,21 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import {
-  Card,
-  MaterialIcon,
-  Badge,
-  Button,
-  StatCard,
-  Avatar,
-} from "@/components/ui-tw";
-import {
-  listAppointments,
-  listReturns,
-} from "@/lib/api";
+import { Card, MaterialIcon, Badge, Button, StatCard, Avatar } from "@/components/ui-tw";
+import { listAppointments, listReturns } from "@/lib/api";
 import type { AppointmentItem } from "@/lib/types";
 import { useApiSession } from "@/lib/use-api-session";
+import { useFetchData } from "@/lib/use-fetch-data";
 
 /**
  * /med/dashboard — home do medico assalariado puro (sem is_clinic_admin).
@@ -40,39 +31,24 @@ export default function MedDashboardPage() {
   const { data: session } = useApiSession();
   const userName = session?.user?.username ?? "";
 
-  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
-  const [returns, setReturns] = useState<PendingReturn[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setErrorMsg(null);
-
-    Promise.all([listAppointments({ limit: 200 }), listReturns()])
-      .then(([appts, retsRaw]) => {
-        if (!alive) return;
-        // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
-        const items = appts?.items ?? [];
-        setAppointments(items as AppointmentItem[]);
-        // /returns retorna lista, mas api.ts tipa como Record. Cast via unknown.
-        const retsArr = (retsRaw.data as unknown) as PendingReturn[] | undefined;
-        setReturns(Array.isArray(retsArr) ? retsArr : []);
-      })
-      .catch((err) => {
-        if (!alive) return;
-        const msg =
-          err instanceof Error ? err.message : "Falha ao carregar a fila do dia.";
-        setErrorMsg(msg);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const {
+    data,
+    loading,
+    error: errorMsg,
+  } = useFetchData(
+    async () => {
+      const [appts, retsRaw] = await Promise.all([listAppointments({ limit: 200 }), listReturns()]);
+      // Sprint 3 Page-Migration: envelope `Paginated<AppointmentItem>`.
+      const items = (appts?.items ?? []) as AppointmentItem[];
+      // /returns retorna lista, mas api.ts tipa como Record. Cast via unknown.
+      const retsArr = retsRaw.data as unknown as PendingReturn[] | undefined;
+      return { appointments: items, returns: Array.isArray(retsArr) ? retsArr : [] };
+    },
+    [],
+    "Falha ao carregar a fila do dia.",
+  );
+  const appointments = data?.appointments ?? [];
+  const returns = data?.returns ?? [];
 
   // --- Derivacoes locais (filtragem por hoje + ordenacao) -----------------
   const todayPrefix = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -80,29 +56,23 @@ export default function MedDashboardPage() {
   const todayAppointments = useMemo(() => {
     return appointments
       .filter((a) =>
-        typeof a.appointment_date === "string"
-          ? a.appointment_date.startsWith(todayPrefix)
-          : false,
+        typeof a.appointment_date === "string" ? a.appointment_date.startsWith(todayPrefix) : false,
       )
       .sort((a, b) => a.appointment_date.localeCompare(b.appointment_date));
   }, [appointments, todayPrefix]);
 
   const inQueueCount = useMemo(() => {
     const open = new Set(["agendado", "confirmado", "pending", "scheduled"]);
-    return todayAppointments.filter((a) => open.has((a.status ?? "").toLowerCase()))
-      .length;
+    return todayAppointments.filter((a) => open.has((a.status ?? "").toLowerCase())).length;
   }, [todayAppointments]);
 
   const completedTodayCount = useMemo(() => {
     const done = new Set(["atendido", "completed", "finalizado", "concluido"]);
-    return todayAppointments.filter((a) => done.has((a.status ?? "").toLowerCase()))
-      .length;
+    return todayAppointments.filter((a) => done.has((a.status ?? "").toLowerCase())).length;
   }, [todayAppointments]);
 
   const pendingReturns = useMemo(() => {
-    return returns.filter(
-      (r) => (r.treatment_status ?? "").toLowerCase() !== "completed",
-    );
+    return returns.filter((r) => (r.treatment_status ?? "").toLowerCase() !== "completed");
   }, [returns]);
 
   const todayLabel = useMemo(() => {
@@ -205,10 +175,7 @@ export default function MedDashboardPage() {
                   + {todayAppointments.length - 8} agendamento
                   {todayAppointments.length - 8 === 1 ? "" : "s"} restante
                   {todayAppointments.length - 8 === 1 ? "" : "s"} —{" "}
-                  <a
-                    href="/med/fila"
-                    className="text-primary font-bold hover:underline"
-                  >
+                  <a href="/med/fila" className="text-primary font-bold hover:underline">
                     abrir fila completa
                   </a>
                 </li>
@@ -249,10 +216,7 @@ export default function MedDashboardPage() {
           ) : (
             <ul className="space-y-2">
               {pendingReturns.slice(0, 5).map((ret, idx) => (
-                <ReturnRow
-                  key={ret.treatment_plan_id ?? ret.patient_id ?? idx}
-                  ret={ret}
-                />
+                <ReturnRow key={ret.treatment_plan_id ?? ret.patient_id ?? idx} ret={ret} />
               ))}
               {pendingReturns.length > 5 && (
                 <li className="pt-2 text-center text-xs text-stone-500">
@@ -270,39 +234,21 @@ export default function MedDashboardPage() {
 
 /* ── Componentes internos ─────────────────────────────────────── */
 
-function SectionHeader({
-  icon,
-  title,
-  desc,
-}: {
-  icon: string;
-  title: string;
-  desc?: string;
-}) {
+function SectionHeader({ icon, title, desc }: { icon: string; title: string; desc?: string }) {
   return (
     <div className="flex items-start gap-3">
       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
         <MaterialIcon icon={icon} className="text-primary" />
       </div>
       <div>
-        <h3 className="text-lg font-headline font-bold text-on-surface leading-tight">
-          {title}
-        </h3>
+        <h3 className="text-lg font-headline font-bold text-on-surface leading-tight">{title}</h3>
         {desc && <p className="text-xs text-stone-500 mt-0.5">{desc}</p>}
       </div>
     </div>
   );
 }
 
-function EmptyState({
-  icon,
-  title,
-  subtitle,
-}: {
-  icon: string;
-  title: string;
-  subtitle: string;
-}) {
+function EmptyState({ icon, title, subtitle }: { icon: string; title: string; subtitle: string }) {
   return (
     <div className="py-10 flex flex-col items-center justify-center text-center gap-2">
       <MaterialIcon icon={icon} size="xl" className="text-stone-600" />
@@ -316,10 +262,7 @@ function SkeletonRows({ count }: { count: number }) {
   return (
     <ul className="space-y-2">
       {Array.from({ length: count }).map((_, i) => (
-        <li
-          key={i}
-          className="h-14 rounded-xl bg-surface-container-low/60 animate-pulse"
-        />
+        <li key={i} className="h-14 rounded-xl bg-surface-container-low/60 animate-pulse" />
       ))}
     </ul>
   );
@@ -386,9 +329,10 @@ function formatReturnDate(value: string | null | undefined): string | null {
   }
 }
 
-function mapStatus(
-  status: string,
-): { label: string; tone: "primary" | "success" | "warning" | "danger" | "neutral" } {
+function mapStatus(status: string): {
+  label: string;
+  tone: "primary" | "success" | "warning" | "danger" | "neutral";
+} {
   const s = (status ?? "").toLowerCase();
   if (["atendido", "completed", "finalizado", "concluido"].includes(s)) {
     return { label: "Atendido", tone: "success" };

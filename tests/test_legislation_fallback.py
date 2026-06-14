@@ -14,15 +14,15 @@ import pytest
 import src.knowledge.google_files as gf
 
 
-def test_load_legislation_texts_separates_text_and_image():
+def test_load_legislation_texts_all_norms_have_durable_text():
+    # Apos a quitacao da divida (OCR -> .md duravel), TODAS as normas tem texto:
+    # as antes-so-imagem (327, RDCs 2026) agora tem *_sanitized.md no manifesto.
     texts, image_only = gf._load_legislation_texts()
     text_titles = " | ".join(t for t, _ in texts)
-    img_titles = " | ".join(image_only)
-    # Normas com .md sao lidas como texto (RDC 660, Lei 11.343, CFM).
     assert "660" in text_titles
-    # PDFs escaneados (extensao .pdf) ficam fora do fallback, por extensao.
-    assert "327" in img_titles
-    assert ("1.011" in img_titles) or ("1.015" in img_titles)
+    assert "327" in text_titles          # antes era so-imagem; agora tem .md (pymupdf)
+    assert "1.015" in text_titles        # OCR durável
+    assert image_only == [], f"esperava cobertura total, mas faltam: {image_only}"
 
 
 class _FakeMsg:
@@ -66,8 +66,9 @@ def test_fallback_uses_openai_and_flags_contingency(monkeypatch):
     assert usage["fallback"] is True
     assert usage["model"] == gf.LEGISLATION_FALLBACK_MODEL
     assert usage["fallback_reason"] == "gemini_unavailable"
-    # normas so-imagem registradas como puladas
-    assert any("327" in t for t in usage["image_only_skipped"])
+    # Apos a quitacao (texto duravel p/ todas as normas), o fallback cobre 100%:
+    # nenhuma norma fica de fora.
+    assert usage["image_only_skipped"] == []
     # o modelo configurado foi o usado na chamada
     assert fake.calls and fake.calls[0]["model"] == gf.LEGISLATION_FALLBACK_MODEL
 

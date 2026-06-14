@@ -1,12 +1,21 @@
 # AI Migration Backlog
 
-**Status:** dívida explícita registrada na **Sprint 1 Track B.2**.
-**Última atualização:** 2026-05-09.
-**Owner:** indefinido — re-priorizar antes de junho/2026.
+**Status:** item 1 ✅ **RESOLVIDO** (migração Gemini 2.5) e item 2 ✅ **RESOLVIDO** (RAG full-text durável) — ambos em 2026-06-11.
+**Última atualização:** 2026-06-11.
+**Owner:** indefinido.
 
 ---
 
-## 1. Migrar `gemini-1.5-flash` → `gemini-2.5-flash` (ou `-flash-lite`)
+## 1. ✅ RESOLVIDO — Migrar `gemini-1.5-flash`/`2.0-flash` → `gemini-2.5-flash`
+
+> **Executado em 2026-06-11** (PR Track A gemini-2.5-migration). Gatilho real: os modelos
+> 1.5 e 2.0 já retornavam **404 "no longer available"** em produção (não era mais "previsto"
+> para jun/2026 — já aconteceu). `GEMINI_MODEL` (antes hardcoded) e `TRIAGE_MODEL_GEMINI`
+> migrados para `gemini-2.5-flash` (env-overridável p/ rollback); `gemini-2.5-flash` adicionado
+> ao `MODEL_PRICING` (input $0.30/1M, output $2.50/1M); `gemini-1.5-flash` mantido em
+> `MODEL_PRICING` só para reanálise de audit logs históricos; labels de modelo (cientifico/
+> pipeline) tornados dinâmicos (`GEMINI_MODEL`); `.env.example` atualizado; testes de pricing
+> do modelo ativo. Critérios de sucesso abaixo: todos atendidos.
 
 ### Contexto
 
@@ -58,11 +67,39 @@ Hoje [src/ai/chains.py](src/ai/chains.py) usa `gemini-1.5-flash` em dois caminho
 
 ---
 
-## 2. Outras dívidas relacionadas (futuras)
+## 2. ✅ RESOLVIDO (2026-06-11) — Durabilidade do RAG de legislação
+
+### O problema (era)
+
+As consultas de legislação usavam a **Gemini Files API** como armazenamento — um *staging temporário para inferência*, não um repositório: arquivos **auto-deletam em ~48h** e são **escopados por projeto/chave** (`403 PERMISSION_DENIED` ao trocar de chave). A citação do RAG **quebrava sozinha em ~48h**.
+
+### Conserto aplicado: FULL-TEXT DURÁVEL (pivô de ChromaDB → full-text)
+
+A decisão inicial foi ChromaDB, mas o **header do próprio `google_files.py`** documentava que a legislação usa *full-document de propósito* — *"leis referenciam outros artigos internamente → chunks quebram referências cruzadas (95% vs 70% de acurácia)"*. Fragmentar em ChromaDB **regrediria a acurácia jurídica**. Pivô (aprovado pelo Andre) para **full-text durável**, que mata a expiração SEM perder acurácia:
+
+1. **OCR uma vez** (`scripts/ocr_legislation_pdfs.py`, página-a-página + limpeza de runs de pontos) → texto normativo salvo como `*_sanitized.md` (PDF com camada de texto usa PyMuPDF direto). Os `.md` são **pequenos e versionáveis** (commitados).
+2. `sources.json` aponta cada norma para seu `sanitized_filename`.
+3. `query_legislation` / `query_legislation_structured` passam o **texto INTEIRO** (full-document) ao Gemini 2.5-flash; em falha, **fallback OpenAI sobre o MESMO texto** — agora cobre **100%** das normas (antes só as textuais).
+4. **A Gemini Files API saiu do caminho crítico** — sem expiração de 48h, sem dependência de chave/projeto.
+
+### Sub-dívida dos PDFs-fonte: RESOLVIDA por design
+
+Como o **texto `.md` commitado** virou a fonte durável de verdade, os PDFs **não são mais necessários para operar nem reingerir** — só para um eventual re-OCR do zero (raro). Ficam **arquivados no Desktop** (fora do git por tamanho). Não há mais bloqueio de "onde guardar os PDFs".
+
+### Notas / follow-ups menores (não bloqueiam)
+
+- `knowledge_catalog` (DB) ainda registra `google_file_uri` (agora vestigial p/ a query) — limpeza cosmética futura.
+- Embeddings/ChromaDB não usados nesta abordagem (corpus pequeno cabe inteiro no contexto do LLM).
+
+---
+
+## 3. Outras dívidas relacionadas (futuras)
 
 - **Gateway central de LLM** ([Sprint 3 transformacional](../auditoria/RELATORIO_AGENTES_IA.md#81-gateway-central-de-llm-srcaillm_gatewaypy)) — quando ele existir, esta migração vira um patch único no gateway em vez de mudar `chains.py` + `pricing.py` + envs.
 - **Provider abstraction** — adicionar suporte a Anthropic Claude / Mistral. Permite testar mesmo prompt em N providers e escolher por custo/qualidade. Junta bem com 1.
 
-## 3. Histórico
+## 4. Histórico
 
 - **2026-05-09 (Sprint 1 Track B.2):** dívida documentada após adicionar `gemini-1.5-flash` ao `MODEL_PRICING` para corrigir bug de cost mixing em [src/ai/service.py](src/ai/service.py). Decisão: não migrar agora, apenas registrar.
+- **2026-06-11 (Track A):** item 1 RESOLVIDO — migração `1.5/2.0 → 2.5-flash` (modelos davam 404 em produção). Item 2 descoberto ao validar a ingestão das RDCs 2026 sob a chave billing.
+- **2026-06-11 (quitação):** item 2 RESOLVIDO — RAG de legislação migrado para **full-text durável** (OCR uma vez → `*_sanitized.md` commitado → `query_legislation`/`_structured` passam o texto inteiro ao Gemini/OpenAI). Pivô de ChromaDB → full-text (preserva acurácia jurídica de full-document). Files API fora do caminho crítico; sub-dívida dos PDFs resolvida por design (texto `.md` é a fonte). Corrigido também um GC-close do client genai introduzido no rewrite.

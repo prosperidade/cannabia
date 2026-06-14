@@ -188,6 +188,18 @@ def confirm_payment(
         },
     )
 
+    # R10: trilha financeira transversal (confirmacao manual tambem recebe).
+    _emit_payment_billing_event(
+        payment,
+        "payment_received",
+        {
+            "provider": provider,
+            "provider_event_id": provider_event_id,
+            "amount_cents": paid_amount,
+            "source": "manual_confirm",
+        },
+    )
+
     return updated or payment
 
 
@@ -265,26 +277,41 @@ def process_webhook_event(
     if not payment:
         raise ValueError(f"Cobranca externa {external_id} nao encontrada.")
 
+    expected_cents = int(payment["amount_cents"])
+    received_cents = int(amount_cents)
+
+    # FIN-1 (doc 30 R1): so quita se o valor recebido cobre o valor cobrado.
+    # Underpayment (valor menor que o devido) NAO marca paid; vira uma
+    # transacao charge.underpaid pendente de revisao humana. Overpayment
+    # (valor >= devido) quita normalmente.
+    is_success_signal = status == "succeeded"
+    underpaid = is_success_signal and received_cents < expected_cents
+
+    tx_event_type = "charge.underpaid" if underpaid else event_type
+    tx_status = "needs_review" if underpaid else status
+
     transaction = repo.record_transaction(
         payment_request_id=payment["id"],
         tenant_id=payment["tenant_id"],
         provider=provider,
         provider_event_id=provider_event_id,
-        event_type=event_type,
-        status=status,
-        amount_cents=int(amount_cents),
+        event_type=tx_event_type,
+        status=tx_status,
+        amount_cents=received_cents,
         payer_name=payer_name,
         payer_document=payer_document,
         payer_account=payer_account,
         raw_payload=raw_payload,
     )
 
-    if status == "succeeded" and payment["status"] != "paid":
+    reconciled = False
+    if is_success_signal and not underpaid and payment["status"] != "paid":
         repo.mark_payment_paid(
             payment["id"],
-            paid_amount_cents=int(amount_cents),
+            paid_amount_cents=received_cents,
             provider_ref=provider_event_id,
         )
+        reconciled = True
         log_audit_event(
             action="payment_reconciled",
             resource_type="payment_request",
@@ -292,16 +319,96 @@ def process_webhook_event(
             details={
                 "provider": provider,
                 "provider_event_id": provider_event_id,
-                "amount_cents": int(amount_cents),
+                "amount_cents": received_cents,
+            },
+        )
+        # R10: trilha financeira transversal.
+        _emit_payment_billing_event(
+            payment,
+            "payment_received",
+            {
+                "provider": provider,
+                "provider_event_id": provider_event_id,
+                "amount_cents": received_cents,
+                "source": "webhook",
+            },
+        )
+    elif underpaid:
+        log_audit_event(
+            action="payment_underpaid",
+            resource_type="payment_request",
+            resource_id=str(payment["id"]),
+            details={
+                "provider": provider,
+                "provider_event_id": provider_event_id,
+                "expected_cents": expected_cents,
+                "received_cents": received_cents,
+            },
+        )
+        _emit_payment_billing_event(
+            payment,
+            "payment_failed",
+            {
+                "reason": "underpaid",
+                "provider": provider,
+                "provider_event_id": provider_event_id,
+                "expected_cents": expected_cents,
+                "received_cents": received_cents,
+            },
+        )
+    elif status == "failed":
+        log_audit_event(
+            action="payment_failed",
+            resource_type="payment_request",
+            resource_id=str(payment["id"]),
+            details={
+                "provider": provider,
+                "provider_event_id": provider_event_id,
+                "amount_cents": received_cents,
+            },
+        )
+        _emit_payment_billing_event(
+            payment,
+            "payment_failed",
+            {
+                "reason": "provider_failed",
+                "provider": provider,
+                "provider_event_id": provider_event_id,
+                "amount_cents": received_cents,
             },
         )
 
-    return {"payment_request_id": payment["id"], "transaction_id": transaction["id"] if transaction else None}
+    return {
+        "payment_request_id": payment["id"],
+        "transaction_id": transaction["id"] if transaction else None,
+        "reconciled": reconciled,
+        "underpaid": underpaid,
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Helpers
 # ═══════════════════════════════════════════════════════════════════════════
+
+def _emit_payment_billing_event(
+    payment: dict[str, Any], event_type: str, details: dict[str, Any]
+) -> None:
+    """
+    Emite billing_events.payment_received/payment_failed para a cobranca (R10).
+
+    Falha de logging nunca derruba a operacao financeira principal.
+    """
+    clinic_id = payment.get("clinic_id")
+    if not clinic_id:
+        return
+    try:
+        from src.services.billing_service import emit_billing_event
+
+        enriched = {"payment_request_id": payment.get("id"), **details}
+        emit_billing_event(int(clinic_id), event_type, enriched)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Falha ao emitir billing event %s: %s", event_type, exc)
+
 
 def _sanitize_ascii(value: str) -> str:
     """Remove acentos simples e chars fora de ASCII; Pix BR Code espera ASCII."""

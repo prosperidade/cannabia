@@ -10,19 +10,19 @@ MODEL_PRICING = {
         "input_per_1k": 0.00015,
         "output_per_1k": 0.00060,
     },
-    "gemini-1.5-flash": {
-        # Legacy pricing — modelo descontinuado pelo Google (jun/2026).
-        # Mantido na tabela para custo histórico de execuções já auditadas.
-        # $0.075/1M input + $0.30/1M output (≤128k contexto).
-        "input_per_1k": 0.000075,
-        "output_per_1k": 0.00030,
-    },
     "gemini-2.5-flash": {
-        # IA-1 / 29.4 R2 — modelo ativo após a migração 1.5→2.5.
-        # Tarifas GA publicadas (verificar contra ai.google.dev/pricing):
-        # $0.30/1M input + $2.50/1M output.
+        # Modelo ATIVO (substitui 1.5/2.0, descontinuados — 404). ai.google.dev/pricing:
+        # $0.30/1M input (texto/imagem) + $2.50/1M output. Migracao jun/2026.
         "input_per_1k": 0.00030,
         "output_per_1k": 0.00250,
+    },
+    "gemini-1.5-flash": {
+        # LEGACY — modelo descontinuado (404). Mantido em MODEL_PRICING apenas
+        # para reanalise de custo de audit logs HISTORICOS gerados antes da
+        # migracao (nao retornar 0.0). Nenhuma chamada produtiva usa mais.
+        # Valores conhecidos da familia 1.5: $0.075/1M input + $0.30/1M output.
+        "input_per_1k": 0.000075,
+        "output_per_1k": 0.00030,
     },
 }
 

@@ -45,7 +45,7 @@ export function SidebarLayout({
         {/* Brand */}
         <div className="px-6 mb-10 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-xl">
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">
               eco
             </span>
           </div>
@@ -60,24 +60,25 @@ export function SidebarLayout({
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+        <nav aria-label="Navegação principal" className="flex-1 px-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group",
                   active
                     ? "text-primary bg-primary/10 font-bold border-r-2 border-primary"
-                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5",
                 )}
               >
-                <span className="material-symbols-outlined">{item.icon}</span>
-                <span className="font-headline tracking-tight text-sm">
-                  {item.label}
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  {item.icon}
                 </span>
+                <span className="font-headline tracking-tight text-sm">{item.label}</span>
               </Link>
             );
           })}
@@ -91,9 +92,7 @@ export function SidebarLayout({
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-on-surface truncate">
-                  {user.name}
-                </p>
+                <p className="text-xs font-bold text-on-surface truncate">{user.name}</p>
                 <p className="text-[10px] text-stone-500">{user.role}</p>
               </div>
               {onLogout && (
@@ -102,9 +101,7 @@ export function SidebarLayout({
                   className="p-1.5 text-stone-500 hover:text-error transition-colors rounded-lg hover:bg-white/5"
                   aria-label="Sair"
                 >
-                  <span className="material-symbols-outlined text-lg">
-                    logout
-                  </span>
+                  <span className="material-symbols-outlined text-lg">logout</span>
                 </button>
               )}
             </div>
@@ -125,7 +122,7 @@ export function SidebarLayout({
             {/* Brand */}
             <div className="px-6 mb-10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-xl">
+                <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">
                   eco
                 </span>
               </div>
@@ -140,7 +137,7 @@ export function SidebarLayout({
             </div>
 
             {/* Nav Items */}
-            <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+            <nav aria-label="Navegação principal" className="flex-1 px-4 space-y-2 overflow-y-auto">
               {navItems.map((item) => {
                 const active = isActive(item.href);
                 return (
@@ -148,19 +145,18 @@ export function SidebarLayout({
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group",
                       active
                         ? "text-primary bg-primary/10 font-bold border-r-2 border-primary"
-                        : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                        : "text-stone-400 hover:text-stone-200 hover:bg-white/5",
                     )}
                   >
-                    <span className="material-symbols-outlined">
+                    <span aria-hidden="true" className="material-symbols-outlined">
                       {item.icon}
                     </span>
-                    <span className="font-headline tracking-tight text-sm">
-                      {item.label}
-                    </span>
+                    <span className="font-headline tracking-tight text-sm">{item.label}</span>
                   </Link>
                 );
               })}
@@ -174,9 +170,7 @@ export function SidebarLayout({
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-on-surface truncate">
-                      {user.name}
-                    </p>
+                    <p className="text-xs font-bold text-on-surface truncate">{user.name}</p>
                     <p className="text-[10px] text-stone-500">{user.role}</p>
                   </div>
                   {onLogout && (
@@ -185,9 +179,7 @@ export function SidebarLayout({
                       className="p-1.5 text-stone-500 hover:text-error transition-colors rounded-lg hover:bg-white/5"
                       aria-label="Sair"
                     >
-                      <span className="material-symbols-outlined text-lg">
-                        logout
-                      </span>
+                      <span className="material-symbols-outlined text-lg">logout</span>
                     </button>
                   )}
                 </div>
@@ -215,35 +207,52 @@ export function SidebarLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto pt-14 md:pt-0">
+          {children}
+        </main>
 
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-4 bg-zinc-900/90 backdrop-blur-xl z-40 rounded-t-[2rem] border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <nav
+          aria-label="Navegação rápida"
+          className="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-4 bg-zinc-900/90 backdrop-blur-xl z-40 rounded-t-[2rem] border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+        >
           {[
-            { label: "Painel", icon: "dashboard", href: navItems.find((i) => i.icon === "dashboard")?.href ?? "/med/dashboard" },
-            { label: "Fila", icon: "queue", href: navItems.find((i) => i.icon === "queue")?.href ?? "/med/fila" },
-            { label: "Atendimentos", icon: "assignment", href: navItems.find((i) => i.icon === "assignment")?.href ?? "/med/atendimentos" },
-            { label: "Prescricoes", icon: "prescriptions", href: navItems.find((i) => i.icon === "prescriptions")?.href ?? "/med/prescricao" },
+            {
+              label: "Painel",
+              icon: "dashboard",
+              href: navItems.find((i) => i.icon === "dashboard")?.href ?? "/med/dashboard",
+            },
+            {
+              label: "Fila",
+              icon: "queue",
+              href: navItems.find((i) => i.icon === "queue")?.href ?? "/med/fila",
+            },
+            {
+              label: "Atendimentos",
+              icon: "assignment",
+              href: navItems.find((i) => i.icon === "assignment")?.href ?? "/med/atendimentos",
+            },
+            {
+              label: "Prescricoes",
+              icon: "prescriptions",
+              href: navItems.find((i) => i.icon === "prescriptions")?.href ?? "/med/prescricao",
+            },
           ].map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex flex-col items-center justify-center rounded-full px-3 py-2 transition-transform duration-300 active:scale-90",
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-zinc-400 hover:bg-white/5"
+                  active ? "bg-primary/10 text-primary" : "text-zinc-400 hover:bg-white/5",
                 )}
               >
                 <span
+                  aria-hidden="true"
                   className="material-symbols-outlined"
-                  style={
-                    active
-                      ? { fontVariationSettings: "'FILL' 1" }
-                      : undefined
-                  }
+                  style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
                 >
                   {item.icon}
                 </span>
@@ -257,10 +266,10 @@ export function SidebarLayout({
             onClick={() => setMobileOpen(true)}
             className="flex flex-col items-center justify-center rounded-full px-3 py-2 transition-transform duration-300 active:scale-90 text-zinc-400 hover:bg-white/5"
           >
-            <span className="material-symbols-outlined">more_horiz</span>
-            <span className="font-headline text-[10px] font-semibold tracking-tight">
-              Mais...
+            <span aria-hidden="true" className="material-symbols-outlined">
+              more_horiz
             </span>
+            <span className="font-headline text-[10px] font-semibold tracking-tight">Mais...</span>
           </button>
         </nav>
       </div>

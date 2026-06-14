@@ -56,7 +56,10 @@ type BillingData = {
 
 type FilterStatus = "todos" | BillingStatus;
 
-const statusBadge: Record<BillingStatus, { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }> = {
+const statusBadge: Record<
+  BillingStatus,
+  { tone: "primary" | "success" | "warning" | "danger" | "neutral"; label: string }
+> = {
   paid: { tone: "success", label: "Pago" },
   pending: { tone: "primary", label: "Pendente" },
   overdue: { tone: "danger", label: "Atrasado" },
@@ -89,7 +92,9 @@ export default function FaturamentoPage() {
       }
     }
     fetchBilling();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const billingRecords = billingData?.records ?? [];
@@ -111,9 +116,7 @@ export default function FaturamentoPage() {
       sortable: true,
       render: (_val, row) => (
         <div>
-          <div className="text-sm font-semibold text-on-surface">
-            {row.patient as string}
-          </div>
+          <div className="text-sm font-semibold text-on-surface">{row.patient as string}</div>
           <div className="text-[10px] text-stone-500">{row.invoiceId as string}</div>
         </div>
       ),
@@ -127,9 +130,7 @@ export default function FaturamentoPage() {
       key: "amount",
       label: "Valor",
       sortable: true,
-      render: (val) => (
-        <span className="font-bold">{formatCurrency(val as number)}</span>
-      ),
+      render: (val) => <span className="font-bold">{formatCurrency(val as number)}</span>,
     },
     {
       key: "dueDate",
@@ -153,7 +154,11 @@ export default function FaturamentoPage() {
       key: "paidAt",
       label: "Pagamento",
       render: (val) =>
-        val ? new Date(val as string).toLocaleDateString("pt-BR") : <span className="text-stone-600">--</span>,
+        val ? (
+          new Date(val as string).toLocaleDateString("pt-BR")
+        ) : (
+          <span className="text-stone-600">--</span>
+        ),
     },
     {
       key: "id",
@@ -245,7 +250,8 @@ export default function FaturamentoPage() {
                 Inadimplencia Critica Detectada
               </h3>
               <p className="text-sm text-stone-400">
-                Existem {delinquencyAlerts.length} faturas com mais de 60 dias de atraso que requerem acao imediata.
+                Existem {delinquencyAlerts.length} faturas com mais de 60 dias de atraso que
+                requerem acao imediata.
               </p>
             </div>
           </div>
@@ -268,7 +274,7 @@ export default function FaturamentoPage() {
           icon="pending_actions"
           label="A Receber"
           value={kpi?.aReceber ?? "R$ 0"}
-          delta={`${billingRecords.filter(r => r.status === "pending").length} faturas`}
+          delta={`${billingRecords.filter((r) => r.status === "pending").length} faturas`}
           deltaType="neutral"
         />
         <StatCard
@@ -332,10 +338,20 @@ export default function FaturamentoPage() {
             <Button className="w-full justify-between" icon="send" size="md">
               Cobranca em Massa
             </Button>
-            <Button variant="secondary" className="w-full justify-between" icon="download" size="md">
+            <Button
+              variant="secondary"
+              className="w-full justify-between"
+              icon="download"
+              size="md"
+            >
               Exportar Relatorios
             </Button>
-            <Button variant="secondary" className="w-full justify-between" icon="receipt_long" size="md">
+            <Button
+              variant="secondary"
+              className="w-full justify-between"
+              icon="receipt_long"
+              size="md"
+            >
               Gerar Fatura
             </Button>
           </div>

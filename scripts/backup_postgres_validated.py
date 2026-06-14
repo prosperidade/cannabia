@@ -24,6 +24,11 @@ DEFAULT_BACKUP_DIR = ROOT / "backups" / "postgres"
 DEFAULT_CHECKSUM_FILE = DEFAULT_BACKUP_DIR / "CHECKSUMS.txt"
 MIN_DUMP_BYTES = 1024
 MIN_RESTORE_LIST_LINES = 5
+# OBS-1: 3a verificacao — restauracao de amostra. pg_restore --schema-only emite
+# todo o DDL reconstruido a partir do corpo do arquivo (nao so o TOC), exercendo
+# a descompressao integral do dump. Um dump truncado/corrompido falha aqui mesmo
+# passando no --list. Limiar conservador de statements DDL esperados.
+MIN_SCHEMA_RESTORE_LINES = 20
 
 
 def _load_dotenv(path: Path) -> None:
@@ -126,6 +131,38 @@ def validate_backup(path: Path, checksum_file: Path, pg_bin: str | None) -> tupl
     return digest, len(restore_lines)
 
 
+def sample_restore_check(path: Path, pg_bin: str | None) -> int:
+    """3a verificacao (OBS-1): restauracao de amostra do dump.
+
+    Roda `pg_restore --schema-only` emitindo o DDL para stdout (sem target DB),
+    o que forca a leitura/descompressao de TODO o corpo do arquivo — nao apenas
+    o TOC lido por `--list`. Conta os statements DDL (CREATE/ALTER) reconstruidos.
+
+    Levanta RuntimeError se o pg_restore falhar ou se o DDL reconstruido for
+    suspeito de dump vazio/corrompido (abaixo de MIN_SCHEMA_RESTORE_LINES).
+    Retorna o numero de statements DDL.
+    """
+    pg_restore = _resolve_binary("pg_restore", pg_bin)
+    # PostgreSQL 18 exige -d/--dbname ou -f/--file explicito; "-f -" emite o
+    # DDL reconstruido para stdout (versoes antigas usavam stdout por default).
+    result = _run([pg_restore, "--schema-only", "--no-owner", "--no-acl", "-f", "-", str(path)])
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"pg_restore --schema-only (restauracao de amostra) falhou:\n{result.stderr.strip()}"
+        )
+
+    ddl_lines = [
+        line for line in result.stdout.splitlines()
+        if line.lstrip().upper().startswith(("CREATE ", "ALTER ", "COMMENT "))
+    ]
+    if len(ddl_lines) < MIN_SCHEMA_RESTORE_LINES:
+        raise RuntimeError(
+            "Restauracao de amostra invalida: pg_restore --schema-only reconstruiu "
+            f"{len(ddl_lines)} statements DDL, esperado >= {MIN_SCHEMA_RESTORE_LINES}"
+        )
+    return len(ddl_lines)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Create a validated PostgreSQL backup")
     parser.add_argument("--database-url", default=os.getenv("DATABASE_URL"))
@@ -155,9 +192,11 @@ def main(argv: list[str] | None = None) -> int:
         backup_path = create_backup(database_url, args.output_dir, args.pg_bin)
 
     digest, restore_lines = validate_backup(backup_path, args.checksum_file, args.pg_bin)
+    schema_lines = sample_restore_check(backup_path, args.pg_bin)
     print(f"backup={backup_path}")
     print(f"bytes={backup_path.stat().st_size}")
     print(f"pg_restore_list_lines={restore_lines}")
+    print(f"sample_restore_ddl_lines={schema_lines}")
     print(f"sha256={digest}")
     print(f"checksum_file={args.checksum_file}")
     return 0

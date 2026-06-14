@@ -14,17 +14,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  MaterialIcon,
-} from "@/components/ui-tw";
-import {
-  deleteKnowledgeCatalogItem,
-  getKnowledgeCatalog,
-  triggerAutoSearch,
-} from "@/lib/api";
+import { Badge, Button, Card, MaterialIcon } from "@/components/ui-tw";
+import { deleteKnowledgeCatalogItem, getKnowledgeCatalog, triggerAutoSearch } from "@/lib/api";
 import { useApiSession } from "@/lib/use-api-session";
 
 type KnowledgeCatalogItem = {
@@ -78,14 +69,11 @@ export function KnowledgeBaseView() {
 
         getKnowledgeCatalog(params)
           .then((resp) => {
-            const data = (resp.data as unknown) as KnowledgeCatalogItem[] | undefined;
+            const data = resp.data as unknown as KnowledgeCatalogItem[] | undefined;
             setItems(Array.isArray(data) ? data : []);
           })
           .catch((err) => {
-            const msg =
-              err instanceof Error
-                ? err.message
-                : "Falha ao carregar a base cientifica.";
+            const msg = err instanceof Error ? err.message : "Falha ao carregar a base cientifica.";
             setErrorMsg(msg);
             setItems([]);
           })
@@ -105,9 +93,7 @@ export function KnowledgeBaseView() {
   }
 
   async function handleDelete(item: KnowledgeCatalogItem) {
-    const confirmed = window.confirm(
-      `Remover "${item.title}" da base cientifica?`,
-    );
+    const confirmed = window.confirm(`Remover "${item.title}" da base cientifica?`);
     if (!confirmed) return;
     try {
       await deleteKnowledgeCatalogItem(item.id, csrfToken);
@@ -159,8 +145,8 @@ export function KnowledgeBaseView() {
             Base Cientifica
           </h1>
           <p className="text-sm text-stone-500 mt-1">
-            Pool colaborativo de artigos, legislacao e evidencias clinicas.
-            Compartilhado por todos os profissionais credenciados.
+            Pool colaborativo de artigos, legislacao e evidencias clinicas. Compartilhado por todos
+            os profissionais credenciados.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-stone-500">
@@ -217,12 +203,10 @@ export function KnowledgeBaseView() {
             <MaterialIcon icon="add_circle" className="text-primary" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-bold text-on-surface">
-              Adicionar via PubMed
-            </h3>
+            <h3 className="text-sm font-bold text-on-surface">Adicionar via PubMed</h3>
             <p className="text-xs text-stone-500 mt-0.5">
-              Informe um termo (ex.: "cannabidiol epilepsy") e a IA ingere ate 5
-              artigos relevantes diretamente na base.
+              Informe um termo (ex.: &quot;cannabidiol epilepsy&quot;) e a IA ingere ate 5 artigos
+              relevantes diretamente na base.
             </p>
           </div>
         </div>
@@ -239,9 +223,7 @@ export function KnowledgeBaseView() {
             Adicionar
           </Button>
         </div>
-        {addStatus && (
-          <p className="text-xs text-stone-400 mt-1">{addStatus}</p>
-        )}
+        {addStatus && <p className="text-xs text-stone-400 mt-1">{addStatus}</p>}
       </Card>
 
       {/* ── Lista ──────────────────────────────────── */}
@@ -257,22 +239,16 @@ export function KnowledgeBaseView() {
       {loading ? (
         <div className="space-y-2">
           {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-20 rounded-xl bg-surface-container-low/60 animate-pulse"
-            />
+            <div key={i} className="h-20 rounded-xl bg-surface-container-low/60 animate-pulse" />
           ))}
         </div>
       ) : items.length === 0 ? (
         <Card padding="lg">
           <div className="py-10 flex flex-col items-center justify-center text-center gap-2">
             <MaterialIcon icon="search_off" size="xl" className="text-stone-600" />
-            <p className="text-sm font-bold text-on-surface">
-              Nada encontrado neste recorte
-            </p>
+            <p className="text-sm font-bold text-on-surface">Nada encontrado neste recorte</p>
             <p className="text-xs text-stone-500 max-w-md">
-              Tente outro termo, mude o filtro de tipo ou adicione um artigo via
-              PubMed.
+              Tente outro termo, mude o filtro de tipo ou adicione um artigo via PubMed.
             </p>
           </div>
         </Card>
@@ -283,9 +259,7 @@ export function KnowledgeBaseView() {
               key={item.id}
               item={item}
               expanded={expandedId === item.id}
-              onToggle={() =>
-                setExpandedId((cur) => (cur === item.id ? null : item.id))
-              }
+              onToggle={() => setExpandedId((cur) => (cur === item.id ? null : item.id))}
               canDelete={canDelete(item)}
               onDelete={() => handleDelete(item)}
             />
@@ -323,23 +297,13 @@ function CatalogRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <Badge tone={typeTone.tone}>{typeTone.label}</Badge>
-            <span className="text-[11px] text-stone-500">
-              {item.source || "—"}
-            </span>
-            {dateLabel && (
-              <span className="text-[11px] text-stone-500">{dateLabel}</span>
-            )}
+            <span className="text-[11px] text-stone-500">{item.source || "—"}</span>
+            {dateLabel && <span className="text-[11px] text-stone-500">{dateLabel}</span>}
           </div>
-          <p className="text-sm font-bold text-on-surface leading-snug">
-            {item.title}
-          </p>
-          {item.norm_number && (
-            <p className="text-xs text-stone-400 mt-0.5">{item.norm_number}</p>
-          )}
+          <p className="text-sm font-bold text-on-surface leading-snug">{item.title}</p>
+          {item.norm_number && <p className="text-xs text-stone-400 mt-0.5">{item.norm_number}</p>}
           {item.journal && (
-            <p className="text-[11px] text-stone-500 mt-0.5 italic">
-              {item.journal}
-            </p>
+            <p className="text-[11px] text-stone-500 mt-0.5 italic">{item.journal}</p>
           )}
         </div>
         <MaterialIcon
@@ -356,9 +320,7 @@ function CatalogRow({
               {item.abstract}
             </p>
           ) : (
-            <p className="text-xs text-stone-500 italic mt-3">
-              Sem resumo disponivel.
-            </p>
+            <p className="text-xs text-stone-500 italic mt-3">Sem resumo disponivel.</p>
           )}
 
           <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -418,9 +380,10 @@ function formatDate(value: string | null): string | null {
   }
 }
 
-function mapDocTypeTone(
-  docType: string,
-): { label: string; tone: "primary" | "info" | "warning" | "neutral" } {
+function mapDocTypeTone(docType: string): {
+  label: string;
+  tone: "primary" | "info" | "warning" | "neutral";
+} {
   const t = (docType || "").toLowerCase();
   if (t === "legislation") return { label: "Legislacao", tone: "warning" };
   if (t === "article") return { label: "Artigo", tone: "info" };

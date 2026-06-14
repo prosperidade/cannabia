@@ -3,14 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { getOrgReports } from "@/lib/api";
-import {
-  Card,
-  StatCard,
-  Button,
-  Badge,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, StatCard, Button, Badge, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -50,15 +43,27 @@ export default function RelatoriosPage() {
   const [iaChart, setIaChart] = useState<ChartPoint[]>([]);
 
   // Side-panel data
-  const [doctorRanking, setDoctorRanking] = useState<{ name: string; count: number; pct: number }[]>([]);
-  const [statusDist, setStatusDist] = useState<{ label: string; pct: number; tone: "primary" | "warning" | "danger" }[]>([]);
+  const [doctorRanking, setDoctorRanking] = useState<
+    { name: string; count: number; pct: number }[]
+  >([]);
+  const [statusDist, setStatusDist] = useState<
+    { label: string; pct: number; tone: "primary" | "warning" | "danger" }[]
+  >([]);
   const [conditions, setConditions] = useState<{ label: string; pct: number }[]>([]);
 
   // KPI rows (stored as generic arrays so backend can define them)
-  const [atendKpis, setAtendKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
-  const [finKpis, setFinKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
-  const [patKpis, setPatKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
-  const [iaKpis, setIaKpis] = useState<{ icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]>([]);
+  const [atendKpis, setAtendKpis] = useState<
+    { icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]
+  >([]);
+  const [finKpis, setFinKpis] = useState<
+    { icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]
+  >([]);
+  const [patKpis, setPatKpis] = useState<
+    { icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]
+  >([]);
+  const [iaKpis, setIaKpis] = useState<
+    { icon: string; label: string; value: string; delta: string; deltaType: "up" | "down" }[]
+  >([]);
 
   const fetchData = useCallback(async (p: string) => {
     try {
@@ -66,13 +71,18 @@ export default function RelatoriosPage() {
       const res = await getOrgReports(p);
       const d = res.data as Record<string, unknown>;
 
-      if (Array.isArray(d.attendance_by_month)) setAtendimentosChart(d.attendance_by_month as ChartPoint[]);
-      if (Array.isArray(d.financial_by_month)) setFinanceiroChart(d.financial_by_month as ChartPoint[]);
-      if (Array.isArray(d.patients_by_month)) setPacientesChart(d.patients_by_month as ChartPoint[]);
+      if (Array.isArray(d.attendance_by_month))
+        setAtendimentosChart(d.attendance_by_month as ChartPoint[]);
+      if (Array.isArray(d.financial_by_month))
+        setFinanceiroChart(d.financial_by_month as ChartPoint[]);
+      if (Array.isArray(d.patients_by_month))
+        setPacientesChart(d.patients_by_month as ChartPoint[]);
       if (Array.isArray(d.ai_by_month)) setIaChart(d.ai_by_month as ChartPoint[]);
 
-      if (Array.isArray(d.doctor_ranking)) setDoctorRanking(d.doctor_ranking as typeof doctorRanking);
-      if (Array.isArray(d.status_distribution)) setStatusDist(d.status_distribution as typeof statusDist);
+      if (Array.isArray(d.doctor_ranking))
+        setDoctorRanking(d.doctor_ranking as typeof doctorRanking);
+      if (Array.isArray(d.status_distribution))
+        setStatusDist(d.status_distribution as typeof statusDist);
       if (Array.isArray(d.conditions)) setConditions(d.conditions as typeof conditions);
 
       if (Array.isArray(d.attendance_kpis)) setAtendKpis(d.attendance_kpis as typeof atendKpis);
@@ -86,7 +96,9 @@ export default function RelatoriosPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(period); }, [fetchData, period]);
+  useEffect(() => {
+    fetchData(period);
+  }, [fetchData, period]);
 
   if (loading) {
     return (
@@ -107,15 +119,23 @@ export default function RelatoriosPage() {
           <h2 className="text-3xl font-headline font-extrabold text-on-surface tracking-tight">
             Relatorios Gerenciais Avancados
           </h2>
-          <p className="text-stone-400 text-sm mt-1 italic">
-            Metricas de desempenho em tempo real
-          </p>
+          <p className="text-stone-400 text-sm mt-1 italic">Metricas de desempenho em tempo real</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <Button variant="secondary" icon="picture_as_pdf" size="sm" onClick={() => alert("Exportar PDF")}>
+          <Button
+            variant="secondary"
+            icon="picture_as_pdf"
+            size="sm"
+            onClick={() => alert("Exportar PDF")}
+          >
             Exportar PDF
           </Button>
-          <Button variant="secondary" icon="download" size="sm" onClick={() => alert("Exportar CSV")}>
+          <Button
+            variant="secondary"
+            icon="download"
+            size="sm"
+            onClick={() => alert("Exportar CSV")}
+          >
             Exportar CSV
           </Button>
         </div>
@@ -164,23 +184,41 @@ export default function RelatoriosPage() {
           {atendKpis.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {atendKpis.map((k) => (
-                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+                <StatCard
+                  key={k.label}
+                  icon={k.icon}
+                  label={k.label}
+                  value={k.value}
+                  delta={k.delta}
+                  deltaType={k.deltaType}
+                />
               ))}
             </div>
           )}
 
           {(atendimentosChart.length > 0 || doctorRanking.length > 0) && (
-            <div className={cn("grid grid-cols-1 gap-6", doctorRanking.length > 0 && atendimentosChart.length > 0 && "lg:grid-cols-3")}>
+            <div
+              className={cn(
+                "grid grid-cols-1 gap-6",
+                doctorRanking.length > 0 && atendimentosChart.length > 0 && "lg:grid-cols-3",
+              )}
+            >
               {atendimentosChart.length > 0 && (
                 <Card className={cn(doctorRanking.length > 0 && "lg:col-span-2")} padding="lg">
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      <h4 className="text-lg font-headline font-bold text-on-surface">Consultas por Periodo</h4>
+                      <h4 className="text-lg font-headline font-bold text-on-surface">
+                        Consultas por Periodo
+                      </h4>
                       <p className="text-xs text-stone-500">Atendimentos vs Retornos ({period})</p>
                     </div>
                     <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
-                      <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary" /> Atendimentos</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Retornos</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-primary" /> Atendimentos
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-stone-600" /> Retornos
+                      </span>
                     </div>
                   </div>
                   <BarChart data={atendimentosChart} />
@@ -189,7 +227,9 @@ export default function RelatoriosPage() {
 
               {doctorRanking.length > 0 && (
                 <Card padding="lg">
-                  <h4 className="text-lg font-headline font-bold text-on-surface mb-4">Ranking Medicos</h4>
+                  <h4 className="text-lg font-headline font-bold text-on-surface mb-4">
+                    Ranking Medicos
+                  </h4>
                   <div className="space-y-4">
                     {doctorRanking.map((doc) => (
                       <div key={doc.name} className="group">
@@ -208,7 +248,9 @@ export default function RelatoriosPage() {
 
           {statusDist.length > 0 && (
             <Card padding="lg">
-              <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Distribuicao por Status</h4>
+              <h4 className="text-lg font-headline font-bold text-on-surface mb-6">
+                Distribuicao por Status
+              </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {statusDist.map((s) => (
                   <div key={s.label} className="space-y-2">
@@ -216,16 +258,26 @@ export default function RelatoriosPage() {
                       <span className="text-sm text-stone-300">{s.label}</span>
                       <Badge tone={s.tone}>{s.pct}%</Badge>
                     </div>
-                    <ProgressBar value={s.pct} variant={s.tone === "primary" ? "primary" : s.tone === "warning" ? "warning" : "danger"} />
+                    <ProgressBar
+                      value={s.pct}
+                      variant={
+                        s.tone === "primary"
+                          ? "primary"
+                          : s.tone === "warning"
+                            ? "warning"
+                            : "danger"
+                      }
+                    />
                   </div>
                 ))}
               </div>
             </Card>
           )}
 
-          {atendKpis.length === 0 && atendimentosChart.length === 0 && doctorRanking.length === 0 && statusDist.length === 0 && (
-            <EmptyState period={period} />
-          )}
+          {atendKpis.length === 0 &&
+            atendimentosChart.length === 0 &&
+            doctorRanking.length === 0 &&
+            statusDist.length === 0 && <EmptyState period={period} />}
         </div>
       )}
 
@@ -235,7 +287,14 @@ export default function RelatoriosPage() {
           {finKpis.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {finKpis.map((k) => (
-                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+                <StatCard
+                  key={k.label}
+                  icon={k.icon}
+                  label={k.label}
+                  value={k.value}
+                  delta={k.delta}
+                  deltaType={k.deltaType}
+                />
               ))}
             </div>
           )}
@@ -244,21 +303,25 @@ export default function RelatoriosPage() {
             <Card padding="lg">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h4 className="text-lg font-headline font-bold text-on-surface">Receita vs Custo</h4>
+                  <h4 className="text-lg font-headline font-bold text-on-surface">
+                    Receita vs Custo
+                  </h4>
                   <p className="text-xs text-stone-500">Evolucao mensal ({period})</p>
                 </div>
                 <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary" /> Receita</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Custo</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-primary" /> Receita
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-stone-600" /> Custo
+                  </span>
                 </div>
               </div>
               <BarChart data={financeiroChart} />
             </Card>
           )}
 
-          {finKpis.length === 0 && financeiroChart.length === 0 && (
-            <EmptyState period={period} />
-          )}
+          {finKpis.length === 0 && financeiroChart.length === 0 && <EmptyState period={period} />}
         </div>
       )}
 
@@ -268,18 +331,32 @@ export default function RelatoriosPage() {
           {patKpis.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {patKpis.map((k) => (
-                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+                <StatCard
+                  key={k.label}
+                  icon={k.icon}
+                  label={k.label}
+                  value={k.value}
+                  delta={k.delta}
+                  deltaType={k.deltaType}
+                />
               ))}
             </div>
           )}
 
           {(pacientesChart.length > 0 || conditions.length > 0) && (
-            <div className={cn("grid grid-cols-1 gap-6", pacientesChart.length > 0 && conditions.length > 0 && "lg:grid-cols-3")}>
+            <div
+              className={cn(
+                "grid grid-cols-1 gap-6",
+                pacientesChart.length > 0 && conditions.length > 0 && "lg:grid-cols-3",
+              )}
+            >
               {pacientesChart.length > 0 && (
                 <Card className={cn(conditions.length > 0 && "lg:col-span-2")} padding="lg">
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      <h4 className="text-lg font-headline font-bold text-on-surface">Novos Pacientes/Mes</h4>
+                      <h4 className="text-lg font-headline font-bold text-on-surface">
+                        Novos Pacientes/Mes
+                      </h4>
                       <p className="text-xs text-stone-500">Evolucao de cadastros ({period})</p>
                     </div>
                   </div>
@@ -289,7 +366,9 @@ export default function RelatoriosPage() {
 
               {conditions.length > 0 && (
                 <Card padding="lg">
-                  <h4 className="text-lg font-headline font-bold text-on-surface mb-6">Condicoes Clinicas</h4>
+                  <h4 className="text-lg font-headline font-bold text-on-surface mb-6">
+                    Condicoes Clinicas
+                  </h4>
                   <div className="space-y-4">
                     {conditions.map((c) => (
                       <div key={c.label} className="group">
@@ -318,7 +397,14 @@ export default function RelatoriosPage() {
           {iaKpis.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {iaKpis.map((k) => (
-                <StatCard key={k.label} icon={k.icon} label={k.label} value={k.value} delta={k.delta} deltaType={k.deltaType} />
+                <StatCard
+                  key={k.label}
+                  icon={k.icon}
+                  label={k.label}
+                  value={k.value}
+                  delta={k.delta}
+                  deltaType={k.deltaType}
+                />
               ))}
             </div>
           )}
@@ -327,21 +413,25 @@ export default function RelatoriosPage() {
             <Card padding="lg">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h4 className="text-lg font-headline font-bold text-on-surface">Analises Realizadas</h4>
+                  <h4 className="text-lg font-headline font-bold text-on-surface">
+                    Analises Realizadas
+                  </h4>
                   <p className="text-xs text-stone-500">Analises vs Custos ({period})</p>
                 </div>
                 <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary" /> Analises</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-stone-600" /> Custos</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-primary" /> Analises
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-stone-600" /> Custos
+                  </span>
                 </div>
               </div>
               <BarChart data={iaChart} />
             </Card>
           )}
 
-          {iaKpis.length === 0 && iaChart.length === 0 && (
-            <EmptyState period={period} />
-          )}
+          {iaKpis.length === 0 && iaChart.length === 0 && <EmptyState period={period} />}
         </div>
       )}
     </div>
@@ -359,8 +449,8 @@ function EmptyState({ period }: { period: string }) {
         <MaterialIcon icon="insights" size="lg" className="text-stone-600" />
         <h4 className="text-sm font-bold text-stone-400">Sem dados para o periodo selecionado</h4>
         <p className="text-xs text-stone-500 max-w-md">
-          Nao ha metricas disponiveis para o periodo {period}. Tente outro intervalo
-          ou aguarde novos atendimentos serem registrados.
+          Nao ha metricas disponiveis para o periodo {period}. Tente outro intervalo ou aguarde
+          novos atendimentos serem registrados.
         </p>
       </div>
     </Card>

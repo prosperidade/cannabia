@@ -3,13 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import { getLabAnalysis } from "@/lib/api";
-import {
-  Card,
-  Badge,
-  Button,
-  MaterialIcon,
-  ProgressBar,
-} from "@/components/ui-tw";
+import { Card, Badge, Button, MaterialIcon, ProgressBar } from "@/components/ui-tw";
 
 /* ────────────────────────────────────────────
    AI Lab Analysis Report
@@ -18,12 +12,23 @@ import {
 type Patient = { name: string; id: string; condition: string; protocol: string; batchId: string };
 type Cannabinoid = { name: string; value: number; pct: number; color: "primary" };
 type Terpene = { name: string; value: string; pct: number };
-type Interaction = { drug: string; severity: "danger" | "warning" | "info" | "neutral"; description: string; mechanism: string };
+type Interaction = {
+  drug: string;
+  severity: "danger" | "warning" | "info" | "neutral";
+  description: string;
+  mechanism: string;
+};
 type Formulation = Record<string, string>;
 type Reference = { title: string; source: string; doi: string };
 type EffectItem = { icon: string; label: string; desc: string };
 
-const FALLBACK_PATIENT: Patient = { name: "—", id: "—", condition: "—", protocol: "—", batchId: "—" };
+const FALLBACK_PATIENT: Patient = {
+  name: "—",
+  id: "—",
+  condition: "—",
+  protocol: "—",
+  batchId: "—",
+};
 const FALLBACK_CANNABINOIDS: Cannabinoid[] = [];
 const FALLBACK_TERPENES: Terpene[] = [];
 const FALLBACK_INTERACTIONS: Interaction[] = [];
@@ -71,7 +76,9 @@ export default function LabAiPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   if (loading) {
     return (
@@ -169,7 +176,9 @@ export default function LabAiPage() {
                     <span className="text-[10px] uppercase tracking-widest text-stone-500">
                       Canabinoides (%)
                     </span>
-                    <span className="text-2xl font-black text-on-surface">{totalCannabinoids}%</span>
+                    <span className="text-2xl font-black text-on-surface">
+                      {totalCannabinoids}%
+                    </span>
                   </div>
                   <div className="space-y-3">
                     {cannabinoids.map((c) => (
@@ -295,7 +304,9 @@ export default function LabAiPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-bold text-on-surface">{interaction.drug}</span>
-                  <Badge tone={interaction.severity === "neutral" ? "neutral" : interaction.severity}>
+                  <Badge
+                    tone={interaction.severity === "neutral" ? "neutral" : interaction.severity}
+                  >
                     {interaction.severity === "danger"
                       ? "ALTO RISCO"
                       : interaction.severity === "warning"
@@ -323,7 +334,10 @@ export default function LabAiPage() {
             </div>
             <div className="space-y-3">
               {Object.entries(formulation).map(([key, val]) => (
-                <div key={key} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                <div
+                  key={key}
+                  className="flex justify-between items-center py-2 border-b border-white/5 last:border-0"
+                >
                   <span className="text-xs text-stone-500 uppercase tracking-wider">
                     {key === "product"
                       ? "Produto"
@@ -406,7 +420,9 @@ export default function LabAiPage() {
       {/* ── Footer Stats ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card variant="glass" padding="sm" className="rounded-xl p-4">
-          <span className="text-[10px] uppercase text-stone-500 tracking-widest">Data Colheita</span>
+          <span className="text-[10px] uppercase text-stone-500 tracking-widest">
+            Data Colheita
+          </span>
           <p className="text-sm font-bold text-on-surface mt-1">{labMeta?.harvest_date ?? "--"}</p>
         </Card>
         <Card variant="glass" padding="sm" className="rounded-xl p-4">

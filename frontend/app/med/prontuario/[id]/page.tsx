@@ -39,10 +39,7 @@ const RISK_CONFIG: Record<
   baixo: { label: "Baixo", tone: "primary" },
 };
 
-const EVENT_TYPE_CONFIG: Record<
-  string,
-  { icon: string; color: string; dotColor: string }
-> = {
+const EVENT_TYPE_CONFIG: Record<string, { icon: string; color: string; dotColor: string }> = {
   consultation: {
     icon: "stethoscope",
     color: "text-primary",
@@ -116,12 +113,18 @@ function derivePatientContext(detail: AttendanceDetail): PatientContext {
       (anamnesis.main_complaint as string | undefined) ??
       (anamnesis.queixa_principal as string | undefined) ??
       "",
-    symptoms: (anamnesis.symptoms as string[] | undefined) ??
-      (anamnesis.sintomas as string[] | undefined) ?? [],
-    current_medications: (anamnesis.current_medications as string[] | undefined) ??
-      (anamnesis.medicamentos_atuais as string[] | undefined) ?? [],
-    allergies: (anamnesis.allergies as string[] | undefined) ??
-      (anamnesis.alergias as string[] | undefined) ?? [],
+    symptoms:
+      (anamnesis.symptoms as string[] | undefined) ??
+      (anamnesis.sintomas as string[] | undefined) ??
+      [],
+    current_medications:
+      (anamnesis.current_medications as string[] | undefined) ??
+      (anamnesis.medicamentos_atuais as string[] | undefined) ??
+      [],
+    allergies:
+      (anamnesis.allergies as string[] | undefined) ??
+      (anamnesis.alergias as string[] | undefined) ??
+      [],
     medical_history:
       (anamnesis.medical_history as string | undefined) ??
       (anamnesis.historico_medico as string | undefined) ??
@@ -129,9 +132,7 @@ function derivePatientContext(detail: AttendanceDetail): PatientContext {
   };
 }
 
-function deriveClinicalAnalysis(
-  detail: AttendanceDetail,
-): ClinicalAnalysis {
+function deriveClinicalAnalysis(detail: AttendanceDetail): ClinicalAnalysis {
   const ca = detail.report.clinical_analysis ?? {};
   const rawRisk = ((ca.risk_level as string | undefined) ?? "").toLowerCase().trim();
   let riskLevel: RiskLevel = "baixo";
@@ -166,14 +167,16 @@ function deriveTreatmentPlan(detail: AttendanceDetail): TreatmentPlan {
       (tp.monitoring_plan as string | undefined) ??
       (tp.plano_monitoramento as string | undefined) ??
       "",
-    precautions: (tp.precautions as string[] | undefined) ??
-      (tp.precaucoes as string[] | undefined) ?? [],
+    precautions:
+      (tp.precautions as string[] | undefined) ?? (tp.precaucoes as string[] | undefined) ?? [],
   };
 }
 
 function deriveVitals(detail: AttendanceDetail): VitalSigns | null {
   const anamnesis = detail.report.anamnesis_data ?? {};
-  const vitals = (anamnesis.vital_signs ?? anamnesis.sinais_vitais) as Partial<VitalSigns> | undefined;
+  const vitals = (anamnesis.vital_signs ?? anamnesis.sinais_vitais) as
+    | Partial<VitalSigns>
+    | undefined;
   if (!vitals) return null;
   return {
     bp_systolic: vitals.bp_systolic ?? null,
@@ -216,10 +219,7 @@ function PatientHeader({
             size="lg"
             className="relative !w-20 !h-20 md:!w-28 md:!h-28 !rounded-2xl border-2 border-primary/20 shadow-2xl"
           />
-          <Badge
-            tone={risk.tone}
-            className="absolute -bottom-2 -right-2 shadow-lg"
-          >
+          <Badge tone={risk.tone} className="absolute -bottom-2 -right-2 shadow-lg">
             {risk.label}
           </Badge>
         </div>
@@ -288,21 +288,9 @@ function QuickStatsRow({
 }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-      <StatCard
-        icon="event_available"
-        label="Consultas"
-        value={totalConsultations}
-      />
-      <StatCard
-        icon="schedule"
-        label="Ultima Visita"
-        value={lastVisit}
-      />
-      <StatCard
-        icon="timer"
-        label="Em Tratamento"
-        value={treatmentDuration ?? "--"}
-      />
+      <StatCard icon="event_available" label="Consultas" value={totalConsultations} />
+      <StatCard icon="schedule" label="Ultima Visita" value={lastVisit} />
+      <StatCard icon="timer" label="Em Tratamento" value={treatmentDuration ?? "--"} />
       <StatCard
         icon="verified"
         label="Adesao"
@@ -325,9 +313,7 @@ function PatientContextCard({
     <Card variant="glass" padding="lg" className="rounded-3xl space-y-6">
       <div className="flex items-center gap-2">
         <MaterialIcon icon="person_search" className="text-primary" />
-        <h3 className="text-lg font-bold font-headline text-on-surface">
-          Contexto do Paciente
-        </h3>
+        <h3 className="text-lg font-bold font-headline text-on-surface">Contexto do Paciente</h3>
       </div>
 
       {/* Symptoms */}
@@ -399,15 +385,8 @@ function PatientContextCard({
           </h4>
           <div className="space-y-1">
             {clinicalAnalysis.red_flags.map((f) => (
-              <div
-                key={f}
-                className="flex items-start gap-2 text-sm text-error/90"
-              >
-                <MaterialIcon
-                  icon="warning"
-                  size="sm"
-                  className="text-error mt-0.5"
-                />
+              <div key={f} className="flex items-start gap-2 text-sm text-error/90">
+                <MaterialIcon icon="warning" size="sm" className="text-error mt-0.5" />
                 {f}
               </div>
             ))}
@@ -474,22 +453,16 @@ function ClinicalTimeline({
       tags: [e.entry_type, e.status].filter(Boolean),
       source: "medical" as const,
     })),
-  ].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (allEvents.length === 0) {
     return (
       <Card variant="glass" padding="lg" className="rounded-3xl">
         <div className="flex items-center gap-2 mb-4">
           <MaterialIcon icon="timeline" className="text-primary" />
-          <h3 className="text-lg font-bold font-headline text-on-surface">
-            Historico Clinico
-          </h3>
+          <h3 className="text-lg font-bold font-headline text-on-surface">Historico Clinico</h3>
         </div>
-        <p className="text-sm text-stone-500 italic">
-          Nenhum evento registrado ainda.
-        </p>
+        <p className="text-sm text-stone-500 italic">Nenhum evento registrado ainda.</p>
       </Card>
     );
   }
@@ -498,9 +471,7 @@ function ClinicalTimeline({
     <Card variant="glass" padding="lg" className="rounded-3xl">
       <div className="flex items-center gap-2 mb-6">
         <MaterialIcon icon="timeline" className="text-primary" />
-        <h3 className="text-lg font-bold font-headline text-on-surface">
-          Historico Clinico
-        </h3>
+        <h3 className="text-lg font-bold font-headline text-on-surface">Historico Clinico</h3>
         <Badge tone="neutral" className="ml-auto">
           {allEvents.length} eventos
         </Badge>
@@ -510,16 +481,13 @@ function ClinicalTimeline({
         {allEvents.map((event, i) => {
           const config = getEventConfig(event.type);
           const isExpanded = expandedId === event.id;
-          const opacity =
-            i === 0 ? "" : i === 1 ? "opacity-80" : "opacity-60";
+          const opacity = i === 0 ? "" : i === 1 ? "opacity-80" : "opacity-60";
 
           return (
             <div
               key={event.id}
               className={cn("relative pl-10 cursor-pointer", opacity)}
-              onClick={() =>
-                setExpandedId(isExpanded ? null : event.id)
-              }
+              onClick={() => setExpandedId(isExpanded ? null : event.id)}
             >
               <div
                 className={cn(
@@ -537,9 +505,7 @@ function ClinicalTimeline({
               <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">
                 {formatDate(event.date)}
               </p>
-              <h4 className="text-on-surface font-bold mt-1 text-sm">
-                {event.title}
-              </h4>
+              <h4 className="text-on-surface font-bold mt-1 text-sm">{event.title}</h4>
 
               {event.description && (
                 <p
@@ -624,24 +590,15 @@ function VitalSignsCard({ vitals }: { vitals: VitalSigns }) {
       value: vitals.pain_level ?? "--",
       unit: "/10",
       icon: "sentiment_dissatisfied",
-      trend:
-        (vitals.pain_level ?? 0) > 5
-          ? ("up" as const)
-          : ("stable" as const),
+      trend: (vitals.pain_level ?? 0) > 5 ? ("up" as const) : ("stable" as const),
     },
   ];
 
   return (
     <Card variant="glass" padding="lg" className="rounded-3xl">
       <div className="flex items-center gap-2 mb-5">
-        <MaterialIcon
-          icon="vital_signs"
-          className="text-primary"
-          filled
-        />
-        <h3 className="text-lg font-bold font-headline text-on-surface">
-          Sinais Vitais
-        </h3>
+        <MaterialIcon icon="vital_signs" className="text-primary" filled />
+        <h3 className="text-lg font-bold font-headline text-on-surface">Sinais Vitais</h3>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {items.map((item) => (
@@ -650,21 +607,14 @@ function VitalSignsCard({ vitals }: { vitals: VitalSigns }) {
             className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5"
           >
             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <MaterialIcon
-                icon={item.icon}
-                size="sm"
-                className="text-primary"
-              />
+              <MaterialIcon icon={item.icon} size="sm" className="text-primary" />
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-stone-500 font-bold">
                 {item.label}
               </p>
               <p className="text-base font-bold text-on-surface font-headline">
-                {item.value}{" "}
-                <span className="text-xs font-normal text-stone-500">
-                  {item.unit}
-                </span>
+                {item.value} <span className="text-xs font-normal text-stone-500">{item.unit}</span>
               </p>
             </div>
           </div>
@@ -683,35 +633,23 @@ function TreatmentPlanCard({ plan }: { plan: TreatmentPlan }) {
             <h3 className="text-lg font-bold font-headline text-on-surface">
               Plano Terapeutico Ativo
             </h3>
-            <p className="text-primary text-xs font-bold mt-1">
-              Tratamento Canabico
-            </p>
+            <p className="text-primary text-xs font-bold mt-1">Tratamento Canabico</p>
           </div>
-          <MaterialIcon
-            icon="potted_plant"
-            className="text-primary"
-            size="lg"
-          />
+          <MaterialIcon icon="potted_plant" className="text-primary" size="lg" />
         </div>
 
         <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-stone-500">Proporcao</span>
-            <span className="text-on-surface font-bold">
-              {plan.cannabinoid_ratio}
-            </span>
+            <span className="text-on-surface font-bold">{plan.cannabinoid_ratio}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-stone-500">Dosagem</span>
-            <span className="text-on-surface font-medium">
-              {plan.suggested_dosage}
-            </span>
+            <span className="text-on-surface font-medium">{plan.suggested_dosage}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-stone-500">Via</span>
-            <span className="text-on-surface font-medium">
-              {plan.administration_route}
-            </span>
+            <span className="text-on-surface font-medium">{plan.administration_route}</span>
           </div>
         </div>
 
@@ -719,9 +657,7 @@ function TreatmentPlanCard({ plan }: { plan: TreatmentPlan }) {
           <h4 className="text-[10px] font-black text-stone-500 uppercase tracking-widest">
             Monitoramento
           </h4>
-          <p className="text-sm text-stone-400 leading-relaxed">
-            {plan.monitoring_plan}
-          </p>
+          <p className="text-sm text-stone-400 leading-relaxed">{plan.monitoring_plan}</p>
         </div>
 
         {plan.precautions.length > 0 && (
@@ -730,15 +666,8 @@ function TreatmentPlanCard({ plan }: { plan: TreatmentPlan }) {
               Precaucoes
             </h4>
             {plan.precautions.map((p) => (
-              <div
-                key={p}
-                className="flex items-start gap-2 text-xs text-amber-400"
-              >
-                <MaterialIcon
-                  icon="warning"
-                  size="sm"
-                  className="text-amber-500 mt-0.5"
-                />
+              <div key={p} className="flex items-start gap-2 text-xs text-amber-400">
+                <MaterialIcon icon="warning" size="sm" className="text-amber-500 mt-0.5" />
                 {p}
               </div>
             ))}
@@ -752,10 +681,7 @@ function TreatmentPlanCard({ plan }: { plan: TreatmentPlan }) {
               Progresso do Tratamento
             </span>
             <span className="text-on-surface font-bold text-sm">
-              12 / 30{" "}
-              <span className="text-xs text-stone-500 font-normal">
-                dias
-              </span>
+              12 / 30 <span className="text-xs text-stone-500 font-normal">dias</span>
             </span>
           </div>
           <ProgressBar value={40} variant="primary" size="sm" glow />
@@ -770,9 +696,7 @@ function SymptomEvolutionCard() {
     <Card variant="glass" padding="lg" className="rounded-3xl">
       <div className="flex items-center gap-2 mb-5">
         <MaterialIcon icon="trending_down" className="text-primary" />
-        <h3 className="text-lg font-bold font-headline text-on-surface">
-          Evolucao dos Sintomas
-        </h3>
+        <h3 className="text-lg font-bold font-headline text-on-surface">Evolucao dos Sintomas</h3>
       </div>
       <div className="flex flex-col items-center justify-center py-6 text-center">
         <MaterialIcon icon="show_chart" size="xl" className="text-stone-600 mb-3" />
@@ -792,8 +716,7 @@ function MedicalNotesCard({
   attendanceId: string;
 }) {
   const sortedEntries = [...entries].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
   return (
@@ -801,9 +724,7 @@ function MedicalNotesCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MaterialIcon icon="edit_note" className="text-primary" />
-          <h3 className="text-lg font-bold font-headline text-on-surface">
-            Notas Medicas
-          </h3>
+          <h3 className="text-lg font-bold font-headline text-on-surface">Notas Medicas</h3>
         </div>
         <Link href={`/med/prontuario/${attendanceId}/notas`}>
           <Button variant="secondary" size="sm" icon="add">
@@ -813,9 +734,7 @@ function MedicalNotesCard({
       </div>
 
       {sortedEntries.length === 0 ? (
-        <p className="text-sm text-stone-500 italic">
-          Nenhuma nota medica registrada.
-        </p>
+        <p className="text-sm text-stone-500 italic">Nenhuma nota medica registrada.</p>
       ) : (
         <div className="space-y-3">
           {sortedEntries.slice(0, 5).map((entry) => (
@@ -824,9 +743,7 @@ function MedicalNotesCard({
               className="p-4 rounded-xl bg-black/20 border border-white/5 space-y-2"
             >
               <div className="flex justify-between items-start">
-                <h4 className="text-sm font-bold text-on-surface">
-                  {entry.title}
-                </h4>
+                <h4 className="text-sm font-bold text-on-surface">{entry.title}</h4>
                 <span className="text-[10px] text-stone-500 font-medium whitespace-nowrap ml-2">
                   {formatDate(entry.created_at)}
                 </span>
@@ -882,10 +799,7 @@ export default function ProntuarioPage() {
       const data = await getAttendance(id);
       setDetail(data);
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Falha ao carregar prontuario.";
+      const message = err instanceof ApiError ? err.message : "Falha ao carregar prontuario.";
       setError(message);
     } finally {
       setLoading(false);
@@ -902,9 +816,7 @@ export default function ProntuarioPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <p className="text-stone-500 text-sm font-medium">
-            Carregando prontuario...
-          </p>
+          <p className="text-stone-500 text-sm font-medium">Carregando prontuario...</p>
         </div>
       </div>
     );
@@ -915,32 +827,14 @@ export default function ProntuarioPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Card variant="glass" padding="lg" className="max-w-md text-center">
-          <MaterialIcon
-            icon="error_outline"
-            size="xl"
-            className="text-error mb-4"
-          />
-          <h3 className="text-lg font-bold text-on-surface mb-2">
-            Erro ao Carregar
-          </h3>
-          <p className="text-sm text-stone-400 mb-4">
-            {error ?? "Prontuario nao encontrado."}
-          </p>
+          <MaterialIcon icon="error_outline" size="xl" className="text-error mb-4" />
+          <h3 className="text-lg font-bold text-on-surface mb-2">Erro ao Carregar</h3>
+          <p className="text-sm text-stone-400 mb-4">{error ?? "Prontuario nao encontrado."}</p>
           <div className="flex justify-center gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              icon="arrow_back"
-              onClick={() => router.back()}
-            >
+            <Button variant="secondary" size="sm" icon="arrow_back" onClick={() => router.back()}>
               Voltar
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              icon="refresh"
-              onClick={() => void loadData()}
-            >
+            <Button variant="primary" size="sm" icon="refresh" onClick={() => void loadData()}>
               Tentar Novamente
             </Button>
           </div>
@@ -975,24 +869,20 @@ export default function ProntuarioPage() {
   })();
 
   // Compliance: entries completed / total consultations
-  const complianceScore = totalConsultations > 0
-    ? Math.round((detail.medical_record_entries.length / Math.max(totalConsultations, 1)) * 100)
-    : null;
+  const complianceScore =
+    totalConsultations > 0
+      ? Math.round((detail.medical_record_entries.length / Math.max(totalConsultations, 1)) * 100)
+      : null;
 
   return (
     <section className="space-y-6 md:space-y-8 pb-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-stone-500">
-        <Link
-          href="/med/atendimentos"
-          className="hover:text-primary transition-colors"
-        >
+        <Link href="/med/atendimentos" className="hover:text-primary transition-colors">
           Atendimentos
         </Link>
         <MaterialIcon icon="chevron_right" size="sm" />
-        <span className="text-on-surface font-medium">
-          Prontuario #{id}
-        </span>
+        <span className="text-on-surface font-medium">Prontuario #{id}</span>
       </div>
 
       {/* Patient Header */}
@@ -1015,10 +905,7 @@ export default function ProntuarioPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column */}
         <div className="lg:col-span-8 space-y-6">
-          <PatientContextCard
-            patient={patient}
-            clinicalAnalysis={clinicalAnalysis}
-          />
+          <PatientContextCard patient={patient} clinicalAnalysis={clinicalAnalysis} />
           <ClinicalTimeline
             timeline={detail.timeline}
             medicalEntries={detail.medical_record_entries}
@@ -1030,10 +917,7 @@ export default function ProntuarioPage() {
           {vitals && <VitalSignsCard vitals={vitals} />}
           <TreatmentPlanCard plan={treatmentPlan} />
           <SymptomEvolutionCard />
-          <MedicalNotesCard
-            entries={detail.medical_record_entries}
-            attendanceId={id}
-          />
+          <MedicalNotesCard entries={detail.medical_record_entries} attendanceId={id} />
         </div>
       </div>
     </section>
