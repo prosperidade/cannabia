@@ -88,20 +88,24 @@ def test_submit_triage_intake_persists_report_and_returns_ready_contract(monkeyp
     saved: dict = {}
     events: list[dict] = []
 
-    class FakeFlow:
-        def run(self, anamnesis_input):
-            saved["anamnesis_input"] = anamnesis_input
-            return {
-                "clinical_analysis": {
-                    "risk_level": "moderado",
-                    "probable_conditions": ["ansiedade"],
-                },
-                "treatment_plan": {},
-                "scientific_report": {},
-                "report_model": "fake-triage-model",
-            }
+    # IA-2: a triagem agora executa pelo caminho governado (run_governed_flow),
+    # não mais build_clinical_flow().run() direto.
+    import src.ai.service as service_mod
 
-    monkeypatch.setattr(triage_intake_service, "build_clinical_flow", lambda: FakeFlow())
+    def fake_governed(data, *, clinic_id, endpoint, anamnesis=None, patient_name=None, **k):
+        saved["anamnesis_input"] = anamnesis
+        saved["endpoint"] = endpoint
+        return {
+            "clinical_analysis": {
+                "risk_level": "moderado",
+                "probable_conditions": ["ansiedade"],
+            },
+            "treatment_plan": {},
+            "scientific_report": {},
+            "report_model": "fake-triage-model",
+        }
+
+    monkeypatch.setattr(service_mod, "run_governed_flow", fake_governed)
     monkeypatch.setattr(triage_intake_service, "get_or_create_patient_by_name", lambda clinic_id, patient_name: 77)
 
     def fake_save_report(clinic_id, patient_id, patient_name, phone, anamnesis_data, report):

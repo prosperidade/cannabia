@@ -13,7 +13,6 @@ from src.repositories.anamnesis_repository import save_report
 from src.repositories.patient_timeline_repository import create_event
 from src.integrations.whatsapp import send_whatsapp_text
 from src.integrations.email import send_email_notification
-from src.ai.clinical_flow import build_clinical_flow
 from src.ai.schemas import AnamnesisInput
 
 logger = logging.getLogger("cannabia.anamnesis")
@@ -165,6 +164,17 @@ f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first
         )
         return
 
+    # ── Sessão concluída: NÃO deletar (CLI-1 / 29.2 R1) ──────────────────────
+    # Respostas de follow-up já foram interceptadas em message_service; aqui só
+    # restam mensagens avulsas de quem já concluiu — oferece reinício sem perder
+    # a sessão (antes caíam em "estado desconhecido" e eram deletadas).
+    if current_step == "completed":
+        _reply(
+            "Sua anamnese já foi concluída ✅.\n"
+            "Para iniciar uma nova avaliação, envie *Oi* ou *Iniciar*."
+        )
+        return
+
     # ── Coleta da resposta e avanço de etapa ─────────────────────────────────
     if current_step not in STEP_NAMES:
         logger.warning("Estado desconhecido '%s' para %s — resetando.", current_step, phone)
@@ -240,8 +250,18 @@ f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first
                 prior_cannabis_use=None,
             )
 
-            flow = build_clinical_flow()
-            report = flow.run(anamnesis)
+            # IA-2 / 29.4 R1 — execução governada (guardrails + billing + audit)
+            # em volta do pipeline síncrono atual (modelo inalterado; cutover
+            # assíncrono é Onda 2).
+            from src.ai.service import run_governed_flow
+
+            report = run_governed_flow(
+                dict(data),
+                clinic_id=clinic_id,
+                endpoint="whatsapp_anamnesis",
+                anamnesis=anamnesis,
+                patient_name=patient_name,
+            )
 
             # Persiste no banco para o dashboard do médico
             report_id = save_report(

@@ -111,6 +111,32 @@ def _read_attr(report: Any, name: str) -> Any:
     return getattr(report, name, None)
 
 
+def check_anvisa(prescription: dict) -> dict:
+    """
+    Verificação determinística de conformidade ANVISA de uma prescrição
+    (CLI-3 / 29.2 R3). Regras vigentes (RDC 327/2019, RDC 660/2022).
+
+    **Não bloqueia** a emissão — é um *warning auditado*: o médico é o decisor
+    final e a aprovação regulatória é prerrogativa da Anvisa. Retorna
+    {compliant, issues, checked_norms}.
+    """
+    ratio = prescription.get("cannabinoid_ratio", "") or ""
+    route = prescription.get("administration_route", "") or ""
+    thc_mg = prescription.get("max_daily_mg", 0)
+
+    issues = []
+    if "thc" in ratio.lower() and float(thc_mg or 0) > 40:
+        issues.append("THC > 40mg/dia requer justificativa especial (RDC 327 Art. 8)")
+    if route == "inalatorio":
+        issues.append("Via inalatoria nao regulamentada pela ANVISA para cannabis medicinal")
+
+    return {
+        "compliant": len(issues) == 0,
+        "issues": issues,
+        "checked_norms": ["RDC 327/2019", "RDC 660/2022"],
+    }
+
+
 class AgenteRegulatorio(BaseAgent):
     agent_name = "regulatorio"
     description = "Verifica compliance regulatoria ANVISA/CFM + elegibilidade Sandbox"
@@ -142,21 +168,7 @@ class AgenteRegulatorio(BaseAgent):
     # =====================================================================
 
     def _check_anvisa(self, prescription: dict, **kwargs) -> dict:
-        ratio = prescription.get("cannabinoid_ratio", "")
-        route = prescription.get("administration_route", "")
-        thc_mg = prescription.get("max_daily_mg", 0)
-
-        issues = []
-        if "thc" in ratio.lower() and float(thc_mg or 0) > 40:
-            issues.append("THC > 40mg/dia requer justificativa especial (RDC 327 Art. 8)")
-        if route == "inalatorio":
-            issues.append("Via inalatoria nao regulamentada pela ANVISA para cannabis medicinal")
-
-        return {
-            "compliant": len(issues) == 0,
-            "issues": issues,
-            "checked_norms": ["RDC 327/2019", "RDC 660/2022"],
-        }
+        return check_anvisa(prescription)
 
     def _query_legislation(self, question: str, **kwargs) -> dict:
         try:

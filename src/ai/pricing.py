@@ -1,5 +1,9 @@
 # src/ai/pricing.py
 
+import logging
+
+logger = logging.getLogger("cannabia.pricing")
+
 MODEL_PRICING = {
     "gpt-4o-mini": {
         # OpenAI gpt-4o-mini: $0.15/1M input, $0.60/1M output (2024-)
@@ -22,10 +26,26 @@ MODEL_PRICING = {
     },
 }
 
+# Evita spam de log: avisa uma vez por modelo desconhecido (29.4 R3/M1).
+_warned_unknown_models: set[str] = set()
+
+
+def has_pricing(model: str) -> bool:
+    """True quando há tarifa cadastrada para o modelo (flag de cost_unknown)."""
+    return model in MODEL_PRICING
+
 
 def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     pricing = MODEL_PRICING.get(model)
     if not pricing:
+        # 29.4 R3: modelo fora da tabela não pode zerar o custo silenciosamente.
+        if model not in _warned_unknown_models:
+            logger.warning(
+                "Modelo '%s' sem tarifa em MODEL_PRICING — custo contabilizado como 0.0 "
+                "(cost_unknown=true). Atualize MODEL_PRICING para custo correto.",
+                model,
+            )
+            _warned_unknown_models.add(model)
         return 0.0
 
     input_cost = (input_tokens or 0) / 1000 * pricing["input_per_1k"]

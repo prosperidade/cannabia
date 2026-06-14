@@ -128,10 +128,11 @@ def record_patient_response(
     clinic_id: int,
     phone: str,
     response_text: str,
-) -> Optional[int]:
+) -> Optional[Dict[str, Any]]:
     """
     Registra resposta do paciente no follow-up 'sent' mais recente desse telefone.
-    Retorna o ID do follow-up atualizado ou None.
+    Retorna {id, patient_id, followup_type} do follow-up atualizado, ou None
+    quando não há follow-up 'sent' aguardando resposta (CLI-1 / 29.2 R1).
     """
     with db_cursor(dictionary=True) as (conn, cur):
         cur.execute(
@@ -147,13 +148,13 @@ def record_patient_response(
                 ORDER BY sent_at DESC
                 LIMIT 1
             )
-            RETURNING id
+            RETURNING id, patient_id, followup_type
             """,
             (response_text, clinic_id, phone),
         )
         row = cur.fetchone()
         conn.commit()
-        return row["id"] if row else None
+        return dict(row) if row else None
 
 
 def list_followups_for_patient(

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.ai.clinical_flow import build_clinical_flow
 from src.ai.schemas import AnamnesisInput
 from src.repositories.anamnesis_repository import save_report
 from src.repositories.patient_repository import get_or_create_patient_by_name
@@ -259,8 +258,18 @@ def submit_triage_intake(
     anamnesis_input, anamnesis_data = build_triage_payload(payload)
 
     patient_id = get_or_create_patient_by_name(clinic_id, anamnesis_input.patient_name)
-    flow = build_clinical_flow()
-    report = flow.run(anamnesis_input)
+
+    # IA-2 / 29.4 R1 — execução governada (guardrails + billing + audit) em volta
+    # do pipeline síncrono atual; mesmo ponto de entrada do WhatsApp e do /ai/test.
+    from src.ai.service import run_governed_flow
+
+    report = run_governed_flow(
+        anamnesis_data,
+        clinic_id=clinic_id,
+        endpoint="triage_intake",
+        anamnesis=anamnesis_input,
+        patient_name=anamnesis_input.patient_name,
+    )
 
     report_id = save_report(
         clinic_id,

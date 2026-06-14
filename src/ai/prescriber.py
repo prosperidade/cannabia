@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
@@ -385,28 +386,66 @@ def _run_prescriber_llm(system_prompt: str, user_prompt: str) -> Tuple[str, dict
 # SAFETY CLAMP — Garante que o LLM respeita os limites do Rules Engine
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _thc_fraction_from_ratio(ratio: str) -> float:
+    """
+    Fração de THC no total canabinoide a partir do ratio CBD:THC (CLI-2 / 29.2 R2).
+    Ex.: '20:1' -> 1/21 ≈ 0.048; '1:1' -> 0.5; '1:3' -> 0.75; 'CBD puro' -> 0.0.
+    Retorna 0.0 quando não há THC ou o ratio é ininteligível (clamp THC inativo).
+    """
+    if not ratio:
+        return 0.0
+    r = ratio.strip().lower()
+    if "puro" in r or "pure" in r or "isolado" in r or "cbd only" in r:
+        return 0.0
+    m = re.search(r"(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)", r)
+    if not m:
+        return 0.0
+    cbd_parts = float(m.group(1))
+    thc_parts = float(m.group(2))
+    total = cbd_parts + thc_parts
+    return (thc_parts / total) if total > 0 else 0.0
+
+
 def _clamp_recommendation(
     recommendation: DosageRecommendation,
     limits: SafetyLimits,
 ) -> DosageRecommendation:
     """
     Força os limites de segurança sobre a saída do LLM.
-    O Rules Engine SEMPRE prevalece.
+    O Rules Engine SEMPRE prevalece — clampa CBD (max_cbd_daily_mg) E THC
+    (max_thc_daily_mg, derivado do ratio — CLI-2 / 29.2 R2).
     """
+    thc_fraction = _thc_fraction_from_ratio(recommendation.cannabinoid_ratio)
+
     clamped_protocol = []
     for step in recommendation.titration_protocol:
-        max_mg = limits.max_cbd_daily_mg
-        clamped_mg = min(step.total_daily_mg, max_mg)
-
-        # Recalcula gotas se dose foi cortada
-        if step.total_daily_mg > max_mg:
-            mg_per_drop = step.concentration_mg_ml * DROP_VOLUME_ML
-            total_drops = clamped_mg / mg_per_drop if mg_per_drop > 0 else step.drops_per_dose
-            drops_per_dose = max(1, int(total_drops / step.doses_per_day))
+        clamped_mg = min(step.total_daily_mg, limits.max_cbd_daily_mg)
+        if step.total_daily_mg > limits.max_cbd_daily_mg:
             logger.warning(
-                "Safety clamp: dose cortada de %.1f mg para %.1f mg (limite Rules Engine)",
+                "Safety clamp CBD: dose cortada de %.1f mg para %.1f mg (limite Rules Engine)",
                 step.total_daily_mg, clamped_mg,
             )
+
+        # Clamp de THC: deriva o THC do total pelo ratio e corta contra max_thc.
+        # Espelha o clamp de CBD; relevante para ratios ricos em THC (ex.: '1:3').
+        if thc_fraction > 0:
+            thc_mg = clamped_mg * thc_fraction
+            if thc_mg > limits.max_thc_daily_mg:
+                thc_capped_total = limits.max_thc_daily_mg / thc_fraction
+                logger.warning(
+                    "Safety clamp THC: dose cortada de %.1f mg para %.1f mg "
+                    "(THC %.1f mg > limite %.1f mg/dia)",
+                    clamped_mg, thc_capped_total, thc_mg, limits.max_thc_daily_mg,
+                )
+                clamped_mg = min(clamped_mg, thc_capped_total)
+
+        # Recalcula gotas se a dose foi cortada por qualquer limite (CBD ou THC).
+        # Limita ao intervalo do schema (1..30) — a dose em mg é a fonte de
+        # verdade; gotas é derivada e nunca deve invalidar o TitrationStep.
+        if clamped_mg < step.total_daily_mg:
+            mg_per_drop = step.concentration_mg_ml * DROP_VOLUME_ML
+            total_drops = clamped_mg / mg_per_drop if mg_per_drop > 0 else step.drops_per_dose
+            drops_per_dose = max(1, min(30, int(total_drops / step.doses_per_day)))
         else:
             drops_per_dose = step.drops_per_dose
 
@@ -435,13 +474,19 @@ def _clamp_recommendation(
     if limits.drug_interactions:
         confidence = min(confidence, 0.6)
 
+    # Teto diário final: menor entre o sugerido, o limite de CBD e o limite de
+    # THC convertido para total canabinoide pelo ratio (CLI-2).
+    max_daily = min(recommendation.max_daily_mg, limits.max_cbd_daily_mg)
+    if thc_fraction > 0:
+        max_daily = min(max_daily, limits.max_thc_daily_mg / thc_fraction)
+
     return DosageRecommendation(
         cannabinoid_ratio=recommendation.cannabinoid_ratio,
         spectrum=recommendation.spectrum,
         administration_route=recommendation.administration_route,
         concentration_mg_ml=recommendation.concentration_mg_ml,
         titration_protocol=clamped_protocol,
-        max_daily_mg=min(recommendation.max_daily_mg, limits.max_cbd_daily_mg),
+        max_daily_mg=round(max_daily, 1),
         clinical_rationale=recommendation.clinical_rationale,
         contraindications=all_contraindications,
         drug_interactions=all_interactions,

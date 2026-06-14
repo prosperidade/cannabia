@@ -91,6 +91,64 @@ def _resolve_contact_name(msg: dict, contacts: list) -> str:
     return "desconhecido"
 
 
+def _maybe_handle_followup_response(clinic_id: int, phone: str, text: str) -> bool:
+    """
+    CLI-1 / 29.2 R1 — religa o loop de acompanhamento: se houver follow-up 'sent'
+    aguardando resposta para este telefone, registra a resposta e emite o evento
+    de timeline `followup_respondido` (29.2 M4), em vez de jogá-la fora.
+
+    Gates de segurança (evitam sequestrar o fluxo de anamnese):
+      * mensagem-gatilho ("oi", "iniciar"...) → deixa a anamnese (re)iniciar;
+      * sessão de anamnese ATIVA (awaiting_*/processing) → resposta pertence ao fluxo.
+    Retorna True quando consumiu a mensagem como resposta de follow-up.
+    """
+    text_clean = (text or "").strip()
+    if not text_clean:
+        return False
+
+    from src.services.anamnesis_flow import STEP_NAMES, TRIGGER_WORDS
+
+    if any(t in text_clean.lower() for t in TRIGGER_WORDS):
+        return False
+
+    try:
+        from src.repositories.session_repository import get_session
+        session = get_session(clinic_id, phone)
+    except Exception:
+        session = None
+    if session and session.get("step") in (set(STEP_NAMES) | {"processing"}):
+        return False
+
+    try:
+        from src.services.telemetry_crm_service import TelemetryCRMService
+        followup = TelemetryCRMService().handle_patient_response(clinic_id, phone, text_clean)
+    except Exception:
+        logger.exception("Falha ao processar resposta de follow-up para %s", phone)
+        return False
+
+    if not followup:
+        return False
+
+    try:
+        from src.repositories.patient_timeline_repository import create_event
+        create_event(
+            clinic_id=clinic_id,
+            patient_id=followup.get("patient_id"),
+            event_type="followup_respondido",
+            journey_stage="acompanhamento",
+            title="Resposta de follow-up recebida",
+            description="Paciente respondeu a um follow-up pós-consulta via WhatsApp.",
+            source_type="scheduled_followup",
+            source_id=followup.get("id"),
+            metadata={"phone": phone, "followup_type": followup.get("followup_type")},
+        )
+    except Exception:
+        logger.debug("Timeline followup_respondido indisponivel")
+
+    logger.info("Resposta de follow-up consumida para %s (followup_id=%s)", phone, followup.get("id"))
+    return True
+
+
 def handle_message_event(value: dict, clinic_id: int, tenant_id: Optional[int] = None) -> None:
     """
     Processa um `value` Meta de field="messages", iterando TODAS as mensagens
@@ -154,6 +212,11 @@ def _process_single_message(
         logger.debug("Conversation threading indisponivel (tabela ainda nao aplicada?)")
 
     text_lower = (message_text or "").lower()
+
+    # Religa o loop de follow-up (CLI-1): resposta a follow-up 'sent' é registrada
+    # e NÃO segue para a anamnese (evita o descarte / delete de sessão completed).
+    if _maybe_handle_followup_response(clinic_id, sender, message_text):
+        return
 
     # Alerta crítico ao médico (mantido, executa antes do fluxo)
     if any(term in text_lower for term in CRITICAL_TERMS):
