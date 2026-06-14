@@ -2,11 +2,26 @@
 
 ## Setup
 
+Sequência de onboarding (rode **nesta ordem**, antes do primeiro `pytest`):
+
+**1. Banco de dev** (migrations + seeds de usuários + dados demo):
+
 ```bash
 python scripts/setup_local.py
 ```
 
-O script aplica migrations, seeds de usuarios e dados demo. Usuarios principais:
+**2. Banco de teste ISOLADO desta worktree** (obrigatório — sem ele, `pytest`
+roda no banco de dev compartilhado e contamina outras worktrees/agentes):
+
+```bash
+python scripts/setup_worktree_db.py
+# cole o TEST_DATABASE_URL impresso no .env DESTA worktree
+```
+
+> Todo agente/worktree novo precisa do passo 2 antes do primeiro `pytest`.
+> Detalhes e troubleshooting em [Testes › Banco de teste isolado](#banco-de-teste-isolado-por-worktree-obrigatório-com-agentesworktrees-paralelos).
+
+Usuarios principais (criados pelo passo 1):
 
 | Login | Senha | Papel |
 |---|---|---|
