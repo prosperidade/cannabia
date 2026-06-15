@@ -541,10 +541,10 @@ class PrescriptionService:
             "has_justification": bool((payload.clinical_justification or "").strip()),
         }
         try:
-            from src.ai.prescriber import _thc_fraction_from_ratio
+            from src.ai.prescriber import is_high_thc_product
             from src.infra.audit import log_audit_event
 
-            thc_present = _thc_fraction_from_ratio(rec.cannabinoid_ratio) > 0
+            high_thc = is_high_thc_product(rec.cannabinoid_ratio, rec.concentration_mg_ml)
             condition_informed = payload.regulatory_condition.value != "nenhuma"
             justification_present = bool((payload.clinical_justification or "").strip())
 
@@ -557,17 +557,17 @@ class PrescriptionService:
                         "regulatory_condition": payload.regulatory_condition.value,
                         "clinical_justification": payload.clinical_justification,
                         "cannabinoid_ratio": rec.cannabinoid_ratio,
-                        "thc_present": thc_present,
+                        "high_thc_product": high_thc,
                         "norm_ref": "RDCs 2026 (REG-3)",
                     },
                     clinic_id=clinic_id,
                 )
 
-            if thc_present and not condition_informed:
+            if high_thc and not condition_informed:
                 reg_3["warning"] = (
-                    "Prescrição com THC sem condição grave/debilitante ou "
-                    "paliativa registrada (REG-3/REG-4). Registre a classificação "
-                    "e a justificativa do médico."
+                    "Produto com THC > 0,2% sem condição grave/debilitante ou "
+                    "paliativa registrada (REG-4). Registre a classificação e a "
+                    "justificativa do médico."
                 )
                 logger.warning("Prescrição #%d: %s", prescription_id, reg_3["warning"])
                 log_audit_event(
