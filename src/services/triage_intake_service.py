@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.ai.schemas import AnamnesisInput
+from src.ai.schemas import AnamnesisInput, derive_regulatory_condition
 from src.repositories.anamnesis_repository import save_report
 from src.repositories.patient_repository import get_or_create_patient_by_name
 from src.repositories.patient_timeline_repository import create_event
@@ -186,6 +186,14 @@ def build_triage_payload(payload: dict[str, Any]) -> tuple[AnamnesisInput, dict[
     prior_cannabis_use = habitos.get("ja_usou_cannabis") is True
     medical_history = _build_medical_history(estado_emocional, habitos, historico)
 
+    # REG-6 — contexto regulatório (RDCs 2026), seção estruturada da triagem.
+    contexto = _as_dict(payload.get("contexto_clinico"))
+    palliative_use = contexto.get("uso_paliativo") is True
+    grave_condition = contexto.get("condicao_grave") is True
+    preferred_route = _text(contexto.get("via_preferida")) or None
+    prior_route = _text(contexto.get("via_pregressa")) or None
+    regulatory_condition = derive_regulatory_condition(grave_condition, palliative_use).value
+
     anamnesis_input = AnamnesisInput(
         patient_name=patient_name,
         age=age,
@@ -197,6 +205,11 @@ def build_triage_payload(payload: dict[str, Any]) -> tuple[AnamnesisInput, dict[
         weight_kg=weight_kg,
         height_cm=height_cm,
         prior_cannabis_use=prior_cannabis_use,
+        preferred_route=preferred_route,
+        prior_route=prior_route,
+        palliative_use=palliative_use,
+        grave_condition=grave_condition,
+        regulatory_condition=regulatory_condition,
     )
 
     anamnesis_data = {
@@ -216,6 +229,12 @@ def build_triage_payload(payload: dict[str, Any]) -> tuple[AnamnesisInput, dict[
         "height_cm": height_cm,
         "sexo_biologico": dados_fisicos.get("sexo_biologico"),
         "prior_cannabis_use": prior_cannabis_use,
+        # REG-6 — contexto regulatório (alimenta REG-3 via prescription_contract).
+        "regulatory_condition": regulatory_condition,
+        "preferred_route": preferred_route,
+        "prior_route": prior_route,
+        "palliative_use": palliative_use,
+        "grave_condition": grave_condition,
         "cannabis_history": {
             "prior_use": prior_cannabis_use,
             "frequency": _text(habitos.get("frequencia_cannabis")) or None,

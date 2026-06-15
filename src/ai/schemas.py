@@ -15,6 +15,14 @@ class AnamnesisInput(BaseModel):
     weight_kg: Optional[float] = Field(default=None, ge=1.0, le=300.0)
     height_cm: Optional[float] = Field(default=None, ge=30.0, le=250.0)
     prior_cannabis_use: Optional[bool] = None
+    # REG-6 — contexto regulatório novo (RDCs 2026). Populável por QUALQUER canal
+    # de intake (triagem web, WhatsApp, app do paciente). `regulatory_condition`
+    # é derivado de grave_condition/palliative_use e alimenta REG-3/REG-4.
+    preferred_route: Optional[str] = None      # via preferida (sublingual/oral/topico/inalatorio)
+    prior_route: Optional[str] = None          # via pregressa (já usou cannabis por qual via)
+    palliative_use: Optional[bool] = None      # uso em cuidados paliativos
+    grave_condition: Optional[bool] = None     # condição de base grave/debilitante
+    regulatory_condition: Optional[str] = None  # derivado (REG-3): nenhuma|grave_debilitante|paliativa
 
 
 class ClinicalAnalysis(BaseModel):
@@ -266,6 +274,20 @@ class RegulatoryCondition(str, Enum):
     NENHUMA = "nenhuma"
     GRAVE_DEBILITANTE = "grave_debilitante"
     PALIATIVA = "paliativa"
+
+
+def derive_regulatory_condition(
+    grave_condition: Optional[bool] = None,
+    palliative_use: Optional[bool] = None,
+) -> RegulatoryCondition:
+    """REG-6 — deriva a classificação REG-3 a partir de flags de intake (qualquer
+    canal: triagem web, WhatsApp, app do paciente). Cuidado paliativo tem
+    precedência sobre condição grave quando ambos marcados."""
+    if palliative_use:
+        return RegulatoryCondition.PALIATIVA
+    if grave_condition:
+        return RegulatoryCondition.GRAVE_DEBILITANTE
+    return RegulatoryCondition.NENHUMA
 
 
 # ── Input: dados clínicos para o Prescriber ────────────────────────────────
