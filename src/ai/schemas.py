@@ -256,6 +256,18 @@ class OrderStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
+class RegulatoryCondition(str, Enum):
+    """Classificação regulatória do caso (REG-3, RDCs 2026).
+
+    Estrutura a "condição grave/debilitante / cuidados paliativos" exigida
+    pela nova classificação para habilitar produtos com THC > 0,2% (REG-4).
+    É registro clínico do médico, auditado — nunca bloqueia emissão (B6).
+    """
+    NENHUMA = "nenhuma"
+    GRAVE_DEBILITANTE = "grave_debilitante"
+    PALIATIVA = "paliativa"
+
+
 # ── Input: dados clínicos para o Prescriber ────────────────────────────────
 
 class DosageInput(BaseModel):
@@ -277,6 +289,13 @@ class DosageInput(BaseModel):
     risk_level: str = Field(
         default="moderado",
         description="Nível de risco clínico: baixo, moderado, alto",
+    )
+    regulatory_condition: RegulatoryCondition = Field(
+        default=RegulatoryCondition.NENHUMA,
+        description=(
+            "Classificação regulatória do caso (REG-3): nenhuma, "
+            "grave_debilitante ou paliativa. Habilita THC > 0,2% (REG-4)."
+        ),
     )
 
     @field_validator("risk_level")
@@ -388,6 +407,18 @@ class PrescriptionPayload(BaseModel):
     dosage_recommendation: DosageRecommendation
     custom_notes: Optional[str] = None
     validity_days: int = Field(default=180, ge=30, le=365)
+    regulatory_condition: RegulatoryCondition = Field(
+        default=RegulatoryCondition.NENHUMA,
+        description="Classificação regulatória do caso (REG-3), persistida na prescrição.",
+    )
+    clinical_justification: Optional[str] = Field(
+        default=None,
+        description=(
+            "Justificativa textual do médico para condição grave/paliativa "
+            "(REG-3). Auditada. Exigida (warning, nunca bloqueio) quando o "
+            "produto implica THC > 0,2% sem condição habilitante (REG-4)."
+        ),
+    )
 
 
 # ── Pedido B2B para Associação Parceira ───────────────────────────────────

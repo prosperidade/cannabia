@@ -66,6 +66,8 @@ def _save_prescription(
     safety_limits: dict,
     custom_notes: Optional[str],
     validity_days: int,
+    regulatory_condition: str = "nenhuma",
+    clinical_justification: Optional[str] = None,
 ) -> int:
     """Persiste a prescrição no banco e retorna o prescription_id."""
     with db_cursor() as cur:
@@ -79,11 +81,13 @@ def _save_prescription(
                 contraindications, drug_interactions,
                 monitoring_checkpoints, confidence_score,
                 evidence_sources, safety_limits,
-                custom_notes, validity_days, status,
+                custom_notes, validity_days,
+                regulatory_condition, clinical_justification, status,
                 created_at
             ) VALUES (
                 %s, %s, %s, %s, %s,
                 %s, %s, %s,
+                %s, %s,
                 %s, %s,
                 %s, %s,
                 %s, %s,
@@ -111,6 +115,8 @@ def _save_prescription(
                 json.dumps(safety_limits),
                 custom_notes,
                 validity_days,
+                regulatory_condition,
+                clinical_justification,
             ),
         )
         row = cur.fetchone()
@@ -178,6 +184,7 @@ def _get_prescription(clinic_id: int, prescription_id: int) -> Optional[dict]:
                    monitoring_checkpoints, confidence_score,
                    evidence_sources, safety_limits,
                    custom_notes, validity_days, status,
+                   regulatory_condition, clinical_justification,
                    created_at
             FROM prescriptions
             WHERE id = %s AND clinic_id = %s
@@ -199,7 +206,8 @@ def _list_prescriptions(clinic_id: int, patient_id: Optional[int] = None, limit:
                 """
                 SELECT id, patient_id, doctor_name, doctor_crm,
                        cannabinoid_ratio, spectrum, concentration_mg_ml,
-                       max_daily_mg, confidence_score, status, created_at
+                       max_daily_mg, confidence_score, status,
+                       regulatory_condition, created_at
                 FROM prescriptions
                 WHERE clinic_id = %s AND patient_id = %s
                 ORDER BY created_at DESC
@@ -212,7 +220,8 @@ def _list_prescriptions(clinic_id: int, patient_id: Optional[int] = None, limit:
                 """
                 SELECT id, patient_id, doctor_name, doctor_crm,
                        cannabinoid_ratio, spectrum, concentration_mg_ml,
-                       max_daily_mg, confidence_score, status, created_at
+                       max_daily_mg, confidence_score, status,
+                       regulatory_condition, created_at
                 FROM prescriptions
                 WHERE clinic_id = %s
                 ORDER BY created_at DESC
@@ -414,6 +423,8 @@ class PrescriptionService:
             safety_limits={},
             custom_notes=payload.custom_notes,
             validity_days=payload.validity_days,
+            regulatory_condition=payload.regulatory_condition.value,
+            clinical_justification=payload.clinical_justification,
         )
 
         # Gerar protocolo de titulação resumido para B2B
@@ -519,12 +530,69 @@ class PrescriptionService:
                 prescription_id,
             )
 
+        # REG-3 / RDCs 2026 — registro estruturado da condição grave/debilitante
+        # / cuidados paliativos + justificativa do médico (auditada). É o
+        # pré-requisito de elegibilidade para THC > 0,2% (REG-4). NUNCA bloqueia
+        # a emissão (B6): a ausência de condição habilitante em prescrição com
+        # THC vira *warning auditado*, não impedimento.
+        reg_3 = {
+            "regulatory_condition": payload.regulatory_condition.value,
+            "has_justification": bool((payload.clinical_justification or "").strip()),
+        }
+        try:
+            from src.ai.prescriber import _thc_fraction_from_ratio
+            from src.infra.audit import log_audit_event
+
+            thc_present = _thc_fraction_from_ratio(rec.cannabinoid_ratio) > 0
+            condition_informed = payload.regulatory_condition.value != "nenhuma"
+            justification_present = bool((payload.clinical_justification or "").strip())
+
+            if condition_informed or justification_present:
+                log_audit_event(
+                    action="prescription_regulatory_condition",
+                    resource_type="prescription",
+                    resource_id=str(prescription_id),
+                    details={
+                        "regulatory_condition": payload.regulatory_condition.value,
+                        "clinical_justification": payload.clinical_justification,
+                        "cannabinoid_ratio": rec.cannabinoid_ratio,
+                        "thc_present": thc_present,
+                        "norm_ref": "RDCs 2026 (REG-3)",
+                    },
+                    clinic_id=clinic_id,
+                )
+
+            if thc_present and not condition_informed:
+                reg_3["warning"] = (
+                    "Prescrição com THC sem condição grave/debilitante ou "
+                    "paliativa registrada (REG-3/REG-4). Registre a classificação "
+                    "e a justificativa do médico."
+                )
+                logger.warning("Prescrição #%d: %s", prescription_id, reg_3["warning"])
+                log_audit_event(
+                    action="prescription_regulatory_condition_missing",
+                    resource_type="prescription",
+                    resource_id=str(prescription_id),
+                    details={
+                        "cannabinoid_ratio": rec.cannabinoid_ratio,
+                        "regulatory_condition": payload.regulatory_condition.value,
+                        "norm_ref": "RDCs 2026 (REG-3/REG-4)",
+                    },
+                    clinic_id=clinic_id,
+                )
+        except Exception:
+            logger.exception(
+                "Falha no registro REG-3 da prescrição #%d (emissão não bloqueada)",
+                prescription_id,
+            )
+
         return {
             "prescription_id": prescription_id,
             "dosage_summary": dosage_summary,
             "status": "active",
             "anvisa_compliance": anvisa_compliance,
             "reg_1015": reg_1015,
+            "reg_3": reg_3,
         }
 
     def create_b2b_order(
