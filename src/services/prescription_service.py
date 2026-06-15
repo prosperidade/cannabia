@@ -428,11 +428,14 @@ class PrescriptionService:
         )
 
         # Gerar protocolo de titulação resumido para B2B
+        from src.ai.prescriber import dose_unit_for_route
+
         first_step = payload.dosage_recommendation.titration_protocol[0]
+        _route = payload.dosage_recommendation.administration_route
         dosage_summary = (
-            f"{first_step.drops_per_dose} gotas "
+            f"{first_step.drops_per_dose} {dose_unit_for_route(_route, plural=True)} "
             f"{first_step.doses_per_day}x/dia "
-            f"{payload.dosage_recommendation.administration_route.value} "
+            f"{_route.value} "
             f"{payload.dosage_recommendation.spectrum.value} "
             f"{payload.dosage_recommendation.concentration_mg_ml}mg/mL"
         )
