@@ -62,6 +62,23 @@ logger = logging.getLogger("cannabia.prescriber")
 # 1 gota ≈ 0.05 mL (padrão conta-gotas farmacêutico)
 DROP_VOLUME_ML = 0.05
 
+# REG-2 — unidade de dose por via. Conta-gotas (gota↔mg via DROP_VOLUME_ML) só
+# se aplica a vias orais/sublinguais; tópico e inalatório usam aplicação/inalação.
+# `total_daily_mg` permanece a fonte de verdade; a contagem por dose é por via.
+DROPPER_ROUTES = {AdministrationRoute.SUBLINGUAL, AdministrationRoute.ORAL}
+_DOSE_UNIT = {
+    AdministrationRoute.SUBLINGUAL: ("gota", "gotas"),
+    AdministrationRoute.ORAL: ("gota", "gotas"),
+    AdministrationRoute.TOPICO: ("aplicação", "aplicações"),
+    AdministrationRoute.INALATORIO: ("inalação", "inalações"),
+}
+
+
+def dose_unit_for_route(route: AdministrationRoute, plural: bool = False) -> str:
+    """Unidade de dose por via (REG-2): gota / aplicação / inalação."""
+    singular, plural_form = _DOSE_UNIT.get(route, ("dose", "doses"))
+    return plural_form if plural else singular
+
 
 @dataclass
 class SafetyLimits:
@@ -133,6 +150,22 @@ CONDITION_PROTOCOLS: Dict[str, Dict[str, Any]] = {
     "nausea": {
         "ratio": "1:3", "cbd_mg_kg": 0.2, "spectrum": ProductSpectrum.FULL_SPECTRUM,
         "concentration": 10.0, "route": AdministrationRoute.SUBLINGUAL,
+    },
+    # ── REG-2 — vias tópica/dermatológica e inalatória (RDCs 2026) ──────────
+    # Protocolos de REFERÊNCIA conservadores, ponto de partida AJUSTÁVEL pelo
+    # médico (B6: o médico é o decisor). Concentração/titulação por via.
+    # Tópico (dor localizada/dermatológica): CBD-rico, baixa absorção sistêmica
+    # de THC; unidade = aplicação (gel/creme), não gota.
+    "dor localizada": {
+        "ratio": "20:1", "cbd_mg_kg": 0.3, "spectrum": ProductSpectrum.BROAD_SPECTRUM,
+        "concentration": 50.0, "route": AdministrationRoute.TOPICO,
+    },
+    # Inalatório (sintoma agudo/breakthrough): início rápido, dose baixa,
+    # CBD-dominante. Teor alto de THC por esta via exige condição grave (REG-4)
+    # e a via é condicionada à vigência (REG-1); unidade = inalação.
+    "dor aguda": {
+        "ratio": "10:1", "cbd_mg_kg": 0.2, "spectrum": ProductSpectrum.FULL_SPECTRUM,
+        "concentration": 30.0, "route": AdministrationRoute.INALATORIO,
     },
 }
 
@@ -490,9 +523,16 @@ def _clamp_recommendation(
         # Limita ao intervalo do schema (1..30) — a dose em mg é a fonte de
         # verdade; gotas é derivada e nunca deve invalidar o TitrationStep.
         if clamped_mg < step.total_daily_mg:
-            mg_per_drop = step.concentration_mg_ml * DROP_VOLUME_ML
-            total_drops = clamped_mg / mg_per_drop if mg_per_drop > 0 else step.drops_per_dose
-            drops_per_dose = max(1, min(30, int(total_drops / step.doses_per_day)))
+            if recommendation.administration_route in DROPPER_ROUTES:
+                mg_per_drop = step.concentration_mg_ml * DROP_VOLUME_ML
+                total_drops = clamped_mg / mg_per_drop if mg_per_drop > 0 else step.drops_per_dose
+                drops_per_dose = max(1, min(30, int(total_drops / step.doses_per_day)))
+            else:
+                # REG-2 — vias não-conta-gotas (tópico/inalatório): a contagem
+                # por dose escala proporcionalmente ao corte em mg (a unidade é
+                # aplicação/inalação, não gota).
+                scale = clamped_mg / step.total_daily_mg if step.total_daily_mg > 0 else 1.0
+                drops_per_dose = max(1, min(30, round(step.drops_per_dose * scale)))
         else:
             drops_per_dose = step.drops_per_dose
 
