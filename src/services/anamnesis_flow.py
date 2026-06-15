@@ -26,7 +26,9 @@ STEPS = [
     ("awaiting_symptoms",    "Quais *sintomas* você apresenta?\n(ex: dor, insônia, ansiedade)\nSepare por vírgulas."),
     ("awaiting_medications", "Está usando alguma *medicação atual*?\nSe não estiver, responda *Nenhuma*."),
     ("awaiting_allergies",   "Possui alguma *alergia* conhecida?\nSe não, responda *Nenhuma*."),
-    ("awaiting_history",     "Por fim, descreva brevemente seu *histórico médico* relevante.\n(cirurgias, doenças crônicas, etc)\nSe não houver, responda *Sem histórico*."),
+    ("awaiting_history",     "Quase lá! Descreva brevemente seu *histórico médico* relevante.\n(cirurgias, doenças crônicas, etc)\nSe não houver, responda *Sem histórico*."),
+    # REG-6 — via preferida, em linguagem leiga (sem termo técnico p/ o paciente).
+    ("awaiting_route_preference", "Última pergunta! Como você prefere usar o medicamento?\n\n1️⃣ Gotas embaixo da língua\n2️⃣ Cápsula para engolir\n3️⃣ Pomada ou creme na pele\n4️⃣ Inalação\n\nResponda o número (ou descreva)."),
 ]
 
 STEP_NAMES = [s[0] for s in STEPS]
@@ -41,7 +43,25 @@ STEP_FIELDS = [
     "current_medications",
     "allergies",
     "medical_history",
+    "preferred_route",
 ]
+
+# REG-6 — mapeia a resposta leiga da via (número ou texto) para a via do enum.
+_ROUTE_PREFERENCE_MAP = {
+    "1": "sublingual", "gota": "sublingual", "lingua": "sublingual", "língua": "sublingual",
+    "2": "oral", "capsula": "oral", "cápsula": "oral", "engolir": "oral", "comprimido": "oral",
+    "3": "topico", "pomada": "topico", "creme": "topico", "pele": "topico",
+    "4": "inalatorio", "inala": "inalatorio", "vapor": "inalatorio",
+}
+
+
+def _normalize_route_preference(text: str) -> Optional[str]:
+    """Resposta leiga de via -> via do enum (None se não reconhecida)."""
+    t = (text or "").strip().lower()
+    for key, route in _ROUTE_PREFERENCE_MAP.items():
+        if key in t:
+            return route
+    return None
 
 TRIGGER_WORDS = (
     "oi", "olá", "oii", "ola", "bom dia", "boa tarde", "boa noite",
@@ -200,6 +220,8 @@ f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first
         # Aceita lista separada por vírgulas ou resposta única
         items = [s.strip() for s in text_clean.split(",") if s.strip()]
         data[field_name] = items if items else [text_clean]
+    elif field_name == "preferred_route":
+        data[field_name] = _normalize_route_preference(text_clean)
     else:
         data[field_name] = text_clean
 
@@ -248,6 +270,7 @@ f"📋 Vamos iniciar sua anamnese! Isso levará apenas alguns minutos.\n\n{first
                 weight_kg=None,
                 height_cm=None,
                 prior_cannabis_use=None,
+                preferred_route=data.get("preferred_route"),
             )
 
             # IA-2 / 29.4 R1 — execução governada (guardrails + billing + audit)

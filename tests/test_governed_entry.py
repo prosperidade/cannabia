@@ -118,13 +118,15 @@ def test_anamnese_whatsapp_passa_pelo_caminho_governado(monkeypatch):
     monkeypatch.setattr(af, "_notify_doctor", lambda *a, **k: None)
     monkeypatch.setattr(af, "upsert_session", lambda *a, **k: None)
     monkeypatch.setattr(af, "send_whatsapp_text", lambda *a, **k: {})
+    # REG-6 adicionou a etapa final 'awaiting_route_preference' (via preferida).
     monkeypatch.setattr(af, "get_session", lambda c, p: {
-        "step": "awaiting_history",
+        "step": "awaiting_route_preference",
         "data": {"patient_name": "P", "age": 40, "main_complaint": "dor",
-                 "symptoms": ["dor"], "current_medications": ["nenhuma"], "allergies": ["nenhuma"]},
+                 "symptoms": ["dor"], "current_medications": ["nenhuma"],
+                 "allergies": ["nenhuma"], "medical_history": "x"},
     })
 
-    af.process_message(1, "5511", "P", "sem historico")
+    af.process_message(1, "5511", "P", "1")  # via preferida -> conclui a anamnese
     assert called.get("endpoint") == "whatsapp_anamnesis"
     assert called.get("clinic_id") == 1
 
