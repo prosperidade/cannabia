@@ -16,6 +16,7 @@ FIELD_LABELS = {
     "allergies": "Alergias",
     "medical_history": "Histórico médico",
     "risk_level": "Nível de risco",
+    "regulatory_condition": "Condição regulatória (grave/debilitante/paliativa)",
 }
 
 REQUIRED_FIELDS = (
@@ -34,6 +35,7 @@ OPTIONAL_FIELDS = (
     "allergies",
     "medical_history",
     "risk_level",
+    "regulatory_condition",
 )
 
 
@@ -88,6 +90,16 @@ def _normalize_list(value: Any) -> Optional[list[str]]:
     if isinstance(value, str):
         items = [item.strip() for item in value.replace("\n", ",").split(",") if item.strip()]
         return items or None
+    return None
+
+
+def _normalize_regulatory_condition(value: Any) -> Optional[str]:
+    """REG-3: classificação regulatória do caso. Default (ausência) = 'nenhuma'."""
+    if value is None:
+        return None
+    text = str(value).strip().lower()
+    if text in {"nenhuma", "grave_debilitante", "paliativa"}:
+        return text
     return None
 
 
@@ -214,6 +226,14 @@ def _field_definition(field: str, report: dict, overrides: dict) -> tuple[Any, O
                 ("default.risk_level", "moderado"),
             ),
             _normalize_string,
+        ),
+        "regulatory_condition": (
+            (
+                ("payload.regulatory_condition", overrides.get("regulatory_condition")),
+                ("report.clinical_analysis.regulatory_condition", _get_nested(clinical_analysis, "regulatory_condition")),
+                ("report.anamnesis_data.regulatory_condition", _get_nested(anamnesis, "regulatory_condition")),
+            ),
+            _normalize_regulatory_condition,
         ),
     }
 

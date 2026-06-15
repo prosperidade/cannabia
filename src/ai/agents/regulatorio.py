@@ -120,20 +120,40 @@ def check_anvisa(prescription: dict) -> dict:
     final e a aprovação regulatória é prerrogativa da Anvisa. Retorna
     {compliant, issues, checked_norms}.
     """
+    from src.services.regulatory_calendar import is_rdc_2026_in_effect
+
     ratio = prescription.get("cannabinoid_ratio", "") or ""
     route = prescription.get("administration_route", "") or ""
     thc_mg = prescription.get("max_daily_mg", 0)
+    regulatory_condition = (prescription.get("regulatory_condition") or "nenhuma")
 
+    rdc_2026 = is_rdc_2026_in_effect()
     issues = []
     if "thc" in ratio.lower() and float(thc_mg or 0) > 40:
         issues.append("THC > 40mg/dia requer justificativa especial (RDC 327 Art. 8)")
+
+    # REG-1 — via inalatória condicionada à vigência das RDCs de 2026 (04/08/2026).
+    # Antes da vigência: mantém o aviso atual ("não regulamentada"). A partir da
+    # vigência: regulamentada, porém condicionada a condição grave/debilitante ou
+    # paliativa registrada (REG-3/REG-4). Em qualquer caso é WARNING auditado —
+    # NUNCA bloqueia a emissão (B6: o médico é o decisor).
     if route == "inalatorio":
-        issues.append("Via inalatoria nao regulamentada pela ANVISA para cannabis medicinal")
+        if not rdc_2026:
+            issues.append("Via inalatoria nao regulamentada pela ANVISA para cannabis medicinal")
+        elif regulatory_condition == "nenhuma":
+            issues.append(
+                "Via inalatoria exige condicao grave/debilitante ou paliativa "
+                "registrada (RDCs 2026)"
+            )
+
+    # Pós-vigência a RDC 327/2019 é revogada pela 1.015/2026 (Art. 76); 660/2022
+    # segue vigente.
+    checked_norms = ["RDC 1.015/2026" if rdc_2026 else "RDC 327/2019", "RDC 660/2022"]
 
     return {
         "compliant": len(issues) == 0,
         "issues": issues,
-        "checked_norms": ["RDC 327/2019", "RDC 660/2022"],
+        "checked_norms": checked_norms,
     }
 
 

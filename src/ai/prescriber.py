@@ -77,6 +77,10 @@ class SafetyLimits:
     drug_interactions: List[str]
     contraindications: List[str]
     warnings: List[str]
+    # REG-4 — quando True (condição grave/paliativa registrada e paciente NÃO
+    # vulnerável), o clamp de THC vira AVISO (não corta): o médico é o decisor
+    # (B6). Default False = clamp de THC corta como na Onda 1 (B5).
+    thc_clamp_soft: bool = False
 
 
 # ── Tabela de referência por condição ─────────────────────────────────────
@@ -312,6 +316,21 @@ def calculate_safety_limits(dosage_input: DosageInput) -> SafetyLimits:
     if dosage_input.risk_level == "alto":
         warnings.append("Risco clínico ALTO: monitoramento intensivo recomendado.")
 
+    # 6. REG-4 — exceção de THC>0,2% (RDCs 2026). Só vale para condição grave/
+    # debilitante ou paliativa registrada (REG-3) e NÃO se aplica a vulneráveis
+    # (<18, gestantes, lactantes — contraindicação dura). Quando concedida, o
+    # clamp de THC passa a AVISAR em vez de cortar (B6: o médico é o decisor).
+    condition = dosage_input.regulatory_condition.value
+    vulnerable = age < 18 or any(
+        ("gesta" in c.lower() or "lacta" in c.lower()) for c in contraindications
+    )
+    thc_exception = condition in ("grave_debilitante", "paliativa") and not vulnerable
+    if condition in ("grave_debilitante", "paliativa") and vulnerable:
+        warnings.append(
+            "Exceção de THC>0,2% NÃO se aplica a menores de 18, gestantes ou "
+            "lactantes (contraindicação) — produto de alto teor desaconselhado."
+        )
+
     return SafetyLimits(
         max_cbd_daily_mg=round(max_cbd, 1),
         max_thc_daily_mg=round(max_thc, 1),
@@ -324,6 +343,7 @@ def calculate_safety_limits(dosage_input: DosageInput) -> SafetyLimits:
         drug_interactions=interaction_warnings,
         contraindications=contraindications,
         warnings=warnings,
+        thc_clamp_soft=thc_exception,
     )
 
 
@@ -406,6 +426,23 @@ def _thc_fraction_from_ratio(ratio: str) -> float:
     return (thc_parts / total) if total > 0 else 0.0
 
 
+# REG-4 — teor de THC do PRODUTO (RDCs 2026). Acima de 0,2% (m/v ≈ 2 mg/mL) o
+# produto só é indicado para condição grave/debilitante ou que ameace a vida
+# (paliativa). 0,3% é o teto de cultivo/matéria-prima; usamos a régua mais
+# conservadora (0,2%) para sinalizar mais cedo. Sempre prontidão, nunca aprovação.
+THC_PRODUCT_THRESHOLD_MG_ML = 2.0  # ≈ 0,2% m/v
+
+
+def thc_mg_per_ml(ratio: str, concentration_mg_ml: float) -> float:
+    """THC em mg/mL do produto, derivado do ratio CBD:THC e da concentração total."""
+    return float(concentration_mg_ml or 0) * _thc_fraction_from_ratio(ratio)
+
+
+def is_high_thc_product(ratio: str, concentration_mg_ml: float) -> bool:
+    """True se o produto excede 0,2% de THC (≈ 2 mg/mL) — gatilho de exceção REG-4."""
+    return thc_mg_per_ml(ratio, concentration_mg_ml) > THC_PRODUCT_THRESHOLD_MG_ML
+
+
 def _clamp_recommendation(
     recommendation: DosageRecommendation,
     limits: SafetyLimits,
@@ -431,13 +468,23 @@ def _clamp_recommendation(
         if thc_fraction > 0:
             thc_mg = clamped_mg * thc_fraction
             if thc_mg > limits.max_thc_daily_mg:
-                thc_capped_total = limits.max_thc_daily_mg / thc_fraction
-                logger.warning(
-                    "Safety clamp THC: dose cortada de %.1f mg para %.1f mg "
-                    "(THC %.1f mg > limite %.1f mg/dia)",
-                    clamped_mg, thc_capped_total, thc_mg, limits.max_thc_daily_mg,
-                )
-                clamped_mg = min(clamped_mg, thc_capped_total)
+                if limits.thc_clamp_soft:
+                    # REG-4: condição grave/paliativa registrada (paciente não
+                    # vulnerável) — exceção legal p/ THC>0,2%. A IA AVISA, não corta;
+                    # o médico é o decisor (B6).
+                    logger.warning(
+                        "Safety clamp THC (informativo / condição grave): THC %.1f mg "
+                        "> %.1f mg/dia mantido para decisão médica (exceção RDCs 2026)",
+                        thc_mg, limits.max_thc_daily_mg,
+                    )
+                else:
+                    thc_capped_total = limits.max_thc_daily_mg / thc_fraction
+                    logger.warning(
+                        "Safety clamp THC: dose cortada de %.1f mg para %.1f mg "
+                        "(THC %.1f mg > limite %.1f mg/dia)",
+                        clamped_mg, thc_capped_total, thc_mg, limits.max_thc_daily_mg,
+                    )
+                    clamped_mg = min(clamped_mg, thc_capped_total)
 
         # Recalcula gotas se a dose foi cortada por qualquer limite (CBD ou THC).
         # Limita ao intervalo do schema (1..30) — a dose em mg é a fonte de
@@ -477,7 +524,7 @@ def _clamp_recommendation(
     # Teto diário final: menor entre o sugerido, o limite de CBD e o limite de
     # THC convertido para total canabinoide pelo ratio (CLI-2).
     max_daily = min(recommendation.max_daily_mg, limits.max_cbd_daily_mg)
-    if thc_fraction > 0:
+    if thc_fraction > 0 and not limits.thc_clamp_soft:
         max_daily = min(max_daily, limits.max_thc_daily_mg / thc_fraction)
 
     return DosageRecommendation(

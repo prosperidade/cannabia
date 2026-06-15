@@ -34,14 +34,14 @@ def test_check_anvisa_caso_conforme():
 
 # ── emit_prescription (integração: não bloqueia, audita) ──────────────────
 
-def _emit_data(route: str = "inalatorio") -> dict:
+def _emit_data(route: str = "inalatorio", ratio: str = "1:1") -> dict:
     return {
         "patient_id": 7,
         "doctor_user_id": 1,
         "doctor_name": "Dra. Maria",
         "doctor_crm": "12345",
         "dosage_recommendation": {
-            "cannabinoid_ratio": "1:1",
+            "cannabinoid_ratio": ratio,
             "spectrum": "full_spectrum",
             "administration_route": route,
             "concentration_mg_ml": 50,
@@ -87,7 +87,10 @@ def test_emit_conforme_nao_audita(monkeypatch):
     app = Flask(__name__)
     with app.test_request_context():
         g.clinic_id = 1
-        result = PrescriptionService().emit_prescription(_emit_data("sublingual"))
+        # CBD puro (sem THC) + via sublingual: conforme ANVISA e sem gatilho REG-3.
+        result = PrescriptionService().emit_prescription(
+            _emit_data("sublingual", ratio="CBD puro")
+        )
 
     assert result["prescription_id"] == 100
     assert result["anvisa_compliance"]["compliant"] is True
