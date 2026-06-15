@@ -310,7 +310,8 @@ REGRAS ANTI-ALUCINAÇÃO
 - NUNCA invente dosagens que não sigam o protocolo mg/kg/dia.
 - NUNCA cite artigos que você não tem certeza que existem. Use apenas \
   referências genéricas de consenso: "IACM Guidelines", "Protocolo Epidiolex", \
-  "Brazilian ANVISA RDC 327/2019", "Cochrane Systematic Reviews".
+  "Brazilian ANVISA RDC 1.015/2026" (marco vigente; revoga a RDC 327/2019), \
+  "Cochrane Systematic Reviews".
 - Se houver interação medicamentosa perigosa, confidence_score DEVE ser < 0.6.
 - Se o paciente tem < 12 anos, confidence_score DEVE ser < 0.7 (exige supervisão \
   neuropediátrica).

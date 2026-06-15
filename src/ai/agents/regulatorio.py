@@ -114,7 +114,8 @@ def _read_attr(report: Any, name: str) -> Any:
 def check_anvisa(prescription: dict) -> dict:
     """
     Verificação determinística de conformidade ANVISA de uma prescrição
-    (CLI-3 / 29.2 R3). Regras vigentes (RDC 327/2019, RDC 660/2022).
+    (CLI-3 / 29.2 R3). Norma condicionada à vigência: RDC 327/2019 (pré-04/08/2026)
+    → RDC 1.015/2026 (pós; revoga a 327, Art. 76); RDC 660/2022 segue vigente.
 
     **Não bloqueia** a emissão — é um *warning auditado*: o médico é o decisor
     final e a aprovação regulatória é prerrogativa da Anvisa. Retorna
@@ -130,7 +131,9 @@ def check_anvisa(prescription: dict) -> dict:
     rdc_2026 = is_rdc_2026_in_effect()
     issues = []
     if "thc" in ratio.lower() and float(thc_mg or 0) > 40:
-        issues.append("THC > 40mg/dia requer justificativa especial (RDC 327 Art. 8)")
+        # REG-7 — citação do marco condicionada à vigência (327 revogada pela 1.015).
+        _norma_thc = "RDC 1.015/2026" if rdc_2026 else "RDC 327/2019 Art. 8"
+        issues.append(f"THC > 40mg/dia requer justificativa especial ({_norma_thc})")
 
     # REG-1 — via inalatória condicionada à vigência das RDCs de 2026 (04/08/2026).
     # Antes da vigência: mantém o aviso atual ("não regulamentada"). A partir da
@@ -186,7 +189,7 @@ class AgenteRegulatorio(BaseAgent):
         self.register_skill(
             "check_anvisa_compliance",
             self._check_anvisa,
-            "Verifica se prescricao atende RDC 327/2019 e normas ANVISA",
+            "Verifica se prescricao atende RDC 1.015/2026 e normas ANVISA",
         )
         self.register_skill(
             "query_legislation",
