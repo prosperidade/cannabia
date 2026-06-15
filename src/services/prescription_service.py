@@ -456,6 +456,7 @@ class PrescriptionService:
                 "cannabinoid_ratio": rec.cannabinoid_ratio,
                 "administration_route": rec.administration_route.value,
                 "max_daily_mg": rec.max_daily_mg,
+                "regulatory_condition": payload.regulatory_condition.value,
             })
             if not anvisa_compliance["compliant"]:
                 logger.warning(
