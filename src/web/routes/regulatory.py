@@ -6,7 +6,7 @@ Uses Google Files API for full-document analysis.
 from __future__ import annotations
 
 import logging
-from flask import Blueprint
+from flask import Blueprint, g
 
 from src.knowledge.legislation_catalog import sync_legislation_catalog
 from src.web.routes.api_v1 import (
@@ -20,6 +20,21 @@ from src.web.routes.api_v1 import (
 logger = logging.getLogger("cannabia.regulatory")
 
 regulatory_bp = Blueprint("regulatory", __name__, url_prefix="/api/v1/regulatory")
+
+
+@regulatory_bp.get("/readiness")
+@api_role_required("Admin", "Medico")
+def regulatory_readiness():
+    """REG-8 — relatório de prontidão regulatória do tenant (RDCs 2026).
+
+    O que o tenant pode operar a partir de 04/08/2026 e o que segue
+    condicionado/vedado (consome REG-1..4 + vigência). Prontidão, nunca aprovação.
+    """
+    from src.services.regulatory_readiness import check_regulatory_readiness
+
+    tenant_id = getattr(g, "tenant_id", None) or getattr(g, "clinic_id", None) or 0
+    report = check_regulatory_readiness(int(tenant_id))
+    return _success(report.to_dict())
 
 
 @regulatory_bp.get("/files")
